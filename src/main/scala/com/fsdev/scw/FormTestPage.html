@@ -1,14 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-</head>
-<body>
-  <span wicket:id="feedback"/>
-  <br/>
-  <form wicket:id="form">
-    <input wicket:id="name"/>
-  	<input type="submit" value="go"/>
-  </form>
-</body>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" xml:lang="en" lang="en">
+    <head>
+        <meta charset="utf-8"/>
+
+
+    </head>
+
+    <body>
+
+
+        <script type="text/javascript" src="https://www.java.com/js/deployJava.js"></script>
+        <script type="text/javascript">
+            <!--
+            //alert(deployJava.getJREs());
+            if (deployJava.versionCheck("1.6.0_30+") == false) {
+                alert("NOT ok!");
+                userInput = confirm( "You need the latest Java(TM) Runtime Environment. " + "Would you like to update now?");
+                if (userInput == true) {
+                    window.location = "http://java.com/en/download/testjava.jsp";
+                }
+            }
+            else
+            {
+                var dir = location.href.substring(0,location.href.lastIndexOf('/')+1);
+                var url = dir + "Test.jnlp";
+                deployJava.createWebStartLaunchButton(url, '1.6.0');
+            }
+            -->
+        </script>
+
+        <br/>
+
+        <form wicket:id="form">
+            <input wicket:id="name"/>
+            <input type="submit" value="go"/>
+        </form>
+        <span wicket:id="feedback"/>
+    </body>
 </html>
+
