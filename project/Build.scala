@@ -15,7 +15,7 @@ object MyBuild extends Build {
   lazy val serverProject = Project(
     "cs3k-server",
     file("server"),
-    settings = Project.defaultSettings ++ webSettings ++ serverSettings ) aggregate(lobbyProject,commonProject) dependsOn(commonProject)
+    settings = Project.defaultSettings ++ webSettings ++ serverSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ) aggregate(lobbyProject,commonProject) dependsOn(commonProject)
 
   //val Start = config()
 
@@ -25,15 +25,18 @@ object MyBuild extends Build {
     libraryDependencies ++= Seq(
       "junit" % "junit" % "4.10" % "test",
       "org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty"),
-      "org.mockito" % "mockito-all" % "1.9.0" % "test" exclude("org.eclipse.jetty", "jetty"),
+      //"org.mockito" % "mockito-all" % "1.9.0" % "test" exclude("org.eclipse.jetty", "jetty"),
       "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.1-SNAPSHOT",
       //    "org.apache.wicket" % "wicket" % "6.0.0-beta2" exclude("org.eclipse.jetty", "jetty"),
-      "com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
+      //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
       "log4j" % "log4j" % "1.2.16",
       "javax.servlet" % "servlet-api" % "2.5" % "provided",
-      "org.eclipse.jetty.aggregate" % "jetty-all-server" % "8.1.0.v20120127" % "container"
-    ),
+      "org.ow2.asm" % "asm" % "4.0",
+      "org.objenesis" % "objenesis" % "1.2",
+      "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
+      "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container"
+  ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
       "more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",
       //resolvers += "blaha" at "http://repo.typesafe.com/typesafe/releases/"
@@ -124,7 +127,10 @@ object MyBuild extends Build {
       resolvers := Seq(),
       libraryDependencies ++= Seq(
         "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString,
-        "com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
+        "org.ow2.asm" % "asm" % "4.0",
+        "org.objenesis" % "objenesis" % "1.2"
+
+        //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
       ),
       name := "cs3k Lobby",
       organization := "se.pearshine",
@@ -166,8 +172,8 @@ object MyBuild extends Build {
     "cs3k-common",
     file("common"),
     settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
-      "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString,
-      "com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
+      "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
+      //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
     ))
   )
 

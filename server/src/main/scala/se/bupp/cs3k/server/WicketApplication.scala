@@ -7,9 +7,9 @@ import org.apache.wicket.protocol.http.WebApplication
 import org.slf4j.LoggerFactory
 import org.apache.wicket.Application
 import org.apache.wicket.protocol.ws.api.SimpleWebSocketConnectionRegistry
-import akka.actor.{Props, Actor, ActorSystem}
-import akka.event.Logging
-import akka.util.duration._
+//import akka.actor.{Props, Actor, ActorSystem}
+//import akka.event.Logging
+//import akka.util.duration._
 import se.bupp.cs3k.Greeting
 
 
@@ -26,35 +26,32 @@ object WicketApplication {
 
 class WicketApplication extends WebApplication {
 
-  var eventSystem: EventSystem = _
+  //var eventSystem: EventSystem = _
 
   val logger = LoggerFactory.getLogger(classOf[WicketApplication])
 
-  def getHomePage() = classOf[WebSocketDemo]
+  def getHomePage() = classOf[TheHomePage]
 
   //@transient var lobby : ServerLobby = _
   var lobby:ServerLobby = _
   override def init() {
     super.init()
     new Greeting("asdf")
-    eventSystem = new EventSystem(this)
+    //eventSystem = new EventSystem(this)
+    try {
     lobby = new ServerLobby()
     lobby.start
+    } catch {
+      case e:Exception => e.printStackTrace()
+    }
   }
 
   override def onDestroy() {
-    eventSystem.shutdown()
+    //eventSystem.shutdown()
     super.onDestroy()
   }
 
-  def getEventSystem = eventSystem
+  //def getEventSystem = eventSystem
 }
-
-
-import akka.util.duration._
-import akka.actor.{Props, Actor, ActorSystem}
-import org.apache.wicket.Application
-import org.apache.wicket.protocol.ws.api.SimpleWebSocketConnectionRegistry
-import akka.event.Logging
 
 
