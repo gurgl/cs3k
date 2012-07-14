@@ -1,7 +1,8 @@
 /**
  * @author kjozsa
  */
-package com.fsdev.scw
+package se.bupp.cs3k.server
+
 import org.apache.wicket.util.tester.WicketTester
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite

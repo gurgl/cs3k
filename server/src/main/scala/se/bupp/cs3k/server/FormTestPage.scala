@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.fsdev.scw
+package se.bupp.cs3k.server
 
 import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.markup.html.form.TextField
@@ -19,7 +19,7 @@ class TestModel extends Serializable {
   override def toString = label
 }
 
-class FormTestPage extends WebPage  {
+class FormTestPage extends WebPage {
   val testModel = new TestModel
 
   val form = new Form("form") {

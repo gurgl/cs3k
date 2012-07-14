@@ -1,57 +1,10 @@
-/**
- *
- */
-package com.fsdev.scw
+package se.bupp.cs3k.server
 
-import org.apache.wicket.protocol.http.WebApplication
-import org.slf4j.LoggerFactory
+import akka.actor.{Actor, Props, ActorSystem}
+import akka.event.Logging
 import org.apache.wicket.Application
 import org.apache.wicket.protocol.ws.api.SimpleWebSocketConnectionRegistry
-import akka.actor.{Props, Actor, ActorSystem}
-import akka.event.Logging
 import akka.util.duration._
-
-
-/**
- * @author kjozsa
- */
-
-object  WicketApplication {
-
-  def get = WebApplication.get().asInstanceOf[WicketApplication]
-}
-
-
-class WicketApplication extends WebApplication {
-
-  var eventSystem : EventSystem = _
-
-  val logger = LoggerFactory.getLogger(classOf[WicketApplication])
-
-  def getHomePage() = classOf[WebSocketDemo]
-
-  override def init() {
-    super.init()
-
-    eventSystem = new EventSystem(this)
-  }
-
-  override def onDestroy() {
-    eventSystem.shutdown()
-    super.onDestroy()
-  }
-
-  def getEventSystem = eventSystem
-}
-
-
-
-
-import akka.util.duration._
-import akka.actor.{Props, Actor, ActorSystem}
-import org.apache.wicket.Application
-import org.apache.wicket.protocol.ws.api.SimpleWebSocketConnectionRegistry
-import akka.event.Logging
 
 /**
  * A simple event system based on Akka that tracks the currently connected web socket clients
@@ -61,8 +14,7 @@ import akka.event.Logging
  *
  * @since 6.0
  */
-class EventSystem(val application: Application)
-{
+class EventSystem(val application: Application) {
   /**
    * Starts Akka
    */
@@ -76,25 +28,28 @@ class EventSystem(val application: Application)
   /**
    * Artificial event notification. Just sends a message to all connected clients every 3 seconds
    */
-  akkaSystem.scheduler.schedule(1 second , 3 seconds, master, UpdateClients)
+  akkaSystem.scheduler.schedule(1 second, 3 seconds, master, UpdateClients)
 
   /**
    * The messages for the main actor
    */
   private sealed trait MasterMessage
+
   private case class ClientConnect(applicationName: String, sessionId: String, pageId: Int) extends MasterMessage
+
   private case class ClientDisconnect(applicationName: String, sessionId: String, pageId: Int) extends MasterMessage
+
   private case object UpdateClients extends MasterMessage
 
   /**
    * Registers a new client
    *
    * @param applicationName
-   *      the web application to look in
+   * the web application to look in
    * @param sessionId
-   *      the web socket client session id
+   * the web socket client session id
    * @param pageId
-   *      the web socket client page id
+   * the web socket client page id
    */
   def clientConnected(applicationName: String, sessionId: String, pageId: Int) {
     master ! ClientConnect(applicationName, sessionId, pageId)
@@ -104,11 +59,11 @@ class EventSystem(val application: Application)
    * Unregisters a client
    *
    * @param applicationName
-   *      the web application to look in
+   * the web application to look in
    * @param sessionId
-   *      the web socket client session id
+   * the web socket client session id
    * @param pageId
-   *      the web socket client page id
+   * the web socket client page id
    */
   def clientDisconnected(applicationName: String, sessionId: String, pageId: Int) {
     master ! ClientDisconnect(applicationName, sessionId, pageId)
@@ -117,16 +72,17 @@ class EventSystem(val application: Application)
   /**
    * Disposes Akka structures
    */
-  def shutdown() { akkaSystem.shutdown() }
+  def shutdown() {
+    akkaSystem.shutdown()
+  }
 
   /**
    * The main actor that keeps track of all connected clients
    *
    * @param appName
-   *    the web application to look in
+   * the web application to look in
    */
-  private class MasterActor(val appName: String) extends Actor
-  {
+  private class MasterActor(val appName: String) extends Actor {
     protected def receive = {
 
       case ClientConnect(applicationName, sessionId, pageId) => {
@@ -142,13 +98,13 @@ class EventSystem(val application: Application)
 
       case UpdateClients => {
         // notifies all currently registered clients
-        context.children.foreach( child =>
+        context.children.foreach(child =>
           child ! Update(appName)
         )
       }
     }
 
-    private def getActorName(sessionId: String,  pageId: Int) = "workerActor." + sessionId + "." + pageId
+    private def getActorName(sessionId: String, pageId: Int) = "workerActor." + sessionId + "." + pageId
   }
 
   /**
@@ -156,15 +112,17 @@ class EventSystem(val application: Application)
    * There is one worker actor for each connected client
    */
   private sealed trait WorkerMessage
+
   private case class Connected(applicationName: String, sessionId: String, pageId: Int) extends WorkerMessage
+
   private case object Disconnected extends WorkerMessage
+
   private case class Update(applicationName: String) extends WorkerMessage
 
   /**
    * The actor that is registered for each WebSocket connection
    */
-  private class WorkerActor extends Actor
-  {
+  private class WorkerActor extends Actor {
     var client: Option[Connected] = None
     val logger = Logging(context.system, this)
 
@@ -190,4 +148,5 @@ class EventSystem(val application: Application)
       }
     }
   }
+
 }

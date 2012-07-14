@@ -1,31 +1,58 @@
-package com.mkyong;
+package se.bupp.cs3k.lobby;
  
 
 
-import sun.misc.IOUtils;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
+import se.bupp.cs3k.Greeting;
+import se.bupp.cs3k.Tjena;
 
 import java.awt.*;
 import javax.swing.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.*;
 import javax.jnlp.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Arrays;
 
-public class TestJnlp {
+public class LobbyClient {
   static BasicService basicService = null;
   public static void main(String args[]) {
-    JFrame frame = new JFrame("Mkyong Jnlp UnOfficial Guide");
+    JFrame frame = new JFrame("Mkyong Jnlp UnOfficial Guide") {
+
+    };
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    JLabel label = new JLabel();
+    final JLabel label = new JLabel();
     Container content = frame.getContentPane();
     content.add(label, BorderLayout.CENTER);
     String message = "Jnln Hello Word";
- 
+
+     Client client = new Client();
+
+      Kryo kryo = client.getKryo();
+      kryo.register(Tjena.class);
+
+      System.err.println("bef listener");
+
+      client.addListener(new Listener() {
+          public void received (Connection connection, Object object) {
+              if (object instanceof Tjena) {
+                  System.err.println("hehj");
+                  final Tjena response = (Tjena )object;
+                  System.err.println(response.a());
+                  SwingUtilities.invokeLater(new Runnable() {
+                      @Override
+                      public void run() {
+                          label.setText(response.a());
+                      }
+                  });
+              }
+          }
+      });
+
+
     label.setText(message);
  
     try {
@@ -34,8 +61,9 @@ public class TestJnlp {
     } catch (UnavailableServiceException e) {
       System.err.println("Lookup failed: " + e);
     }
- 
-    JButton button = new JButton("http://www.mkyong.com");
+
+    Greeting g = new Greeting("asdf");
+    JButton button = new JButton("http://www.bupp.com");
 
 
       String [] pbargs  = new String[] {
@@ -68,5 +96,19 @@ public class TestJnlp {
     content.add(button, BorderLayout.SOUTH);
     frame.pack();
     frame.show();
+
+      client.start();
+      try {
+          client.connect(5000, "localhost", 12345);
+      } catch (IOException e) {
+          System.err.println("fel");
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+      }
+
+      Tjena r = new Tjena("asdf",123);
+      r.b_$eq( 1);
+      client.sendTCP(r);
+      System.err.println("slut");
+
   }
 }

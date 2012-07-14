@@ -15,7 +15,7 @@ object MyBuild extends Build {
   lazy val serverProject = Project(
     "cs3k-server",
     file("server"),
-    settings = Project.defaultSettings ++ webSettings ++ serverSettings ) aggregate(lobbyProject)
+    settings = Project.defaultSettings ++ webSettings ++ serverSettings ) aggregate(lobbyProject,commonProject) dependsOn(commonProject)
 
   //val Start = config()
 
@@ -42,14 +42,15 @@ object MyBuild extends Build {
     scalacOptions += "-deprecation",
     resourceDirectory in Compile <<= baseDirectory(_ / "src/main/scala"),
     aggregate in Compile := true,
+    aggregate in Runtime := false,
     packageWar in Compile <<= (packageWar in Compile, target, webstartBuild.in(lobbyProject)).map {
-      (packa, target, webstartBuild) => {
-        packa
+      (res, target, webstartBuild) => {
+        res
       }
     },
     deployment in Compile <<= (deployment  in Compile, target, webstartBuild.in(lobbyProject)).map {
-      (packa, target, webstartBuild) => {
-        packa
+      (res, target, webstartBuild) => {
+        res
       }
     }
     /*,
@@ -116,13 +117,14 @@ object MyBuild extends Build {
       }
     )
       //++ addArtifact(Artifact("blaj", "dir"), webstartBuild)
-  )
+  ) dependsOn(commonProject)
 
   lazy val lobbySettings =
     Seq(
       resolvers := Seq(),
       libraryDependencies ++= Seq(
-        "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
+        "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString,
+        "com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
       ),
       name := "cs3k Lobby",
       organization := "se.pearshine",
@@ -145,7 +147,7 @@ object MyBuild extends Build {
     ),
 
     webstartJnlpConf := Seq(JnlpConf(
-      mainClass = "com.mkyong.TestJnlp",
+      mainClass = "se.bupp.cs3k.lobby.Lobby",
       fileName = "Test.jnlp",
       codeBase = "http://localhost:8080/",
       title = "My Title",
@@ -160,5 +162,13 @@ object MyBuild extends Build {
     ))
   )
 
+  lazy val commonProject = Project(
+    "cs3k-common",
+    file("common"),
+    settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
+      "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString,
+      "com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
+    ))
+  )
 
 }
