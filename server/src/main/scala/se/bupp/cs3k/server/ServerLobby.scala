@@ -1,7 +1,8 @@
 package se.bupp.cs3k.server
 
 import com.esotericsoftware.kryonet.{Listener, Connection, Server}
-import se.bupp.cs3k.Tjena
+import se.bupp.cs3k.{StartGame, LobbyProtocol, ProgressUpdated, Tjena}
+import collection.mutable
 
 
 /**
@@ -14,12 +15,15 @@ import se.bupp.cs3k.Tjena
 
 object ServerLobby {
   def main(args:Array[String]) {
-    new ServerLobby().start
+    new ServerLobby(2).start
   }
 }
 
-class ServerLobby() {
+class ServerLobby(val numOfPlayers:Int) {
 
+
+
+  var queue = mutable.Queue.empty[Connection]
 
   val server = new Server();
 
@@ -35,13 +39,29 @@ class ServerLobby() {
 
     val kryo = server.getKryo()
 
-    kryo.register(classOf[Tjena])
+
+
+    import scala.collection.JavaConversions.asScalaBuffer
+    LobbyProtocol.getTypes.toList.foreach(kryo.register(_))
 
     server.addListener(new Listener() {
       override def received (connection:Connection , ob:Object) {
         ob match {
           case response:Tjena => System.out.println(response.a);
-            connection.sendTCP(new Tjena("välkommen",connection.getID))
+            connection.sendTCP(new Tjena("vilkommen", numOfPlayers))
+            queue += connection
+            server.sendToAllTCP(new ProgressUpdated(queue.size))
+            if (queue.size >= numOfPlayers) {
+
+              (0 until numOfPlayers).foreach { s =>
+                val c = queue.dequeue()
+                println("quueu size " + queue.size)
+                c.sendTCP(new StartGame("localhost", 54555, 54777))
+                c.close()
+
+              }
+              ()
+            }
           case _ =>
         }
       }

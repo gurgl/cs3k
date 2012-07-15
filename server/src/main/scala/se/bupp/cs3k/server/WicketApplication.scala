@@ -39,7 +39,7 @@ class WicketApplication extends WebApplication {
     new Greeting("asdf")
     //eventSystem = new EventSystem(this)
     try {
-    lobby = new ServerLobby()
+    lobby = new ServerLobby(2)
     lobby.start
     } catch {
       case e:Exception => e.printStackTrace()
