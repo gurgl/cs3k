@@ -15,11 +15,11 @@ import collection.mutable
 
 object ServerLobby {
   def main(args:Array[String]) {
-    new ServerLobby(2).start
+    new ServerLobby(0,2).start
   }
 }
 
-class ServerLobby(val numOfPlayers:Int) {
+class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
 
 
@@ -35,7 +35,7 @@ class ServerLobby(val numOfPlayers:Int) {
   def start = {
 
     server.start()
-    server.bind(12345);
+    server.bind(12345 + seqId);
 
     val kryo = server.getKryo()
 
@@ -45,6 +45,17 @@ class ServerLobby(val numOfPlayers:Int) {
     LobbyProtocol.getTypes.toList.foreach(kryo.register(_))
 
     server.addListener(new Listener() {
+
+      override def disconnected(p1: Connection) {
+        super.disconnected(p1)
+        queue.dequeueFirst(_.getID == p1.getID) match {
+          case None => println("Removing UNKNOWN disconnect ")
+          case Some(c) =>  println("Removing disconnect")
+            server.sendToAllTCP(new ProgressUpdated(queue.size))
+            //queue = mutable.Queue.empty[Connection].dequeue++ queue.drop(i)
+        }
+      }
+
       override def received (connection:Connection , ob:Object) {
         ob match {
           case response:Tjena => System.out.println(response.a);
@@ -56,7 +67,7 @@ class ServerLobby(val numOfPlayers:Int) {
               (0 until numOfPlayers).foreach { s =>
                 val c = queue.dequeue()
                 println("quueu size " + queue.size)
-                c.sendTCP(new StartGame("localhost", 54555, 54777))
+                c.sendTCP(new StartGame("localhost", 54555 + seqId, 54777 + seqId))
                 c.close()
 
               }

@@ -165,6 +165,7 @@ object MyBuild extends Build {
       allPermissions = true,
       j2seVersion = "1.6+",
       maxHeapSize = 192
+
     ))
   )
 

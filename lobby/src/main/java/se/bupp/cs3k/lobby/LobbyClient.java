@@ -16,8 +16,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
+import java.util.List;
 
 public class LobbyClient extends JFrame {
     static BasicService basicService = null;
@@ -25,6 +25,7 @@ public class LobbyClient extends JFrame {
     Client client = null;
 
     Integer gameSize = null;
+    private int lobbyPort;
 
     public void startGame(StartGame sg) {
         String[] pbargs = new String[]{
@@ -48,7 +49,7 @@ public class LobbyClient extends JFrame {
     }
 
 
-    public LobbyClient() {
+    public LobbyClient(String s) {
         super("Mkyong Jnlp UnOfficial Guide");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -126,12 +127,22 @@ public class LobbyClient extends JFrame {
 
         label.setText(message);
 
+        setTitle(System.getProperty("lobbyPort"));
+        String lobbyPortStr = System.getProperty("lobbyPort");
+        if(lobbyPortStr != null) {
+            lobbyPort = Integer.parseInt(lobbyPortStr);
+        } else {
+            lobbyPort = 12345;
+        }
+
         try {
             basicService = (BasicService)
                     ServiceManager.lookup("javax.jnlp.BasicService");
+
         } catch (UnavailableServiceException e) {
             System.err.println("Lookup failed: " + e);
         }
+
 
         Greeting g = new Greeting("asdf");
         JButton button = new JButton("http://www.bupp.com");
@@ -169,7 +180,7 @@ public class LobbyClient extends JFrame {
 
         client.start();
         try {
-            client.connect(5000, "localhost", 12345);
+            client.connect(5000, "localhost", lobbyPort);
         } catch (IOException e) {
             System.err.println("fel");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -193,6 +204,11 @@ public class LobbyClient extends JFrame {
 
 
     public static void main(String args[]) {
-         new LobbyClient();
+        String s = "";
+        for (int i = 0; i < args.length; i++) {
+            s = s + args[i];
+
+        }
+        new LobbyClient(s);
     }
 }
