@@ -1,6 +1,8 @@
 package se.bupp.cs3k.server
 
 import org.apache.wicket.markup.html.WebPage
+import org.apache.wicket.markup.html.link.{ResourceLink, Link}
+import org.apache.wicket.request.resource.{ContextRelativeResource, ResourceReference}
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,4 +14,7 @@ import org.apache.wicket.markup.html.WebPage
 
 class TheHomePage extends WebPage {
 
+  val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
+
+  add(new ResourceLink[ContextRelativeResource]("lobbyLink",lobbyJnlpFile))
 }

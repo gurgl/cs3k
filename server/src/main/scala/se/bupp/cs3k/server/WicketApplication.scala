@@ -48,6 +48,7 @@ class WicketApplication extends WebApplication {
 
   override def onDestroy() {
     //eventSystem.shutdown()
+    lobby.stop();
     super.onDestroy()
   }
 

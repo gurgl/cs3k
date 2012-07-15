@@ -153,7 +153,7 @@ object MyBuild extends Build {
     ),
 
     webstartJnlpConf := Seq(JnlpConf(
-      mainClass = "se.bupp.cs3k.lobby.Lobby",
+      mainClass = "se.bupp.cs3k.lobby.LobbyClient",
       fileName = "Test.jnlp",
       codeBase = "http://localhost:8080/",
       title = "My Title",

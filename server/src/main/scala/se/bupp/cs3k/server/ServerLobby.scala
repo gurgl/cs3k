@@ -23,6 +23,11 @@ class ServerLobby() {
 
   val server = new Server();
 
+  def stop() {
+    server.stop();
+    server.close();
+  }
+
   def start = {
 
     server.start()
