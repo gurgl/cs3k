@@ -64,14 +64,14 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
       override def received (connection:Connection , ob:Object) {
         ob match {
-          case response:Tjena => System.out.println(response.gameJnlpUrl);
-            connection.sendTCP(new Tjena(GameServerPool.tankGameSettings2.clientJNLPUrl, numOfPlayers))
-            queue += connection
-            server.sendToAllTCP(new ProgressUpdated(queue.size))
-            if (queue.size >= numOfPlayers) {
+          case response:Tjena => System
+              launchServerInstance().out.println(response.gameJnlpUrl);
+              connection.sendTCP(new Tjena(GameServerPool.tankGameSettings2.clientJNLPUrl, numOfPlayers))
+              queue += connection
+              server.sendToAllTCP(new ProgressUpdated(queue.size))
+              if (queue.size >= numOfPlayers) {
 
-              launchServerInstance()
-              ()
+                ()
             }
           case _ =>
         }
