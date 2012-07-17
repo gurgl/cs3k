@@ -3,6 +3,9 @@ package se.bupp.cs3k.server
 import com.esotericsoftware.kryonet.{Listener, Connection, Server}
 import se.bupp.cs3k.{StartGame, LobbyProtocol, ProgressUpdated, Tjena}
 import collection.mutable
+import java.util.{Timer, HashMap}
+import org.apache.commons.exec.{DefaultExecutor, ExecuteWatchdog, DefaultExecuteResultHandler, CommandLine}
+import java.util.concurrent.{TimeUnit, Executors}
 
 
 /**
@@ -23,9 +26,12 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
 
 
+
   var queue = mutable.Queue.empty[Connection]
+  var launchQueue = mutable.Queue.empty[List[Connection]]
 
   val server = new Server();
+
 
   def stop() {
     server.stop();
@@ -58,27 +64,45 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
       override def received (connection:Connection , ob:Object) {
         ob match {
-          case response:Tjena => System.out.println(response.a);
-            connection.sendTCP(new Tjena("vilkommen", numOfPlayers))
+          case response:Tjena => System.out.println(response.gameJnlpUrl);
+            connection.sendTCP(new Tjena(GameServerPool.tankGameSettings2.clientJNLPUrl, numOfPlayers))
             queue += connection
             server.sendToAllTCP(new ProgressUpdated(queue.size))
             if (queue.size >= numOfPlayers) {
 
-              (0 until numOfPlayers).foreach { s =>
-                val c = queue.dequeue()
-                println("quueu size " + queue.size)
-                c.sendTCP(new StartGame("localhost", 54555 + seqId, 54777 + seqId))
-                c.close()
-
-              }
+              launchServerInstance()
               ()
             }
           case _ =>
         }
       }
     })
+  }
 
+  def launchServerInstance() {
 
+    var party = List[Connection]()
+
+    println("quueu size " + queue.size)
+
+    (0 until numOfPlayers).foreach { s =>
+      val c = queue.dequeue()
+      party = c :: party
+    }
+
+    GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2)
+    val scheduler = Executors.newScheduledThreadPool(1);
+
+    val beeper = new Runnable() {
+      def  run() {
+
+        party.foreach { c =>
+          c.sendTCP(new StartGame("localhost", 54555 + seqId, 54777 + seqId))
+          c.close()
+        }
+      }
+    }
+    val beeperHandle = scheduler.schedule(beeper, 2,  TimeUnit.SECONDS);
 
   }
 }

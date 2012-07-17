@@ -35,7 +35,8 @@ object MyBuild extends Build {
       "org.ow2.asm" % "asm" % "4.0",
       "org.objenesis" % "objenesis" % "1.2",
       "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
-      "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container"
+      "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
+      "org.apache.commons" % "commons-exec" % "1.1"
   ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
       "more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",

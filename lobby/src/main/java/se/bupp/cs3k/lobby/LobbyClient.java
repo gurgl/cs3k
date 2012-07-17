@@ -5,7 +5,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import scala.ScalaObject;
 import se.bupp.cs3k.*;
 
 import java.awt.*;
@@ -16,8 +15,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
-import java.util.List;
 
 public class LobbyClient extends JFrame {
     static BasicService basicService = null;
@@ -27,7 +27,9 @@ public class LobbyClient extends JFrame {
     Integer gameSize = null;
     private int lobbyPort;
 
-    public void startGame(StartGame sg) {
+    URL gameJnlpUrl = null;
+
+    public void startGame2(StartGame sg) {
         String[] pbargs = new String[]{
                 "java",
                 "-classpath",
@@ -49,6 +51,26 @@ public class LobbyClient extends JFrame {
     }
 
 
+    public void startGame(StartGame sg) {
+
+        try {
+            basicService = (BasicService)
+                    ServiceManager.lookup("javax.jnlp.BasicService");
+
+            if(!basicService.showDocument(gameJnlpUrl)) {
+                JOptionPane.showMessageDialog(this, "Unable to open " + gameJnlpUrl);
+            }
+
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+
+
+    }
+
+
+
     public LobbyClient(String s) {
         super("Mkyong Jnlp UnOfficial Guide");
 
@@ -66,7 +88,7 @@ public class LobbyClient extends JFrame {
         for(Class<?> clz : LobbyProtocol.getTypes()) {
           kryo.register(clz);
         }
-        kryo.register(Tjena.class);
+
 
         System.err.println("bef listener");
 
@@ -90,14 +112,20 @@ public class LobbyClient extends JFrame {
                 if (object instanceof Tjena) {
                     System.err.println("Tjena");
                     final Tjena connectMessage = (Tjena) object;
-                    gameSize = connectMessage.b();
+                    gameSize = connectMessage.participantsRequired();
 
-                    System.err.println(connectMessage.a());
+
+                    try {
+                        gameJnlpUrl = new URL(connectMessage.gameJnlpUrl());
+                    } catch (MalformedURLException e) {
+                        JOptionPane.showMessageDialog(LobbyClient.this, "Bad url" + connectMessage.gameJnlpUrl());
+                    }
+                    System.err.println(connectMessage.gameJnlpUrl());
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
                             prog.setMaximum(gameSize);
-                            label.setText(connectMessage.a());
+                            label.setText(connectMessage.gameJnlpUrl());
                         }
                     });
                 } else if(object instanceof ProgressUpdated) {
@@ -111,13 +139,14 @@ public class LobbyClient extends JFrame {
                     });
 
                 } else if(object instanceof StartGame) {
-                    StartGame upd  =(StartGame)object;
-                    //startGame(upd);
+                    final StartGame upd  =(StartGame)object;
+
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
                             label.setText("Game Started");
                             prog.setValue(0);
+                            startGame(upd);
                         }
                     });
                 }
@@ -161,7 +190,6 @@ public class LobbyClient extends JFrame {
 
 
 
-
         button.addActionListener(listener);
 
         content.add(button);
@@ -187,7 +215,7 @@ public class LobbyClient extends JFrame {
         }
 
         Tjena r = new Tjena("asdf", 123);
-        r.b_$eq(1);
+        //r.b_$eq(1);
         client.sendTCP(r);
         System.err.println("slut");
 

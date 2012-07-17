@@ -6,7 +6,7 @@ import java.util
 //import akka.actor.{ActorLogging, Actor}
 
 
-class Tjena(val a:String, var b:Int) {
+class Tjena(val gameJnlpUrl:String, var participantsRequired:Int) {
   def this() = this("",0)
 }
 
