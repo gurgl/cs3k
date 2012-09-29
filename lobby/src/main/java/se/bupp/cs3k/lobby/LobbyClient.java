@@ -62,9 +62,11 @@ public class LobbyClient extends JFrame {
             }
 
 
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
+        System.exit(0);
 
 
     }
