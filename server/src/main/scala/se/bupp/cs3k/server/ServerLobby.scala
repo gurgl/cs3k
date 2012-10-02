@@ -6,6 +6,8 @@ import collection.mutable
 import java.util.{Timer, HashMap}
 import org.apache.commons.exec.{DefaultExecutor, ExecuteWatchdog, DefaultExecuteResultHandler, CommandLine}
 import java.util.concurrent.{TimeUnit, Executors}
+import java.net.URL
+import io.Source
 
 
 /**
@@ -19,6 +21,19 @@ import java.util.concurrent.{TimeUnit, Executors}
 object ServerLobby {
   def main(args:Array[String]) {
     new ServerLobby(0,2).start
+  }
+  lazy val remoteIp = {
+    val stackOverflowURL = "http://automation.whatismyip.com/n09230945.asp"
+    val requestProperties = Map(
+      "User-Agent" -> "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0"
+    )
+    val connection = new URL(stackOverflowURL).openConnection
+    requestProperties.foreach({
+      case (name, value) => connection.setRequestProperty(name, value)
+    })
+
+    var response = Source.fromInputStream(connection.getInputStream).getLines.mkString("\n")
+    response
   }
 }
 
@@ -94,7 +109,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
       def  run() {
 
         party.foreach { c =>
-          c.sendTCP(new StartGame("localhost", 54555 + seqId, 54777 + seqId))
+          c.sendTCP(new StartGame(ServerLobby.remoteIp, 54555 + seqId, 54777 + seqId))
           c.close()
         }
       }

@@ -26,7 +26,7 @@ object MyBuild extends Build {
       "junit" % "junit" % "4.10" % "test",
       "org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty"),
       //"org.mockito" % "mockito-all" % "1.9.0" % "test" exclude("org.eclipse.jetty", "jetty"),
-      "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.1-SNAPSHOT",
+      "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.2",
       //    "org.apache.wicket" % "wicket" % "6.0.0-beta2" exclude("org.eclipse.jetty", "jetty"),
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
@@ -36,8 +36,10 @@ object MyBuild extends Build {
       "org.objenesis" % "objenesis" % "1.2",
       "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
       "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
-      "org.apache.commons" % "commons-exec" % "1.1"
-  ),
+      "org.apache.commons" % "commons-exec" % "1.1",
+      "org.snmp4j" % "snmp4j" % "1.10.1",
+      "org.specs2" %% "specs2" % "1.11" % "test"
+    ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
       "more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",
       //resolvers += "blaha" at "http://repo.typesafe.com/typesafe/releases/"

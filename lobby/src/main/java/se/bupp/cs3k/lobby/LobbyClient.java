@@ -26,6 +26,7 @@ public class LobbyClient extends JFrame {
 
     Integer gameSize = null;
     private int lobbyPort;
+    private String lobbyHost;
 
     URL gameJnlpUrl = null;
 
@@ -169,6 +170,8 @@ public class LobbyClient extends JFrame {
         try {
             basicService = (BasicService)
                     ServiceManager.lookup("javax.jnlp.BasicService");
+            URL codeBase = basicService.getCodeBase();
+            lobbyHost = codeBase.getHost();
 
         } catch (UnavailableServiceException e) {
             System.err.println("Lookup failed: " + e);
@@ -210,7 +213,7 @@ public class LobbyClient extends JFrame {
 
         client.start();
         try {
-            client.connect(5000, "localhost", lobbyPort);
+            client.connect(5000, lobbyHost, lobbyPort);
         } catch (IOException e) {
             System.err.println("fel");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
