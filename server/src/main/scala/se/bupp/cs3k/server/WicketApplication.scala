@@ -16,6 +16,7 @@ import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
 import org.apache.wicket.util.time.Time
+import org.apache.wicket.markup.html.link.ResourceLink
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -32,11 +33,14 @@ import se.bupp.cs3k.Greeting
 object WicketApplication {
 
   def get = WebApplication.get().asInstanceOf[WicketApplication]
+  val resourceKey = "JNLP_GENERATOR"
+  val resourceKey2 = "JNLP_GENERATOR_lobby"
 }
 
 
 class WicketApplication extends WebApplication {
 
+  import WicketApplication._
   //var eventSystem: EventSystem = _
 
   val logger = LoggerFactory.getLogger(classOf[WicketApplication])
@@ -51,14 +55,13 @@ class WicketApplication extends WebApplication {
     new Greeting("asdf")
     //eventSystem = new EventSystem(this)
     try {
-    lobby2Player = new ServerLobby(0, 2)
+      lobby2Player = new ServerLobby(0, 2)
     lobby2Player.start
     lobby4Player = new ServerLobby(1, 4)
     lobby4Player.start
     } catch {
       case e:Exception => e.printStackTrace()
     }
-    val resourceKey = "JNLP_GENERATOR"
 
 
     getSharedResources().add(resourceKey, new AbstractResource {
@@ -113,6 +116,23 @@ class WicketApplication extends WebApplication {
     })
 
     mountResource("/start_game", new SharedResourceReference(classOf[Application], resourceKey))
+
+
+
+    val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
+    val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
+    val jnlpXML2 = jnlpXML.replace("<resources>", "<resources><property name=\"lobbyPort\" value=\"12345\"/>")
+      .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
+      .replace("Test.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")
+
+    getSharedResources().add(resourceKey2, new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp"))
+
+    mountResource("/lobby2.jnlp", new SharedResourceReference(classOf[Application], resourceKey2))
+
+
+
+
+
   }
 
   override def onDestroy() {
