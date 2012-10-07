@@ -1,0 +1,11 @@
+
+Launch sbt with "java -Xmx512M -XX:MaxPermSize=256m -jar sbt-launch.jar"
+
+(memory settings important)
+
+> project cs3k-server
+> container:start
+
+...
+
+> container:stop
