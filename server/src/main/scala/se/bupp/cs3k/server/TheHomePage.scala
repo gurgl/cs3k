@@ -22,6 +22,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator
 import org.springframework.beans.factory.access.BeanFactoryLocator
 import javax.persistence.{Query, EntityManager}
+import org.apache.wicket.spring.injection.annot.SpringBean
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,6 +33,10 @@ import javax.persistence.{Query, EntityManager}
  */
 
 class TheHomePage extends WebPage {
+
+
+  //@SpringBean
+  var beanan:MyBean = _
 
   //val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp?port=12345")
   val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
@@ -145,10 +150,10 @@ class TheHomePage extends WebPage {
     def onClick(target: AjaxRequestTarget) {
       //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
       //instance.useBeanFactory()
-      /*var em: EntityManager = WicketApplication.get.beanan.em
+      var em: EntityManager = beanan.em
       em.persist(new ApiPlayer("Tja"))
       var q: Query = em.createQuery("from ApiPlayer")
-      println(q.getFirstResult)*/
+      println(q.getFirstResult)
 
     }
   })

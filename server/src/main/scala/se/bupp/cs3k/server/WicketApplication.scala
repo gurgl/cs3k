@@ -44,8 +44,8 @@ object WicketApplication {
 @Service
 class MyBean() {
 
-  //@PersistenceContext(unitName="MyPersistenceUnit")
-  //var em:EntityManager = _
+  @PersistenceContext(unitName="MyPersistenceUnit")
+  var em:EntityManager = _
 }
 
 class WicketApplication extends WebApplication {
@@ -53,22 +53,20 @@ class WicketApplication extends WebApplication {
   import WicketApplication._
   //var eventSystem: EventSystem = _
 
-  //@SpringBean
-  var beanan:MyBean = _
 
   val logger = LoggerFactory.getLogger(classOf[WicketApplication])
 
   def getHomePage() = classOf[TheHomePage]
 
   //@transient var lobby : ServerLobby = _
-  var lobby2Player:ServerLobby = _
-  var lobby4Player:ServerLobby = _
+  @transient var lobby2Player:ServerLobby = _
+  @transient var lobby4Player:ServerLobby = _
   var gameResource:AbstractResource = _
   var lobbyResource: ByteArrayResource = _
   override def init() {
     super.init()
 
-    //getComponentInstantiationListeners.add(new SpringComponentInjector(this));
+    getComponentInstantiationListeners.add(new SpringComponentInjector(this));
     new Greeting("asdf")
     //eventSystem = new EventSystem(this)
     try {

@@ -9,13 +9,14 @@ import WebStartPlugin._
 
 object MyBuild extends Build {
 
-  lazy val root = Project(id = "hello",
+  lazy val root = Project(id = "root",
     base = file(".")) aggregate(serverProject, lobbyProject)
 
   lazy val serverProject = Project(
     "cs3k-server",
     file("server"),
-    settings = Project.defaultSettings ++ webSettings ++ serverSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ) aggregate(lobbyProject,commonProject) dependsOn(commonProject)
+    settings = Project.defaultSettings ++ webSettings ++ serverSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings
+  ) aggregate(lobbyProject,commonProject) dependsOn(commonProject)
 
   //val Start = config()
 
@@ -30,24 +31,29 @@ object MyBuild extends Build {
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
       "log4j" % "log4j" % "1.2.16",
       "javax.servlet" % "servlet-api" % "2.5" % "provided",
-      "org.ow2.asm" % "asm" % "4.0",
-      "org.objenesis" % "objenesis" % "1.2",
+      //"org.ow2.asm" % "asm" % "4.0",
+      "com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm"), //exclude("com.esotericsoftware.reflectasm", "reflectasm"),
+      //"com.esotericsoftware.reflectasm" % "reflectasm" % "1.07" classifier "shaded" exclude("org.ow2.asm", "asm"),
       "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
       "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
-      "org.apache.commons" % "commons-exec" % "1.1",
-      "org.snmp4j" % "snmp4j" % "1.10.1"
+      "org.apache.commons" % "commons-exec" % "1.1"
+      //"org.snmp4j" % "snmp4j" % "1.10.1"
     ) ++ Seq(
       "org.springframework" % "spring-core" % "3.1.2.RELEASE",
       "org.springframework" % "spring-context" % "3.1.2.RELEASE",
       "org.springframework" % "spring-web" % "3.1.2.RELEASE",
       "org.springframework" % "spring-tx" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-asm" % "3.1.2.RELEASE",
       "org.springframework" % "spring-orm" % "3.1.2.RELEASE",
       "org.springframework" % "spring-beans" % "3.1.2.RELEASE",
-      "org.hsqldb" % "hsqldb" % "2.2.8",
+
       "org.hibernate" % "hibernate-core" % "4.1.7.Final",
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
-      "org.apache.wicket" % "wicket-spring" % "6.1.0"
+      "org.apache.wicket" % "wicket-spring" % "6.1.0", //exclude("org.apache.wicket","wicket-ioc"),
+      //"org.apache.wicket" % "wicket-ioc" % "6.1.0", //exclude("cglib","cglib"),
+      //"cglib" % "cglib" % "2.2.2" exclude("asm", "asm")
+        "org.hsqldb" % "hsqldb" % "2.2.8"
     ) ++ Seq(
       "junit" % "junit" % "4.10" % "test",
       "org.specs2" %% "specs2" % "1.11" % "test",
@@ -59,7 +65,7 @@ object MyBuild extends Build {
       "more apache" at "http://repository.apache.org/snapshots/"
     ),
     scalacOptions += "-deprecation",
-    //resourceDirectory in Compile <<= baseDirectory(_ / "src/main/resources"),
+    resourceDirectory in Compile <<= baseDirectory(_ / "src/main/resources"),
     aggregate in Compile := true,
     aggregate in Runtime := false,
     packageWar in Compile <<= (packageWar in Compile, target, webstartBuild.in(lobbyProject)).map {
@@ -143,9 +149,9 @@ object MyBuild extends Build {
       resolvers := Seq(),
       libraryDependencies ++= Seq(
         "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString,
-        "org.ow2.asm" % "asm" % "4.0",
-        "org.objenesis" % "objenesis" % "1.2"
-
+        //"org.ow2.asm" % "asm" % "4.0",
+        //"org.objenesis" % "objenesis" % "1.2"
+        "com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm")
         //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
       ),
       name := "cs3k Lobby",
