@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server
 
-import javax.persistence.{Id, Entity}
+import javax.persistence.{GenerationType, GeneratedValue, Id, Entity}
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -12,7 +12,10 @@ import javax.persistence.{Id, Entity}
 abstract class Person {
  */
 
-//@Entity
+@Entity
 class ApiPlayer(var s:String) {
-  //@Id var id:Int = _
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:Int = _
+
+  def this() = this("")
+  override def toString = id + " " + s
 }

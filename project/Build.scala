@@ -15,7 +15,8 @@ object MyBuild extends Build {
   lazy val serverProject = Project(
     "cs3k-server",
     file("server"),
-    settings = Project.defaultSettings ++ webSettings ++ serverSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings
+    settings = Project.defaultSettings ++ webSettings ++ serverSettings
+      //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
   ) aggregate(lobbyProject,commonProject) dependsOn(commonProject)
 
   //val Start = config()
@@ -46,7 +47,7 @@ object MyBuild extends Build {
       "org.springframework" % "spring-asm" % "3.1.2.RELEASE",
       "org.springframework" % "spring-orm" % "3.1.2.RELEASE",
       "org.springframework" % "spring-beans" % "3.1.2.RELEASE",
-
+      "org.codehaus.fabric3.api" % "javax-jta" % "1.1.0",
       "org.hibernate" % "hibernate-core" % "4.1.7.Final",
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
@@ -65,7 +66,7 @@ object MyBuild extends Build {
       "more apache" at "http://repository.apache.org/snapshots/"
     ),
     scalacOptions += "-deprecation",
-    resourceDirectory in Compile <<= baseDirectory(_ / "src/main/resources"),
+    unmanagedResourceDirectories in Compile <<= baseDirectory( bd => Seq(bd / "src/main/scala", bd / "src/main/resources")),
     aggregate in Compile := true,
     aggregate in Runtime := false,
     packageWar in Compile <<= (packageWar in Compile, target, webstartBuild.in(lobbyProject)).map {

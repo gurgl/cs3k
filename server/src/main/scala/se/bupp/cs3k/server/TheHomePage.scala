@@ -35,7 +35,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 class TheHomePage extends WebPage {
 
 
-  //@SpringBean
+  @SpringBean(name="mySBean")
   var beanan:MyBean = _
 
   //val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp?port=12345")
@@ -150,10 +150,18 @@ class TheHomePage extends WebPage {
     def onClick(target: AjaxRequestTarget) {
       //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
       //instance.useBeanFactory()
-      var em: EntityManager = beanan.em
-      em.persist(new ApiPlayer("Tja"))
-      var q: Query = em.createQuery("from ApiPlayer")
-      println(q.getFirstResult)
+      beanan.read();
+
+    }
+  })
+
+  add(new AjaxLink("testLink2"){
+    def onClick(target: AjaxRequestTarget) {
+      //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
+      beanan.store()
+      //var q: Query = em.createQuery("from ApiPlayer")
+      //val res = q.getResultList.mkString(",")
+      //println(res)
 
     }
   })

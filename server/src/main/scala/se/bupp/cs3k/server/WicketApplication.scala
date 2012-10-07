@@ -19,8 +19,9 @@ import org.apache.wicket.util.time.Time
 import org.apache.wicket.markup.html.link.ResourceLink
 import org.apache.wicket.spring.injection.annot.{SpringBean, SpringComponentInjector}
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import javax.persistence.{EntityManager, PersistenceContext, PersistenceUnit}
+import org.springframework.stereotype.{Component, Service}
+import javax.persistence.{Query, EntityManager, PersistenceContext, PersistenceUnit}
+import org.springframework.transaction.annotation.{Propagation, Transactional}
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -41,11 +42,33 @@ object WicketApplication {
   val resourceKey2 = "JNLP_GENERATOR_lobby"
 }
 
-@Service
-class MyBean() {
+trait MyBean {
+  def read()
+
+
+  def store()
+}
+@Component("mySBean")
+class MyBeanImpl extends MyBean {
 
   @PersistenceContext(unitName="MyPersistenceUnit")
   var em:EntityManager = _
+
+  import scala.collection.JavaConversions.asScalaBuffer
+
+  //@Transactional()
+  def read() {
+    var q: Query = em.createQuery("from ApiPlayer")
+    val res = q.getResultList.mkString(",")
+    println(res)
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  def store() {
+    //instance.useBeanFactory()
+
+    em.persist(new ApiPlayer("Tja" + System.currentTimeMillis()))
+  }
 }
 
 class WicketApplication extends WebApplication {
