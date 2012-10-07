@@ -23,10 +23,8 @@ object MyBuild extends Build {
     name := "cs3k Server",
     version := "0.1",
     libraryDependencies ++= Seq(
-      "junit" % "junit" % "4.10" % "test",
-      "org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty"),
+      "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.3",
       //"org.mockito" % "mockito-all" % "1.9.0" % "test" exclude("org.eclipse.jetty", "jetty"),
-      "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.2",
       //    "org.apache.wicket" % "wicket" % "6.0.0-beta2" exclude("org.eclipse.jetty", "jetty"),
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
@@ -37,16 +35,31 @@ object MyBuild extends Build {
       "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
       "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
       "org.apache.commons" % "commons-exec" % "1.1",
-      "org.snmp4j" % "snmp4j" % "1.10.1",
-      "org.specs2" %% "specs2" % "1.11" % "test"
-    ),
+      "org.snmp4j" % "snmp4j" % "1.10.1"
+    ) ++ Seq(
+      "org.springframework" % "spring-core" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-context" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-web" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-tx" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-orm" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-beans" % "3.1.2.RELEASE",
+      "org.hsqldb" % "hsqldb" % "2.2.8",
+      "org.hibernate" % "hibernate-core" % "4.1.7.Final",
+      "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
+      "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
+      "org.apache.wicket" % "wicket-spring" % "6.1.0"
+    ) ++ Seq(
+      "junit" % "junit" % "4.10" % "test",
+      "org.specs2" %% "specs2" % "1.11" % "test",
+      "org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty")
+  ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
-      "more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",
+      //"more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",
       //resolvers += "blaha" at "http://repo.typesafe.com/typesafe/releases/"
       "more apache" at "http://repository.apache.org/snapshots/"
     ),
     scalacOptions += "-deprecation",
-    resourceDirectory in Compile <<= baseDirectory(_ / "src/main/scala"),
+    //resourceDirectory in Compile <<= baseDirectory(_ / "src/main/resources"),
     aggregate in Compile := true,
     aggregate in Runtime := false,
     packageWar in Compile <<= (packageWar in Compile, target, webstartBuild.in(lobbyProject)).map {
