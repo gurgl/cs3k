@@ -1,7 +1,13 @@
+package se.bupp.cs3k.server.web
+
 /**
- *
+ * Created with IntelliJ IDEA.
+ * User: karlw
+ * Date: 2012-10-12
+ * Time: 17:46
+ * To change this template use File | Settings | File Templates.
  */
-package se.bupp.cs3k.server
+
 
 import org.apache.wicket.protocol.http.WebApplication
 import org.slf4j.LoggerFactory
@@ -22,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Component, Service}
 import javax.persistence.{Query, EntityManager, PersistenceContext, PersistenceUnit}
 import org.springframework.transaction.annotation.{Propagation, Transactional}
+import se.bupp.cs3k.server.{ServerLobby, ApiPlayer, web}
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -31,23 +38,9 @@ import se.bupp.cs3k.Greeting
 
 
 
-/**
- * @author kjozsa
- */
-
-object WicketApplication {
-
-  def get = WebApplication.get().asInstanceOf[WicketApplication]
-  val resourceKey = "JNLP_GENERATOR"
-  val resourceKey2 = "JNLP_GENERATOR_lobby"
-}
-
-trait MyBean {
-  def read()
 
 
-  def store()
-}
+
 @Component("mySBean")
 class MyBeanImpl extends MyBean {
 
@@ -186,4 +179,20 @@ class WicketApplication extends WebApplication {
   //def getEventSystem = eventSystem
 }
 
+/**
+ * @author kjozsa
+ */
 
+object WicketApplication {
+
+  def get = WebApplication.get().asInstanceOf[WicketApplication]
+  val resourceKey = "JNLP_GENERATOR"
+  val resourceKey2 = "JNLP_GENERATOR_lobby"
+}
+
+trait MyBean {
+  def read()
+
+
+  def store()
+}

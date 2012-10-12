@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server
+package se.bupp.cs3k.server.web
 
 import org.apache.wicket.markup.html.WebPage
 import org.apache.wicket.markup.html.link.{ResourceLink, Link}
@@ -23,6 +23,7 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator
 import org.springframework.beans.factory.access.BeanFactoryLocator
 import javax.persistence.{Query, EntityManager}
 import org.apache.wicket.spring.injection.annot.SpringBean
+import se.bupp.cs3k.server.WicketApplication
 
 /**
  * Created with IntelliJ IDEA.
