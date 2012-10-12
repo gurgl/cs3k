@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.web
 
 import org.apache.wicket.markup.html.WebPage
-import org.apache.wicket.markup.html.link.{ResourceLink, Link}
+import org.apache.wicket.markup.html.link.{BookmarkablePageLink, ResourceLink, Link}
 import org.apache.wicket.request.resource.{SharedResourceReference, ByteArrayResource, ContextRelativeResource, ResourceReference}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import java.util.Scanner
@@ -23,7 +23,8 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator
 import org.springframework.beans.factory.access.BeanFactoryLocator
 import javax.persistence.{Query, EntityManager}
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.WicketApplication
+import org.apache.wicket.markup.html.basic.Label
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -208,5 +209,13 @@ class TheHomePage extends WebPage {
   val link4: ResourceLink[ContextRelativeResource] = new ResourceLink[ContextRelativeResource]("lobbyLink4", new ByteArrayResource("application/x-java-jnlp-file", jnlpXML4.getBytes, "lobby4.jnlp"))
   add(link4)*/
 
+
+  add(new BookmarkablePageLink("login",classOf[SigninPage]))
+  add(new BookmarkablePageLink("logout",classOf[SignOutPage]))
+
+  @AdminOnly
+  class AdminOnlyLabel(id:String,text:String) extends Label(id,text)
+
+  add(new AdminOnlyLabel("lbl","Tja"))
 
 }

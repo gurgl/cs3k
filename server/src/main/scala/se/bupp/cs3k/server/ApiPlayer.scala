@@ -13,9 +13,13 @@ abstract class Person {
  */
 
 @Entity
-class ApiPlayer(var s:String) {
+class ApiPlayer(var username:String) {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:Int = _
 
+  var password:String = _
+
+  def isAdmin = true
+
   def this() = this("")
-  override def toString = id + " " + s
+  override def toString = id + " " + username
 }

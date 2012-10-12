@@ -14,7 +14,7 @@
         <!--<filter-class>org.apache.wicket.protocol.http.Tomcat7WebSocketFilter</filter-class>-->
         <init-param>
             <param-name>applicationClassName</param-name>
-            <param-value>se.bupp.cs3k.server.WicketApplication</param-value>
+            <param-value>se.bupp.cs3k.server.web.WicketApplication</param-value>
         </init-param>
     </filter>
 

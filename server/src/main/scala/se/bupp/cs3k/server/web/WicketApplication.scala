@@ -26,9 +26,11 @@ import org.apache.wicket.markup.html.link.ResourceLink
 import org.apache.wicket.spring.injection.annot.{SpringBean, SpringComponentInjector}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Component, Service}
-import javax.persistence.{Query, EntityManager, PersistenceContext, PersistenceUnit}
+import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
 import se.bupp.cs3k.server.{ServerLobby, ApiPlayer, web}
+import se.bupp.cs3k.Greeting
+import org.apache.wicket.request.{Response, Request}
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -46,6 +48,17 @@ class MyBeanImpl extends MyBean {
 
   @PersistenceContext(unitName="MyPersistenceUnit")
   var em:EntityManager = _
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  def insert(a:ApiPlayer) {
+    em.persist(a)
+  }
+  def findUser(s:String) = {
+    var q: TypedQuery[ApiPlayer] = em.createQuery[ApiPlayer]("from ApiPlayer p where p.username = :name",classOf[ApiPlayer])
+    q.setParameter("name",s)
+    import scala.collection.JavaConversions.asScalaBuffer
+    q.getResultList.headOption.getOrElse(null)
+  }
 
   import scala.collection.JavaConversions.asScalaBuffer
 
@@ -72,6 +85,9 @@ class WicketApplication extends WebApplication {
 
   val logger = LoggerFactory.getLogger(classOf[WicketApplication])
 
+
+  override def newSession(request: Request, response: Response) = new WiaSession(request)
+
   def getHomePage() = classOf[TheHomePage]
 
   //@transient var lobby : ServerLobby = _
@@ -81,6 +97,11 @@ class WicketApplication extends WebApplication {
   var lobbyResource: ByteArrayResource = _
   override def init() {
     super.init()
+
+    val authStrat = new WiaAuthorizationStrategy();
+    val securitySettings = getSecuritySettings();
+    securitySettings.setAuthorizationStrategy(authStrat);
+    securitySettings.setUnauthorizedComponentInstantiationListener(authStrat);
 
     getComponentInstantiationListeners.add(new SpringComponentInjector(this));
     new Greeting("asdf")
@@ -193,6 +214,8 @@ object WicketApplication {
 trait MyBean {
   def read()
 
+  def insert(a:ApiPlayer)
+  def findUser(s:String) : ApiPlayer
 
   def store()
 }

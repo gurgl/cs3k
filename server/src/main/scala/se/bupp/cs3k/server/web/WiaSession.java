@@ -1,0 +1,36 @@
+package se.bupp.cs3k.server.web;
+
+import java.util.Locale;
+
+
+import org.apache.wicket.Session;
+import org.apache.wicket.protocol.http.WebSession;
+import org.apache.wicket.request.Request;
+import se.bupp.cs3k.server.ApiPlayer;
+
+public class WiaSession extends WebSession {
+
+  public static WiaSession get() {
+    return (WiaSession) Session.get();
+  }
+
+  private ApiPlayer user;
+
+  public WiaSession(Request request) {
+    super(request);
+    setLocale(Locale.ENGLISH);
+  }
+
+  public synchronized ApiPlayer getUser() {
+    return user;
+  }
+
+  public synchronized boolean isAuthenticated() {
+    return (user != null);
+  }
+
+  public synchronized void setUser(ApiPlayer user) {
+    this.user = user;
+    dirty();
+  }
+}
