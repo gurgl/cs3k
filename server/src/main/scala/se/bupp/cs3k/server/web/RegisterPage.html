@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<wicket:extend>
+    The requested page is only available for authenticated users.
+
+    <form wicket:id="registerForm">
+        &nbsp;&nbsp;username
+        <input type="text" wicket:id="username" /><br>
+        email <input type="text" wicket:id="email" /><br>
+
+        password <input type="password" wicket:id="password" /><br>
+        password confirmation <input type="password" wicket:id="wiaPasswordConfirm" /><br>
+
+        <input type="submit" value="Register" />
+    </form>
+    <span wicket:id="feedback" />
+
+
+</wicket:extend>
+
+</body>
+</html>

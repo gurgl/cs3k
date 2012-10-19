@@ -7,6 +7,7 @@ import org.apache.wicket.util.tester.WicketTester
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
+import web.WicketApplication
 
 @RunWith(classOf[JUnitRunner])
 class TestHomePage extends FunSuite {

@@ -31,6 +31,12 @@ import org.springframework.transaction.annotation.{Propagation, Transactional}
 import se.bupp.cs3k.server.{ServerLobby, ApiPlayer, web}
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}
+import se.bupp.cs3k.server.facade.{WebStartResourceFactory}
+import org.springframework.beans.factory.BeanFactory
+import org.springframework.context.support.{FileSystemXmlApplicationContext, ClassPathXmlApplicationContext}
+import se.bupp.cs3k.server.service.GameReservationService
+import org.springframework.web.context.support.WebApplicationContextUtils
+import org.springframework.web.context.WebApplicationContext
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -41,7 +47,21 @@ import se.bupp.cs3k.Greeting
 
 
 
+object WicketApplication {
 
+  def get = WebApplication.get().asInstanceOf[WicketApplication]
+  val resourceKey = "JNLP_GENERATOR"
+  val resourceKey2 = "JNLP_GENERATOR_lobby"
+}
+
+trait MyBean {
+  def read()
+
+  def insert(a:ApiPlayer)
+  def findUser(s:String) : ApiPlayer
+
+  def store()
+}
 
 @Component("mySBean")
 class MyBeanImpl extends MyBean {
@@ -83,6 +103,8 @@ class WicketApplication extends WebApplication {
   //var eventSystem: EventSystem = _
 
 
+  var webStartResourceFactory:WebStartResourceFactory = _
+
   val logger = LoggerFactory.getLogger(classOf[WicketApplication])
 
 
@@ -94,7 +116,7 @@ class WicketApplication extends WebApplication {
   @transient var lobby2Player:ServerLobby = _
   @transient var lobby4Player:ServerLobby = _
   var gameResource:AbstractResource = _
-  var lobbyResource: ByteArrayResource = _
+  var lobbyResource: AbstractResource = _
   override def init() {
     super.init()
 
@@ -104,89 +126,48 @@ class WicketApplication extends WebApplication {
     securitySettings.setUnauthorizedComponentInstantiationListener(authStrat);
 
     getComponentInstantiationListeners.add(new SpringComponentInjector(this));
-    new Greeting("asdf")
+
+
+    /*val appContext = new FileSystemXmlApplicationContext(
+      "/WEB-INF/applicationContext.xml"
+    )*/
+
+    var requiredWebApplicationContext: WebApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext)
+    // of course, an ApplicationContext is just a BeanFactory
+    val beanFactory = requiredWebApplicationContext.asInstanceOf[BeanFactory]
+
+    var gameReservationService = beanFactory.getBean(classOf[GameReservationService])
+
+    webStartResourceFactory = beanFactory.getBean(classOf[WebStartResourceFactory])
     //eventSystem = new EventSystem(this)
     try {
       lobby2Player = new ServerLobby(0, 2)
-    lobby2Player.start
-    lobby4Player = new ServerLobby(1, 4)
-    lobby4Player.start
+      lobby2Player.gameReservationService = gameReservationService
+      lobby2Player.start
+      lobby4Player = new ServerLobby(1, 4)
+      lobby4Player.start
     } catch {
       case e:Exception => e.printStackTrace()
     }
 
-    gameResource = new AbstractResource {
-
-      override def newResourceResponse(p1: Attributes) = {
-
-        val query = p1.getParameters().get("slotId").toString;
-
-
-        // generate an image containing the query argument
-        /*final BufferedImage img = new BufferedImage(100, 100,
-          BufferedImage.TYPE_INT_RGB);
-        final Graphics2D g2 = img.createGraphics();
-        g2.setColor(Color.WHITE);
-        g2.drawString(query, img.getWidth() / 2, img.getHeight() / 2);*/
-
-        // return the image as a PNG stream
-
-        var response = new ResourceResponse
-        response.setContentType("application/x-java-jnlp-file")
-        response.setLastModified(Time.now())
-        response.setFileName("start_the_game.jnlp")
-        response.setWriteCallback(new WriteCallback {
-          def writeData(p2: Attributes) {
-            try {
-
-              val lobbyJnlpFile = new ContextRelativeResource("/game_deploy_dir_tmp/tanks/Game.jnlp")
-              val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
-
-              println(p1.getRequest.getClientUrl.toString)
-              val jnlpXMLModified = jnlpXML.replace("<resources>", "<resources>" +
-                "<property name=\"gamePortUDP\" value=\"54777\"/>"+
-                "<property name=\"gamePortTCP\" value=\"54555\"/>" +
-                "<property name=\"gameHost\" value=\"" + ServerLobby.remoteIp + "\"/>")
-                .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + ServerLobby.remoteIp +":8080/game_deploy_dir_tmp/tanks")
-                .replace("Game.jnlp", "http://" + ServerLobby.remoteIp +":8080/" + p1.getRequest.getClientUrl.toString)
-
-
-              //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)
-              //writer.print(jnlpXMLModified)
-              p2.getResponse.write(jnlpXMLModified)
-              //ImageIO.write(img, "png", output);
-
-            }
-            catch { case ex:IOException => ex.printStackTrace()/* never swallow exceptions! */ }
-
-          }
-        })
-        //AbstractResource.this.configureResponse(response, attributes);
-        response
-
-      }
-    }
+    gameResource = webStartResourceFactory.createGameJnlpHandler
 
     getSharedResources().add(resourceKey, gameResource)
 
-    mountResource("/start_game", new SharedResourceReference(classOf[Application], resourceKey))
+    mountResource("/start_game.jnlp", new SharedResourceReference(classOf[Application], resourceKey))
 
 
 
-    val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
+    /*val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
     val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
     val jnlpXML2 = jnlpXML.replace("<resources>", "<resources><property name=\"lobbyPort\" value=\"12345\"/>")
       .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
       .replace("Test.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")
-
-    lobbyResource= new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp")
+      */
+    lobbyResource= webStartResourceFactory.createLobbyJnlpHandler //new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp")
     getSharedResources().add(resourceKey2, lobbyResource)
 
     mountResource("/lobby2.jnlp", new SharedResourceReference(classOf[Application], resourceKey2))
-
-
-
-
 
   }
 
@@ -204,18 +185,3 @@ class WicketApplication extends WebApplication {
  * @author kjozsa
  */
 
-object WicketApplication {
-
-  def get = WebApplication.get().asInstanceOf[WicketApplication]
-  val resourceKey = "JNLP_GENERATOR"
-  val resourceKey2 = "JNLP_GENERATOR_lobby"
-}
-
-trait MyBean {
-  def read()
-
-  def insert(a:ApiPlayer)
-  def findUser(s:String) : ApiPlayer
-
-  def store()
-}

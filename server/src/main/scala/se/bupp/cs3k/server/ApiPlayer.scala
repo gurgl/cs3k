@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server
 
-import javax.persistence.{GenerationType, GeneratedValue, Id, Entity}
+import javax.persistence._
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -17,7 +17,9 @@ class ApiPlayer(var username:String) {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:Int = _
 
   var password:String = _
+  var email:String = _
 
+  @Transient var wiaPasswordConfirm:String = _
   def isAdmin = true
 
   def this() = this("")

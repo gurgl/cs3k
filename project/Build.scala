@@ -17,7 +17,7 @@ object MyBuild extends Build {
     file("server"),
     settings = Project.defaultSettings ++ webSettings ++ serverSettings
       //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
-  ) aggregate(lobbyProject,commonProject) dependsOn(commonProject)
+  ) aggregate(lobbyProject,commonProject) dependsOn(commonProject, apiProject)
 
   //val Start = config()
 
@@ -37,6 +37,7 @@ object MyBuild extends Build {
       //"com.esotericsoftware.reflectasm" % "reflectasm" % "1.07" classifier "shaded" exclude("org.ow2.asm", "asm"),
       "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
       "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
+      //"se.paronglans" %% "cs3k-api" % "0.1-SNAPSHOT",
       "org.apache.commons" % "commons-exec" % "1.1"
       //"org.snmp4j" % "snmp4j" % "1.10.1"
     ) ++ Seq(
@@ -54,10 +55,13 @@ object MyBuild extends Build {
       "org.apache.wicket" % "wicket-spring" % "6.1.0", //exclude("org.apache.wicket","wicket-ioc"),
       //"org.apache.wicket" % "wicket-ioc" % "6.1.0", //exclude("cglib","cglib"),
       //"cglib" % "cglib" % "2.2.2" exclude("asm", "asm")
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
         "org.hsqldb" % "hsqldb" % "2.2.8"
     ) ++ Seq(
       "junit" % "junit" % "4.10" % "test",
       "org.specs2" %% "specs2" % "1.11" % "test",
+      "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.1.0" % "test",
       "org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty")
   ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
@@ -199,6 +203,22 @@ object MyBuild extends Build {
       "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
     ))
+  )
+
+  lazy val apiProject = Project(
+    "cs3k-api",
+    file("api"),
+    settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
+      "com.fasterxml.jackson.core" % "jackson-annotations" % "2.1.0"
+      //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
+    )) ++ Seq(
+      publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
+      //name := 'My Project'
+      organization := "se.paronglans",
+      version := "0.1-SNAPSHOT"
+    )
+
   )
 
 }

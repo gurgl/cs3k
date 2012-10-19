@@ -8,6 +8,7 @@ import org.apache.commons.exec.{DefaultExecutor, ExecuteWatchdog, DefaultExecute
 import java.util.concurrent.{TimeUnit, Executors}
 import java.net.URL
 import io.Source
+import service.GameReservationService
 
 
 /**
@@ -39,7 +40,11 @@ object ServerLobby {
 
 class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
+  var gameReservationService:GameReservationService = _
+
   var queue = mutable.Queue.empty[Connection]
+  var queueItemInfo = mutable.Map[Long,AnyRef]()
+
   var launchQueue = mutable.Queue.empty[List[Connection]]
 
   val server = new Server();
@@ -78,7 +83,9 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
         ob match {
           case response:Tjena =>
               System.out.println(response.gameJnlpUrl);
-              connection.sendTCP(new Tjena(GameServerPool.tankGameSettings2.clientJNLPUrl, numOfPlayers))
+              val reservationId = gameReservationService.reserveSeat(1)
+              var url: String = GameServerPool.tankGameSettings2.clientJNLPUrl + "?slot_id=" + reservationId
+              connection.sendTCP(new Tjena(url, numOfPlayers))
               queue += connection
               server.sendToAllTCP(new ProgressUpdated(queue.size))
               if (queue.size >= numOfPlayers) {
@@ -95,6 +102,8 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
     var party = List[Connection]()
 
+
+
     println("quueu size " + queue.size)
 
     (0 until numOfPlayers).foreach { s =>
@@ -109,6 +118,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
       def  run() {
 
         party.foreach { c =>
+
           c.sendTCP(new StartGame(ServerLobby.remoteIp, 54555 + seqId, 54777 + seqId))
           c.close()
         }

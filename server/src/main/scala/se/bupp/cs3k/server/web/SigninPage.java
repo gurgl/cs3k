@@ -22,62 +22,62 @@ public class SigninPage extends AbstractBasePage {
 
         private String wiaPassword;
 
-    private String wiaUsername;
+        private String wiaUsername;
 
-    public SignInForm(final String id) {
-      super(id);
-      setModel(new CompoundPropertyModel(this));
-      add(new TextField("wiaUsername"));
-      add(new PasswordTextField("wiaPassword"));
-    }
+        public SignInForm(final String id) {
+          super(id);
+          setModel(new CompoundPropertyModel(this));
+          add(new TextField("wiaUsername"));
+          add(new PasswordTextField("wiaPassword"));
+        }
 
-    public String getWiaPassword() {
-      return wiaPassword;
-    }
+        public String getWiaPassword() {
+          return wiaPassword;
+        }
 
-    public String getWiaUsername() {
-      return wiaUsername;
-    }
+        public String getWiaUsername() {
+          return wiaUsername;
+        }
 
-    @Override
-    public final void onSubmit() {
-      if (signIn(wiaUsername, wiaPassword)) {
-        //if (!continueToOriginalDestination()) {
-          setResponsePage(getApplication().getHomePage());
-        //}
-      } else {
-        error("Unknown username/ password");
-      }
-    }
-
-    public void setWiaPassword(String password) {
-      this.wiaPassword = password;
-    }
-
-    public void setWiaUsername(String username) {
-      this.wiaUsername = username;
-    }
-
-    private boolean signIn(String username, String password) {
-      if (username != null && password != null) {
-        ApiPlayer user = beanan.findUser(username);
-
-          if(user == null) {
-            ApiPlayer apiPlayer = new ApiPlayer("admin");
-              apiPlayer.password_$eq("admin");
-            beanan.insert(apiPlayer);
-              user = apiPlayer;
-          }
-        if (user != null) {
-          if (user.password().equals(password)) {
-            WiaSession.get().setUser(user);
-            return true;
+        @Override
+        public final void onSubmit() {
+          if (signIn(wiaUsername, wiaPassword)) {
+            //if (!continueToOriginalDestination()) {
+              setResponsePage(getApplication().getHomePage());
+            //}
+          } else {
+            error("Unknown username/ password");
           }
         }
+
+        public void setWiaPassword(String password) {
+          this.wiaPassword = password;
+        }
+
+        public void setWiaUsername(String username) {
+          this.wiaUsername = username;
+        }
+
+        private boolean signIn(String username, String password) {
+          if (username != null && password != null) {
+            ApiPlayer user = beanan.findUser(username);
+
+              if(user == null) {
+                ApiPlayer apiPlayer = new ApiPlayer("admin");
+                  apiPlayer.password_$eq("admin");
+                beanan.insert(apiPlayer);
+                  user = apiPlayer;
+              }
+            if (user != null) {
+              if (user.password().equals(password)) {
+                WiaSession.get().setUser(user);
+                return true;
+              }
+            }
+          }
+          return false;
+        }
       }
-      return false;
-    }
-  }
 
   public SigninPage() {
 

@@ -134,9 +134,12 @@ class TheHomePage extends WebPage {
     }*/
 
     override def onSubmit() {
-      println("submitting button")
+      println("submitting button, player_name = " + nameReference.getObject)
       //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
-      RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, new PageParameters()))
+      var parameters: PageParameters = new PageParameters()
+
+      parameters.add("playerName", nameReference.getObject)
+      RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
     }
 
 
@@ -212,6 +215,7 @@ class TheHomePage extends WebPage {
 
   add(new BookmarkablePageLink("login",classOf[SigninPage]))
   add(new BookmarkablePageLink("logout",classOf[SignOutPage]))
+  add(new BookmarkablePageLink("register",classOf[RegisterPage]))
 
   @AdminOnly
   class AdminOnlyLabel(id:String,text:String) extends Label(id,text)

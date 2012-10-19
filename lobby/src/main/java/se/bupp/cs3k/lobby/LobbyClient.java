@@ -47,10 +47,7 @@ public class LobbyClient extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-
-
     }
-
 
     public void startGame(StartGame sg) {
 
@@ -78,6 +75,14 @@ public class LobbyClient extends JFrame {
         super("Mkyong Jnlp UnOfficial Guide");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        try {
+            init();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void init() {
         final JLabel label = new JLabel();
         Container content = getContentPane();
         content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
@@ -89,7 +94,7 @@ public class LobbyClient extends JFrame {
         Kryo kryo = client.getKryo();
         //ArrayList<Class<? extends ScalaObject>[]> types = LobbyProtocol.getTypes();
         for(Class<?> clz : LobbyProtocol.getTypes()) {
-          kryo.register(clz);
+            kryo.register(clz);
         }
 
 
@@ -178,7 +183,7 @@ public class LobbyClient extends JFrame {
         }
 
 
-        Greeting g = new Greeting("asdf");
+
         JButton button = new JButton("http://www.bupp.com");
 
 
