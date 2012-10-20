@@ -138,7 +138,7 @@ class TheHomePage extends WebPage {
       //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
       var parameters: PageParameters = new PageParameters()
 
-      parameters.add("playerName", nameReference.getObject)
+      parameters.add("player_name", nameReference.getObject)
       RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
     }
 

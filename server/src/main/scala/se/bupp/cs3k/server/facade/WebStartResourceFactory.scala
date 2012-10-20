@@ -86,7 +86,7 @@ class WebStartResourceFactory {
 
     override def newResourceResponse(p1: Attributes) = {
 
-      val playerNameOpt = Option.apply(p1.getParameters().get("playerName").toString)
+      val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toString)
       //val playerNameOpt = Option.apply(p1.getParameters().get("playerName").toString)
 
       var response = new ResourceResponse
@@ -119,6 +119,7 @@ class WebStartResourceFactory {
               "<property name=\"lobbyHost\" value=\"" + ServerLobby.remoteIp  + "\"/>" +
               playerNameOpt.map(a => "<property name=\"playerName\" value=\"" + a + "\"/>").getOrElse("")
 
+            println("playerNameOpt " + playerNameOpt)
             val jnlpXMLModified = jnlpXML
               .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
               .replace("Test.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")

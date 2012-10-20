@@ -216,7 +216,7 @@ object MyBuild extends Build {
       publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
       //name := 'My Project'
       organization := "se.paronglans",
-      version := "0.1-SNAPSHOT"
+      version := "0.3-SNAPSHOT"
     )
 
   )
