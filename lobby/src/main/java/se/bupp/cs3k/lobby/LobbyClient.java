@@ -117,23 +117,15 @@ public class LobbyClient extends JFrame {
             }
 
             public void received(Connection connection, Object object) {
-                if (object instanceof Tjena) {
-                    System.err.println("Tjena");
-                    final Tjena connectMessage = (Tjena) object;
+                if (object instanceof LobbyJoinResponse) {
+                    System.err.println("LobbyJoinResponse");
+                    final LobbyJoinResponse connectMessage = (LobbyJoinResponse) object;
                     gameSize = connectMessage.participantsRequired();
 
-
-                    try {
-                        gameJnlpUrl = new URL(connectMessage.gameJnlpUrl());
-                    } catch (MalformedURLException e) {
-                        JOptionPane.showMessageDialog(LobbyClient.this, "Bad url" + connectMessage.gameJnlpUrl());
-                    }
-                    System.err.println(connectMessage.gameJnlpUrl());
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
                             prog.setMaximum(gameSize);
-                            label.setText(connectMessage.gameJnlpUrl());
                         }
                     });
                 } else if(object instanceof ProgressUpdated) {
@@ -148,6 +140,16 @@ public class LobbyClient extends JFrame {
 
                 } else if(object instanceof StartGame) {
                     final StartGame upd  =(StartGame)object;
+
+
+                    System.err.println("Start Game Received");
+                    try {
+                        gameJnlpUrl = new URL(upd.jnlpURL());
+                    } catch (MalformedURLException e) {
+                        JOptionPane.showMessageDialog(LobbyClient.this, "Bad url" + upd.jnlpURL());
+                    }
+                    System.err.println(upd.jnlpURL());
+
 
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
@@ -224,7 +226,7 @@ public class LobbyClient extends JFrame {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        Tjena r = new Tjena("asdf", 123);
+        LobbyJoinRequest r = new LobbyJoinRequest();
         //r.b_$eq(1);
         client.sendTCP(r);
         System.err.println("slut");

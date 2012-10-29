@@ -9,11 +9,11 @@ import WebStartPlugin._
 
 object MyBuild extends Build {
 
-  lazy val root = Project(id = "root",
+lazy val root = Project(id = "root",
     base = file(".")) aggregate(serverProject, lobbyProject)
 
   lazy val serverProject = Project(
-    "cs3k-server",
+    "server",
     file("server"),
     settings = Project.defaultSettings ++ webSettings ++ serverSettings
       //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
@@ -135,7 +135,7 @@ object MyBuild extends Build {
 
 
   lazy val lobbyProject = Project(
-    id = "cs3k-lobby",
+    id = "lobby",
     base = file("lobby"),
     settings = Project.defaultSettings ++ lobbySettings ++ webStartSettings ++ Seq(
       mappings in(Compile, packageBin) ~= {
@@ -160,7 +160,7 @@ object MyBuild extends Build {
         //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
       ),
       name := "cs3k Lobby",
-      organization := "se.pearshine",
+      organization := "se.pearshine.cs3k",
       version := "1.0"
     )
 
@@ -197,7 +197,7 @@ object MyBuild extends Build {
   )
 
   lazy val commonProject = Project(
-    "cs3k-common",
+    "common",
     file("common"),
     settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
       "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
@@ -206,7 +206,7 @@ object MyBuild extends Build {
   )
 
   lazy val apiProject = Project(
-    "cs3k-api",
+    "api",
     file("api"),
     settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
@@ -215,7 +215,7 @@ object MyBuild extends Build {
     )) ++ Seq(
       publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
       //name := 'My Project'
-      organization := "se.paronglans",
+      organization := "se.paronglans.cs3k",
       version := "0.3-SNAPSHOT"
     )
 

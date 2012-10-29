@@ -17,3 +17,5 @@ activemq-data
 .sbt_completion_cache
 *.swp
 *~
+
+server/src/main/webapp/game_deploy_dir_tmp/

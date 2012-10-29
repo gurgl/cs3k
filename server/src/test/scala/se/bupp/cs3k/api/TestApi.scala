@@ -4,6 +4,8 @@ import org.specs2.mutable.Specification
 import io.Source
 import java.net.URL
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.util.StringUtils
+import xml.Utility
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +25,6 @@ class TestApi extends Specification {
       var original: Ticket = new Ticket(3)
       var str: String = mapper.writeValueAsString(original)
       str.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.Ticket\",\"reservationId\":3}")
-
 
 
       var back: AbstractGamePass = mapper.readValue(str, classOf[AbstractGamePass])

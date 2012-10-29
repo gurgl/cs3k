@@ -37,6 +37,7 @@ import org.springframework.context.support.{FileSystemXmlApplicationContext, Cla
 import se.bupp.cs3k.server.service.GameReservationService
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.context.WebApplicationContext
+import se.bupp.cs3k.server.model.GameOccassion
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -54,7 +55,7 @@ object WicketApplication {
   val resourceKey2 = "JNLP_GENERATOR_lobby"
 }
 
-trait MyBean {
+trait MyBean extends GameDao {
   def read()
 
   def insert(a:ApiPlayer)
@@ -62,6 +63,13 @@ trait MyBean {
 
   def store()
 }
+
+trait GameDao {
+
+  def findGame(occassionId:Long) : Option[GameOccassion]
+}
+
+
 
 @Component("mySBean")
 class MyBeanImpl extends MyBean {
@@ -73,11 +81,22 @@ class MyBeanImpl extends MyBean {
   def insert(a:ApiPlayer) {
     em.persist(a)
   }
+
+  def findGame(occassionId:Long) = {
+    var q = em.createQuery("from GameOccassion g where g.occassionId = :o", classOf[GameOccassion])
+    q.setParameter("o", occassionId)
+    getSingle(q)
+  }
+
+  def getSingle[T](q:TypedQuery[T]) : Option[T] = {
+    import scala.collection.JavaConversions.asScalaBuffer
+    q.getResultList.headOption
+  }
+
   def findUser(s:String) = {
     var q: TypedQuery[ApiPlayer] = em.createQuery[ApiPlayer]("from ApiPlayer p where p.username = :name",classOf[ApiPlayer])
     q.setParameter("name",s)
-    import scala.collection.JavaConversions.asScalaBuffer
-    q.getResultList.headOption.getOrElse(null)
+    getSingle(q).getOrElse(null)
   }
 
   import scala.collection.JavaConversions.asScalaBuffer

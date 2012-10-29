@@ -1,7 +1,8 @@
 package se.bupp.cs3k.server
 
 import com.esotericsoftware.kryonet.{Listener, Connection, Server}
-import se.bupp.cs3k.{StartGame, LobbyProtocol, ProgressUpdated, Tjena}
+import model.NonPersisentGameOccassion
+import se.bupp.cs3k._
 import collection.mutable
 import java.util.{Timer, HashMap}
 import org.apache.commons.exec.{DefaultExecutor, ExecuteWatchdog, DefaultExecuteResultHandler, CommandLine}
@@ -9,6 +10,8 @@ import java.util.concurrent.{TimeUnit, Executors}
 import java.net.URL
 import io.Source
 import service.GameReservationService
+import scala.Some
+import org.apache.log4j.Logger
 
 
 /**
@@ -40,6 +43,8 @@ object ServerLobby {
 
 class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
+  val log = Logger.getLogger(classOf[ServerLobby])
+
   var gameReservationService:GameReservationService = _
 
   var queue = mutable.Queue.empty[Connection]
@@ -53,6 +58,8 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
   def stop() {
     server.stop();
     server.close();
+
+    GameServerPool.pool.servers.foreach( s => s._2.getWatchdog.destroyProcess())
   }
 
   def start = {
@@ -81,11 +88,9 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
       override def received (connection:Connection , ob:Object) {
         ob match {
-          case response:Tjena =>
-              System.out.println(response.gameJnlpUrl);
-              val reservationId = gameReservationService.reserveSeat(1)
-              var url: String = GameServerPool.tankGameSettings2.clientJNLPUrl + "?slot_id=" + reservationId
-              connection.sendTCP(new Tjena(url, numOfPlayers))
+          case response:LobbyJoinRequest =>
+
+              connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
               queue += connection
               server.sendToAllTCP(new ProgressUpdated(queue.size))
               if (queue.size >= numOfPlayers) {
@@ -111,20 +116,34 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
       party = c :: party
     }
 
-    GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2)
+
+    val occassionId = gameReservationService.allocateOccassion()
+
+    GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, new NonPersisentGameOccassion(occassionId))
+
     val scheduler = Executors.newScheduledThreadPool(1);
 
+    log.info("creating start task " + party.size)
     val beeper = new Runnable() {
       def  run() {
-
+        log.info("in start task " + party.size)
         party.foreach { c =>
 
-          c.sendTCP(new StartGame(ServerLobby.remoteIp, 54555 + seqId, 54777 + seqId))
+          try {
+            val reservationId = gameReservationService.reserveSeat(occassionId)
+
+
+            log.info("Reserving seat and sending sending start game")
+            c.sendTCP(new StartGame(ServerLobby.remoteIp, 54555 + seqId, 54777 + seqId,GameServerPool.tankGameSettings2.jnlpUrl(reservationId).toExternalForm))
+          } catch {
+            case e:Exception => e.printStackTrace()
+          }
           c.close()
         }
       }
     }
     val beeperHandle = scheduler.schedule(beeper, 2,  TimeUnit.SECONDS);
+
 
   }
 }

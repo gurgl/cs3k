@@ -1,6 +1,11 @@
 package se.bupp.cs3k.server.service
 
 import org.springframework.stereotype.Component
+import se.bupp.cs3k.api.Ticket
+import se.bupp.cs3k.server.model.GameOccassion
+import org.apache.wicket.spring.injection.annot.SpringBean
+import se.bupp.cs3k.server.web.MyBean
+import org.springframework.beans.factory.annotation.Autowired
 
 /**
  * Created with IntelliJ IDEA.
@@ -57,15 +62,47 @@ import org.springframework.stereotype.Component
  *
  */
 
+object GameReservationService {
+  type OccassionId = Long
+  type SeatId = Long
+  var occassionSeqId:Long = 1L
+  var seatSeqId:Long= 1L
+  var openOccassions = collection.mutable.Map[OccassionId,List[SeatId]]()
+
+}
 @Component
 class GameReservationService {
 
-  def reserveSeat(occassionId:Long) : Long = {
-    1
+  import GameReservationService._
+
+  @Autowired
+  var dao:MyBean = _
+
+  def findGame(occassionId:Long) : Option[GameOccassion] = {
+    dao.findGame(occassionSeqId)
   }
 
-  def findReservation(id:String) : String = {
-    ""
+  def createGamePass(occassionId:OccassionId, reservationId:SeatId) : Ticket = {
+    new Ticket(reservationId)
+  }
+
+  def allocateOccassion() : OccassionId = {
+    val res:OccassionId = occassionSeqId
+    occassionSeqId = occassionSeqId + 1
+    openOccassions += res -> List()
+    res
+  }
+  def reserveSeat(occassionId:OccassionId) : SeatId = {
+    var res:SeatId = seatSeqId
+    openOccassions(occassionId) = openOccassions.apply(occassionId) :+ res
+    seatSeqId = seatSeqId + 1
+    res
+  }
+
+  def findReservation(id:SeatId) : Option[(OccassionId,List[SeatId])] = {
+    openOccassions.find {
+      case (occassionId, seats) => seats.exists( s => s == id)
+    }
   }
 }
 

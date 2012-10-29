@@ -9,6 +9,9 @@ import java.io.Serializable;
  * Time: 21:22
  * To change this template use File | Settings | File Templates.
  */
-public class RegisteredPlayerInfo extends AbstractPlayerInfo implements Serializable {
+public class RegisteredPlayerInfo extends AbstractPlayerInfo {
 
+    public RegisteredPlayerInfo() {
+        this.name = "Tja";
+    }
 }
