@@ -20,11 +20,11 @@ class Reservee() {
 }
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
-class AbstractPlayerInfo(val name:String) {
+class AbstractPlayerIdentifier(val name:String) {
 
 }
 
-class PlayerInfo(name:String, val playerId:Int) extends AbstractPlayerInfo(name) { }
+class PlayerIdentifierWithInfo(name:String, val playerId:Int) extends AbstractPlayerIdentifier(name) { }
 
-class AnonymousPlayerInfo(name:String, val playerId:Int) extends AbstractPlayerInfo(name) { }
+class AnonymousPlayerIdentifier(name:String, val playerId:Int) extends AbstractPlayerIdentifier(name) { }
   */

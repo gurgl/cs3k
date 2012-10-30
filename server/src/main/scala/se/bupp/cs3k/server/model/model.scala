@@ -5,7 +5,7 @@ import javax.persistence._
 import se.bupp.cs3k.api.AbstractGamePass
 import java.io.Serializable
 import se.bupp.cs3k.api.{Ticket => ApiTicket}
-import se.bupp.cs3k.server.ApiPlayer
+import se.bupp.cs3k.server.User
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,15 +26,13 @@ abstract class AbstractGameOccassion {
 }
 
 @Entity
-class GameOccassion extends AbstractGameOccassion {
+case class GameOccassion(var occassionId:Long) extends AbstractGameOccassion {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:Long = _
-
-  var occassionId:Long = _
 
   def timeTriggerStart = true
 }
 
-class NonPersisentGameOccassion(val occassionId:Long) extends AbstractGameOccassion {
+case class NonPersisentGameOccassion(val occassionId:Long) extends AbstractGameOccassion {
 
   def timeTriggerStart = true
 }
@@ -51,7 +49,10 @@ class NonPersisentGameOccassion(val occassionId:Long) extends AbstractGameOccass
 class Ticket() extends ApiTicket with Serializable {
 
   @ManyToOne
-  var user:ApiPlayer = _
+  var user:User = _
+
+  @ManyToOne
+  var game:GameOccassion = _
 
   def this(id: Long) {
     this()
@@ -65,6 +66,11 @@ class Ticket() extends ApiTicket with Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id: Long = _
 }
 
+
+
 case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameProcessSettings) {
 
+  def isPublic = game == null
+
+  def requiresTicket = game != null && game.isInstanceOf[GameOccassion]
 }

@@ -5,6 +5,7 @@ import io.Source
 import java.net.URL
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.util.StringUtils
+import user.PlayerIdentifierWithInfo
 import xml.Utility
 
 /**
@@ -31,9 +32,9 @@ class TestApi extends Specification {
 
       var back: AbstractGamePass = mapper.readValue(str, classOf[AbstractGamePass])
       back.shouldEqual(original)
-      var original2 = new AnonymousPass(11L,"lennart")
+      var original2 = new IdentifyOnlyPass(new PlayerIdentifierWithInfo("lennart",11L))
       var str2: String = mapper.writeValueAsString(original2)
-      str2.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.AnonymousPass\",\"name\":\"lennart\"}")
+      str2.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.IdentifyOnlyPass\",\"name\":\"lennart\"}")
 
     }
   }

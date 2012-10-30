@@ -7,7 +7,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import se.bupp.cs3k.server.ApiPlayer;
+import se.bupp.cs3k.server.User;
 
 
 public class SigninPage extends AbstractBasePage {
@@ -60,10 +60,10 @@ public class SigninPage extends AbstractBasePage {
 
         private boolean signIn(String username, String password) {
           if (username != null && password != null) {
-            ApiPlayer user = beanan.findUser(username);
+            User user = beanan.findUser(username);
 
               if(user == null) {
-                ApiPlayer apiPlayer = new ApiPlayer("admin");
+                User apiPlayer = new User("admin");
                   apiPlayer.password_$eq("admin");
                 beanan.insert(apiPlayer);
                   user = apiPlayer;

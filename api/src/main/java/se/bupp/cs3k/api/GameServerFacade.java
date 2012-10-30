@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface GameServerFacade {
 
-    public AbstractPlayerInfo evaluateGamePass(String pass) throws RemoteException;
+    public SimplePlayerInfo evaluateGamePass(String pass, Long occassionId) throws RemoteException;
 
     //public void setScore(Integer occassionId, String serializedScore) throws RemoteException;
 

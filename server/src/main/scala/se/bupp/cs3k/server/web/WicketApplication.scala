@@ -28,17 +28,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Component, Service}
 import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
-import se.bupp.cs3k.server.{ServerLobby, ApiPlayer, web}
+import se.bupp.cs3k.server.{ServerLobby, User, web}
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}
 import se.bupp.cs3k.server.facade.{WebStartResourceFactory}
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.support.{FileSystemXmlApplicationContext, ClassPathXmlApplicationContext}
 import se.bupp.cs3k.server.service.GameReservationService
+import se.bupp.cs3k.server.service.GameReservationService._
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.context.WebApplicationContext
 import se.bupp.cs3k.server.model.{Ticket, GameOccassion}
 import se.bupp.cs3k.server.model.Model._
+
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -59,9 +61,9 @@ object WicketApplication {
 trait MyBean extends GameDao with TicketDao {
   def read()
 
-  def insert(a:ApiPlayer)
-  def findUser(s:String) : ApiPlayer
-  def findUser(id:UserId) : Option[ApiPlayer]
+  def insert(a:User)
+  def findUser(s:String) : User
+  def findUser(id:UserId) : Option[User]
 
   def store()
 }
@@ -73,6 +75,7 @@ trait GameDao {
 
 trait TicketDao {
 
+  def findTicketByUserAndGame(id:Long,occId:OccassionId) : Option[Ticket]
   def findTicket(id:Long) : Option[Ticket]
 }
 
@@ -85,16 +88,22 @@ class MyBeanImpl extends MyBean {
   var em:EntityManager = _
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  def insert(a:ApiPlayer) {
+  def insert(a:User) {
     em.persist(a)
   }
 
   def findTicket(id:Long) : Option[Ticket] = {
     Option(em.find(classOf[Ticket], id))
   }
+  def findTicketByUserAndGame(id:Long,occId:OccassionId) : Option[Ticket] = {
+    var q = em.createQuery("from Ticket t where t.user.id = :u and t.game.occassionId = :o", classOf[Ticket])
+    q.setParameter("u", id)
+    q.setParameter("o", occId)
+    getSingle(q)
+  }
 
-  def findUser(id:Long) : Option[ApiPlayer] = {
-    Option(em.find(classOf[ApiPlayer], id))
+  def findUser(id:Long) : Option[User] = {
+    Option(em.find(classOf[User], id))
   }
 
   def findGame(occassionId:Long) = {
@@ -109,7 +118,7 @@ class MyBeanImpl extends MyBean {
   }
 
   def findUser(s:String) = {
-    var q: TypedQuery[ApiPlayer] = em.createQuery[ApiPlayer]("from ApiPlayer p where p.username = :name",classOf[ApiPlayer])
+    var q: TypedQuery[User] = em.createQuery[User]("from User p where p.username = :name",classOf[User])
     q.setParameter("name",s)
     getSingle(q).getOrElse(null)
   }
@@ -118,7 +127,7 @@ class MyBeanImpl extends MyBean {
 
   //@Transactional()
   def read() {
-    var q: Query = em.createQuery("from ApiPlayer")
+    var q: Query = em.createQuery("from User")
     val res = q.getResultList.mkString(",")
     println(res)
   }
@@ -127,7 +136,7 @@ class MyBeanImpl extends MyBean {
   def store() {
     //instance.useBeanFactory()
 
-    em.persist(new ApiPlayer("Tja" + System.currentTimeMillis()))
+    em.persist(new User("Tja" + System.currentTimeMillis()))
   }
 }
 

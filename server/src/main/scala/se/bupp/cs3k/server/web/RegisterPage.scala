@@ -3,7 +3,7 @@ package se.bupp.cs3k.server.web
 import org.apache.wicket.model.{Model, CompoundPropertyModel}
 import org.apache.wicket.markup.html.form.{Form, PasswordTextField, TextField}
 import org.apache.wicket.markup.html.WebPage
-import se.bupp.cs3k.server.ApiPlayer
+import se.bupp.cs3k.server.User
 import org.apache.wicket.markup.html.panel.FeedbackPanel
 import org.apache.wicket.spring.injection.annot.SpringBean
 
@@ -23,9 +23,9 @@ class RegisterPage extends AbstractBasePage {
 
   var confirm:String = ""
 
-  class RegisterForm(id:String) extends Form[ApiPlayer](id) {
+  class RegisterForm(id:String) extends Form[User](id) {
 
-    var user = new ApiPlayer()
+    var user = new User()
 
 
     var confirmModel = new Model[String](confirm)

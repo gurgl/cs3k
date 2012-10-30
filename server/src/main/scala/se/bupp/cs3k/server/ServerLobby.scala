@@ -3,7 +3,8 @@ package se.bupp.cs3k.server
 import com.esotericsoftware.kryonet.{Listener, Connection, Server}
 import model.NonPersisentGameOccassion
 import se.bupp.cs3k._
-import api.{AnonymousPlayerInfo, RegisteredPlayerInfo, PlayerInfo, AbstractPlayerInfo}
+import api.user.{PlayerIdentifierWithInfo, RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
+
 import collection.mutable
 import java.util.{Timer, HashMap}
 import org.apache.commons.exec.{DefaultExecutor, ExecuteWatchdog, DefaultExecuteResultHandler, CommandLine}
@@ -48,7 +49,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
   var gameReservationService:GameReservationService = _
 
-  var queue = mutable.Queue.empty[(Connection,AbstractPlayerInfo)]
+  var queue = mutable.Queue.empty[(Connection,AbstractPlayerIdentifier)]
   var queueItemInfo = mutable.Map[Long,AnyRef]()
 
   var launchQueue = mutable.Queue.empty[List[Connection]]
@@ -93,8 +94,8 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
               connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
 
-              val api = request.userIdOpt.map(new RegisteredPlayerInfo(_)).getOrElse {
-                if (request.name == "") throw new RuntimeException("YO") ; new AnonymousPlayerInfo(request.name)
+              val api = request.userIdOpt.map(new RegisteredPlayerIdentifier(_)).getOrElse {
+                if (request.name == "") throw new RuntimeException("YO") ; new AnonymousPlayerIdentifier(request.name)
               }
               queue += Pair(connection, api)
               server.sendToAllTCP(new ProgressUpdated(queue.size))
@@ -110,7 +111,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
   def launchServerInstance() {
 
-    var party = List[(Connection,AbstractPlayerInfo)]()
+    var party = List[(Connection,AbstractPlayerIdentifier)]()
 
 
 

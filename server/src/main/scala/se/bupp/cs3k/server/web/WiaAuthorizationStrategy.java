@@ -5,10 +5,7 @@ import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.authorization.Action;
 import org.apache.wicket.authorization.IAuthorizationStrategy;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
-import se.bupp.cs3k.server.ApiPlayer;
-import se.bupp.cs3k.server.web.ProtectedPage;
-import se.bupp.cs3k.server.web.SigninPage;
-import se.bupp.cs3k.server.web.WiaSession;
+import se.bupp.cs3k.server.User;
 
 public final class WiaAuthorizationStrategy implements
     IAuthorizationStrategy,
@@ -20,7 +17,7 @@ public final class WiaAuthorizationStrategy implements
       Class<? extends Component> c = component.getClass();
       AdminOnly adminOnly = c.getAnnotation(AdminOnly.class);
       if (adminOnly != null) {
-        ApiPlayer user = WiaSession.get().getUser();
+        User user = WiaSession.get().getUser();
         return (user != null && user.isAdmin());
       }
     }

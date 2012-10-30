@@ -10,9 +10,16 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public class GateGamePass extends AbstractGamePass implements Serializable {
+    Long reservationId;
 
     public GateGamePass() {
-
     }
 
+    public GateGamePass(Long reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public Long getReservationId() {
+        return reservationId;
+    }
 }

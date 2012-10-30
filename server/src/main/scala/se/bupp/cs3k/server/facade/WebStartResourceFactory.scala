@@ -15,6 +15,7 @@ import se.bupp.cs3k.server.service.GameReservationService
 import org.springframework.beans.factory.annotation.Autowired
 import se.bupp.cs3k.server.model.RunningGame
 import org.apache.log4j.Logger
+import user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 import xml.Utility.Escapes
 import xml.Utility
 import se.bupp.cs3k.server.model.Model._
@@ -69,11 +70,11 @@ class WebStartResourceFactory {
 
       log.info("reservationIdOpt " + reservationIdOpt)
 
-      val userOpt:Option[AbstractPlayerInfo] = userIdOpt.flatMap( id => dao.findUser(id).map( p => new PlayerInfo(p.username,p.id))).orElse( playerNameOpt.map(n => new AnonymousPlayerInfo(n)) )
+      val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id).map( p => new RegisteredPlayerIdentifier(p.id))).orElse( playerNameOpt.map(n => new AnonymousPlayerIdentifier(n)) )
 
-      /*val user2:Option[AbstractPlayerInfo] = userIdOpt.flatMap( id => dao.findUser(id)) match {
-        case Some(p) => Some(new PlayerInfo(p.username,p.id))
-        case None => playerNameOpt.map(n => new AnonymousPlayerInfo(n))
+      /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
+        case Some(p) => Some(new PlayerIdentifierWithInfo(p.username,p.id))
+        case None => playerNameOpt.map(n => new AnonymousPlayerIdentifier(n))
       }*/
       val userOrFail = userOpt.toRight("Couldnt Construct user")
 
@@ -110,19 +111,24 @@ class WebStartResourceFactory {
               val s = r.map(Right(_)).getOrElse(Left("Couldnt find game"))
               s
           }
-
-          rgOpt.right.map { rg =>
-            val gamePass = gameReservationService.createGamePass(1, 2)
-            (rg,gamePass)
-          }
+          rgOpt
         }
       }
 
-      serverOrFail match {
+      val serverAndPassOrFail = serverOrFail.right.flatMap { rg =>
+        val r = gameReservationService.createGamePass(rg,userOpt.get,reservationIdOpt) match {
+          case Some(gamePass) => Right((rg,gamePass))
+          case None => Left("Unable to acquire valid pass")
+        }
+        r
+
+      }
+
+      serverAndPassOrFail match {
         case Right((rg, gamePass)) => produceGameJnlp(p1, gamePass, rg)
-        case Left(s) =>
+        case Left(message) =>
           var response = new AbstractResource.ResourceResponse
-          log.info("Resorting to fail response")
+          log.info("Resorting to fail response : " + message)
 
           response.setContentType("plain/text")
           response.setLastModified(Time.now())
@@ -130,7 +136,7 @@ class WebStartResourceFactory {
           response.setFileName("error.txt")
           response.setWriteCallback(new WriteCallback {
             def writeData(p2: Attributes) {
-              p2.getResponse.write("Erronous request")
+              p2.getResponse.write("Erronous request : " + message)
             }
           })
           response

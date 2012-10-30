@@ -6,7 +6,7 @@ import java.util.Locale;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
-import se.bupp.cs3k.server.ApiPlayer;
+import se.bupp.cs3k.server.User;
 
 public class WiaSession extends WebSession {
 
@@ -14,14 +14,14 @@ public class WiaSession extends WebSession {
     return (WiaSession) Session.get();
   }
 
-  private ApiPlayer user;
+  private User user;
 
   public WiaSession(Request request) {
     super(request);
     setLocale(Locale.ENGLISH);
   }
 
-  public synchronized ApiPlayer getUser() {
+  public synchronized User getUser() {
     return user;
   }
 
@@ -29,7 +29,7 @@ public class WiaSession extends WebSession {
     return (user != null);
   }
 
-  public synchronized void setUser(ApiPlayer user) {
+  public synchronized void setUser(User user) {
     this.user = user;
     dirty();
   }

@@ -164,7 +164,7 @@ class TheHomePage extends WebPage {
     def onClick(target: AjaxRequestTarget) {
       //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
       beanan.store()
-      //var q: Query = em.createQuery("from ApiPlayer")
+      //var q: Query = em.createQuery("from User")
       //val res = q.getResultList.mkString(",")
       //println(res)
 

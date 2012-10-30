@@ -1,11 +1,12 @@
 package se.bupp.cs3k.server.service
 
 import org.springframework.stereotype.Component
-import se.bupp.cs3k.server.model.{Ticket, GameOccassion}
+import se.bupp.cs3k.server.model.{NonPersisentGameOccassion, RunningGame, Ticket, GameOccassion}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.web.MyBean
 import org.springframework.beans.factory.annotation.Autowired
-import se.bupp.cs3k.api.AbstractPlayerInfo
+import se.bupp.cs3k.api.user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
+import se.bupp.cs3k.api.{GateGamePass, IdentifyOnlyPass, AbstractGamePass}
 
 /**
  * Created with IntelliJ IDEA.
@@ -67,7 +68,7 @@ object GameReservationService {
   type SeatId = Long
   var occassionSeqId:Long = 1L
   var seatSeqId:Long= 1L
-  var openOccassions = collection.mutable.Map[OccassionId,collection.mutable.Map[SeatId,AbstractPlayerInfo]]()
+  var openOccassions = collection.mutable.Map[OccassionId,collection.mutable.Map[SeatId,AbstractPlayerIdentifier]]()
 
 }
 @Component
@@ -82,9 +83,41 @@ class GameReservationService {
     dao.findGame(occassionSeqId)
   }
 
-  def createGamePass(occassionId:OccassionId, reservationId:SeatId) : Ticket = {
+  /*def createGamePass(occassionId:OccassionId, reservationId:SeatId) : Ticket = {
     // Ticket - pre created
     new Ticket(reservationId)
+  }*/
+
+  def createGamePass(rg:RunningGame, pi:AbstractPlayerIdentifier, reservationIdOpt:Option[SeatId]) : Option[AbstractGamePass] = {
+    rg match {
+      case RunningGame(null,_) => Some(new IdentifyOnlyPass(pi))
+      case RunningGame(NonPersisentGameOccassion(occasionId),_) =>
+        reservationIdOpt.flatMap { res =>
+          findReservation(res).map { case (occ,part) =>
+            new GateGamePass(res)
+          }
+
+        }
+
+      case RunningGame(GameOccassion(occassionId),_) => pi match {
+        case p:RegisteredPlayerIdentifier =>
+          val ticket = dao.findTicketByUserAndGame(p.getUserId, occassionId).get
+          if(ticket.game.occassionId == occassionId) {
+            Some(ticket)
+          } else None
+        case _ => None
+      }
+    }
+
+
+    /*if(rg.isPublic) {
+
+    } else if (!rg.requiresTicket) {
+
+    } else {
+
+    }*/
+
   }
 
   def allocateOccassion() : OccassionId = {
@@ -93,17 +126,25 @@ class GameReservationService {
     openOccassions += res -> collection.mutable.Map.empty
     res
   }
-  def reserveSeat(occassionId:OccassionId, pi:AbstractPlayerInfo) : SeatId = {
+  def reserveSeat(occassionId:OccassionId, pi:AbstractPlayerIdentifier) : SeatId = {
     var res:SeatId = seatSeqId
     openOccassions(occassionId) = openOccassions(occassionId) + (res -> pi)
     seatSeqId = seatSeqId + 1
     res
   }
 
-  def findReservation(id:SeatId) : Option[(OccassionId,Map[SeatId,AbstractPlayerInfo])] = {
+  def findReservation(id:SeatId) : Option[(OccassionId,Map[SeatId,AbstractPlayerIdentifier])] = {
     openOccassions.find {
       case (occassionId, seats) => seats.exists( s => s == id)
     }.map( r => (r._1,Map.empty ++ r._2))
+  }
+
+  def findReservationPlayerIdentifer(id:SeatId, verifyOccId:OccassionId) : Option[(AbstractPlayerIdentifier)] = {
+    findReservation(id).flatMap { case (occassionId,map) =>
+      if (occassionId == verifyOccId) {
+        map.find { case (seat, pi) => seat == id }.map( p => p._2 )
+      } else None
+    }
   }
 }
 
