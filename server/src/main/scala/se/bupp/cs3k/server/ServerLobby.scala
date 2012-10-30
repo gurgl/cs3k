@@ -3,6 +3,7 @@ package se.bupp.cs3k.server
 import com.esotericsoftware.kryonet.{Listener, Connection, Server}
 import model.NonPersisentGameOccassion
 import se.bupp.cs3k._
+import api.{AnonymousPlayerInfo, RegisteredPlayerInfo, PlayerInfo, AbstractPlayerInfo}
 import collection.mutable
 import java.util.{Timer, HashMap}
 import org.apache.commons.exec.{DefaultExecutor, ExecuteWatchdog, DefaultExecuteResultHandler, CommandLine}
@@ -47,7 +48,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
   var gameReservationService:GameReservationService = _
 
-  var queue = mutable.Queue.empty[Connection]
+  var queue = mutable.Queue.empty[(Connection,AbstractPlayerInfo)]
   var queueItemInfo = mutable.Map[Long,AnyRef]()
 
   var launchQueue = mutable.Queue.empty[List[Connection]]
@@ -78,7 +79,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
       override def disconnected(p1: Connection) {
         super.disconnected(p1)
-        queue.dequeueFirst(_.getID == p1.getID) match {
+        queue.dequeueFirst(_._1.getID == p1.getID) match {
           case None => println("Removing UNKNOWN disconnect ")
           case Some(c) =>  println("Removing disconnect")
             server.sendToAllTCP(new ProgressUpdated(queue.size))
@@ -88,10 +89,14 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
       override def received (connection:Connection , ob:Object) {
         ob match {
-          case response:LobbyJoinRequest =>
+          case request:LobbyJoinRequest =>
 
               connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
-              queue += connection
+
+              val api = request.userIdOpt.map(new RegisteredPlayerInfo(_)).getOrElse {
+                if (request.name == "") throw new RuntimeException("YO") ; new AnonymousPlayerInfo(request.name)
+              }
+              queue += Pair(connection, api)
               server.sendToAllTCP(new ProgressUpdated(queue.size))
               if (queue.size >= numOfPlayers) {
                 launchServerInstance()
@@ -105,7 +110,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
 
   def launchServerInstance() {
 
-    var party = List[Connection]()
+    var party = List[(Connection,AbstractPlayerInfo)]()
 
 
 
@@ -127,10 +132,10 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
     val beeper = new Runnable() {
       def  run() {
         log.info("in start task " + party.size)
-        party.foreach { c =>
+        party.foreach { case (c,pi) =>
 
           try {
-            val reservationId = gameReservationService.reserveSeat(occassionId)
+            val reservationId = gameReservationService.reserveSeat(occassionId, pi)
 
 
             log.info("Reserving seat and sending sending start game")

@@ -9,10 +9,12 @@ import java.net.URL
 
 class LobbyJoinResponse(var participantsRequired:Int) {
   def this() = this(0)
+
 }
 
-class LobbyJoinRequest() {
-  //def this() = this("",0)
+class LobbyJoinRequest(var userId:Long, var name:String ) {
+  def this() = this(0,"")
+  def userIdOpt = if (userId>0) Some(userId) else None
 }
 
 

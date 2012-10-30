@@ -1,7 +1,5 @@
 package se.bupp.cs3k.api;
 
-import java.io.Serializable;
-
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -10,8 +8,9 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public class RegisteredPlayerInfo extends AbstractPlayerInfo {
+    Long userId;
 
-    public RegisteredPlayerInfo() {
-        this.name = "Tja";
+    public RegisteredPlayerInfo(Long userId) {
+        this.userId = userId;
     }
 }

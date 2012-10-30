@@ -40,7 +40,7 @@ object GameServerPool {
     val cmdLine = CommandLine.parse(commandLine);
 
 
-    def jnlpUrl(reservationId:SeatId) : URL = new URL(clientJNLPUrl + "?seat_id=" + reservationId)
+    def jnlpUrl(reservationId:SeatId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId)
   }
 
   val pool = new GameServerPool

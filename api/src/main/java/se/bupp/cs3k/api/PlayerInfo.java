@@ -9,16 +9,13 @@ import java.io.Serializable;
  * Time: 21:22
  * To change this template use File | Settings | File Templates.
  */
-public class AnonymousPlayerInfo extends AbstractPlayerInfo {
+public class PlayerInfo extends RegisteredPlayerInfo {
+    String name;
 
-    public AnonymousPlayerInfo() {
-    }
-
-    public AnonymousPlayerInfo(String name) {
+    public PlayerInfo(String name, Long userId) {
+        super(userId);
         this.name = name;
     }
-
-    String name;
 
     public String getName() {
         return name;

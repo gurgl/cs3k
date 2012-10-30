@@ -9,13 +9,14 @@ import java.io.Serializable;
  * Time: 03:21
  * To change this template use File | Settings | File Templates.
  */
-public class AnonymousPass extends AbstractGamePass implements Serializable {
+public class AnonymousPass extends AbstractGateGamePass implements Serializable {
     String name;
 
     public AnonymousPass() {
     }
 
-    public AnonymousPass(String name) {
+    public AnonymousPass(Long reservationId, String name) {
+        super(reservationId);
         this.name = name;
     }
 

@@ -8,6 +8,8 @@ import java.lang.Integer
 import java.lang.{Integer => JInt}
 import org.apache.log4j.Logger
 import java.rmi.RemoteException
+import org.springframework.beans.factory.annotation.Autowired
+import se.bupp.cs3k.server.web.MyBean
 
 
 /**
@@ -24,16 +26,21 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
 
   val om = new ObjectMapper()
 
+
+  @Autowired
+  var dao:MyBean = _
+
   @throws(classOf[java.rmi.RemoteException])
   def evaluateGamePass(pass: String) : AbstractPlayerInfo = {
     try {
       log.info("evaluateGamePass invoked")
       var absPI = om.readValue(pass, classOf[AbstractGamePass])
       log.info("evaluateGamePass invoked" + absPI)
-      absPI match {
-        case t:Ticket => new RegisteredPlayerInfo()
-        case t:AnonymousPass => new AnonymousPlayerInfo(new String(t.getName.getBytes()))
+      val r = absPI match {
+        case t:Ticket => dao.findTicket(t.getId).map( tt => new PlayerInfo(tt.user.username,tt.user.id))
+        case t:AnonymousPass => Some(new AnonymousPlayerInfo(new String(t.getName.getBytes())))
       }
+      r.getOrElse(null)
     } catch {
       case e:Exception => e.printStackTrace()
       throw new RemoteException("Tjenare")

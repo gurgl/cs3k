@@ -168,6 +168,8 @@ public class LobbyClient extends JFrame {
 
         setTitle(System.getProperty("lobbyPort"));
         String lobbyPortStr = System.getProperty("lobbyPort");
+        String playerName = System.getProperty("playerName");
+        String userIdStr = System.getProperty("userId");
         if(lobbyPortStr != null) {
             lobbyPort = Integer.parseInt(lobbyPortStr);
         } else {
@@ -226,7 +228,9 @@ public class LobbyClient extends JFrame {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        LobbyJoinRequest r = new LobbyJoinRequest();
+        Long userId =  null;
+        try { userId = Long.valueOf(userIdStr); } catch(Exception e) { }
+        LobbyJoinRequest r = new LobbyJoinRequest(userId,playerName);
         //r.b_$eq(1);
         client.sendTCP(r);
         System.err.println("slut");

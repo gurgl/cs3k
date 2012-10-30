@@ -37,7 +37,8 @@ import org.springframework.context.support.{FileSystemXmlApplicationContext, Cla
 import se.bupp.cs3k.server.service.GameReservationService
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.context.WebApplicationContext
-import se.bupp.cs3k.server.model.GameOccassion
+import se.bupp.cs3k.server.model.{Ticket, GameOccassion}
+import se.bupp.cs3k.server.model.Model._
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -55,11 +56,12 @@ object WicketApplication {
   val resourceKey2 = "JNLP_GENERATOR_lobby"
 }
 
-trait MyBean extends GameDao {
+trait MyBean extends GameDao with TicketDao {
   def read()
 
   def insert(a:ApiPlayer)
   def findUser(s:String) : ApiPlayer
+  def findUser(id:UserId) : Option[ApiPlayer]
 
   def store()
 }
@@ -67,6 +69,11 @@ trait MyBean extends GameDao {
 trait GameDao {
 
   def findGame(occassionId:Long) : Option[GameOccassion]
+}
+
+trait TicketDao {
+
+  def findTicket(id:Long) : Option[Ticket]
 }
 
 
@@ -80,6 +87,14 @@ class MyBeanImpl extends MyBean {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   def insert(a:ApiPlayer) {
     em.persist(a)
+  }
+
+  def findTicket(id:Long) : Option[Ticket] = {
+    Option(em.find(classOf[Ticket], id))
+  }
+
+  def findUser(id:Long) : Option[ApiPlayer] = {
+    Option(em.find(classOf[ApiPlayer], id))
   }
 
   def findGame(occassionId:Long) = {

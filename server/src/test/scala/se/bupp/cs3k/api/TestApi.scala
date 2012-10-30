@@ -22,14 +22,16 @@ class TestApi extends Specification {
 
       var mapper: ObjectMapper = new ObjectMapper()
 
-      var original: Ticket = new Ticket(3)
+      var original: Ticket = new Ticket {
+        def getId = 3
+      }
       var str: String = mapper.writeValueAsString(original)
       str.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.Ticket\",\"reservationId\":3}")
 
 
       var back: AbstractGamePass = mapper.readValue(str, classOf[AbstractGamePass])
       back.shouldEqual(original)
-      var original2 = new AnonymousPass("lennart")
+      var original2 = new AnonymousPass(11L,"lennart")
       var str2: String = mapper.writeValueAsString(original2)
       str2.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.AnonymousPass\",\"name\":\"lennart\"}")
 

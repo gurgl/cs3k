@@ -8,7 +8,7 @@ import java.util.Scanner
 import se.bupp.cs3k.server.{GameServerPool, ServerLobby}
 import java.io.IOException
 import org.springframework.stereotype.Component
-import se.bupp.cs3k.api.{AbstractGamePass, Ticket}
+import se.bupp.cs3k.api._
 import com.fasterxml.jackson.databind.ObjectMapper
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.server.service.GameReservationService
@@ -17,6 +17,14 @@ import se.bupp.cs3k.server.model.RunningGame
 import org.apache.log4j.Logger
 import xml.Utility.Escapes
 import xml.Utility
+import se.bupp.cs3k.server.model.Model._
+import se.bupp.cs3k.server.web.MyBean
+import scala.Some
+import se.bupp.cs3k.server.model.RunningGame
+import scala.Left
+import scala.Some
+import scala.Right
+import se.bupp.cs3k.server.model.RunningGame
 
 
 /**
@@ -40,6 +48,9 @@ class WebStartResourceFactory {
   @Autowired
   var gameReservationService:GameReservationService = _
 
+  @Autowired
+  var dao:MyBean = _
+
   class GameJnlpHandler extends AbstractResource {
 
 
@@ -48,60 +59,142 @@ class WebStartResourceFactory {
     override def newResourceResponse(p1: Attributes) = {
 
 
-      val reservationIdOpt:Option[SeatId] = Option(p1.getParameters().get("seat_id").toOptionalLong)
-      val publicGameIdOpt = Option(p1.getParameters().get("public_game_id").toOptionalLong)
+      val reservationIdOpt:Option[SeatId] = Option(p1.getParameters().get("reservation_id").toOptionalLong)
+      val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong)
+      val gameOccasionIdOpt:Option[OccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong)
+
       val playerNameOpt = Option(p1.getParameters().get("player_name").toOptionalString)
+      val userIdOpt:Option[UserId] = Option(p1.getParameters().get("user_id").toOptionalLong)
+
 
       log.info("reservationIdOpt " + reservationIdOpt)
 
-      var response: AbstractResource.ResourceResponse = (reservationIdOpt, publicGameIdOpt, playerNameOpt) match {
-        case (None, Some(publicGameId), Some(playerName)) => null
-        case (Some(reservationId), _, _) =>
-          gameReservationService.findReservation(reservationId) match {
-            case Some((occassionId,_)) =>
+      val userOpt:Option[AbstractPlayerInfo] = userIdOpt.flatMap( id => dao.findUser(id).map( p => new PlayerInfo(p.username,p.id))).orElse( playerNameOpt.map(n => new AnonymousPlayerInfo(n)) )
 
-              log.info("Reservation found " + occassionId)
-              var testar: Option[RunningGame] = GameServerPool.pool.findRunningGame(occassionId)
-              // Occassions are either created in lobby or pre persisted.
-              log.info("testar " + testar)
-              val runningGameOpt = testar.orElse {
-                // Not a lobby game, should exist a unstarded preconfigured game
-                log.info("No running game found - try to launch")
-                gameReservationService.findGame(occassionId).map( g =>
-                  // TODO: Fix me - hardcoded below
-                  GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g)
+      /*val user2:Option[AbstractPlayerInfo] = userIdOpt.flatMap( id => dao.findUser(id)) match {
+        case Some(p) => Some(new PlayerInfo(p.username,p.id))
+        case None => playerNameOpt.map(n => new AnonymousPlayerInfo(n))
+      }*/
+      val userOrFail = userOpt.toRight("Couldnt Construct user")
+
+      val serverOrFail = userOrFail.right.flatMap { k => serverIdOpt match {
+        case Some(serverId) => // Rullande/Public
+          Left("Not implemented")
+
+        case None =>
+          val instrOpt = (reservationIdOpt, gameOccasionIdOpt) match {
+            case (None, Some(gameOccassionId)) => // Rullande/Public
+                Right((false,gameOccassionId))
+            case (Some(reservationId), _) => // Lobby
+              gameReservationService.findReservation(reservationId) match {
+                case Some((occassionId,_)) => Right((true, occassionId))
+                case None => Left("Reservation not found")
+              }
+            case _ => Left("No game id sent")
+          }
+          val rgOpt = instrOpt.right.flatMap {
+            case (canSpawn, occassionId) =>
+
+              val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
+              val r = alreadyRunningGame.orElse {
+                gameReservationService.findGame(occassionId).flatMap( g =>
+                // TODO: Fix me - hardcoded below
+                  if (!g.timeTriggerStart && canSpawn) {
+                    Some(GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g))
+                  } else {
+                    None
+                    //Left("Couldnt find game")
+                  }
                 )
               }
-              runningGameOpt match {
-                case Some(rg) =>
-                  val gamePass = gameReservationService.createGamePass(reservationId, occassionId)
-                  produceGameJnlp(p1, gamePass, rg)
-                case None => null
-              }
-           case None =>
-             log.error("No reservationId of " + reservationId + " found")
-             null
+              val s = r.map(Right(_)).getOrElse(Left("Couldnt find game"))
+              s
           }
-        case _ => null
+
+          rgOpt.right.map { rg =>
+            val gamePass = gameReservationService.createGamePass(1, 2)
+            (rg,gamePass)
+          }
+        }
       }
 
+      serverOrFail match {
+        case Right((rg, gamePass)) => produceGameJnlp(p1, gamePass, rg)
+        case Left(s) =>
+          var response = new AbstractResource.ResourceResponse
+          log.info("Resorting to fail response")
 
+          response.setContentType("plain/text")
+          response.setLastModified(Time.now())
+          response.disableCaching()
+          response.setFileName("error.txt")
+          response.setWriteCallback(new WriteCallback {
+            def writeData(p2: Attributes) {
+              p2.getResponse.write("Erronous request")
+            }
+          })
+          response
+      }
+
+      /*
       if (response == null) {
-        response = new AbstractResource.ResourceResponse
-        log.info("Resorting to fail response")
 
-        response.setContentType("plain/text")
-        response.setLastModified(Time.now())
-        response.disableCaching()
-        response.setFileName("error.txt")
-        response.setWriteCallback(new WriteCallback {
-          def writeData(p2: Attributes) {
-            p2.getResponse.write("Erronous request")
-          }
-        })
       }
+
+
+
+
+
+
+
 
       response
+       */
+
+      /*
+       case (None, None, Some(gameOccassionId)) => // Rullande/Public
+         null
+       case (Some(reservationId), _, _) => // Lobby
+         gameReservationService.findReservation(reservationId) match {
+
+         }
+       case _ => null
+     }     *&
+
+
+     gameReservationService.findReservation(reservationId) match {
+       case Some((occassionId,_)) =>
+
+         log.info("Reservation found " + occassionId)
+         var alreadyStartedGame: Option[RunningGame] = GameServerPool.pool.findRunningGame(occassionId)
+
+         // Occassions are either created in lobby or pre persisted.
+         log.info("alreadyStartedGame " + alreadyStartedGame)
+
+         val runningGameOpt = alreadyStartedGame.orElse {
+           // Not a lobby game, should exist a unstarded preconfigured game
+           log.info("No running game found - try to launch")
+           gameReservationService.findGame(occassionId).flatMap( g =>
+           // TODO: Fix me - hardcoded below
+             if (g.timeTriggerStart) {
+               GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g)
+             } else {
+               None
+             }
+           )
+         }
+         runningGameOpt match {
+           case Some(rg:RunningGame) =>
+             val gamePass = gameReservationService.createGamePass(reservationId, occassionId)
+             produceGameJnlp(p1, gamePass, rg)
+           case None => null
+         }
+       case None =>
+         log.error("No reservationId of " + reservationId + " found")
+         null
+     } */
+
+
     }
 
     def produceGameJnlp(p1: Attributes, gamePass:AbstractGamePass, game: RunningGame): AbstractResource.ResourceResponse = {

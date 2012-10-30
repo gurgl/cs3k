@@ -24,7 +24,7 @@ class AbstractPlayerInfo(val name:String) {
 
 }
 
-class RegisteredPlayerInfo(name:String, val playerId:Int) extends AbstractPlayerInfo(name) { }
+class PlayerInfo(name:String, val playerId:Int) extends AbstractPlayerInfo(name) { }
 
 class AnonymousPlayerInfo(name:String, val playerId:Int) extends AbstractPlayerInfo(name) { }
   */
