@@ -138,9 +138,12 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
           try {
             val reservationId = gameReservationService.reserveSeat(occassionId, pi)
 
-
             log.info("Reserving seat and sending sending start game")
-            c.sendTCP(new StartGame(ServerLobby.remoteIp, 54555 + seqId, 54777 + seqId,GameServerPool.tankGameSettings2.jnlpUrl(reservationId).toExternalForm))
+            var jnlpUrl: URL = pi match {
+              case i:AnonymousPlayerIdentifier => GameServerPool.tankGameSettings2.jnlpUrl(reservationId, i.getName)
+              case i:RegisteredPlayerIdentifier  => GameServerPool.tankGameSettings2.jnlpUrl(reservationId, i.getUserId)
+            }
+            c.sendTCP(new StartGame(ServerLobby.remoteIp, 54555 + seqId, 54777 + seqId,jnlpUrl.toExternalForm))
           } catch {
             case e:Exception => e.printStackTrace()
           }

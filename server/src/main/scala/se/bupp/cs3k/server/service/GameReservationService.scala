@@ -81,6 +81,7 @@ class GameReservationService {
 
   def findGame(occassionId:Long) : Option[GameOccassion] = {
     dao.findGame(occassionSeqId)
+
   }
 
   /*def createGamePass(occassionId:OccassionId, reservationId:SeatId) : Ticket = {
@@ -128,14 +129,14 @@ class GameReservationService {
   }
   def reserveSeat(occassionId:OccassionId, pi:AbstractPlayerIdentifier) : SeatId = {
     var res:SeatId = seatSeqId
-    openOccassions(occassionId) = openOccassions(occassionId) + (res -> pi)
+    openOccassions(occassionId) += (res -> pi)
     seatSeqId = seatSeqId + 1
     res
   }
 
   def findReservation(id:SeatId) : Option[(OccassionId,Map[SeatId,AbstractPlayerIdentifier])] = {
     openOccassions.find {
-      case (occassionId, seats) => seats.exists( s => s == id)
+      case (occassionId, seatMap) => seatMap.exists( s => s._1 == id)
     }.map( r => (r._1,Map.empty ++ r._2))
   }
 

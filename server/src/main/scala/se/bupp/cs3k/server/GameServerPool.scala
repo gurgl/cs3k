@@ -6,6 +6,7 @@ import se.bupp.cs3k.server.GameServerPool.GameProcessSettings
 import java.net.URL
 import se.bupp.cs3k.server.service.GameReservationService._
 import org.apache.log4j.Logger
+import se.bupp.cs3k.server.model.Model.UserId
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,10 +38,11 @@ object GameServerPool {
   val tankGameSettings4  = new GameProcessSettings(cmdStr + " 53556 53778", "http://" + ServerLobby.remoteIp + ":8080/start_game.jnlp", Map() )
 
   class GameProcessSettings(var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String]) {
-    val cmdLine = CommandLine.parse(commandLine);
+    def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
 
 
-    def jnlpUrl(reservationId:SeatId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId)
+    def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
+    def jnlpUrl(reservationId:SeatId,name:UserId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
   }
 
   val pool = new GameServerPool
@@ -97,7 +99,7 @@ class GameServerPool {
     executor.setProcessDestroyer(processDestroyer)
 
     log.info("Begin server start " + game.occassionId)
-    executor.execute(gps.cmdLine, resultHandler)
+    executor.execute(gps.cmdLine(" " + game.occassionId), resultHandler)
     log.info("End server start")
 
 

@@ -78,7 +78,8 @@ public class LobbyClient extends JFrame {
         try {
             init();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
+            JOptionPane.showMessageDialog(this, "exception happens" + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -228,7 +229,7 @@ public class LobbyClient extends JFrame {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        Long userId =  null;
+        Long userId =  -1L;
         try { userId = Long.valueOf(userIdStr); } catch(Exception e) { }
         LobbyJoinRequest r = new LobbyJoinRequest(userId,playerName);
         //r.b_$eq(1);

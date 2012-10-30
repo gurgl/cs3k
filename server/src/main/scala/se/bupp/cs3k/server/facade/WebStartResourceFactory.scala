@@ -60,14 +60,16 @@ class WebStartResourceFactory {
     override def newResourceResponse(p1: Attributes) = {
 
 
-      val reservationIdOpt:Option[SeatId] = Option(p1.getParameters().get("reservation_id").toOptionalLong)
-      val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong)
-      val gameOccasionIdOpt:Option[OccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong)
+      val reservationIdOpt:Option[SeatId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+      val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+
+      val gameOccasionIdOpt:Option[OccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
       val playerNameOpt = Option(p1.getParameters().get("player_name").toOptionalString)
-      val userIdOpt:Option[UserId] = Option(p1.getParameters().get("user_id").toOptionalLong)
+      val userIdOpt:Option[UserId] = Option(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
 
+      log.info("playerNameOpt " + playerNameOpt)
       log.info("reservationIdOpt " + reservationIdOpt)
 
       val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id).map( p => new RegisteredPlayerIdentifier(p.id))).orElse( playerNameOpt.map(n => new AnonymousPlayerIdentifier(n)) )
@@ -130,7 +132,7 @@ class WebStartResourceFactory {
           var response = new AbstractResource.ResourceResponse
           log.info("Resorting to fail response : " + message)
 
-          response.setContentType("plain/text")
+          response.setContentType("application/html")
           response.setLastModified(Time.now())
           response.disableCaching()
           response.setFileName("error.txt")
@@ -254,7 +256,7 @@ class WebStartResourceFactory {
     override def newResourceResponse(p1: Attributes) = {
 
       val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toString)
-      val userIdOpt = Option.apply(p1.getParameters().get("user_id").toString)
+      val userIdOpt:Option[UserId] = Option.apply(p1.getParameters().get("user_id").toOptionalLong).map(p=>p)
 
       //val playerNameOpt = Option.apply(p1.getParameters().get("playerName").toString)
 

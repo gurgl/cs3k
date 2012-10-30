@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.util.StringUtils
 import user.PlayerIdentifierWithInfo
 import xml.Utility
+import se.bupp.cs3k.server.service.GameReservationService._
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,7 +19,11 @@ import xml.Utility
 class TestApi extends Specification {
 
   "should return my address" should {
-
+    "handle conversions1" in {
+      def llll : java.lang.Long = if (1 == 1) null else 1L
+      val reservationIdOpt:Option[SeatId] = Option(llll).map(p=> p.asInstanceOf[Long])
+      reservationIdOpt.shouldEqual(None)
+    }
     "handle conversions" in {
 
       var mapper: ObjectMapper = new ObjectMapper()
