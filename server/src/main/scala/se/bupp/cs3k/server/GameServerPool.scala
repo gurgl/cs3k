@@ -33,7 +33,8 @@ object GameServerPool {
     " "
 
 
-  val tankGameSettings2  = new GameProcessSettings(cmdStr + " 54555 54777", "http://" + ServerLobby.remoteIp + ":8080/start_game.jnlp",
+  val tankGameSettings2  = new GameProcessSettings(
+    cmdStr + " --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + ServerLobby.remoteIp + ":8080/start_game.jnlp",
     Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> ServerLobby.remoteIp))
   val tankGameSettings4  = new GameProcessSettings(cmdStr + " 53556 53778", "http://" + ServerLobby.remoteIp + ":8080/start_game.jnlp", Map() )
 
@@ -99,7 +100,7 @@ class GameServerPool {
     executor.setProcessDestroyer(processDestroyer)
 
     log.info("Begin server start " + game.occassionId)
-    executor.execute(gps.cmdLine(" " + game.occassionId), resultHandler)
+    executor.execute(gps.cmdLine(" --occassion-id " + game.occassionId), resultHandler)
     log.info("End server start")
 
 
