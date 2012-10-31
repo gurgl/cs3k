@@ -5,7 +5,7 @@ import io.Source
 import java.net.URL
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.util.StringUtils
-import user.PlayerIdentifierWithInfo
+import user.{AnonymousPlayerIdentifier, PlayerIdentifierWithInfo}
 import xml.Utility
 import se.bupp.cs3k.server.service.GameReservationService._
 
@@ -28,18 +28,19 @@ class TestApi extends Specification {
 
       var mapper: ObjectMapper = new ObjectMapper()
 
-      var original: Ticket = new Ticket {
+      /*var original: Ticket = new Ticket {
         def getId = 3
       }
       var str: String = mapper.writeValueAsString(original)
       str.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.Ticket\",\"reservationId\":3}")
+      */
 
+      //var back: AbstractGamePass = mapper.readValue(str, classOf[AbstractGamePass])
+      //back.shouldEqual(original)
+      var original2 = new IdentifyOnlyPass(new AnonymousPlayerIdentifier("lennart"))
 
-      var back: AbstractGamePass = mapper.readValue(str, classOf[AbstractGamePass])
-      back.shouldEqual(original)
-      var original2 = new IdentifyOnlyPass(new PlayerIdentifierWithInfo("lennart",11L))
       var str2: String = mapper.writeValueAsString(original2)
-      str2.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.IdentifyOnlyPass\",\"name\":\"lennart\"}")
+      str2.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.IdentifyOnlyPass\",\"userIdentifier\":{\"@class\":\"se.bupp.cs3k.api.user.AnonymousPlayerIdentifier\",\"name\":\"lennart\"}}")
 
     }
   }
