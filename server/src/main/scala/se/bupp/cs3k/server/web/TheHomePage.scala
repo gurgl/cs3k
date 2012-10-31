@@ -1,8 +1,8 @@
 package se.bupp.cs3k.server.web
 
-import org.apache.wicket.markup.html.WebPage
-import org.apache.wicket.markup.html.link.{BookmarkablePageLink, ResourceLink, Link}
-import org.apache.wicket.request.resource.{SharedResourceReference, ByteArrayResource, ContextRelativeResource, ResourceReference}
+import org.apache.wicket.markup.html.{link, WebPage}
+import link.{ResourceLink, BookmarkablePageLink, Link}
+import org.apache.wicket.request.resource._
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import java.util.Scanner
 import org.apache.wicket.markup.html.form.{Button, TextField, Form}
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.access.BeanFactoryLocator
 import javax.persistence.{Query, EntityManager}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.basic.Label
+import se.bupp.cs3k.server.User
 
 
 /**
@@ -37,17 +38,11 @@ import org.apache.wicket.markup.html.basic.Label
 class TheHomePage extends WebPage {
 
 
-  @SpringBean(name="mySBean")
-  var beanan:MyBean = _
+  @SpringBean(name = "mySBean")
+  var beanan: MyBean = _
 
-  //val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp?port=12345")
-  val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
-  val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
-
-
-
-  var button: Button = _
-  val nameLaunchForm = new Form[String]("launch_with_name_form") {
+  @AnonymousOnly
+  class AnonLaunchForm(id: String) extends Form[String](id) {
 
     val JS_SUPPRESS_ENTER = "if(event.keyCode==13 || window.event.keyCode==13){return false;}else{return true;}";
 
@@ -64,94 +59,103 @@ class TheHomePage extends WebPage {
 
       button.setEnabled(false)
     }
+
     override def onSubmit() {
       println("submitting form")
       button.setEnabled(true)
       //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
       //RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, new PageParameters()))
     }
-  }
 
 
+    val fbp = new FeedbackPanel("feedback")
+    fbp.setOutputMarkupId(true)
+    add(fbp)
+    var nameReference: Model[String] = new Model[String]()
+    var field: TextField[String] = new TextField[String]("player_name", nameReference)
+    var behavior: AjaxFormValidatingBehavior = new AjaxFormValidatingBehavior(AnonLaunchForm.this, "onblur") {
+      override def onError(target: AjaxRequestTarget) {
+        super.onError(target)
+        println("beh error")
+        //error("bupp")
+        //target.add(fbp)
+        button.setEnabled(true)
+        target.add(button)
+      }
 
-  val fbp = new FeedbackPanel("feedback")
-  fbp.setOutputMarkupId(true)
-  nameLaunchForm.add(fbp)
-  var nameReference: Model[String] = new Model[String]()
-  var field: TextField[String] = new TextField[String]("player_name", nameReference)
-  var behavior: AjaxFormValidatingBehavior = new AjaxFormValidatingBehavior(nameLaunchForm, "onblur") {
-    override def onError(target: AjaxRequestTarget) {
-      super.onError(target)
-     println("beh error")
-      //error("bupp")
-      //target.add(fbp)
-      button.setEnabled(true)
-      target.add(button)
+
+      override def onSubmit(target: AjaxRequestTarget) {
+        super.onSubmit(target)
+        //var resp: Response = resp
+        //RequestCycle.get().setResponse(resp)
+        println("submitting behav")
+        button.setEnabled(true)
+        target.add(button)
+        //WicketApplication.get.get
+        //super.onSubmit(target, form)
+      }
     }
-
-
-    override def onSubmit(target: AjaxRequestTarget) {
-      super.onSubmit(target)
-      //var resp: Response = resp
-      //RequestCycle.get().setResponse(resp)
-      println("submitting behav")
-      button.setEnabled(true)
-      target.add(button)
-      //WicketApplication.get.get
-      //super.onSubmit(target, form)
-    }
-  }
-  field.add(behavior)
-  //*/
-  /*var behavior2: AjaxFormValidatingBehavior = new AjaxFormValidatingBehavior(nameLaunchForm, "onsubmit") {
-    override def onError(target: AjaxRequestTarget) {
-      super.onError(target)
-      println("beh error")
-      error("bupp")
-      target.add(fbp)
-    }
-  }*/
-
-
-  //
-  field.add(new StringValidator(3,20) {
-    override def decorate(error: ValidationError, validatable: IValidatable[String]) = {
-      super.decorate(error, validatable)
-      error.setMessage("Ska va mellan 3 o 20")
-      error
-    }
-  })
-  field.setRequired(true)
-  nameLaunchForm.add(field);
-
-  button = new Button("launch_button") {
-    /*override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
-      //var resp: Response = resp
-      RequestCycle.get().setResponse(resp)
-
-      //WicketApplication.get.get
-      //super.onSubmit(target, form)
+    field.add(behavior)
+    //*/
+    /*var behavior2: AjaxFormValidatingBehavior = new AjaxFormValidatingBehavior(nameLaunchForm, "onsubmit") {
+      override def onError(target: AjaxRequestTarget) {
+        super.onError(target)
+        println("beh error")
+        error("bupp")
+        target.add(fbp)
+      }
     }*/
 
-    override def onSubmit() {
-      println("submitting button, player_name = " + nameReference.getObject)
-      //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
-      var parameters: PageParameters = new PageParameters()
 
-      parameters.add("player_name", nameReference.getObject)
-      RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
+    //
+    field.add(new StringValidator(3, 20) {
+      override def decorate(error: ValidationError, validatable: IValidatable[String]) = {
+        super.decorate(error, validatable)
+        error.setMessage("Ska va mellan 3 o 20")
+        error
+      }
+    })
+    field.setRequired(true)
+    AnonLaunchForm.this.add(field);
+
+    button = new Button("launch_button") {
+      /*override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
+        //var resp: Response = resp
+        RequestCycle.get().setResponse(resp)
+
+        //WicketApplication.get.get
+        //super.onSubmit(target, form)
+      }*/
+
+      override def onSubmit() {
+        println("submitting button, player_name = " + nameReference.getObject)
+        //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
+        var parameters: PageParameters = new PageParameters()
+
+        parameters.add("player_name", nameReference.getObject)
+        RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
+      }
+
+
     }
-
+    button.setOutputMarkupId(true)
+    button.setEnabled(false)
+    //button.add(behavior2)
+    AnonLaunchForm.this.add(button)
 
   }
-  button.setOutputMarkupId(true)
-  button.setEnabled(false)
-  //button.add(behavior2)
-  nameLaunchForm.add(button)
 
-  add(nameLaunchForm)
 
-  add(new AjaxLink("testLink"){
+  //val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp?port=12345")
+  val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
+  val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
+
+
+  var button: Button = _
+
+  add(new AnonLaunchForm("launch_with_name_form"))
+
+  add(new AjaxLink("testLink") {
     def onClick(target: AjaxRequestTarget) {
       //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
       //instance.useBeanFactory()
@@ -160,7 +164,7 @@ class TheHomePage extends WebPage {
     }
   })
 
-  add(new AjaxLink("testLink2"){
+  add(new AjaxLink("testLink2") {
     def onClick(target: AjaxRequestTarget) {
       //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
       beanan.store()
@@ -199,8 +203,6 @@ class TheHomePage extends WebPage {
   } */
 
 
-
-
   //val link2: ResourceLink[ContextRelativeResource] = new ResourceLink[ContextRelativeResource]("lobbyLink2", new SharedResourceReference(classOf[Application], WicketApplication.resourceKey2))
 
   //add(link2)
@@ -213,13 +215,52 @@ class TheHomePage extends WebPage {
   add(link4)*/
 
 
-  add(new BookmarkablePageLink("login",classOf[SigninPage]))
-  add(new BookmarkablePageLink("logout",classOf[SignOutPage]))
-  add(new BookmarkablePageLink("register",classOf[RegisterPage]))
 
-  @AdminOnly
-  class AdminOnlyLabel(id:String,text:String) extends Label(id,text)
+  @LoggedInOnly
+  class LoggedInOnlyButton(id:String) extends Link[String](id) {
+    override def onClick() {
 
-  add(new AdminOnlyLabel("lbl","Tja"))
+
+      //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
+      var parameters: PageParameters = new PageParameters()
+      val user: User = WiaSession.get.getUser
+      parameters.add("user_id", user.id)
+      RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
+
+    }
+  }
+  /*
+  @LoggedInOnly
+  class LoggedInOnlyButton(id:String) extends Button(id) {
+    /*override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
+      //var resp: Response = resp
+      RequestCycle.get().setResponse(resp)
+
+      //WicketApplication.get.get
+      //super.onSubmit(target, form)
+    }*/
+
+    override def onSubmit() {
+      //println("submitting button, player_name = " + nameReference.getObject)
+      //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
+      var parameters: PageParameters = new PageParameters()
+
+      val user: User = WiaSession.get.getUser
+      parameters.add("user_id", user.id)
+      RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
+    }
+  }       */
+
+  add(new LoggedInOnlyButton("logged_in_launch_btn"))
+
+
+  add(new BookmarkablePageLink("login", classOf[SigninPage]))
+  add(new BookmarkablePageLink("logout", classOf[SignOutPage]))
+  add(new BookmarkablePageLink("register", classOf[RegisterPage]))
+
+  @LoggedInOnly
+  class AdminOnlyLabel(id: String, text: String) extends Label(id, text)
+
+  add(new AdminOnlyLabel("lbl", "Tja"))
 
 }

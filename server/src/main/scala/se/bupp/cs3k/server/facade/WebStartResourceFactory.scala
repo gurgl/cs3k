@@ -255,8 +255,8 @@ class WebStartResourceFactory {
 
     override def newResourceResponse(p1: Attributes) = {
 
-      val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toString)
-      val userIdOpt:Option[UserId] = Option.apply(p1.getParameters().get("user_id").toOptionalLong).map(p=>p)
+      val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toOptionalString).map(p=> p.asInstanceOf[String])
+      val userIdOpt:Option[UserId] = Option.apply(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
       //val playerNameOpt = Option.apply(p1.getParameters().get("playerName").toString)
 

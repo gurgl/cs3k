@@ -15,10 +15,17 @@ public final class WiaAuthorizationStrategy implements
 
     if (action.equals(Component.RENDER)) {
       Class<? extends Component> c = component.getClass();
-      AdminOnly adminOnly = c.getAnnotation(AdminOnly.class);
-      if (adminOnly != null) {
+
+      LoggedInOnly loggedInOnly = c.getAnnotation(LoggedInOnly.class);
+      AnonymousOnly anonymousOnly = c.getAnnotation(AnonymousOnly.class);
+      if (loggedInOnly != null || anonymousOnly != null) {
         User user = WiaSession.get().getUser();
-        return (user != null && user.isAdmin());
+          if (loggedInOnly != null) {
+              return (user != null && user.isAdmin());
+          }
+          if (anonymousOnly != null) {
+              return (user == null);
+          }
       }
     }
     return true;
