@@ -153,6 +153,7 @@ lazy val root = Project(id = "root",
     Seq(
       resolvers := Seq(),
       libraryDependencies ++= Seq(
+        "com.intellij" % "forms_rt" % "7.0.3",
         "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
         //"org.ow2.asm" % "asm" % "4.0",
         //"org.objenesis" % "objenesis" % "1.2"

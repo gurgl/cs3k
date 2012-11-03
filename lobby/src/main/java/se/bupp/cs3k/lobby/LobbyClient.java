@@ -12,6 +12,8 @@ import se.bupp.cs3k.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.jnlp.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
@@ -75,6 +77,7 @@ public class LobbyClient extends JFrame {
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         try {
+
             init();
         } catch (Exception e) {
             //JOptionPane.showMessageDialog(this, "exception happens" + e.getMessage());
@@ -83,12 +86,18 @@ public class LobbyClient extends JFrame {
     }
 
     private void init() {
-        final JLabel label = new JLabel();
         Container content = getContentPane();
-        content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
-        content.add(label);
-        String message = "Jnln Hello Word";
 
+        //content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
+
+        String message = "Not connected";
+
+        final Lal formDelegate = new Lal();
+        final JComponent form = formDelegate.$$$getRootComponent$$$();
+        content.add(form);
+        formDelegate.getProgressBar().setStringPainted(true);
+
+        formDelegate.getProgressBar().setString(message);
         Kryo kryo = new Kryo();
         kryo.setDefaultSerializer(BeanSerializer.class);
 
@@ -108,16 +117,16 @@ public class LobbyClient extends JFrame {
         System.err.println("bef listener");
 
 
-        final JProgressBar prog = new JProgressBar(0);
+        /*final JProgressBar prog = new JProgressBar(0);
 
-        content.add(prog);
+        content.add(prog);*/
         client.addListener(new Listener() {
 
             public void disconnected (Connection connection) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        label.setText("Disconnected");
+                        formDelegate.getProgressBar().setString("Disconnected");
 
                     }
                 });
@@ -132,7 +141,7 @@ public class LobbyClient extends JFrame {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            prog.setMaximum(gameSize);
+                            formDelegate .getProgressBar().setMaximum(gameSize);
                         }
                     });
                 } else if(object instanceof ProgressUpdated) {
@@ -141,8 +150,10 @@ public class LobbyClient extends JFrame {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            label.setText("" + upd.getProgress() + " of " + gameSize + " connected.");
-                            prog.setValue(upd.getProgress());
+                            formDelegate.getProgressBar().setString("" + upd.getProgress() + " of " + gameSize + " connected.");
+
+
+                            formDelegate .getProgressBar().setValue(upd.getProgress());
                         }
                     });
 
@@ -162,8 +173,8 @@ public class LobbyClient extends JFrame {
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            label.setText("Game Started");
-                            prog.setValue(0);
+                            formDelegate.getProgressBar().setString("Game Started");
+                            formDelegate.getProgressBar().setValue(0);
                             startGame(upd);
                         }
                     });
@@ -174,7 +185,7 @@ public class LobbyClient extends JFrame {
         });
 
 
-        label.setText(message);
+
 
         setTitle("Tank Showdown lobby");
         String lobbyPortStr = System.getProperty("javaws.lobbyPort");
@@ -199,23 +210,26 @@ public class LobbyClient extends JFrame {
 
         /*
         JButton button = new JButton("http://www.bupp.com");
-
+        */
 
 
         //pb.directory(new File("C:\\dev\\workspace\\opengl-tanks"));
         ActionListener listener = new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
                 //URL url = new URL(actionEvent.getActionCommand());
-                startGame(null);
-                //basicService.showDocument(url);
+                //startGame(null);
 
+                final Window window = JFrame.getWindows()[0];
+
+                getToolkit().getSystemEventQueue().postEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+                //basicService.showDocument(url);
             }
         };
 
 
 
-        button.addActionListener(listener);
-
+        formDelegate.getLeaveButton().addActionListener(listener);
+          /*
         content.add(button);
         */
         pack();
