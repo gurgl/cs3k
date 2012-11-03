@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server
 
-import com.esotericsoftware.kryonet.{Listener, Connection, Server}
+import com.esotericsoftware.kryonet.{KryoSerialization, Listener, Connection, Server}
 import model.NonPersisentGameOccassion
 import se.bupp.cs3k._
 import api.user.{PlayerIdentifierWithInfo, RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
@@ -14,6 +14,10 @@ import io.Source
 import service.GameReservationService
 import scala.Some
 import org.apache.log4j.Logger
+import com.esotericsoftware.minlog.Log
+import com.esotericsoftware.kryo.serializers.{BeanSerializer, TaggedFieldSerializer, JavaSerializer}
+import com.esotericsoftware.kryo.Kryo
+
 
 
 /**
@@ -53,9 +57,14 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
   var queueItemInfo = mutable.Map[Long,AnyRef]()
 
   var launchQueue = mutable.Queue.empty[List[Connection]]
+  val kryo: Kryo = new Kryo
+  kryo.setDefaultSerializer(classOf[BeanSerializer[_]])
+  import scala.collection.JavaConversions.asScalaBuffer
+  LobbyProtocol.getTypes.toList.foreach( c => kryo.register(c) )
 
-  val server = new Server();
+  val kryoSerialization: KryoSerialization = new KryoSerialization(kryo)
 
+  val server = new Server(16384, 2048, kryoSerialization) 
 
   def stop() {
     server.stop();
@@ -67,18 +76,19 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
   def start = {
 
     server.start()
+
     server.bind(12345 + seqId);
 
-    val kryo = server.getKryo()
 
 
 
-    import scala.collection.JavaConversions.asScalaBuffer
-    LobbyProtocol.getTypes.toList.foreach(kryo.register(_))
 
+
+    Log.set(Log.LEVEL_TRACE)
     server.addListener(new Listener() {
 
       override def disconnected(p1: Connection) {
+        new RuntimeException().printStackTrace
         super.disconnected(p1)
         queue.dequeueFirst(_._1.getID == p1.getID) match {
           case None => println("Removing UNKNOWN disconnect ")
@@ -92,6 +102,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
         ob match {
           case request:LobbyJoinRequest =>
 
+            log.info("LobbyJoinRequest received")
               connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
 
               val api = request.userIdOpt.map(new RegisteredPlayerIdentifier(_)).getOrElse {
@@ -103,7 +114,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
                 launchServerInstance()
                 ()
             }
-          case _ =>
+          case e => log.info("uknown rec" + e)
         }
       }
     })

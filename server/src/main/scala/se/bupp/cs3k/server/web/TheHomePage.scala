@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.web
 
 import org.apache.wicket.markup.html.{link, WebPage}
-import link.{ResourceLink, BookmarkablePageLink, Link}
+import link.{BookmarkablePageLink, ResourceLink, Link}
 import org.apache.wicket.request.resource._
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import java.util.Scanner
@@ -14,7 +14,7 @@ import org.apache.wicket.request.cycle.RequestCycle
 import org.apache.wicket.request.handler.resource.ResourceRequestHandler
 import org.apache.wicket.validation.validator.StringValidator
 import org.apache.wicket.markup.html.panel.FeedbackPanel
-import org.apache.wicket.ajax.form.AjaxFormValidatingBehavior
+import org.apache.wicket.ajax.form.{OnChangeAjaxBehavior, AjaxFormValidatingBehavior}
 import org.apache.wicket.validation.{IValidatable, ValidationError}
 import org.apache.wicket.markup.ComponentTag
 import org.apache.wicket.Component
@@ -73,7 +73,8 @@ class TheHomePage extends WebPage {
     add(fbp)
     var nameReference: Model[String] = new Model[String]()
     var field: TextField[String] = new TextField[String]("player_name", nameReference)
-    var behavior: AjaxFormValidatingBehavior = new AjaxFormValidatingBehavior(AnonLaunchForm.this, "onblur") {
+
+    field.add(new AjaxFormValidatingBehavior(AnonLaunchForm.this, "onblur") {
       override def onError(target: AjaxRequestTarget) {
         super.onError(target)
         println("beh error")
@@ -94,8 +95,43 @@ class TheHomePage extends WebPage {
         //WicketApplication.get.get
         //super.onSubmit(target, form)
       }
-    }
-    field.add(behavior)
+    })
+
+    /*field.add(new AjaxB(AnonLaunchForm.this, "inputchange") {
+
+      override def onSubmit(target: AjaxRequestTarget) {
+        super.onSubmit(target)
+        //var resp: Response = resp
+        //RequestCycle.get().setResponse(resp)
+        println("submitting behav")
+        button.setEnabled(true)
+        target.add(button)
+        //WicketApplication.get.get
+        //super.onSubmit(target, form)
+      }
+    })*/
+
+    field.add(new OnChangeAjaxBehavior() {
+
+
+      override def onError(target: AjaxRequestTarget, e: RuntimeException) {
+        super.onError(target, e)
+        if (e != null) {
+          e.printStackTrace()
+        } else {
+          button.setEnabled(field.isValid)
+          target.add(button)
+        }
+      }
+
+      def onUpdate(target: AjaxRequestTarget) {
+        println(field.isValid)
+        button.setEnabled(field.isValid)
+        target.add(button)
+      }
+    })
+
+    //var behavior: AjaxFormValidatingBehavior =
     //*/
     /*var behavior2: AjaxFormValidatingBehavior = new AjaxFormValidatingBehavior(nameLaunchForm, "onsubmit") {
       override def onError(target: AjaxRequestTarget) {
@@ -147,7 +183,7 @@ class TheHomePage extends WebPage {
 
 
   //val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp?port=12345")
-  val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
+  val lobbyJnlpFile = new ContextRelativeResource("./lobbyX.jnlp")
   val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
 
 
@@ -254,9 +290,12 @@ class TheHomePage extends WebPage {
   add(new LoggedInOnlyButton("logged_in_launch_btn"))
 
 
-  add(new BookmarkablePageLink("login", classOf[SigninPage]))
-  add(new BookmarkablePageLink("logout", classOf[SignOutPage]))
-  add(new BookmarkablePageLink("register", classOf[RegisterPage]))
+  @LoggedInOnly class LogoutLink extends BookmarkablePageLink("logout", classOf[SignOutPage])
+  @AnonymousOnly class LoginLink extends BookmarkablePageLink("login", classOf[SigninPage])
+  @AnonymousOnly class RegisterLink extends BookmarkablePageLink("register", classOf[RegisterPage])
+  add(new LogoutLink)
+  add(new LoginLink)
+  add(new RegisterLink)
 
   @LoggedInOnly
   class AdminOnlyLabel(id: String, text: String) extends Label(id, text)

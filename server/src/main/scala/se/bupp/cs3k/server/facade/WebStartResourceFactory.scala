@@ -268,7 +268,7 @@ class WebStartResourceFactory {
         def writeData(p2: Attributes) {
           try {
 
-            val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
+            val lobbyJnlpFile = new ContextRelativeResource("./lobbyX.jnlp")
             //val launchGameJnlp = new ContextRelativeResource("/game_deploy_dir_tmp/tanks/Game.jnlp")
             val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
 
@@ -286,16 +286,16 @@ class WebStartResourceFactory {
             //println(p1.getRequest.getClientUrl.toString)
 
             val resourcesNew = "<resources>" +
-              "<property name=\"lobbyPort\" value=\"12345\"/>" +
-              "<property name=\"lobbyHost\" value=\"" + ServerLobby.remoteIp  + "\"/>" +
-              userIdOpt.map(a => "<property name=\"userId\" value=\"" + a + "\"/>").getOrElse(
-                playerNameOpt.map(a => "<property name=\"playerName\" value=\"" + a + "\"/>").getOrElse("")
+              "<property name=\"javaws.lobbyPort\" value=\"12345\"/>" +
+              "<property name=\"javaws.lobbyHost\" value=\"" + ServerLobby.remoteIp  + "\"/>" +
+              userIdOpt.map(a => "<property name=\"javaws.userId\" value=\"" + a + "\"/>").getOrElse(
+                playerNameOpt.map(a => "<property name=\"javaws.playerName\" value=\"" + a + "\"/>").getOrElse("")
               )
 
             println("playerNameOpt " + playerNameOpt)
             val jnlpXMLModified = jnlpXML
               .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
-              .replace("Test.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")
+              .replace("lobbyX.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")
               .replace("<resources>", resourcesNew)
 
 

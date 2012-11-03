@@ -2,19 +2,18 @@ package se.bupp.cs3k.lobby;
 
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryo.serializers.BeanSerializer;
+import com.esotericsoftware.kryonet.*;
+import com.esotericsoftware.minlog.Log;
+import com.esotericsoftware.shaded.org.objenesis.instantiator.ObjectInstantiator;
+import scala.Tuple2;
 import se.bupp.cs3k.*;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.jnlp.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -78,7 +77,7 @@ public class LobbyClient extends JFrame {
         try {
             init();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "exception happens" + e.getMessage());
+            //JOptionPane.showMessageDialog(this, "exception happens" + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -90,13 +89,20 @@ public class LobbyClient extends JFrame {
         content.add(label);
         String message = "Jnln Hello Word";
 
-        client = new Client();
+        Kryo kryo = new Kryo();
+        kryo.setDefaultSerializer(BeanSerializer.class);
 
-        Kryo kryo = client.getKryo();
-        //ArrayList<Class<? extends ScalaObject>[]> types = LobbyProtocol.getTypes();
-        for(Class<?> clz : LobbyProtocol.getTypes()) {
-            kryo.register(clz);
+        for(Tuple2<Class<?>,ObjectInstantiator> clz : LobbyProtocol.getTypesAndSerializer()) {
+            System.err.println("Registering " + clz._1().getName());
+            kryo.register(clz._1()).setInstantiator(clz._2());
         }
+        KryoSerialization kryoSerialization = new KryoSerialization(kryo);
+        client = new Client(8192, 2048,kryoSerialization);
+
+
+
+        //ArrayList<Class<? extends ScalaObject>[]> types = LobbyProtocol.getTypes();
+
 
 
         System.err.println("bef listener");
@@ -121,7 +127,7 @@ public class LobbyClient extends JFrame {
                 if (object instanceof LobbyJoinResponse) {
                     System.err.println("LobbyJoinResponse");
                     final LobbyJoinResponse connectMessage = (LobbyJoinResponse) object;
-                    gameSize = connectMessage.participantsRequired();
+                    gameSize = connectMessage.getParticipantsRequired();
 
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
@@ -130,12 +136,13 @@ public class LobbyClient extends JFrame {
                         }
                     });
                 } else if(object instanceof ProgressUpdated) {
+                    System.err.println("ProgressUpdated received");
                     final ProgressUpdated upd  =(ProgressUpdated)object;
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            label.setText("" + upd.progress() + " of " + gameSize + " connected.");
-                            prog.setValue(upd.progress());
+                            label.setText("" + upd.getProgress() + " of " + gameSize + " connected.");
+                            prog.setValue(upd.getProgress());
                         }
                     });
 
@@ -145,11 +152,11 @@ public class LobbyClient extends JFrame {
 
                     System.err.println("Start Game Received");
                     try {
-                        gameJnlpUrl = new URL(upd.jnlpURL());
+                        gameJnlpUrl = new URL(upd.getJnlpURL());
                     } catch (MalformedURLException e) {
-                        JOptionPane.showMessageDialog(LobbyClient.this, "Bad url" + upd.jnlpURL());
+                        JOptionPane.showMessageDialog(LobbyClient.this, "Bad url" + upd.getJnlpURL());
                     }
-                    System.err.println(upd.jnlpURL());
+                    System.err.println(upd.getJnlpURL());
 
 
                     SwingUtilities.invokeLater(new Runnable() {
@@ -160,6 +167,8 @@ public class LobbyClient extends JFrame {
                             startGame(upd);
                         }
                     });
+                } else {
+                    System.err.println("REC + " + object);
                 }
             }
         });
@@ -167,10 +176,10 @@ public class LobbyClient extends JFrame {
 
         label.setText(message);
 
-        setTitle(System.getProperty("lobbyPort"));
-        String lobbyPortStr = System.getProperty("lobbyPort");
-        String playerName = System.getProperty("playerName");
-        String userIdStr = System.getProperty("userId");
+        setTitle("Tank Showdown lobby");
+        String lobbyPortStr = System.getProperty("javaws.lobbyPort");
+        String playerName = System.getProperty("javaws.playerName");
+        String userIdStr = System.getProperty("javaws.userId");
         if(lobbyPortStr != null) {
             lobbyPort = Integer.parseInt(lobbyPortStr);
         } else {
@@ -188,7 +197,7 @@ public class LobbyClient extends JFrame {
         }
 
 
-
+        /*
         JButton button = new JButton("http://www.bupp.com");
 
 
@@ -208,6 +217,7 @@ public class LobbyClient extends JFrame {
         button.addActionListener(listener);
 
         content.add(button);
+        */
         pack();
 
         Toolkit tk = Toolkit.getDefaultToolkit();
@@ -222,9 +232,10 @@ public class LobbyClient extends JFrame {
         setLocation((screenSize.width - frameSize.width) / 2  , (screenSize.height - frameSize.height ) / 2);
 
         client.start();
+
         try {
             client.connect(5000, lobbyHost, lobbyPort);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("fel");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }

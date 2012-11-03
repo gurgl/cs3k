@@ -33,7 +33,7 @@ lazy val root = Project(id = "root",
       "log4j" % "log4j" % "1.2.16",
       "javax.servlet" % "servlet-api" % "2.5" % "provided",
       //"org.ow2.asm" % "asm" % "4.0",
-      "com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm"), //exclude("com.esotericsoftware.reflectasm", "reflectasm"),
+      //"com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm"), //exclude("com.esotericsoftware.reflectasm", "reflectasm"),
       //"com.esotericsoftware.reflectasm" % "reflectasm" % "1.07" classifier "shaded" exclude("org.ow2.asm", "asm"),
       "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
       "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
@@ -153,10 +153,10 @@ lazy val root = Project(id = "root",
     Seq(
       resolvers := Seq(),
       libraryDependencies ++= Seq(
-        "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString,
+        "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
         //"org.ow2.asm" % "asm" % "4.0",
         //"org.objenesis" % "objenesis" % "1.2"
-        "com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm")
+        //"com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm")
         //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
       ),
       name := "cs3k Lobby",
@@ -171,7 +171,6 @@ lazy val root = Project(id = "root",
       validity = 365
     ),
 
-
     webstartKeyConf := KeyConf(
       keyStore = file("testKeys"),
       storePass = "bobbafett123",
@@ -181,15 +180,15 @@ lazy val root = Project(id = "root",
 
     webstartJnlpConf := Seq(JnlpConf(
       mainClass = "se.bupp.cs3k.lobby.LobbyClient",
-      fileName = "Test.jnlp",
+      fileName = "lobbyX.jnlp",
       codeBase = "http://localhost:8080/",
-      title = "My Title",
-      vendor = "My Company",
-      description = "My Webstart Project",
+      title = "CS3K Lobby",
+      vendor          = "PäronGlans",
+      description     = "Multiplayer game",
       iconName = None,
       splashName = None,
       offlineAllowed = true,
-      allPermissions = true,
+      allPermissions = false,
       j2seVersion = "1.6+",
       maxHeapSize = 192
 
@@ -199,9 +198,13 @@ lazy val root = Project(id = "root",
   lazy val commonProject = Project(
     "common",
     file("common"),
-    settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
+    settings = Project.defaultSettings ++ Seq(
+      javacOptions ++= Seq("-source", "1.6"),
+      compileOrder := CompileOrder.JavaThenScala,
+      libraryDependencies ++= Seq(
+      "com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm"),
       "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
-      //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
+  //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
     ))
   )
 
