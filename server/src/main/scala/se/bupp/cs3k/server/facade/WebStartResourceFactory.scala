@@ -216,8 +216,8 @@ class WebStartResourceFactory {
       var response = new ResourceResponse
       response.setContentType(JNLP_MIME)
       //response.setLastModified(Time.now())
-      response.disableCaching()
-      //response.setFileName("start_game.jnlp")
+      //response.disableCaching()
+      response.setFileName("start_game.jnlp")
       response.setWriteCallback(new WriteCallback {
         def writeData(p2: Attributes) {
           try {
@@ -275,10 +275,10 @@ class WebStartResourceFactory {
       var response = new ResourceResponse {}
 
       response.setContentType(JNLP_MIME)
-      response.disableCaching()
+      //response.disableCaching()
       //response.setLastModified(Time.now())
       //response.setCacheDuration(Duration.NONE)
-      //response.setFileName("lobby2.jnlp")
+      response.setFileName("lobby2.jnlp")
       //response.setContentDisposition()
       //response.setCacheScope(null)
 
