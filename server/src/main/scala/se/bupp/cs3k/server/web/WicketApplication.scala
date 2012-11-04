@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Component, Service}
 import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
-import se.bupp.cs3k.server.{ServerLobby, User, web}
+import se.bupp.cs3k.server.{LobbyServer, User, web}
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}
 import se.bupp.cs3k.server.facade.{WebStartResourceFactory}
@@ -155,9 +155,9 @@ class WicketApplication extends WebApplication {
 
   def getHomePage() = classOf[TheHomePage]
 
-  //@transient var lobby : ServerLobby = _
-  @transient var lobby2Player:ServerLobby = _
-  @transient var lobby4Player:ServerLobby = _
+  //@transient var lobby : LobbyServer = _
+  @transient var lobby2Player:LobbyServer = _
+  @transient var lobby4Player:LobbyServer = _
   var gameResource:AbstractResource = _
   var lobbyResource: AbstractResource = _
   override def init() {
@@ -184,10 +184,10 @@ class WicketApplication extends WebApplication {
     webStartResourceFactory = beanFactory.getBean(classOf[WebStartResourceFactory])
     //eventSystem = new EventSystem(this)
     try {
-      lobby2Player = new ServerLobby(0, 2)
+      lobby2Player = new LobbyServer(0, 2)
       lobby2Player.gameReservationService = gameReservationService
       lobby2Player.start
-      lobby4Player = new ServerLobby(1, 4)
+      lobby4Player = new LobbyServer(1, 4)
       lobby4Player.start
     } catch {
       case e:Exception => e.printStackTrace()
@@ -204,8 +204,8 @@ class WicketApplication extends WebApplication {
     /*val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp")
     val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
     val jnlpXML2 = jnlpXML.replace("<resources>", "<resources><property name=\"lobbyPort\" value=\"12345\"/>")
-      .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
-      .replace("Test.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")
+      .replace("http://localhost:8080/", "http://" + LobbyServer.remoteIp +":8080/")
+      .replace("Test.jnlp", "http://" + LobbyServer.remoteIp +":8080/lobby2.jnlp")
       */
     lobbyResource= webStartResourceFactory.createLobbyJnlpHandler //new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp")
     getSharedResources().add(resourceKey2, lobbyResource)

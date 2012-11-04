@@ -232,8 +232,8 @@ class TheHomePage extends WebPage {
     def getResource = {
       val jnlpXML2 = jnlpXML.replace("<resources>", "<resources><property name=\"lobbyPort\" value=\"12345\"/>")
 
-        .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
-        .replace("Test.jnlp", "http://" + ServerLobby.remoteIp +":8080/" + link2)
+        .replace("http://localhost:8080/", "http://" + LobbyServer.remoteIp +":8080/")
+        .replace("Test.jnlp", "http://" + LobbyServer.remoteIp +":8080/" + link2)
       new ByteArrayResource("application/x-java-jnlp-file",jnlpXML2.getBytes, "Test.jnlp")
     }
   } */

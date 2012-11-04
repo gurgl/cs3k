@@ -28,9 +28,9 @@ import com.esotericsoftware.kryo.Kryo
  * To change this template use File | Settings | File Templates.
  */
 
-object ServerLobby {
+object LobbyServer {
   def main(args:Array[String]) {
-    new ServerLobby(0,2).start
+    new LobbyServer(0,2).start
   }
   lazy val remoteIp = {
     val stackOverflowURL = "http://automation.whatismyip.com/n09230945.asp"
@@ -47,9 +47,9 @@ object ServerLobby {
   }
 }
 
-class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
+class LobbyServer(val seqId:Int, val numOfPlayers:Int) {
 
-  val log = Logger.getLogger(classOf[ServerLobby])
+  val log = Logger.getLogger(classOf[LobbyServer])
 
   var gameReservationService:GameReservationService = _
 
@@ -61,6 +61,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
   kryo.setDefaultSerializer(classOf[BeanSerializer[_]])
   import scala.collection.JavaConversions.asScalaBuffer
   LobbyProtocol.getTypes.toList.foreach( c => kryo.register(c) )
+  //Log.set(Log.LEVEL_TRACE)
 
   val kryoSerialization: KryoSerialization = new KryoSerialization(kryo)
 
@@ -80,15 +81,9 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
     server.bind(12345 + seqId);
 
 
-
-
-
-
-    Log.set(Log.LEVEL_TRACE)
     server.addListener(new Listener() {
 
       override def disconnected(p1: Connection) {
-        new RuntimeException().printStackTrace
         super.disconnected(p1)
         queue.dequeueFirst(_._1.getID == p1.getID) match {
           case None => println("Removing UNKNOWN disconnect ")
@@ -154,7 +149,7 @@ class ServerLobby(val seqId:Int, val numOfPlayers:Int) {
               case i:AnonymousPlayerIdentifier => GameServerPool.tankGameSettings2.jnlpUrl(reservationId, i.getName)
               case i:RegisteredPlayerIdentifier  => GameServerPool.tankGameSettings2.jnlpUrl(reservationId, i.getUserId)
             }
-            c.sendTCP(new StartGame(ServerLobby.remoteIp, 54555 + seqId, 54777 + seqId,jnlpUrl.toExternalForm))
+            c.sendTCP(new StartGame(LobbyServer.remoteIp, 54555 + seqId, 54777 + seqId,jnlpUrl.toExternalForm))
           } catch {
             case e:Exception => e.printStackTrace()
           }

@@ -19,6 +19,7 @@ import se.bupp.cs3k.server.model.Model.UserId
 object GameServerPool {
 
 
+  def clock = System.currentTimeMillis()
   /**
    * Use sbt:
    * > console-project server
@@ -34,9 +35,9 @@ object GameServerPool {
 
 
   val tankGameSettings2  = new GameProcessSettings(
-    cmdStr + " --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + ServerLobby.remoteIp + ":8080/start_game.jnlp",
-    Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> ServerLobby.remoteIp))
-  val tankGameSettings4  = new GameProcessSettings(cmdStr + " 53556 53778", "http://" + ServerLobby.remoteIp + ":8080/start_game.jnlp", Map() )
+    cmdStr + " --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp",
+    Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> LobbyServer.remoteIp))
+  val tankGameSettings4  = new GameProcessSettings(cmdStr + " 53556 53778", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp", Map() )
 
   class GameProcessSettings(var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String]) {
     def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
@@ -99,8 +100,10 @@ class GameServerPool {
 
     executor.setProcessDestroyer(processDestroyer)
 
-    log.info("Begin server start " + game.occassionId)
-    executor.execute(gps.cmdLine(" --occassion-id " + game.occassionId), resultHandler)
+    var cmdLine: CommandLine = gps.cmdLine(" --occassion-id " + game.occassionId + " --log " + GameServerPool.clock + "_" + game.occassionId + ".log")
+
+    log.info("Begin server start, cmd line : " + cmdLine)
+    executor.execute(cmdLine, resultHandler)
     log.info("End server start")
 
 

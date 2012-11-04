@@ -5,7 +5,7 @@ import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
 import org.apache.wicket.util.time.{Duration, Time}
 import java.util.Scanner
-import se.bupp.cs3k.server.{GameServerPool, ServerLobby}
+import se.bupp.cs3k.server.{GameServerPool, LobbyServer}
 import java.io.IOException
 import org.springframework.stereotype.Component
 import se.bupp.cs3k.api._
@@ -236,8 +236,8 @@ class WebStartResourceFactory {
               "<property name=\"gamePortUDP\" value=\"" + props("gamePortUDP") + "\"/>" +
               "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
               "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
-              .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + ServerLobby.remoteIp + ":8080/game_deploy_dir_tmp/tanks")
-              .replace("Game.jnlp", "http://" + ServerLobby.remoteIp + ":8080/" + Utility.escape(p1.getRequest.getClientUrl.toString))
+              .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + LobbyServer.remoteIp + ":8080/game_deploy_dir_tmp/tanks")
+              .replace("Game.jnlp", "http://" + LobbyServer.remoteIp + ":8080/" + Utility.escape(p1.getRequest.getClientUrl.toString))
 
 
             //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)
@@ -294,8 +294,8 @@ class WebStartResourceFactory {
             /*
           val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
           val jnlpXML2 = jnlpXML.replace("<resources>", "<resources><property name=\"lobbyPort\" value=\"12345\"/>")
-            .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
-            .replace("Test.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")
+            .replace("http://localhost:8080/", "http://" + LobbyServer.remoteIp +":8080/")
+            .replace("Test.jnlp", "http://" + LobbyServer.remoteIp +":8080/lobby2.jnlp")
             */
             //lobbyResource= new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp")
             //getSharedResources().add(resourceKey2, lobbyResource)
@@ -305,15 +305,15 @@ class WebStartResourceFactory {
 
             val resourcesNew = "<resources>" +
               "<property name=\"javaws.lobbyPort\" value=\"12345\"/>" +
-              "<property name=\"javaws.lobbyHost\" value=\"" + ServerLobby.remoteIp  + "\"/>" +
+              "<property name=\"javaws.lobbyHost\" value=\"" + LobbyServer.remoteIp  + "\"/>" +
               userIdOpt.map(a => "<property name=\"javaws.userId\" value=\"" + a + "\"/>").getOrElse(
                 playerNameOpt.map(a => "<property name=\"javaws.playerName\" value=\"" + a + "\"/>").getOrElse("")
               )
 
             println("playerNameOpt " + playerNameOpt)
             val jnlpXMLModified = jnlpXML
-              .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
-              .replace("lobbyX.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp?" +
+              .replace("http://localhost:8080/", "http://" + LobbyServer.remoteIp +":8080/")
+              .replace("lobbyX.jnlp", "http://" + LobbyServer.remoteIp +":8080/lobby2.jnlp?" +
                 userIdOpt.map(a => "userId=" + a ).getOrElse(
                   playerNameOpt.map(a => "playerName=" + a).getOrElse("")
                 )
