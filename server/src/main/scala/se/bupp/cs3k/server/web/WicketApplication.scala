@@ -58,26 +58,16 @@ object WicketApplication {
   val resourceKey2 = "JNLP_GENERATOR_lobby"
 }
 
-trait MyBean extends GameDao with TicketDao {
+trait MyBean extends {
   def read()
 
   def insert(a:User)
-  def findUser(s:String) : User
-  def findUser(id:UserId) : Option[User]
 
   def store()
 }
 
-trait GameDao {
 
-  def findGame(occassionId:Long) : Option[GameOccassion]
-}
 
-trait TicketDao {
-
-  def findTicketByUserAndGame(id:Long,occId:OccassionId) : Option[Ticket]
-  def findTicket(id:Long) : Option[Ticket]
-}
 
 
 
@@ -92,36 +82,9 @@ class MyBeanImpl extends MyBean {
     em.persist(a)
   }
 
-  def findTicket(id:Long) : Option[Ticket] = {
-    Option(em.find(classOf[Ticket], id))
-  }
-  def findTicketByUserAndGame(id:Long,occId:OccassionId) : Option[Ticket] = {
-    var q = em.createQuery("from Ticket t where t.user.id = :u and t.game.occassionId = :o", classOf[Ticket])
-    q.setParameter("u", id)
-    q.setParameter("o", occId)
-    getSingle(q)
-  }
 
-  def findUser(id:Long) : Option[User] = {
-    Option(em.find(classOf[User], id))
-  }
 
-  def findGame(occassionId:Long) = {
-    var q = em.createQuery("from GameOccassion g where g.occassionId = :o", classOf[GameOccassion])
-    q.setParameter("o", occassionId)
-    getSingle(q)
-  }
 
-  def getSingle[T](q:TypedQuery[T]) : Option[T] = {
-    import scala.collection.JavaConversions.asScalaBuffer
-    q.getResultList.headOption
-  }
-
-  def findUser(s:String) = {
-    var q: TypedQuery[User] = em.createQuery[User]("from User p where p.username = :name",classOf[User])
-    q.setParameter("name",s)
-    getSingle(q).getOrElse(null)
-  }
 
   import scala.collection.JavaConversions.asScalaBuffer
 
@@ -145,10 +108,17 @@ class WicketApplication extends WebApplication {
   import WicketApplication._
   //var eventSystem: EventSystem = _
 
+  val logger = LoggerFactory.getLogger(classOf[WicketApplication])
+
+  var isDevMode = {
+
+    var testModeProp: String = System.getProperty("cs3k.prod-mode")
+    logger.info("cs3k.prod-mode = " + String.valueOf(testModeProp))
+    Option(testModeProp).map(t => !(t.toBoolean)).getOrElse(true)
+  }
 
   var webStartResourceFactory:WebStartResourceFactory = _
 
-  val logger = LoggerFactory.getLogger(classOf[WicketApplication])
 
 
   override def newSession(request: Request, response: Response) = new WiaSession(request)

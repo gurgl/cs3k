@@ -86,6 +86,7 @@ class GameServerPool {
         super.onProcessFailed(e)
         removeServerFromPool(game)
       }
+
     }
 
     val watchdog  = new ExecuteWatchdog(10 * 60 * 1000)
@@ -100,7 +101,9 @@ class GameServerPool {
 
     executor.setProcessDestroyer(processDestroyer)
 
-    var cmdLine: CommandLine = gps.cmdLine(" --occassion-id " + game.occassionId + " --log " + GameServerPool.clock + "_" + game.occassionId + ".log")
+    var time: Long = (GameServerPool.clock / 1000) % (10*365*24*60*60)
+    var logName: String = "logs/srv_" + time + "_" + game.occassionId + ".log"
+    var cmdLine: CommandLine = gps.cmdLine(" --occassion-id " + game.occassionId + " --log " + logName)
 
     log.info("Begin server start, cmd line : " + cmdLine)
     executor.execute(cmdLine, resultHandler)

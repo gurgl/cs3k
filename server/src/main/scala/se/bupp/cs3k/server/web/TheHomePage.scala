@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.web
 
-import org.apache.wicket.markup.html.{link, WebPage}
+import org.apache.wicket.markup.html.{WebMarkupContainer, link, WebPage}
 import link.{BookmarkablePageLink, ResourceLink, Link}
 import org.apache.wicket.request.resource._
 import org.apache.wicket.request.mapper.parameter.PageParameters
@@ -191,7 +191,9 @@ class TheHomePage extends WebPage {
 
   add(new AnonLaunchForm("launch_with_name_form"))
 
-  add(new AjaxLink("testLink") {
+  val testLinks = new WebMarkupContainer("testLinks")
+
+  testLinks.add(new AjaxLink("testLink") {
     def onClick(target: AjaxRequestTarget) {
       //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
       //instance.useBeanFactory()
@@ -200,7 +202,7 @@ class TheHomePage extends WebPage {
     }
   })
 
-  add(new AjaxLink("testLink2") {
+  testLinks.add(new AjaxLink("testLink2") {
     def onClick(target: AjaxRequestTarget) {
       //var instance: BeanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance()
       beanan.store()
@@ -210,6 +212,9 @@ class TheHomePage extends WebPage {
 
     }
   })
+
+  testLinks.setVisibilityAllowed(WicketApplication.get.isDevMode)
+
   //AjaxFormValidatingBehavior.addToAllFormComponents(nameLaunchForm, "onblur")
   //println(out)
 

@@ -16,7 +16,7 @@ import se.bupp.cs3k.server.User
  */
 
 object Model {
-  type UserId = Long
+  type UserId = java.lang.Long
 }
 
 abstract class AbstractGameOccassion {
@@ -24,6 +24,40 @@ abstract class AbstractGameOccassion {
 
   def timeTriggerStart:Boolean
 }
+
+@Entity
+class Ladder {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
+
+  var name:String = _
+}
+
+@Embeddable
+class LadderEnrollmentPk extends Serializable{
+
+  @ManyToOne
+  var competitor:Competitor = _
+
+  @ManyToOne
+  var ladder:Ladder = _
+
+}
+
+@Entity
+class LadderEnrollment {
+
+  @Id
+  var id:LadderEnrollmentPk = _
+
+}
+
+@Entity
+class Competitor {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
+
+}
+
+
 
 @Entity
 case class GameOccassion(var occassionId:Long) extends AbstractGameOccassion {

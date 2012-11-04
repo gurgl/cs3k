@@ -14,6 +14,7 @@ import user.{AbstractPlayerIdentifier, RegisteredPlayerIdentifier, PlayerIdentif
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.service.GameReservationService._
 import java.lang
+import se.bupp.cs3k.server.service.dao.{TicketDao, UserDao}
 
 
 /**
@@ -31,17 +32,18 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   val om = new ObjectMapper()
 
 
-
-
   @Autowired
   var reservationService:GameReservationService = _
 
   @Autowired
-  var dao:MyBean = _
+  var ticketDao:TicketDao = _
+
+  @Autowired
+  var userDao:UserDao = _
 
   private def getSimplePlayerInfo(pi:AbstractPlayerIdentifier) = {
     pi match {
-      case ru:RegisteredPlayerIdentifier => dao.findUser(ru.getUserId).map(p=> new PlayerIdentifierWithInfo(p.username,p.id))
+      case ru:RegisteredPlayerIdentifier => userDao.findUser(ru.getUserId).map(p=> new PlayerIdentifierWithInfo(p.username,p.id))
       case api:AnonymousPlayerIdentifier => Some(api)
     }
   }
@@ -62,7 +64,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
             piOpt.flatMap( p => getSimplePlayerInfo(p))
           }
           l
-        case t:Ticket => val l = dao.findTicket(t.getId).map( tt => new PlayerIdentifierWithInfo(tt.user.username,tt.user.id))
+        case t:Ticket => val l = ticketDao.findTicket(t.getId).map( tt => new PlayerIdentifierWithInfo(tt.user.username,tt.user.id))
           l
         case t:IdentifyOnlyPass =>
           getSimplePlayerInfo(t.getUserIdentifier)

@@ -14,8 +14,9 @@ abstract class Person {
 import se.bupp.cs3k.server.model.Model.UserId
 
 @Entity
-class User(var username:String) {
-  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:UserId = _
+case class User(var username:String) {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO)
+  var id:UserId = _
 
   var password:String = _
   var email:String = _

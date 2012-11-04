@@ -28,6 +28,7 @@ import scala.Right
 import se.bupp.cs3k.server.model.RunningGame
 import org.apache.wicket.request.http.WebResponse
 import org.apache.wicket.request.resource.caching.NoOpResourceCachingStrategy
+import se.bupp.cs3k.server.service.dao.UserDao
 
 
 /**
@@ -59,6 +60,10 @@ class WebStartResourceFactory {
   @Autowired
   var dao:MyBean = _
 
+  @Autowired
+  var userDao:UserDao = _
+
+
   class GameJnlpHandler extends AbstractResource {
 
 
@@ -79,7 +84,7 @@ class WebStartResourceFactory {
       log.info("playerNameOpt " + playerNameOpt)
       log.info("reservationIdOpt " + reservationIdOpt)
 
-      val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id).map( p => new RegisteredPlayerIdentifier(p.id))).orElse( playerNameOpt.map(n => new AnonymousPlayerIdentifier(n)) )
+      val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => userDao.findUser(id).map( p => new RegisteredPlayerIdentifier(p.id))).orElse( playerNameOpt.map(n => new AnonymousPlayerIdentifier(n)) )
 
       /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
         case Some(p) => Some(new PlayerIdentifierWithInfo(p.username,p.id))

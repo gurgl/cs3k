@@ -1,9 +1,10 @@
 package se.bupp.cs3k.server.service
 
+import dao.{GameDao, TicketDao}
 import org.springframework.stereotype.Component
 import se.bupp.cs3k.server.model.{NonPersisentGameOccassion, RunningGame, Ticket, GameOccassion}
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.web.MyBean
+import se.bupp.cs3k.server.web.{MyBean}
 import org.springframework.beans.factory.annotation.Autowired
 import se.bupp.cs3k.api.user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 import se.bupp.cs3k.api.{GateGamePass, IdentifyOnlyPass, AbstractGamePass}
@@ -77,10 +78,13 @@ class GameReservationService {
   import GameReservationService._
 
   @Autowired
-  var dao:MyBean = _
+  var ticketDao:TicketDao = _
+
+  @Autowired
+  var gameDao:GameDao = _
 
   def findGame(occassionId:Long) : Option[GameOccassion] = {
-    dao.findGame(occassionSeqId)
+    gameDao.findGame(occassionSeqId)
 
   }
 
@@ -102,7 +106,7 @@ class GameReservationService {
 
       case RunningGame(GameOccassion(occassionId),_) => pi match {
         case p:RegisteredPlayerIdentifier =>
-          val ticket = dao.findTicketByUserAndGame(p.getUserId, occassionId).get
+          val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, occassionId).get
           if(ticket.game.occassionId == occassionId) {
             Some(ticket)
           } else None
