@@ -190,7 +190,7 @@ lazy val root = Project(id = "root",
       splashName = None,
       offlineAllowed = true,
       allPermissions = false,
-      j2seVersion = "1.6+",
+      j2seVersion = "1.6",
       maxHeapSize = 192
 
     ))

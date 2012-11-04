@@ -3,7 +3,7 @@ package se.bupp.cs3k.server.facade
 import org.apache.wicket.request.resource.{ContextRelativeResource, AbstractResource}
 import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
-import org.apache.wicket.util.time.Time
+import org.apache.wicket.util.time.{Duration, Time}
 import java.util.Scanner
 import se.bupp.cs3k.server.{GameServerPool, ServerLobby}
 import java.io.IOException
@@ -26,6 +26,8 @@ import scala.Left
 import scala.Some
 import scala.Right
 import se.bupp.cs3k.server.model.RunningGame
+import org.apache.wicket.request.http.WebResponse
+import org.apache.wicket.request.resource.caching.NoOpResourceCachingStrategy
 
 
 /**
@@ -36,8 +38,13 @@ import se.bupp.cs3k.server.model.RunningGame
  * To change this template use File | Settings | File Templates.
  */
 
+object  WebStartResourceFactory {
+  var JNLP_MIME = "application/x-java-jnlp-file"
+}
 @Component
 class WebStartResourceFactory {
+
+  import WebStartResourceFactory._
 
   val log = Logger.getLogger(classOf[WebStartResourceFactory])
 
@@ -207,10 +214,10 @@ class WebStartResourceFactory {
 
     def produceGameJnlp(p1: Attributes, gamePass:AbstractGamePass, game: RunningGame): AbstractResource.ResourceResponse = {
       var response = new ResourceResponse
-      response.setContentType("application/x-java-jnlp-file")
-      response.setLastModified(Time.now())
+      response.setContentType(JNLP_MIME)
+      //response.setLastModified(Time.now())
       response.disableCaching()
-      response.setFileName("start_game.jnlp")
+      //response.setFileName("start_game.jnlp")
       response.setWriteCallback(new WriteCallback {
         def writeData(p2: Attributes) {
           try {
@@ -230,7 +237,7 @@ class WebStartResourceFactory {
               "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
               "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
               .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + ServerLobby.remoteIp + ":8080/game_deploy_dir_tmp/tanks")
-              .replace("Game.jnlp", "http://" + ServerLobby.remoteIp + ":8080/" + p1.getRequest.getClientUrl.toString)
+              .replace("Game.jnlp", "http://" + ServerLobby.remoteIp + ":8080/" + Utility.escape(p1.getRequest.getClientUrl.toString))
 
 
             //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)
@@ -253,6 +260,11 @@ class WebStartResourceFactory {
 
   class LobbyJnlpHandler extends AbstractResource {
 
+
+
+
+    override def getCachingStrategy = NoOpResourceCachingStrategy.INSTANCE
+
     override def newResourceResponse(p1: Attributes) = {
 
       val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toOptionalString).map(p=> p.asInstanceOf[String])
@@ -260,10 +272,16 @@ class WebStartResourceFactory {
 
       //val playerNameOpt = Option.apply(p1.getParameters().get("playerName").toString)
 
-      var response = new ResourceResponse
-      response.setContentType("application/x-java-jnlp-file")
-      response.setLastModified(Time.now())
-      response.setFileName("lobby2.jnlp")
+      var response = new ResourceResponse {}
+
+      response.setContentType(JNLP_MIME)
+      response.disableCaching()
+      //response.setLastModified(Time.now())
+      //response.setCacheDuration(Duration.NONE)
+      //response.setFileName("lobby2.jnlp")
+      //response.setContentDisposition()
+      //response.setCacheScope(null)
+
       response.setWriteCallback(new WriteCallback {
         def writeData(p2: Attributes) {
           try {
@@ -295,7 +313,11 @@ class WebStartResourceFactory {
             println("playerNameOpt " + playerNameOpt)
             val jnlpXMLModified = jnlpXML
               .replace("http://localhost:8080/", "http://" + ServerLobby.remoteIp +":8080/")
-              .replace("lobbyX.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp")
+              .replace("lobbyX.jnlp", "http://" + ServerLobby.remoteIp +":8080/lobby2.jnlp?" +
+                userIdOpt.map(a => "userId=" + a ).getOrElse(
+                  playerNameOpt.map(a => "playerName=" + a).getOrElse("")
+                )
+            )
               .replace("<resources>", resourcesNew)
 
 
