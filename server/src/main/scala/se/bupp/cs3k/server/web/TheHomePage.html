@@ -1,42 +1,46 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-    <title></title>
-</head>
-<body>
-     <a wicket:id="login">Login</a>
-    <a wicket:id="logout">Logout</a>
-    <a wicket:id="register">Register</a>
-   <br>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <a wicket:id="login">Login</a>
+        <a wicket:id="logout">Logout</a>
+        <a wicket:id="register">Register</a>
+        <br>
 
 
-     <b>Clan Server</b>
-     <br/>
+        <b>Clan Server</b>
+        <br/>
 
-     <br>
-     <div style="background-color:#ffa">
-         <b>Play</b>
-    <button wicket:id="logged_in_launch_btn">Launch</button>
-    <br>
-    <form wicket:id="launch_with_name_form">
-        Nickname: <input type="text" wicket:id="player_name">
-        <input type="submit" wicket:id="launch_button" name="Launch" value="Launch"></input>
+        <br>
 
-        <div wicket:id="feedback"></div>
-    </form>
-     </div>
-    <span wicket:id="lbl">LABEL</span>
+        <div style="background-color:#ffa">
+            <b>Play</b>
+            <button wicket:id="logged_in_launch_btn">Launch</button>
+            <br>
 
-     <br>
-     <div style="background-color:#aaa">
+            <form wicket:id="launch_with_name_form">
+                Nickname: <input type="text" wicket:id="player_name">
+                <input type="submit" wicket:id="launch_button" name="Launch" value="Launch"></input>
 
-     Test Game : <a href="lobby2.jnlp">Lobby2</a><br>
-     Test Db :
-     <a wicket:id="testLink">Read</a>
-     <a wicket:id="testLink2">Insert</a><br>
-       </div>
-     <!--a wicket:id="lobbyLink4">Lobby4</a-->
+                <div wicket:id="feedback"></div>
+            </form>
+        </div>
+        <span wicket:id="lbl">LABEL</span>
 
-</body>
+        <br>
+
+        <div style="background-color:#aaa">
+            <div wicket:id="testLinks">
+                Test Game : <a href="lobby2.jnlp">Lobby2</a><br>
+                Test Db :
+                <a wicket:id="testLink">Read</a>
+                <a wicket:id="testLink2">Insert</a><br>
+            </div>
+        </div>
+        <!--a wicket:id="lobbyLink4">Lobby4</a-->
+
+    </body>
 </html>

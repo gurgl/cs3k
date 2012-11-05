@@ -214,7 +214,7 @@ class TheHomePage extends WebPage {
   })
 
   testLinks.setVisibilityAllowed(WicketApplication.get.isDevMode)
-
+  add(testLinks)
   //AjaxFormValidatingBehavior.addToAllFormComponents(nameLaunchForm, "onblur")
   //println(out)
 

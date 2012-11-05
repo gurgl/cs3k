@@ -1,0 +1,219 @@
+Server
+00:16 DEBUG: [kryonet] Port 12345/TCP connected to: /192.168.1.1:57790
+00:16 TRACE: [kryonet] Connection listener added: com.esotericsoftware.kryonet.Server$1
+00:16 TRACE: [kryo] Write class 9: com.esotericsoftware.kryonet.FrameworkMessage$RegisterTCP
+00:16 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$RegisterTCP
+00:16 TRACE: [kryo] Write field: connectionID (com.esotericsoftware.kryonet.FrameworkMessage$RegisterTCP)
+00:16 TRACE: [kryo] Write int: 1
+00:16 TRACE: [kryo] Object graph complete.
+00:16 TRACE: [kryonet] Connection 1 sent TCP: RegisterTCP (6)
+00:16  INFO: [kryonet] Connection 1 connected: /192.168.1.1
+00:16 TRACE: [kryo] Read class 15: se.bupp.cs3k.LobbyJoinRequest
+00:16 TRACE: [kryo] Read field: name (se.bupp.cs3k.LobbyJoinRequest)
+00:16 TRACE: [kryo] Read: asdf
+00:16 TRACE: [kryo] Read field: userId (se.bupp.cs3k.LobbyJoinRequest)
+00:16 TRACE: [kryo] Read: -1
+00:16 DEBUG: [kryo] Read: se.bupp.cs3k.LobbyJoinRequest
+00:16 TRACE: [kryo] Object graph complete.
+00:16 DEBUG: [kryonet] Connection 1 received TCP: LobbyJoinRequest
+19712 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - LobbyJoinRequest received
+00:16 TRACE: [kryo] Write class 14: se.bupp.cs3k.LobbyJoinResponse
+00:16 DEBUG: [kryo] Write: se.bupp.cs3k.LobbyJoinResponse
+00:16 TRACE: [kryo] Write field: participantsRequired (se.bupp.cs3k.LobbyJoinResponse)
+00:16 TRACE: [kryo] Write: 2
+00:16 TRACE: [kryo] Object graph complete.
+00:16 DEBUG: [kryonet] Connection 1 sent TCP: LobbyJoinResponse (6)
+00:16 TRACE: [kryo] Write class 16: se.bupp.cs3k.ProgressUpdated
+00:16 DEBUG: [kryo] Write: se.bupp.cs3k.ProgressUpdated
+00:16 TRACE: [kryo] Write field: progress (se.bupp.cs3k.ProgressUpdated)
+00:16 TRACE: [kryo] Write: 1
+00:16 TRACE: [kryo] Object graph complete.
+00:16 DEBUG: [kryonet] Connection 1 sent TCP: ProgressUpdated (6)
+00:24 TRACE: [kryo] Read class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 TRACE: [kryo] Object graph complete.
+00:24 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+27737 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@35886ba1
+00:24 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 TRACE: [kryo] Object graph complete.
+00:24 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:32 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:32 TRACE: [kryo] Object graph complete.
+00:32 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+35762 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@f52327c
+00:32 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:32 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:32 TRACE: [kryo] Object graph complete.
+00:32 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:40 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:40 TRACE: [kryo] Object graph complete.
+00:40 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+43787 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@5d7072bf
+00:40 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:40 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:40 TRACE: [kryo] Object graph complete.
+00:40 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:48 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:48 TRACE: [kryo] Object graph complete.
+00:48 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+51815 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@17d8986
+00:48 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:48 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:48 TRACE: [kryo] Object graph complete.
+00:48 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:57 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:57 TRACE: [kryo] Object graph complete.
+00:57 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+59838 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@58cfbd2d
+00:57 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:57 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:57 TRACE: [kryo] Object graph complete.
+00:57 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:05 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:05 TRACE: [kryo] Object graph complete.
+01:05 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+67863 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@2e8d02e8
+01:05 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:05 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:05 TRACE: [kryo] Object graph complete.
+01:05 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:13 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:13 TRACE: [kryo] Object graph complete.
+01:13 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+75889 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@6a7fe54c
+01:13 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:13 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:13 TRACE: [kryo] Object graph complete.
+01:13 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:21 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:21 TRACE: [kryo] Object graph complete.
+01:21 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+83914 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@72a71733
+01:21 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:21 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:21 TRACE: [kryo] Object graph complete.
+01:21 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:29 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:29 TRACE: [kryo] Object graph complete.
+01:29 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+91940 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@37e45013
+01:29 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:29 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:29 TRACE: [kryo] Object graph complete.
+01:29 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:37 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:37 TRACE: [kryo] Object graph complete.
+01:37 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+99965 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@6e452c0f
+01:37 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:37 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:37 TRACE: [kryo] Object graph complete.
+01:37 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:45 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:45 TRACE: [kryo] Object graph complete.
+01:45 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+107991 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@7f4fc557
+01:45 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:45 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:45 TRACE: [kryo] Object graph complete.
+
+
+
+Client
+
+bef listener
+00:00  INFO: Connecting: /81.235.61.31:12345
+00:00 DEBUG: [kryonet] Port 57790/TCP connected to: /81.235.61.31:12345
+00:00 DEBUG: [kryo] Read: RegisterTCP
+00:00  INFO: [kryonet] Connection 1 connected: /81.235.61.31
+00:00 DEBUG: [kryo] Write: LobbyJoinRequest
+00:00 DEBUG: [kryonet] Connection 1 sent TCP: LobbyJoinRequest (10)
+slut
+00:00 DEBUG: [kryo] Read: LobbyJoinResponse
+00:00 DEBUG: [kryonet] Connection 1 received TCP: LobbyJoinResponse
+LobbyJoinResponse
+00:00 DEBUG: [kryo] Read: ProgressUpdated
+00:00 DEBUG: [kryonet] Connection 1 received TCP: ProgressUpdated
+ProgressUpdated received
+00:08 DEBUG: [kryo] Write: KeepAlive
+00:08 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@192a848
+00:16 DEBUG: [kryo] Write: KeepAlive
+00:16 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@59a34
+00:24 DEBUG: [kryo] Write: KeepAlive
+00:24 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@33f0de
+00:32 DEBUG: [kryo] Write: KeepAlive
+00:32 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@53ab04
+00:40 DEBUG: [kryo] Write: KeepAlive
+00:40 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@f0b7f8
+00:48 DEBUG: [kryo] Write: KeepAlive
+00:48 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@80cac9
+00:56 DEBUG: [kryo] Write: KeepAlive
+00:56 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@13e754f
+01:04 DEBUG: [kryo] Write: KeepAlive
+01:04 DEBUG: [kryo] Read: KeepAlive
+
+
+---------------------------------
+
+
+
+net.sourceforge.jnlp.LaunchException: Fatal: Read Error: Could not read or parse the JNLP file.
+    at net.sourceforge.jnlp.Launcher.fromUrl(Launcher.java:491)
+    at net.sourceforge.jnlp.Launcher.launch(Launcher.java:283)
+    at net.sourceforge.jnlp.runtime.Boot.run(Boot.java:202)
+    at net.sourceforge.jnlp.runtime.Boot.run(Boot.java:51)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at net.sourceforge.jnlp.runtime.Boot.main(Boot.java:168)
+Caused by: net.sourceforge.jnlp.ParseException: Invalid XML document syntax.
+    at net.sourceforge.jnlp.Parser.getRootNode(Parser.java:1305)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:206)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:190)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:175)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:161)
+    at net.sourceforge.jnlp.Launcher.fromUrl(Launcher.java:477)
+    ... 5 more
+Caused by: net.sourceforge.nanoxml.XMLParseException: XML Parse Exception during parsing of a jnlp element at line 14: Unknown or invalid entity: &player_name=null">
+                    <information>
+                        <title>Tank Showdown!</title>
+                        <vendor>PäronGlans</vendor>
+                        <description>Multiplayer game</description>
+
+
+                        <offline-allowed></offline-allowed>
+                    </information>
+                    <security>
+                        <all-permissions></all-permissions>
+                    </security>
+                    <resources><property name="playerInfo" value="{&quot;
+    at net.sourceforge.nanoxml.XMLElement.unknownEntity(XMLElement.java:1158)
+    at net.sourceforge.nanoxml.XMLElement.resolveEntity(XMLElement.java:1034)
+    at net.sourceforge.nanoxml.XMLElement.scanString(XMLElement.java:658)
+    at net.sourceforge.nanoxml.XMLElement.scanElement(XMLElement.java:915)
+    at net.sourceforge.nanoxml.XMLElement.parseFromReader(XMLElement.java:512)
+    at net.sourceforge.nanoxml.XMLElement.parseFromReader(XMLElement.java:464)
+    at net.sourceforge.jnlp.Parser.getRootNode(Parser.java:1301)
+    ... 10 more
+
+
+----------------------
+
+
+    $ curl "http://docs.oracle.com/javase/tutorialJWS/uiswing/painting/ex6/SwingPai
+    ntDemo3.jnlp" -i
+    HTTP/1.1 200 OK
+    Server: Apache
+    ETag: "b2f64ff801ed46b37a68e56b32510f33:1327371300"
+    Last-Modified: Tue, 24 Jan 2012 00:23:03 GMT
+    Accept-Ranges: bytes
+    Content-Length: 2363
+    Date: Sat, 03 Nov 2012 15:43:06 GMT
+    Connection: keep-alive
+    Content-Type: application/x-java-jnlp-file
