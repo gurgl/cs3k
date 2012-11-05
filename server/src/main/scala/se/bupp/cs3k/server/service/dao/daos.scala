@@ -1,10 +1,11 @@
 package se.bupp.cs3k.server.service.dao
 
 import javax.persistence.{TypedQuery, EntityManager, PersistenceContext}
-import se.bupp.cs3k.server.model.{Competitor, GameOccassion, Ticket}
+import se.bupp.cs3k.server.model.{Ladder, Competitor, GameOccassion, Ticket}
 import org.springframework.stereotype.Repository
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.server.User
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,6 +16,8 @@ import se.bupp.cs3k.server.User
  */
 
 
+
+@Transactional
 class GenericDaoImpl[T](clz:Class[T]) {
 
   @PersistenceContext(unitName="MyPersistenceUnit")
@@ -34,6 +37,10 @@ class GenericDaoImpl[T](clz:Class[T]) {
     q.getResultList.headOption
   }
 
+  import scala.collection.JavaConversions.asScalaBuffer
+  def findAll = em.createQuery("select p from " + clz.getSimpleName+ " p").getResultList.toList
+  def count = em.createQuery("select count(p) from " + clz.getSimpleName+ " p").getSingleResult.asInstanceOf[Long]
+
 }
 
 
@@ -51,6 +58,7 @@ class GameDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
     getSingle(q)
   }
 }
+
 
 @Repository
 class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
@@ -72,7 +80,16 @@ class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
 
 }
 
-  @Repository
+@Repository
+@Transactional
+class LadderDao extends GenericDaoImpl[Ladder](classOf[Ladder]) {
+
+
+}
+
+
+@Repository
+@Transactional
 class UserDao extends GenericDaoImpl[User](classOf[User]) {
 
   def findUser(id:Long) : Option[User] = {

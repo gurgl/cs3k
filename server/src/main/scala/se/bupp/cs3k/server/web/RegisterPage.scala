@@ -6,6 +6,7 @@ import org.apache.wicket.markup.html.WebPage
 import se.bupp.cs3k.server.User
 import org.apache.wicket.markup.html.panel.FeedbackPanel
 import org.apache.wicket.spring.injection.annot.SpringBean
+import se.bupp.cs3k.server.service.dao.UserDao
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +17,9 @@ import org.apache.wicket.spring.injection.annot.SpringBean
  */
 class RegisterPage extends AbstractBasePage {
 
-  @SpringBean(name = "mySBean") var beanan: MyBean = _
+  @SpringBean(name = "userDao") var userDao: UserDao = _
+
+
   add(new RegisterForm("registerForm"))
 
   add(new FeedbackPanel("feedback"))
@@ -41,7 +44,7 @@ class RegisterPage extends AbstractBasePage {
       println("confirm " + confirm  + " user.password " + user.password + ", " + user.wiaPasswordConfirm)
       if (user.wiaPasswordConfirm == user.password) {
 
-        beanan.insert(user)
+        userDao.insert(user)
         setResponsePage(getApplication.getHomePage)
       }
     }

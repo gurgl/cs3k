@@ -26,7 +26,7 @@ abstract class AbstractGameOccassion {
 }
 
 @Entity
-class Ladder {
+class Ladder extends Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
 
   var name:String = _

@@ -12,7 +12,7 @@
 
     <context:component-scan base-package="se.bupp.cs3k.*"/>
 
-    <tx:annotation-driven/>
+    <tx:annotation-driven proxy-target-class = "true"/>
 
     <bean class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean" id="entityManagerFactory">
         <property name="persistenceUnitName" value="MyPersistenceUnit"/>

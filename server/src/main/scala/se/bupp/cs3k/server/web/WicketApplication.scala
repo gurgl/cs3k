@@ -58,26 +58,19 @@ object WicketApplication {
   val resourceKey2 = "JNLP_GENERATOR_lobby"
 }
 
-trait MyBean extends {
-  def read()
-
-  def insert(a:User)
-
-  def store()
-}
-
 
 
 
 
 
 @Component("mySBean")
-class MyBeanImpl extends MyBean {
+@Transactional
+class MyBean {
 
   @PersistenceContext(unitName="MyPersistenceUnit")
   var em:EntityManager = _
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  //@Transactional(propagation = Propagation.REQUIRES_NEW)
   def insert(a:User) {
     em.persist(a)
   }
@@ -95,7 +88,7 @@ class MyBeanImpl extends MyBean {
     println(res)
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  //@Transactional(propagation = Propagation.REQUIRES_NEW)
   def store() {
     //instance.useBeanFactory()
 

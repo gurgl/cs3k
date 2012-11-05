@@ -25,6 +25,9 @@ import javax.persistence.{Query, EntityManager}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.User
+import org.springframework.transaction.annotation.Transactional
+import se.bupp.cs3k.server.model.Ladder
+import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
 
 
 /**
@@ -69,6 +72,7 @@ class TheHomePage extends WebPage {
 
 
     val fbp = new FeedbackPanel("feedback")
+    fbp.setFilter( new ContainerFeedbackMessageFilter(AnonLaunchForm.this) );
     fbp.setOutputMarkupId(true)
     add(fbp)
     var nameReference: Model[String] = new Model[String]()
@@ -306,5 +310,7 @@ class TheHomePage extends WebPage {
   class AdminOnlyLabel(id: String, text: String) extends Label(id, text)
 
   add(new AdminOnlyLabel("lbl", "Tja"))
+
+  add(new LadderFormPanel("ladderform"))
 
 }
