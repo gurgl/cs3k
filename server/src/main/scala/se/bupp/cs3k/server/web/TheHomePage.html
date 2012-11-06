@@ -5,44 +5,20 @@
         <title></title>
     </head>
     <body>
+    <wicket:extend>
         <a wicket:id="login">Login</a>
         <a wicket:id="logout">Logout</a>
         <a wicket:id="register">Register</a>
         <br>
 
 
-        <b>Clan Server</b>
-        <br/>
+        <span wicket:id="menu">
+            <a wicket:id="item"><span wicket:id="linkLabel"></span></a>
+        </span>
 
-        <br>
-
-        <div style="background-color:#ffa">
-            <b>Play</b>
-            <button wicket:id="logged_in_launch_btn">Launch</button>
-            <br>
-
-            <form wicket:id="launch_with_name_form">
-                Nickname: <input type="text" wicket:id="player_name">
-                <input type="submit" wicket:id="launch_button" name="Launch" value="Launch"></input>
-
-                <div wicket:id="feedback"></div>
-            </form>
+        <div wicket:id="contentContainer">
+            <div wicket:id="content"></div>
         </div>
-        <span wicket:id="lbl">LABEL</span>
-
-        <br>
-
-        <div style="background-color:#aaa">
-            <div wicket:id="testLinks">
-                Test Game : <a href="lobby2.jnlp">Lobby2</a><br>
-                Test Db :
-                <a wicket:id="testLink">Read</a>
-                <a wicket:id="testLink2">Insert</a><br>
-            </div>
-        </div>
-
-        <div wicket:id="ladderform"></div>
-        <!--a wicket:id="lobbyLink4">Lobby4</a-->
-
+    </wicket:extend>
     </body>
 </html>

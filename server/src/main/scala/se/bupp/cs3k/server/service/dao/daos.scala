@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.server.User
 import org.springframework.transaction.annotation.Transactional
+import javax.persistence.criteria.{CriteriaBuilder, Root, CriteriaQuery}
 
 /**
  * Created with IntelliJ IDEA.
@@ -41,6 +42,26 @@ class GenericDaoImpl[T](clz:Class[T]) {
   def findAll = em.createQuery("select p from " + clz.getSimpleName+ " p").getResultList.toList
   def count = em.createQuery("select count(p) from " + clz.getSimpleName+ " p").getSingleResult.asInstanceOf[Long]
 
+  def selectRangeCount = {
+    selectRange().getResultList.size
+  }
+  def selectRange() = {
+    val criteriaBuilder:CriteriaBuilder = em.getCriteriaBuilder();
+    val criteriaQuery:CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
+    val from:Root[T] = criteriaQuery.from(clz);
+    val select:CriteriaQuery[T] = criteriaQuery.select(from);
+    val typedQuery:TypedQuery[T] = em.createQuery(select);
+
+    typedQuery
+  }
+  import scala.collection.JavaConversions.asScalaBuffer
+
+  def selectRange(off:Int,max:Int) : List[T] = {
+
+    val resultList = selectRange().setMaxResults(max).setFirstResult(off).getResultList();
+    resultList.toList
+
+  }
 }
 
 
