@@ -6,6 +6,9 @@ import se.bupp.cs3k.api.AbstractGamePass
 import java.io.Serializable
 import se.bupp.cs3k.api.{Ticket => ApiTicket}
 import se.bupp.cs3k.server.User
+import scala.Predef._
+import se.bupp.cs3k.server.User
+import com.sun.xml.internal.ws.wsdl.writer.document.http.Address
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +17,8 @@ import se.bupp.cs3k.server.User
  * Time: 01:54
  * To change this template use File | Settings | File Templates.
  */
+
+
 
 object Model {
   type UserId = java.lang.Long

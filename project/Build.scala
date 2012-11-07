@@ -55,6 +55,7 @@ lazy val root = Project(id = "root",
       "org.apache.wicket" % "wicket-spring" % "6.1.0", //exclude("org.apache.wicket","wicket-ioc"),
       //"org.apache.wicket" % "wicket-ioc" % "6.1.0", //exclude("cglib","cglib"),
       //"cglib" % "cglib" % "2.2.2" exclude("asm", "asm")
+      "org.wicketstuff" % "wicketstuff-inmethod-grid" % "6.0-SNAPSHOT" exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
         "org.hsqldb" % "hsqldb" % "2.2.8"
@@ -67,6 +68,7 @@ lazy val root = Project(id = "root",
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
       //"more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",
       //resolvers += "blaha" at "http://repo.typesafe.com/typesafe/releases/"
+      "sonatype-snap" at "http://oss.sonatype.org/content/repositories/snapshots",
       "more apache" at "http://repository.apache.org/snapshots/"
     ),
     scalacOptions += "-deprecation",
