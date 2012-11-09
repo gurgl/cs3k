@@ -1,7 +1,6 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.generic
 
-import org.apache.wicket.markup.html.form.{TextField, Form}
-import se.bupp.cs3k.server.model.Ladder
+import org.apache.wicket.markup.html.form.Form
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink
 import org.apache.wicket.model.CompoundPropertyModel
 import org.apache.wicket.ajax.AjaxRequestTarget

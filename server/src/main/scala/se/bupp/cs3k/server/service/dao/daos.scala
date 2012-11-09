@@ -10,6 +10,7 @@ import javax.persistence.criteria.{CriteriaBuilder, Root, CriteriaQuery}
 
 import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.server.model.GameOccassion
+import org.slf4j.{LoggerFactory, Logger}
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,6 +24,8 @@ import se.bupp.cs3k.server.model.GameOccassion
 
 @Transactional
 class GenericDaoImpl[T](clz:Class[T]) {
+
+  var log = LoggerFactory.getLogger(clz)
 
   @PersistenceContext(unitName="MyPersistenceUnit")
   var em:EntityManager = _
@@ -114,6 +117,8 @@ class LadderDao extends GenericDaoImpl[Ladder](classOf[Ladder]) {
 @Repository
 @Transactional
 class TeamDao extends GenericDaoImpl[Team](classOf[Team]) {
+
+
 
 
 }

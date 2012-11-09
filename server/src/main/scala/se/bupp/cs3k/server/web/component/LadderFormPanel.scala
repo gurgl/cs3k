@@ -1,16 +1,10 @@
-package se.bupp.cs3k.server.web
+package se.bupp.cs3k.server.web.component
 
-import component.GenericFormPanel
+import generic.GenericFormPanel
 import org.apache.wicket.markup.html.form.{TextField, Form}
 import se.bupp.cs3k.server.model.Ladder
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink
-import org.apache.wicket.model.CompoundPropertyModel
-import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.LadderDao
-import org.apache.wicket.markup.html.panel.{Panel, FeedbackPanel}
-import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
-import org.springframework.beans.factory.annotation.Autowired
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
  * To change this template use File | Settings | File Templates.
  */
 
-class LadderFormPanel2(id:String, ladder:Ladder) extends GenericFormPanel[Ladder](id,ladder) {
+class LadderFormPanel(id:String, ladder:Ladder) extends GenericFormPanel[Ladder](id,ladder) {
 
   def this(id:String) = this(id,null)
 

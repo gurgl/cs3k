@@ -1,33 +1,14 @@
 package se.bupp.cs3k.server.web
 
-import org.apache.wicket.markup.html.{WebMarkupContainer, link, WebPage}
-import link.{BookmarkablePageLink, ResourceLink, Link}
-import org.apache.wicket.request.resource._
-import org.apache.wicket.request.mapper.parameter.PageParameters
-import java.util.Scanner
-import org.apache.wicket.markup.html.form.{Button, TextField, Form}
-import org.apache.wicket.ajax.markup.html.form.AjaxButton
+
+import component.{TeamPanel, LadderPanel, MiscPanel}
+import org.apache.wicket.markup.html.{WebMarkupContainer, link}
+import link.BookmarkablePageLink
 import org.apache.wicket.ajax.AjaxRequestTarget
-import org.apache.wicket.model.{IModel, Model}
-import org.apache.wicket.request.{Response, Request}
-import org.apache.wicket.request.cycle.RequestCycle
-import org.apache.wicket.request.handler.resource.ResourceRequestHandler
-import org.apache.wicket.validation.validator.StringValidator
-import org.apache.wicket.markup.html.panel.{Panel, FeedbackPanel}
-import org.apache.wicket.ajax.form.{OnChangeAjaxBehavior, AjaxFormValidatingBehavior}
-import org.apache.wicket.validation.{IValidatable, ValidationError}
-import org.apache.wicket.markup.ComponentTag
-import org.apache.wicket.Component
+import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import org.springframework.context.access.ContextSingletonBeanFactoryLocator
-import org.springframework.beans.factory.access.BeanFactoryLocator
-import javax.persistence.{Query, EntityManager}
-import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.basic.Label
 
-import org.springframework.transaction.annotation.Transactional
-import se.bupp.cs3k.server.model.Ladder
-import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 
 
@@ -54,7 +35,7 @@ class TheHomePage extends AbstractBasePage {
   import scala.collection.JavaConversions.seqAsJavaList
 
   var menuPanel = new ListView[(String,Function1[String,Panel])]("menu",
-    List(("Misc", (s:String) => new MiscPanel(s)), ("Ladder", (s:String) => new LadderPanel(s)))
+    List(("Misc", (s:String) => new MiscPanel(s)), ("Ladder", (s:String) => new LadderPanel(s)), ("Team", (s:String) => new TeamPanel(s)))
   ) {
     def populateItem(p1: ListItem[(String,Function1[String,Panel])]) {
       val (labelText, panelGen) = p1.getModelObject

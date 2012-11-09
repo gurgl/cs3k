@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web
+package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.markup.html.panel.{FeedbackPanel, Panel}
 import org.apache.wicket.spring.injection.annot.SpringBean
@@ -17,9 +17,10 @@ import org.apache.wicket.request.resource.ContextRelativeResource
 import java.util.Scanner
 import org.apache.wicket.markup.html.WebMarkupContainer
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import org.apache.wicket.markup.html.link.{BookmarkablePageLink, Link}
-import se.bupp.cs3k.server.model.User
+import org.apache.wicket.markup.html.link.Link
 import org.apache.wicket.markup.html.basic.Label
+import se.bupp.cs3k.server.web._
+import se.bupp.cs3k.server.model.User
 
 /**
  * Created with IntelliJ IDEA.

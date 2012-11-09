@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.generic
 
 import org.apache.wicket.markup.repeater.data.{IDataProvider, DataView}
 import org.apache.wicket.markup.repeater.Item

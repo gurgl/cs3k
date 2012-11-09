@@ -11,30 +11,7 @@ import com.sun.xml.internal.ws.wsdl.writer.document.http.Address
 import java.util.{List => JUList, ArrayList => JUArrayList }
 import se.bupp.cs3k.server.model.Model.UserId
 
-/**
- * Created with IntelliJ IDEA.
- * User: karlw
- * Date: 2012-10-29
- * Time: 01:54
- * To change this template use File | Settings | File Templates.
- */
 
-
-
-
-object Util {
-  def _hashCode(x: Product): Int = {
-    val arr =  x.productArity
-    var code = arr
-    var i = 0
-    while (i < arr) {
-      val elem = x.productElement(i)
-      code = code * 41 + (if (elem == null) 0 else elem.hashCode())
-      i += 1
-    }
-    code
-  }
-}
 
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")
@@ -124,23 +101,24 @@ class TeamMember {
 }
 
 @Entity
-@PrimaryKeyJoinColumn(name="competitor_id")
+@PrimaryKeyJoinColumn(name="COMPETITOR_ID")
 class Team extends Competitor with Same[java.lang.Long] {
   //@Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
 
   var name:String = _
-  @OneToMany
+
+  @OneToMany(mappedBy = "id.team")
   var members:JUList[TeamMember] =  new JUArrayList[TeamMember]()
 
-  @OneToOne
-  @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID")
-  var competitor:Competitor = _
+  /*@OneToOne
+  @JoinColumn(name = "COMPETITOR_ID", referencedColumnName = "ID")
+  var competitor:Competitor = _*/
 }
 
 
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-class Competitor {
+class Competitor extends Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
 
 }

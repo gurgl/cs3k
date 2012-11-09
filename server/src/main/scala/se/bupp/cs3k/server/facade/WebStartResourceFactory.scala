@@ -206,7 +206,7 @@ class WebStartResourceFactory {
          runningGameOpt match {
            case Some(rg:RunningGame) =>
              val gamePass = gameReservationService.createGamePass(reservationId, occassionId)
-             produceGameJnlp(p1, gamePass, rg)
+             produceGameJnlp(target, gamePass, rg)
            case None => null
          }
        case None =>
@@ -275,7 +275,7 @@ class WebStartResourceFactory {
       val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toOptionalString).map(p=> p.asInstanceOf[String])
       val userIdOpt:Option[UserId] = Option.apply(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
-      //val playerNameOpt = Option.apply(p1.getParameters().get("playerName").toString)
+      //val playerNameOpt = Option.apply(target.getParameters().get("playerName").toString)
 
       var response = new ResourceResponse {}
 
@@ -306,7 +306,7 @@ class WebStartResourceFactory {
             //getSharedResources().add(resourceKey2, lobbyResource)
 
 
-            //println(p1.getRequest.getClientUrl.toString)
+            //println(target.getRequest.getClientUrl.toString)
 
             val resourcesNew = "<resources>" +
               "<property name=\"javaws.lobbyPort\" value=\"12345\"/>" +

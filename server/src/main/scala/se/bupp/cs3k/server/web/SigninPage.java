@@ -16,7 +16,7 @@ public class SigninPage extends AbstractBasePage {
 
     private static class SignInForm extends StatelessForm {
 
-        @SpringBean(name="mySBean")
+        @SpringBean
         UserDao beanan;
 
         private String wiaPassword;

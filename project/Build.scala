@@ -25,7 +25,7 @@ lazy val root = Project(id = "root",
     name := "cs3k Server",
     version := "0.1",
     libraryDependencies ++= Seq(
-      "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.3",
+      "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.4",
       //"org.mockito" % "mockito-all" % "1.9.0" % "test" exclude("org.eclipse.jetty", "jetty"),
       //    "org.apache.wicket" % "wicket" % "6.0.0-beta2" exclude("org.eclipse.jetty", "jetty"),
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
