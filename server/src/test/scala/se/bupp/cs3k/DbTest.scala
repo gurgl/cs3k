@@ -8,7 +8,7 @@ import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.support.{FileSystemXmlApplicationContext, ClassPathXmlApplicationContext}
 import server.model.{LadderEnrollmentPk, LadderEnrollment, Ladder, Competitor}
 import server.service.dao.{CompetitorDao, UserDao}
-import server.User
+import server.model.User
 import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.support.{TransactionCallbackWithoutResult, TransactionTemplate, DefaultTransactionDefinition}
 import org.springframework.transaction.{PlatformTransactionManager, TransactionStatus}
@@ -74,7 +74,6 @@ class DbTest extends Specification {
           var compDao = factory.getBean("competitorDao").asInstanceOf[CompetitorDao]
 
           var comp = new Competitor()
-
 
           inTx(txMgr) {
             compDao.insert(comp)

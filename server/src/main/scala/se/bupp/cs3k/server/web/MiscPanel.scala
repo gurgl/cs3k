@@ -18,7 +18,7 @@ import java.util.Scanner
 import org.apache.wicket.markup.html.WebMarkupContainer
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.markup.html.link.{BookmarkablePageLink, Link}
-import se.bupp.cs3k.server.User
+import se.bupp.cs3k.server.model.User
 import org.apache.wicket.markup.html.basic.Label
 
 /**

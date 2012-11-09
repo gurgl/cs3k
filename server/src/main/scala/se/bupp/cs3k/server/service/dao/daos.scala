@@ -1,12 +1,15 @@
 package se.bupp.cs3k.server.service.dao
 
 import javax.persistence.{TypedQuery, EntityManager, PersistenceContext}
-import se.bupp.cs3k.server.model.{Ladder, Competitor, GameOccassion, Ticket}
+import se.bupp.cs3k.server.model._
 import org.springframework.stereotype.Repository
 import se.bupp.cs3k.server.service.GameReservationService._
-import se.bupp.cs3k.server.User
+import se.bupp.cs3k.server.model.User
 import org.springframework.transaction.annotation.Transactional
 import javax.persistence.criteria.{CriteriaBuilder, Root, CriteriaQuery}
+
+import se.bupp.cs3k.server.model.Ladder
+import se.bupp.cs3k.server.model.GameOccassion
 
 /**
  * Created with IntelliJ IDEA.
@@ -104,6 +107,13 @@ class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
 @Repository
 @Transactional
 class LadderDao extends GenericDaoImpl[Ladder](classOf[Ladder]) {
+
+
+}
+
+@Repository
+@Transactional
+class TeamDao extends GenericDaoImpl[Team](classOf[Team]) {
 
 
 }

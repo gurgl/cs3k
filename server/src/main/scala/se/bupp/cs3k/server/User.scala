@@ -11,19 +11,3 @@ import javax.persistence._
 /*@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
 abstract class Person {
  */
-import se.bupp.cs3k.server.model.Model.UserId
-
-@Entity
-case class User(var username:String) {
-  @Id @GeneratedValue(strategy=GenerationType.AUTO)
-  var id:UserId = _
-
-  var password:String = _
-  var email:String = _
-
-  @Transient var wiaPasswordConfirm:String = _
-  def isAdmin = true
-
-  def this() = this("")
-  override def toString = id + " " + username
-}

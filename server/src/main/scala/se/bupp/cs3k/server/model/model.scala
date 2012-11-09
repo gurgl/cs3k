@@ -5,10 +5,11 @@ import javax.persistence._
 import se.bupp.cs3k.api.AbstractGamePass
 import java.io.Serializable
 import se.bupp.cs3k.api.{Ticket => ApiTicket}
-import se.bupp.cs3k.server.User
 import scala.Predef._
-import se.bupp.cs3k.server.User
+
 import com.sun.xml.internal.ws.wsdl.writer.document.http.Address
+import java.util.{List => JUList, ArrayList => JUArrayList }
+import se.bupp.cs3k.server.model.Model.UserId
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,6 +21,35 @@ import com.sun.xml.internal.ws.wsdl.writer.document.http.Address
 
 
 
+
+object Util {
+  def _hashCode(x: Product): Int = {
+    val arr =  x.productArity
+    var code = arr
+    var i = 0
+    while (i < arr) {
+      val elem = x.productElement(i)
+      code = code * 41 + (if (elem == null) 0 else elem.hashCode())
+      i += 1
+    }
+    code
+  }
+}
+
+@Entity
+@PrimaryKeyJoinColumn(name="competitor_id")
+case class User(var username:String) extends Competitor {
+
+  var password:String = _
+  var email:String = _
+
+  @Transient var wiaPasswordConfirm:String = _
+  def isAdmin = true
+
+  def this() = this("")
+  override def toString = id + " " + username
+}
+
 object Model {
   type UserId = java.lang.Long
 }
@@ -30,11 +60,30 @@ abstract class AbstractGameOccassion {
   def timeTriggerStart:Boolean
 }
 
+trait Same[T] {
+  var id:T
+  def isSame(s:Same[T]) = id == s.id
+}
+
+
 @Entity
-class Ladder extends Serializable {
+case class Ladder() extends Serializable with Same[java.lang.Long] {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
 
   var name:String = _
+
+
+
+  /*
+  override def hashCode(): Int = Util._hashCode(Ladder.this);
+
+  override def equals(x$1: Any): Boolean = Ladder.this.eq(x$1).||(x$1 match {
+    case (i: Int,s: String)A((i$1 @ _), (s$1 @ _)) if i$1.==(i).&&(s$1.==(s)) => x$1.asInstanceOf[Ladder].canEqual(Ladder.this)
+    case _ => false
+  });
+  override def canEqual(x$1: Any): Boolean = x$1.$isInstanceOf[Ladder]()
+  */
+
 }
 
 @Embeddable
@@ -56,7 +105,41 @@ class LadderEnrollment {
 
 }
 
+@Embeddable
+class TeamMemberPk extends Serializable{
+
+  @ManyToOne
+  var team:Team = _
+
+  @ManyToOne
+  var user:User = _
+
+}
+
 @Entity
+class TeamMember {
+  @Id
+  var id:TeamMemberPk = _
+
+}
+
+@Entity
+@PrimaryKeyJoinColumn(name="competitor_id")
+class Team extends Competitor with Same[java.lang.Long] {
+  //@Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
+
+  var name:String = _
+  @OneToMany
+  var members:JUList[TeamMember] =  new JUArrayList[TeamMember]()
+
+  @OneToOne
+  @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID")
+  var competitor:Competitor = _
+}
+
+
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
 class Competitor {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
 

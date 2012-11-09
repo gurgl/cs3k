@@ -24,7 +24,7 @@ import org.springframework.beans.factory.access.BeanFactoryLocator
 import javax.persistence.{Query, EntityManager}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.basic.Label
-import se.bupp.cs3k.server.User
+
 import org.springframework.transaction.annotation.Transactional
 import se.bupp.cs3k.server.model.Ladder
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter

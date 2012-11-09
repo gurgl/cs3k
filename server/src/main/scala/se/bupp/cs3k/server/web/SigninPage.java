@@ -7,14 +7,12 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import se.bupp.cs3k.server.User;
+
+import se.bupp.cs3k.server.model.User;
 import se.bupp.cs3k.server.service.dao.UserDao;
 
 
 public class SigninPage extends AbstractBasePage {
-
-
-
 
     private static class SignInForm extends StatelessForm {
 

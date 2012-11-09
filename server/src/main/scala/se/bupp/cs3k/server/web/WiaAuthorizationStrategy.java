@@ -5,7 +5,7 @@ import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.authorization.Action;
 import org.apache.wicket.authorization.IAuthorizationStrategy;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
-import se.bupp.cs3k.server.User;
+import se.bupp.cs3k.server.model.User;
 
 public final class WiaAuthorizationStrategy implements
     IAuthorizationStrategy,

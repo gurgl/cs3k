@@ -6,7 +6,8 @@ import java.util.Locale;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
-import se.bupp.cs3k.server.User;
+import se.bupp.cs3k.server.model.User;
+import se.bupp.cs3k.server.model.User;
 
 public class WiaSession extends WebSession {
 
