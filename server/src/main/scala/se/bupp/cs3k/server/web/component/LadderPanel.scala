@@ -38,15 +38,24 @@ class LadderPanel(id:String) extends Panel(id) {
     def detach() {}
   }
 
-
-  add(new ListSelector[java.lang.Long,Ladder]("listSelector", provider) {
+  var selector:WebMarkupContainer = _
+  selector = new ListSelector[java.lang.Long,Ladder]("listSelector", provider) {
     override def onClick(target: AjaxRequestTarget, modelObject: Ladder) {
+
+      contentContainer.addOrReplace(new JoinLadderPanel("content",modelObject) {
+        def onUpdate(t: AjaxRequestTarget) {
+
+          t.add(selector)
+        }
+      })
+      target.add(contentContainer)
     }
 
     def renderItem(t: Ladder) = {
-      t.name
+      t.competitorType.toString + " ladder " + t.name
     }
-  })
+  }
+  add(selector.setOutputMarkupId(true))
 
 
 

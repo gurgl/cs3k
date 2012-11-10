@@ -8,6 +8,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.LadderDao
 import org.apache.wicket.markup.html.panel.{Panel, FeedbackPanel}
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
+import org.slf4j.LoggerFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,6 +18,8 @@ import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
  * To change this template use File | Settings | File Templates.
  */
 abstract class GenericFormPanel[T](id:String, var ladder:T) extends Panel(id) {
+
+  val log = LoggerFactory.getLogger(this.getClass)
 
   def this(id:String) = this(id, null.asInstanceOf[T])
 
@@ -38,7 +41,7 @@ abstract class GenericFormPanel[T](id:String, var ladder:T) extends Panel(id) {
 
     if (ladder == null) {
       ladder = createNew
-      println("YEAH")
+      //println("YEAH")
     }
 
     setDefaultModel(new CompoundPropertyModel(ladder))
@@ -61,9 +64,9 @@ abstract class GenericFormPanel[T](id:String, var ladder:T) extends Panel(id) {
 
         info("Saved" )
 
-        println(ladderDao.findAll.mkString(","))
+        log.debug(ladderDao.findAll.mkString(","))
 
-        println(ladderDao.count)
+        log.debug(ladderDao.count.toString)
         target.add(GenericForm.this)
       }
     }

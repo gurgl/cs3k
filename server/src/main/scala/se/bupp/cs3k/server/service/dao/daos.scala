@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service.dao
 
-import javax.persistence.{TypedQuery, EntityManager, PersistenceContext}
+import javax.persistence._
 import se.bupp.cs3k.server.model._
 import org.springframework.stereotype.Repository
 import se.bupp.cs3k.server.service.GameReservationService._
@@ -11,6 +11,10 @@ import javax.persistence.criteria.{CriteriaBuilder, Root, CriteriaQuery}
 import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.server.model.GameOccassion
 import org.slf4j.{LoggerFactory, Logger}
+
+import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.model.Ladder
+import se.bupp.cs3k.server.model.GameOccassion
 
 /**
  * Created with IntelliJ IDEA.
@@ -52,14 +56,19 @@ class GenericDaoImpl[T](clz:Class[T]) {
     selectRange().getResultList.size
   }
   def selectRange() = {
-    val criteriaBuilder:CriteriaBuilder = em.getCriteriaBuilder();
-    val criteriaQuery:CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
-    val from:Root[T] = criteriaQuery.from(clz);
-    val select:CriteriaQuery[T] = criteriaQuery.select(from);
+    val (select , from , builder )= selectCriteria
     val typedQuery:TypedQuery[T] = em.createQuery(select);
-
     typedQuery
   }
+
+  def selectCriteria: (CriteriaQuery[T], Root[T], CriteriaBuilder) = {
+    val criteriaBuilder: CriteriaBuilder = em.getCriteriaBuilder();
+    val criteriaQuery: CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
+    val from: Root[T] = criteriaQuery.from(clz);
+    val select: CriteriaQuery[T] = criteriaQuery.select(from);
+    (select, from, criteriaBuilder)
+  }
+
   import scala.collection.JavaConversions.asScalaBuffer
 
   def selectRange(off:Int,max:Int) : List[T] = {
@@ -102,8 +111,21 @@ class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
   }
 }
 
+
+//@NamedQueries({(
+//  )}
+//)
+
 @Repository
 class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
+
+  def findByUser(u:User)  =  {
+    import scala.collection.JavaConversions.asScalaBuffer
+    val q = em.createNamedQuery("Competitor.findByUser")
+    q.setParameter("user1",u)
+    q.setParameter("user2",u)
+    q.getResultList.toList.map(_.asInstanceOf[Competitor])
+  }
 
 }
 
@@ -130,6 +152,10 @@ class UserDao extends GenericDaoImpl[User](classOf[User]) {
 
   def findUser(id:Long) : Option[User] = {
     Option(em.find(classOf[User], id))
+  }
+
+  def findCompetitor(id:Long) : Option[Competitor] = {
+    Option(em.find(classOf[Competitor], id))
   }
 
   def findUser(s:String) = {

@@ -42,7 +42,7 @@ class RegisterPage extends AbstractBasePage {
 
     override def onSubmit() {
       super.onSubmit()
-      println("confirm " + confirm  + " user.password " + user.password + ", " + user.wiaPasswordConfirm)
+      //println("confirm " + confirm  + " user.password " + user.password + ", " + user.wiaPasswordConfirm)
       if (user.wiaPasswordConfirm == user.password) {
 
         userDao.insert(user)

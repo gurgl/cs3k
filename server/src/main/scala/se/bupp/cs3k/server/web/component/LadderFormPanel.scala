@@ -1,10 +1,12 @@
 package se.bupp.cs3k.server.web.component
 
 import generic.GenericFormPanel
-import org.apache.wicket.markup.html.form.{TextField, Form}
-import se.bupp.cs3k.server.model.Ladder
+import org.apache.wicket.markup.html.form.{DropDownChoice, TextField, Form}
+import se.bupp.cs3k.model.CompetitorType
+import se.bupp.cs3k.server.model.{Ladder}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.LadderDao
+import java.util
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +27,9 @@ class LadderFormPanel(id:String, ladder:Ladder) extends GenericFormPanel[Ladder]
 
   def populateFields(f: Form[Ladder]) {
 
+    import scala.collection.JavaConversions.seqAsJavaList
+    var choice: DropDownChoice[CompetitorType] = new DropDownChoice[CompetitorType]("competitorType", util.Arrays.asList(CompetitorType.values():_*))
+    f.add(choice.setRequired(true))
     f.add(new TextField("name"))
   }
 

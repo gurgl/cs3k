@@ -2,15 +2,12 @@ package se.bupp.cs3k.server.model
 
 import se.bupp.cs3k.server.GameServerPool.GameProcessSettings
 import javax.persistence._
-import se.bupp.cs3k.api.AbstractGamePass
 import java.io.Serializable
 import se.bupp.cs3k.api.{Ticket => ApiTicket}
 import scala.Predef._
 
-import com.sun.xml.internal.ws.wsdl.writer.document.http.Address
 import java.util.{List => JUList, ArrayList => JUArrayList }
-import se.bupp.cs3k.server.model.Model.UserId
-
+import se.bupp.cs3k.model.CompetitorType
 
 
 @Entity
@@ -42,6 +39,12 @@ trait Same[T] {
   def isSame(s:Same[T]) = id == s.id
 }
 
+/*
+object CompetitorType extends Enumeration with Enumv with Serializable {
+  type CompetitorType = Value
+  val Team = Value("Team")
+  val Individual = Value("Individual")
+} */
 
 @Entity
 case class Ladder() extends Serializable with Same[java.lang.Long] {
@@ -49,6 +52,12 @@ case class Ladder() extends Serializable with Same[java.lang.Long] {
 
   var name:String = _
 
+  //@Type(`type` = "se.bupp.cs3k.server.model.CompetitorType")
+  @Enumerated(EnumType.ORDINAL)
+  var competitorType:CompetitorType= _
+
+  @OneToMany(mappedBy = "id.ladder")
+  var participants:JUList[LadderEnrollment] =  new JUArrayList[LadderEnrollment]()
 
 
   /*
@@ -64,7 +73,7 @@ case class Ladder() extends Serializable with Same[java.lang.Long] {
 }
 
 @Embeddable
-class LadderEnrollmentPk extends Serializable{
+case class LadderEnrollmentPk() extends Serializable{
 
   @ManyToOne
   var competitor:Competitor = _
@@ -83,7 +92,7 @@ class LadderEnrollment {
 }
 
 @Embeddable
-class TeamMemberPk extends Serializable{
+case class TeamMemberPk() extends Serializable{
 
   @ManyToOne
   var team:Team = _
@@ -117,6 +126,9 @@ class Team extends Competitor with Same[java.lang.Long] {
 
 
 @Entity
+@NamedQueries(Array(
+  new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2")
+))
 @Inheritance(strategy=InheritanceType.JOINED)
 class Competitor extends Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _

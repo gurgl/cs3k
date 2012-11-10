@@ -86,7 +86,7 @@ class MyBean {
   def read() {
     var q: Query = em.createQuery("from User")
     val res = q.getResultList.mkString(",")
-    println(res)
+    //println(res)
   }
 
   //@Transactional(propagation = Propagation.REQUIRES_NEW)
