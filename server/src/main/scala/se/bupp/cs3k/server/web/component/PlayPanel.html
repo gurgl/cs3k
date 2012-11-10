@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <wicket:panel>
+
+        <span class="header1">Play</span>
+        <br/>
+
+        <br>
+
+        <div class="play_spot">
+
+            <span class="header2">Play now</span>
+
+            <button wicket:id="logged_in_launch_btn">Launch</button>
+            <br>
+
+            <form wicket:id="launch_with_name_form">
+                Nickname: <input type="text" wicket:id="player_name">
+                <input type="submit" wicket:id="launch_button" name="Launch" value="Launch"></input>
+
+                <div wicket:id="feedback"></div>
+            </form>
+        </div>
+
+        <div class="play_spot non_implemented">
+            <span class="header2">Ladders</span>
+        </div>
+
+        <div class="play_spot non_implemented">
+            <span class="header2">Tournaments</span>
+        </div>
+
+
+    </wicket:panel>
+
+</body>
+</html>
