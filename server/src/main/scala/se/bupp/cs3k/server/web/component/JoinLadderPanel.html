@@ -1,9 +1,21 @@
 <wicket:panel>
 
     <wicket:child/>
-    <div wicket:id="applicable">
-        <a wicket:id="link"><span wicket:id="label"></span></a>
-    </div>
+    <wicket:enclosure child="applicable">
+        <div class="action_form">
+            <span wicket:id="applicable" >
+                <a wicket:id="link"><span wicket:id="label"></span></a>
+            </span>
+        </div>
+    </wicket:enclosure>
+        <br>
+    <span class="header3">Ladder participants</span>
+    <table class="standard-table">
+        <tr wicket:id="participants">
+            <td><span wicket:id="label"></span><!--a wicket:id="link"></a-->
+            </td>
+        </tr>
+    </table>
 
     <div wicket:id="feedback"/>
     <!--div wicket:id="grid"></div>

@@ -69,6 +69,7 @@ class TeamPanel(id:String) extends Panel(id) {
 
     }
   }
+
   selector.setOutputMarkupId(true)
   add(selector)
 
@@ -77,5 +78,5 @@ class TeamPanel(id:String) extends Panel(id) {
   var contentContainer= new WebMarkupContainer("contentContainer")
   contentContainer.setOutputMarkupId(true)
   add(contentContainer)
-  contentContainer.add(new TeamFormPanel("content") )
+  contentContainer.add(new TeamFormPanel("content", "Create team") )
 }

@@ -2,21 +2,28 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
-        <title></title>
+        <title>CS3K</title>
     </head>
     <body>
     <wicket:extend>
-        <a wicket:id="login">Login</a>
-        <a wicket:id="logout">Logout</a>
-        <a wicket:id="register">Register</a>
+
+
+
+        <div class="top_menu">
+            <a wicket:id="login">Login</a>
+            <a wicket:id="logout">Logout</a>
+            <a wicket:id="register">Register</a>
+            <span wicket:id="lbl">LABEL</span>
+        </div>
         <br>
 
+        <div class="section_menu">
+            <span wicket:id="menu" >
+                <a wicket:id="item"><span wicket:id="linkLabel"></span></a>
+            </span>
+        </div>
 
-        <span wicket:id="menu">
-            <a wicket:id="item"><span wicket:id="linkLabel"></span></a>
-        </span>
-
-        <div wicket:id="contentContainer">
+        <div wicket:id="contentContainer" class="content_panel">
             <div wicket:id="content"></div>
         </div>
     </wicket:extend>

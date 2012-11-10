@@ -16,9 +16,9 @@ import java.util
  * To change this template use File | Settings | File Templates.
  */
 
-class LadderFormPanel(id:String, ladder:Ladder) extends GenericFormPanel[Ladder](id,ladder) {
+class LadderFormPanel(id:String, label:String, ladder:Ladder) extends GenericFormPanel[Ladder](id, label, ladder) {
 
-  def this(id:String) = this(id,null)
+  def this(id:String, label:String) = this(id, label, null)
 
   @SpringBean
   var ladderDao:LadderDao = _

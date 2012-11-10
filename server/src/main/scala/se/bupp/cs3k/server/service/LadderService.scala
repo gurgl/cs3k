@@ -49,6 +49,10 @@ class LadderService {
     }
   }
 
+  def findParticipants(ladder:Ladder, p1: Long, p2: Long) = {
+     competitorDao.findLadderParticipants(ladder,p1,p2)
+  }
+
   @Transactional
   def isCompetitorMemberOfLadder(t:Competitor, l:Ladder) = {
     import scala.collection.JavaConversions.asScalaBuffer

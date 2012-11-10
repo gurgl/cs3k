@@ -1,8 +1,16 @@
-<wicket:extend>
+<wicket:panel>
 
-
+    <div class="action_form">
+    <span wicket:id="title" class="header3"></span>
+    <form wicket:id="theform" >
         Name <input type="text" wicket:id="name"/>
-        Type <select wicket:id="competitorType"/>
+        Type <select wicket:id="competitorType"></select>
+        <input type="button" wicket:id="submit" value="Save"></input>
+        <div wicket:id="feedback"></div>
+    </form>
+    </div>
 
 
-</wicket:extend>
+
+
+</wicket:panel>

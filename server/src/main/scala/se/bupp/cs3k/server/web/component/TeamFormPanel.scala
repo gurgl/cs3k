@@ -14,9 +14,9 @@ import se.bupp.cs3k.server.service.dao.TeamDao
  * To change this template use File | Settings | File Templates.
  */
 
-class TeamFormPanel(id:String, ladder:Team) extends GenericFormPanel[Team](id,ladder) {
+class TeamFormPanel(id:String, label:String, ladder:Team) extends GenericFormPanel[Team](id, label, ladder) {
 
-  def this(id:String) = this(id,null)
+  def this(id:String, label:String) = this(id, label,null)
 
   @SpringBean
   var teamDao:TeamDao = _

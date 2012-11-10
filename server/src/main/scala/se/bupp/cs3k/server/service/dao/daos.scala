@@ -118,14 +118,30 @@ class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
 
 @Repository
 class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
-
+  import scala.collection.JavaConversions.asScalaBuffer
   def findByUser(u:User)  =  {
-    import scala.collection.JavaConversions.asScalaBuffer
+
     val q = em.createNamedQuery("Competitor.findByUser")
     q.setParameter("user1",u)
     q.setParameter("user2",u)
     q.getResultList.toList.map(_.asInstanceOf[Competitor])
   }
+
+
+  def findLadderParticipants(u:Ladder) : Query  =  {
+
+    val q = em.createNamedQuery("Competitor.findLadderParticipants")
+    q.setParameter("ladder",u)
+    q
+  }
+  def findLadderParticipantsCount(u:Ladder) = {
+    findLadderParticipants(u).getResultList.size()
+  }
+
+  def findLadderParticipants(u:Ladder,p1: Long, p2: Long) : List[Competitor]=  {
+    findLadderParticipants(u).setMaxResults(p2.toInt).setFirstResult(p1.toInt).getResultList.toList.map(_.asInstanceOf[Competitor])
+  }
+
 
 }
 

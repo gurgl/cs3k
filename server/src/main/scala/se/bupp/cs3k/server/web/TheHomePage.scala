@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.web
 
 
-import component.{TeamPanel, LadderPanel, MiscPanel}
+import component.{TeamPanel, LadderPanel, PlayPanel}
 import org.apache.wicket.markup.html.{WebMarkupContainer, link}
 import link.BookmarkablePageLink
 import org.apache.wicket.ajax.AjaxRequestTarget
@@ -10,6 +10,11 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.markup.html.basic.Label
 
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
+import org.apache.wicket.markup.repeater.{Item, RefreshingView}
+import org.apache.wicket.behavior.AttributeAppender
+import org.apache.wicket.model.{Model, AbstractReadOnlyModel}
+import org.apache.wicket.model.util.ListModel
+import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter
 
 
 /**
@@ -30,26 +35,45 @@ class TheHomePage extends AbstractBasePage {
   add(new LoginLink)
   add(new RegisterLink)
 
+  @LoggedInOnly
+  class AdminOnlyLabel(id: String, text: String) extends Label(id, text)
+
+  add(new AdminOnlyLabel("lbl", "Tja"))
+
 
 
   import scala.collection.JavaConversions.seqAsJavaList
+  import scala.collection.JavaConversions.asScalaIterator
+  import scala.collection.JavaConversions.asJavaIterator
 
-  var menuPanel = new ListView[(String,Function1[String,Panel])]("menu",
-    List(("Misc", (s:String) => new MiscPanel(s)), ("Ladder", (s:String) => new LadderPanel(s)), ("Team", (s:String) => new TeamPanel(s)))
-  ) {
-    def populateItem(p1: ListItem[(String,Function1[String,Panel])]) {
+  val list = List(("Play", (s:String) => new PlayPanel(s)), ("Ladder", (s:String) => new LadderPanel(s)), ("Team", (s:String) => new TeamPanel(s)))
+  var selected = Some(list.head._1)
+  var menuPanel = new RefreshingView[(String,Function1[String,Panel])]("menu") {
+
+    def getItemModels = new ModelIteratorAdapter[(String, (String) => Panel)](list.toIterator) {
+      def model(p1: (String, (String) => Panel)) = new Model(p1)
+    }
+
+    def populateItem(p1: Item[(String, (String) => Panel)]) {
+
       val (labelText, panelGen) = p1.getModelObject
-
+          p1.setOutputMarkupId(true)
       var label = new Label("linkLabel", labelText).setOutputMarkupId(true)
       val link = new AjaxLink[String]("item") {
         def onClick(target: AjaxRequestTarget) {
+          selected.foreach ( s => getItems.find(i => i.getModelObject._1 == s).foreach(i => target.add(i)) )
+           selected = Some(labelText)
+
+
           val comp = panelGen.apply("content")
           contentContainer.addOrReplace(comp)
           target.add(contentContainer)
           target.add(label)
         }
       }
-      link.add(label)
+      link.add(label.add(new AttributeAppender("class",new AbstractReadOnlyModel[String] {
+        def getObject = if(selected.exists(_ == labelText)) "section_menu bold" else ""
+      })))
       p1.add(link)
 
     }
@@ -60,6 +84,6 @@ class TheHomePage extends AbstractBasePage {
   var contentContainer= new WebMarkupContainer("contentContainer")
   contentContainer.setOutputMarkupId(true)
   add(contentContainer)
-  contentContainer.add(new MiscPanel("content"))
+  contentContainer.add(new PlayPanel("content"))
 
 }

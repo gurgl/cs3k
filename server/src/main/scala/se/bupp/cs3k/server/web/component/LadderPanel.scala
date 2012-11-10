@@ -24,6 +24,7 @@ class LadderPanel(id:String) extends Panel(id) {
   var ladderDao:LadderDao = _
 
 
+
   val provider = new IDataProvider[Ladder]() {
     import scala.collection.JavaConversions.asJavaIterator
     def iterator(p1: Long, p2: Long) = ladderDao.selectRange(p1.toInt,p2.toInt).toIterator
@@ -62,5 +63,5 @@ class LadderPanel(id:String) extends Panel(id) {
   var contentContainer= new WebMarkupContainer("contentContainer")
   contentContainer.setOutputMarkupId(true)
   add(contentContainer)
-  contentContainer.add(new LadderFormPanel("content") )
+  contentContainer.add(new LadderFormPanel("content", "Create ladder") )
 }

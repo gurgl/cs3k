@@ -47,6 +47,9 @@ object CompetitorType extends Enumeration with Enumv with Serializable {
 } */
 
 @Entity
+@NamedQueries(Array(
+
+))
 case class Ladder() extends Serializable with Same[java.lang.Long] {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
 
@@ -127,7 +130,8 @@ class Team extends Competitor with Same[java.lang.Long] {
 
 @Entity
 @NamedQueries(Array(
-  new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2")
+  new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2"),
+  new NamedQuery(name = "Competitor.findLadderParticipants", query = "select c from Ladder l inner join l.participants p inner join p.id.competitor c where l = :ladder")
 ))
 @Inheritance(strategy=InheritanceType.JOINED)
 class Competitor extends Serializable {
