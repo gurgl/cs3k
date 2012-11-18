@@ -8,6 +8,8 @@ import scala.Predef._
 
 import java.util.{List => JUList, ArrayList => JUArrayList }
 import se.bupp.cs3k.model.CompetitorType
+import org.hibernate.metamodel.source.binder.Orderable
+import java.util
 
 
 @Entity
@@ -114,10 +116,11 @@ class TeamMember {
 
 @Entity
 @PrimaryKeyJoinColumn(name="COMPETITOR_ID")
-class Team extends Competitor with Same[java.lang.Long] {
+class Team(var name:String) extends Competitor with Same[java.lang.Long] {
   //@Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
+  def this() = this(null)
 
-  var name:String = _
+
 
   @OneToMany(mappedBy = "id.team")
   var members:JUList[TeamMember] =  new JUArrayList[TeamMember]()
@@ -137,6 +140,10 @@ class Team extends Competitor with Same[java.lang.Long] {
 class Competitor extends Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
 
+  def nameAccessor = this match {
+    case t:Team => t.name
+    case u:User => u.username
+  }
 }
 
 
@@ -182,6 +189,14 @@ class Ticket() extends ApiTicket with Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id: Long = _
 }
 
+
+import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal
+
+class TotalAwaredPointsAndScore(var competitor: Competitor, val points:Long, val ct:CompetitorTotal) extends Serializable {
+  import scala.collection.JavaConversions.asScalaBuffer
+  private val ctAll = ct.getRenderer.render().toSeq
+  def elements = java.util.Arrays.asList(ct.getRenderer.render():_*)
+}
 
 
 case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameProcessSettings) {

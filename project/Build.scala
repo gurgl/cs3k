@@ -55,7 +55,7 @@ lazy val root = Project(id = "root",
       "org.apache.wicket" % "wicket-spring" % "6.1.0", //exclude("org.apache.wicket","wicket-ioc"),
       //"org.apache.wicket" % "wicket-ioc" % "6.1.0", //exclude("cglib","cglib"),
       //"cglib" % "cglib" % "2.2.2" exclude("asm", "asm")
-      //"org.wicketstuff" % "wicketstuff-inmethod-grid" % "6.0-SNAPSHOT" exclude("org.apache.wicket","wicket-core"),
+      "org.wicketstuff" % "wicketstuff-inmethod-grid" % "6.0-SNAPSHOT" exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
         "org.hsqldb" % "hsqldb" % "2.2.8"

@@ -16,7 +16,15 @@
 
             <span class="header2">Play now</span>
 
-            <button wicket:id="logged_in_launch_btn">Launch</button>
+            <!--button wicket:id="logged_in_launch_btn">Launch</button-->
+            <form wicket:id="loggedInForm">
+                Play As: <select wicket:id="competitorSelect"/>
+                <input type="submit" wicket:id="launch_button" name="Launch" value="Launch"/>
+
+
+            </form>
+
+
             <br>
 
             <form wicket:id="launch_with_name_form">

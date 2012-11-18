@@ -2,10 +2,10 @@ package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.markup.html.panel.{FeedbackPanel, Panel}
 import org.apache.wicket.spring.injection.annot.SpringBean
-import org.apache.wicket.markup.html.form.{Button, TextField, Form}
+import org.apache.wicket.markup.html.form._
 import org.apache.wicket.markup.ComponentTag
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
-import org.apache.wicket.model.Model
+import org.apache.wicket.model.{IModel, Model}
 import org.apache.wicket.ajax.form.{OnChangeAjaxBehavior, AjaxFormValidatingBehavior}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.validation.validator.StringValidator
@@ -20,7 +20,9 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.markup.html.link.Link
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
-import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.model.{Team, Competitor, User}
+import se.bupp.cs3k.server.service.LadderService
+import se.bupp.cs3k.server.service.dao.CompetitorDao
 
 /**
  * Created with IntelliJ IDEA.
@@ -164,8 +166,43 @@ class PlayPanel(id:String) extends Panel(id) {
 
   add(new AnonLaunchForm("launch_with_name_form"))
 
+  @SpringBean
+  var competitorDao:CompetitorDao = _
+
 
   @LoggedInOnly
+  class LoggedInOnlyForm(id:String) extends Form[String](id) {
+
+    var user: User = WiaSession.get().getUser
+    val competitors = competitorDao.findByUser(user)
+    import scala.collection.JavaConversions.seqAsJavaList
+
+    var selectionModel = new Model[Competitor](null)
+    var compSel = new DropDownChoice[Competitor]("competitorSelect", selectionModel, competitors, new IChoiceRenderer[Competitor] {
+      def getDisplayValue(p1: Competitor) = p1 match {
+        case t:Team => t.name + " (Team)"
+        case u:User => u.username
+      }
+
+      def getIdValue(p1:Competitor, p2: Int) = p1.id.toString
+    })
+    compSel.setRequired(true)
+    add(compSel)
+    val button = new Button("launch_button")
+    add(button)
+
+    override def onSubmit() {
+      //println("submitting button, player_name = " + nameReference.getObject)
+      //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
+      var parameters: PageParameters = new PageParameters()
+      parameters.add("competitor_id", selectionModel.getObject.id)
+      parameters.add("user_id", user.id)
+      RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
+    }
+  }
+
+  add(new LoggedInOnlyForm("loggedInForm"))
+
   class LoggedInOnlyButton(id:String) extends Link[String](id) {
     override def onClick() {
 
@@ -200,7 +237,8 @@ class PlayPanel(id:String) extends Panel(id) {
     }
   }       */
 
-  add(new LoggedInOnlyButton("logged_in_launch_btn"))
+
+  //add(new LoggedInOnlyButton("logged_in_launch_btn"))
 
 
 

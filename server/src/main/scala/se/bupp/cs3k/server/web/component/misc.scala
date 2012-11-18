@@ -202,5 +202,7 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
   })
 
 
+  add(new LadderRankingView("g"))
+
 
 }
