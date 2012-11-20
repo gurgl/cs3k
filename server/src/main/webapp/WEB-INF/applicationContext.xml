@@ -31,4 +31,7 @@
         <property name="registryPort" value="1199"/>
     </bean>
 
+    <!--<bean id="defaultObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />-->
+
+
 </beans>

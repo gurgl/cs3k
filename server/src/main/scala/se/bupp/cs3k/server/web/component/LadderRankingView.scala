@@ -6,7 +6,7 @@ import se.bupp.cs3k.server.model.{Team, Competitor, Ladder, TotalAwaredPointsAnd
 import org.apache.wicket.markup.repeater.Item
 import com.inmethod.grid.datagrid.{DefaultDataGrid, DataGrid}
 import com.inmethod.grid.{DataProviderAdapter, IDataSource, IGridColumn}
-import java.util
+import java.{lang, util}
 import org.apache.wicket.model.{LoadableDetachableModel, IModel, Model}
 import com.inmethod.grid.column.PropertyColumn
 import org.apache.wicket.ajax.AjaxRequestTarget
@@ -14,9 +14,11 @@ import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.{CompetitorDao, LadderDao}
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal
-import se.bupp.cs3k.server.web.component.LadderRankingView.{MyScoreScheme, MyCompetitorTotal}
+import se.bupp.cs3k.server.web.component.Example.{MyScoreScheme, MyCompetitorTotal}
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal.Render
-import se.bupp.cs3k.api.score.ScoreScheme
+import se.bupp.cs3k.api.score.{CompetitorScore, ContestScore, ScoreScheme}
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import reflect.BeanProperty
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,12 +28,40 @@ import se.bupp.cs3k.api.score.ScoreScheme
  * To change this template use File | Settings | File Templates.
  */
 
-object LadderRankingView {
+object Example {
 
-  class MyScoreScheme extends ScoreScheme {
+  class MyCompetitorScore(val kills:Int, val diffKills:Int, val trophys:Int) extends CompetitorScore
+
+  @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+  case class JavaTuple2(a:Int,b:Int) extends Tuple2(a,b) {
+    def this() = this(-1,-1)
+  }
+  class MyContestScore(@BeanProperty var s:java.util.Map[Long,JavaTuple2]) extends ContestScore {
+    def this() = this(null)
+    import scala.collection.JavaConversions.mapAsScalaMap
+    import scala.collection.JavaConversions.mutableMapAsJavaMap
+    def competitorScores() = {
+      val r = s.map { case (k,v) => new java.lang.Long(k) -> new MyCompetitorScore(v._1,0,v._2) }
+      mutableMapAsJavaMap(r)
+    }
+
+
+    //def competitorResults() = null
+
+  }
+  object MyScoreScheme extends ScoreScheme {
+
+    def getContestStoreClass = classOf[MyContestScore]
+
     def competitorTotalColHeaders() = Array("Kills", "Diff Kills", "Trophys")
+
+    def renderToHtml(cs: ContestScore, competitors: util.Set[lang.Long]) =
+      """
+        | <b>TJA</b>
+      """.stripMargin
   }
 
+  @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
   class MyCompetitorTotal(val kills:Int, val diffKills:Int, val trophys:Int) extends CompetitorTotal {
     def getRenderer = new Render {
 
@@ -39,14 +69,12 @@ object LadderRankingView {
     }
   }
 
-
-
-
 }
 
 class LadderRankingView(id:String) extends Panel(id) {
 
 
+  import Example._
 
   @SpringBean
   var ladderDao:CompetitorDao = _
@@ -82,7 +110,7 @@ class LadderRankingView(id:String) extends Panel(id) {
   val listDataProvider = provider
 
 
-  val sc = new MyScoreScheme
+  val sc = MyScoreScheme
 
   //import scala.collection.JavaConversions.
 

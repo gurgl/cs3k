@@ -11,6 +11,6 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public interface ContestScore {
-    public Map<Long, CompetitorScore> competitorScores();
-    public List<Long> competitorResults();
+    public Map<Long, ? extends CompetitorScore> competitorScores();
+    //public List<Long> competitorResults();
 }

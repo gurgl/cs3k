@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +15,10 @@ import java.util.Map;
  */
 public interface ScoreScheme extends Serializable {
 
+    public Class<? extends ContestScore> getContestStoreClass();
+
     String [] competitorTotalColHeaders();
+    String renderToHtml(ContestScore cs, Set<Long> competitors);
 
     public interface CompetitorTotal extends Serializable {
 
@@ -26,13 +30,9 @@ public interface ScoreScheme extends Serializable {
         }
     }
 
-    interface ContestEvaluation {
-        <T extends Number> String renderToHtml(ContestScore cs, Map<Long,T> competitorByAwardedPoints, NumberFormat nf);
-    }
+
 
     interface CompetitorTotalEvaluation {
-
-
 
         public int compareField(CompetitorTotal a, CompetitorTotal b, int field);
 

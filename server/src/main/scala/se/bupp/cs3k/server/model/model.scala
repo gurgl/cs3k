@@ -10,7 +10,7 @@ import java.util.{List => JUList, ArrayList => JUArrayList }
 import se.bupp.cs3k.model.CompetitorType
 import org.hibernate.metamodel.source.binder.Orderable
 import java.util
-
+import java.lang.{Long => JLLong }
 
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")
@@ -30,7 +30,7 @@ object Model {
   type UserId = java.lang.Long
 }
 
-abstract class AbstractGameOccassion {
+trait AbstractGameOccassion {
   def occassionId:Long
 
   def timeTriggerStart:Boolean
@@ -52,8 +52,8 @@ object CompetitorType extends Enumeration with Enumv with Serializable {
 @NamedQueries(Array(
 
 ))
-case class Ladder() extends Serializable with Same[java.lang.Long] {
-  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
+case class Ladder() extends Serializable with Same[JLLong] {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   var name:String = _
 
@@ -94,6 +94,9 @@ class LadderEnrollment {
   @Id
   var id:LadderEnrollmentPk = _
 
+  var accumulatedResultSerializedVersion: Int = _
+  var accumulatedResultSerialized: String = _
+
 }
 
 @Embeddable
@@ -104,7 +107,6 @@ case class TeamMemberPk() extends Serializable{
 
   @ManyToOne
   var user:User = _
-
 }
 
 @Entity
@@ -116,7 +118,7 @@ class TeamMember {
 
 @Entity
 @PrimaryKeyJoinColumn(name="COMPETITOR_ID")
-class Team(var name:String) extends Competitor with Same[java.lang.Long] {
+class Team(var name:String) extends Competitor with Same[JLLong] {
   //@Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
   def this() = this(null)
 
@@ -138,7 +140,7 @@ class Team(var name:String) extends Competitor with Same[java.lang.Long] {
 ))
 @Inheritance(strategy=InheritanceType.JOINED)
 class Competitor extends Serializable {
-  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   def nameAccessor = this match {
     case t:Team => t.name
@@ -146,11 +148,43 @@ class Competitor extends Serializable {
   }
 }
 
+@Embeddable
+case class GameParticipationPk() extends Serializable{
+
+  @ManyToOne
+  var competitor:Competitor = _
+
+  @ManyToOne
+  var game:PersistedGameOccassion = _
+}
+
+@Entity
+class GameParticipation {
+  @Id
+  var id:GameParticipationPk = _
+}
 
 
 @Entity
-case class GameOccassion(var occassionId:Long) extends AbstractGameOccassion {
-  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:Long = _
+@PrimaryKeyJoinColumn(name="GAME_OCCASSION_ID")
+case class GameResult() extends PersistedGameOccassion {
+
+  var resultSerializedVersion: Int = _
+  var resultSerialized:String = _
+}
+
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
+class PersistedGameOccassion extends Serializable with Same[JLLong] {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @OneToMany(mappedBy = "id.game")
+  var participants:JUList[GameParticipation] =  new JUArrayList[GameParticipation]()
+}
+
+@Entity
+@PrimaryKeyJoinColumn(name="GAME_OCCASSION_ID")
+case class GameOccassion(var occassionId:Long) extends PersistedGameOccassion with AbstractGameOccassion {
 
   def timeTriggerStart = true
 }
@@ -182,7 +216,7 @@ class Ticket() extends ApiTicket with Serializable {
     this.id = id
   }
 
-  override def getId: java.lang.Long = {
+  override def getId: JLLong = {
     id
   }
 

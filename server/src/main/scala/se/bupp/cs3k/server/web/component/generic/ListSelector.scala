@@ -36,7 +36,6 @@ abstract class ListSelector[G, T <: Same[G]](id:String, provider:IDataProvider[T
           selected.foreach (l => getItems.find(_.getModelObject.isSame(l)).foreach ( c => {target.add(c)  }))
           selected = Some(p1.getModelObject)
 
-
           ListSelector.this.onClick(target, p1.getModelObject)
           target.add(p1)
 

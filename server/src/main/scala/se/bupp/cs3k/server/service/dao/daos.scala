@@ -81,6 +81,12 @@ class GenericDaoImpl[T](clz:Class[T]) {
 
 
 
+@Repository
+class GameResultDao extends GenericDaoImpl[GameResult](classOf[GameResult]) {
+
+}
+
+
 
 
 
