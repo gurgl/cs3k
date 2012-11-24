@@ -30,12 +30,6 @@ public interface ScoreScheme extends Serializable {
         }
     }
 
-
-
-    interface CompetitorTotalEvaluation {
-
-        public int compareField(CompetitorTotal a, CompetitorTotal b, int field);
-
-        public CompetitorTotal calculateTotal(List<CompetitorScore> contestScores);
-    }
+    public CompetitorTotal calculateTotal(List<CompetitorScore> contestScores);
+    public int compareField(CompetitorTotal a, CompetitorTotal b, int field);
 }

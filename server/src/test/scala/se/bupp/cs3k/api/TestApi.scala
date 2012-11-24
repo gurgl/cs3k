@@ -9,8 +9,7 @@ import score.ContestScore
 import user.{AnonymousPlayerIdentifier, PlayerIdentifierWithInfo}
 import xml.Utility
 import se.bupp.cs3k.server.service.GameReservationService._
-import se.bupp.cs3k.server.web.component.Example.{JavaTuple2, MyContestScore}
-import se.bupp.cs3k.server.web.component.Example
+import se.bupp.cs3k.example.ExampleScoreScheme._
 
 /**
  * Created with IntelliJ IDEA.
@@ -47,26 +46,86 @@ class TestApi extends Specification {
 
     }
 
-    "handle score" in {
+  }
 
-      val sc = Example.MyScoreScheme
-      var mapper: ObjectMapper = new ObjectMapper()
+  "score protocol" should {
+    var mapper: ObjectMapper = new ObjectMapper()
+    val sc = ExScoreScheme
+    import scala.collection.JavaConversions.mapAsJavaMap
+    import scala.collection.JavaConversions.mapAsScalaMap
 
-      import scala.collection.JavaConversions.mapAsJavaMap
-      var original = new MyContestScore(Map(1L->new  JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
+    import scala.collection.JavaConversions.seqAsJavaList
+
+    "serialize contest score" in {
+
+      var original = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
       var str: String = mapper.writeValueAsString(original)
-      str.shouldEqual("{\"s\":{\"1\":{\"@class\":\"se.bupp.cs3k.server.web.component.Example$JavaTuple2\",\"_1\":null,\"_2\":null,\"_1$mcI$sp\":10,\"_2$mcI$sp\":1},\"2\":{\"@class\":\"se.bupp.cs3k.server.web.component.Example$JavaTuple2\",\"_1\":null,\"_2\":null,\"_1$mcI$sp\":3,\"_2$mcI$sp\":4}}}")
+      str.shouldEqual("{\"@class\":\"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore\",\"s\":{\"1\":{\"a\":10,\"b\":1},\"2\":{\"a\":3,\"b\":4}}}")
 
       val r = mapper.readValue(str, sc.getContestStoreClass)
       //original.s.asInstanceOf[java.util.Map[Long,JavaTuple2]].shouldEqual(r.s.asInstanceOf[java.util.Map[Long,JavaTuple2]])
-      import scala.collection.JavaConversions.mapAsScalaMap
-      val a = Map.empty ++ collection.mutable.Map(r.s.toSeq:_*)
-      val b = Map.empty ++ collection.mutable.Map( original.s.toSeq:_*)
+      //val a = Map.empty ++ collection.mutable.Map(r.s.toSeq:_*)
+      //val b = Map.empty ++ collection.mutable.Map( original.s.toSeq:_*)
 
-      mapAsScalaMap(r.s) must haveTheSameElementsAs(mapAsScalaMap(original.s), (a:Any,b:Any) => a.toString == b.toString)
+      /*
+      val jum:java.util.Map[Long,JavaTuple2] = new java.util.HashMap[Long,JavaTuple2]()
+      jum.put(1L, new JavaTuple2(10,1))
+      jum.put(2L, new JavaTuple2(3,4))
+      val jumJson = mapper.writeValueAsString(jum)
+      val des:java.util.Map[Long,JavaTuple2] = mapper.readValue(jumJson,classOf[java.util.HashMap[Long,JavaTuple2]])
+
+      mapAsScalaMap(jum) must haveTheSameElementsAs(des)
+
+      */
+
+      var org = collection.mutable.Map(1L->new  JavaTuple2(10,1), 2L-> new JavaTuple2(3,4))
+      var jul: java.util.Map[Long,JavaTuple2] = org
+
+      mapAsScalaMap(jul) ==== org
+
+
+      mapAsScalaMap(r.s) must haveTheSameElementsAs(mapAsScalaMap(original.s), (a:AnyRef,b:AnyRef) => {
+        val c = a == b
+        (a,b) match {
+          case (a:Tuple2[_,_], b:Tuple2[_,_]) => println("a.canEqual(b) " + a.canEqual(b))
+            println("a._1 == b._1 " + (a._1 == b._1))
+          println("a._2 == b._2 " + (a._2 == b._2))
+          println("a._1 == b._1 " + a._1.getClass +" " + b._1.getClass)
+          println("a._1 == b._1 " + a._2.getClass +" " + b._2.getClass)
+          //println("a._2 == b._2" + a._2 == b._2)
+          case _ =>
+        }
+            if(!c) println(a + " " + a.getClass.getSimpleName + " != " + b + " " + b.getClass.getSimpleName)
+            a.toString == b.toString
+
+
+      })
+
+      Tuple2(1L,23) === Tuple2(1,23)
       //a === b
 
               1 mustEqual 1
     }
+
+    "handle deriving correct competitor score per contest" in {
+      var game1 = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
+      game1.competitorScore(1L) === new ExCompetitorScore(10, 7, 1)
+      game1.competitorScore(2L) === new ExCompetitorScore(3, -7, 4)
+
+    }
+
+    "handle contest score addition to total" in {
+      var game1 = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
+
+      var game2 = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(2,3), 2L-> new JavaTuple2(3,5)))
+
+      val scores = List(game1.competitorScore(1L), game2.competitorScore(1))
+
+      val total = sc.calculateTotal(scores)
+
+      total === new ExCompetitorTotal(12,6,4)
+    }
+
+
   }
 }

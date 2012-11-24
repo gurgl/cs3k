@@ -13,77 +13,28 @@ import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.{CompetitorDao, LadderDao}
+import se.bupp.cs3k.example.ExampleScoreScheme._
+
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal
-import se.bupp.cs3k.server.web.component.Example.{MyScoreScheme, MyCompetitorTotal}
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal.Render
 import se.bupp.cs3k.api.score.{CompetitorScore, ContestScore, ScoreScheme}
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import reflect.BeanProperty
 
-/**
- * Created with IntelliJ IDEA.
- * User: karlw
- * Date: 2012-11-15
- * Time: 00:44
- * To change this template use File | Settings | File Templates.
- */
-
-object Example {
-
-  class MyCompetitorScore(val kills:Int, val diffKills:Int, val trophys:Int) extends CompetitorScore
-
-  @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-  case class JavaTuple2(a:Int,b:Int) extends Tuple2(a,b) {
-    def this() = this(-1,-1)
-  }
-  class MyContestScore(@BeanProperty var s:java.util.Map[Long,JavaTuple2]) extends ContestScore {
-    def this() = this(null)
-    import scala.collection.JavaConversions.mapAsScalaMap
-    import scala.collection.JavaConversions.mutableMapAsJavaMap
-    def competitorScores() = {
-      val r = s.map { case (k,v) => new java.lang.Long(k) -> new MyCompetitorScore(v._1,0,v._2) }
-      mutableMapAsJavaMap(r)
-    }
 
 
-    //def competitorResults() = null
-
-  }
-  object MyScoreScheme extends ScoreScheme {
-
-    def getContestStoreClass = classOf[MyContestScore]
-
-    def competitorTotalColHeaders() = Array("Kills", "Diff Kills", "Trophys")
-
-    def renderToHtml(cs: ContestScore, competitors: util.Set[lang.Long]) =
-      """
-        | <b>TJA</b>
-      """.stripMargin
-  }
-
-  @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-  class MyCompetitorTotal(val kills:Int, val diffKills:Int, val trophys:Int) extends CompetitorTotal {
-    def getRenderer = new Render {
-
-      def render() = Array(kills.toString,diffKills.toString, trophys.toString)
-    }
-  }
-
-}
 
 class LadderRankingView(id:String) extends Panel(id) {
 
-
-  import Example._
 
   @SpringBean
   var ladderDao:CompetitorDao = _
 
   val a = List[TotalAwaredPointsAndScore](
-    new TotalAwaredPointsAndScore(new Team("Tjena"), 10, new MyCompetitorTotal(10,5,2)),
-    new TotalAwaredPointsAndScore(new Team("Fena"), 4, new MyCompetitorTotal(6,2,2)),
-    new TotalAwaredPointsAndScore(new Team("Mitt"), 3, new MyCompetitorTotal(2,0,2)),
-    new TotalAwaredPointsAndScore(new Team("Bena"), 0, new MyCompetitorTotal(1,-8,2))
+    new TotalAwaredPointsAndScore(new Team("Tjena"), 10, new ExCompetitorTotal(10,5,2)),
+    new TotalAwaredPointsAndScore(new Team("Fena"), 4, new ExCompetitorTotal(6,2,2)),
+    new TotalAwaredPointsAndScore(new Team("Mitt"), 3, new ExCompetitorTotal(2,0,2)),
+    new TotalAwaredPointsAndScore(new Team("Bena"), 0, new ExCompetitorTotal(1,-8,2))
   )
 
 
@@ -110,7 +61,7 @@ class LadderRankingView(id:String) extends Panel(id) {
   val listDataProvider = provider
 
 
-  val sc = MyScoreScheme
+  val sc = ExScoreScheme
 
   //import scala.collection.JavaConversions.
 
