@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service
 
-import dao.{CompetitorDao, LadderDao}
+import dao.{TicketDao, GameDao, CompetitorDao, LadderDao}
 import org.springframework.stereotype.Service
 import se.bupp.cs3k.server.model._
 import org.springframework.transaction.annotation.Transactional
@@ -9,6 +9,7 @@ import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.model.CompetitorType
 import org.slf4j.LoggerFactory
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,6 +27,16 @@ class LadderService {
   var ladderDao:LadderDao = _
   @Autowired
   var competitorDao:CompetitorDao = _
+
+  @Autowired
+  var gameDao:GameDao = _
+
+  @Autowired
+  var ticketDao:TicketDao = _
+
+
+  @Autowired
+  var gameReservationService:GameReservationService = _
 
 
   @Transactional
@@ -91,5 +102,32 @@ class LadderService {
     val tm = ladderDao.em.find(classOf[LadderEnrollment],pk)
 
     ladderDao.em.remove(tm)
+  }
+
+  @Transactional
+  def challangeCompetitor(challanger:Competitor, challangee:Competitor) {
+    (challanger, challangee) match {
+      case (u1:User, u2:User) =>
+
+        val occasionId = gameReservationService.allocateOccassion()
+        val go = new GameOccassion(occasionId)
+        val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
+        val gp2 = new GameParticipation(new GameParticipationPk(u1,go))
+        go.participants.add(gp1)
+        go.participants.add(gp2)
+        gameDao.insert(go)
+
+        val t = new Ticket()
+        t.game = go
+        t.user = u1
+        val t2 = new Ticket()
+        t2.game = go
+        t2.user = u2
+        ticketDao.insert(t)
+        ticketDao.insert(t2)
+
+
+      case _ => throw new IllegalStateException("Not implemented")
+    }
   }
 }

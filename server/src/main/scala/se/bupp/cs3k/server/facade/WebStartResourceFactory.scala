@@ -97,9 +97,10 @@ class WebStartResourceFactory {
           Left("Not implemented")
 
         case None =>
+
           val instrOpt = (reservationIdOpt, gameOccasionIdOpt) match {
             case (None, Some(gameOccassionId)) => // Rullande/Public
-                Right((false,gameOccassionId))
+                Right((true,gameOccassionId))
             case (Some(reservationId), _) => // Lobby
               gameReservationService.findReservation(reservationId) match {
                 case Some((occassionId,_)) => Right((true, occassionId))
@@ -113,12 +114,15 @@ class WebStartResourceFactory {
               val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
               val r = alreadyRunningGame.orElse {
                 gameReservationService.findGame(occassionId).flatMap( g =>
-                // TODO: Fix me - hardcoded below
-                  if (!g.timeTriggerStart && canSpawn) {
-                    Some(GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g))
-                  } else {
-                    None
-                    //Left("Couldnt find game")
+                  // TODO: Fix me - hardcoded below
+                  {
+                    log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
+                    if (!g.timeTriggerStart && canSpawn) {
+                      Some(GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g))
+                    } else {
+                      None
+                      //Left("Couldnt find game")
+                    }
                   }
                 )
               }
@@ -156,68 +160,9 @@ class WebStartResourceFactory {
           response
       }
 
-      /*
-      if (response == null) {
-
-      }
-
-
-
-
-
-
-
-
-      response
-       */
-
-      /*
-       case (None, None, Some(gameOccassionId)) => // Rullande/Public
-         null
-       case (Some(reservationId), _, _) => // Lobby
-         gameReservationService.findReservation(reservationId) match {
-
-         }
-       case _ => null
-     }     *&
-
-
-     gameReservationService.findReservation(reservationId) match {
-       case Some((occassionId,_)) =>
-
-         log.info("Reservation found " + occassionId)
-         var alreadyStartedGame: Option[RunningGame] = GameServerPool.pool.findRunningGame(occassionId)
-
-         // Occassions are either created in lobby or pre persisted.
-         log.info("alreadyStartedGame " + alreadyStartedGame)
-
-         val runningGameOpt = alreadyStartedGame.orElse {
-           // Not a lobby game, should exist a unstarded preconfigured game
-           log.info("No running game found - try to launch")
-           gameReservationService.findGame(occassionId).flatMap( g =>
-           // TODO: Fix me - hardcoded below
-             if (g.timeTriggerStart) {
-               GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g)
-             } else {
-               None
-             }
-           )
-         }
-         runningGameOpt match {
-           case Some(rg:RunningGame) =>
-             val gamePass = gameReservationService.createGamePass(reservationId, occassionId)
-             produceGameJnlp(target, gamePass, rg)
-           case None => null
-         }
-       case None =>
-         log.error("No reservationId of " + reservationId + " found")
-         null
-     } */
-
-
     }
 
-    def produceGameJnlp(p1: Attributes, gamePass:AbstractGamePass, game: RunningGame): AbstractResource.ResourceResponse = {
+    def produceGameJnlp(attributes: Attributes, gamePass:AbstractGamePass, game: RunningGame): AbstractResource.ResourceResponse = {
       var response = new ResourceResponse
       response.setContentType(JNLP_MIME)
       //response.setLastModified(Time.now())
@@ -235,14 +180,14 @@ class WebStartResourceFactory {
 
             //var gamePass = new Ticket(reservationId)
             val props = game.processSettings.props
-            println(p1.getRequest.getClientUrl.toString)
+            println(attributes.getRequest.getClientUrl.toString)
             val jnlpXMLModified = jnlpXML.replace("<resources>", "<resources>" +
               "<property name=\"playerInfo\" value=\"" + Utility.escape(pi) + "\"/>" +
               "<property name=\"gamePortUDP\" value=\"" + props("gamePortUDP") + "\"/>" +
               "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
               "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
               .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + LobbyServer.remoteIp + ":8080/game_deploy_dir_tmp/tanks")
-              .replace("Game.jnlp", "http://" + LobbyServer.remoteIp + ":8080/" + Utility.escape(p1.getRequest.getClientUrl.toString))
+              .replace("Game.jnlp", "http://" + LobbyServer.remoteIp + ":8080/" + Utility.escape(attributes.getRequest.getUrl.toString))
 
 
             //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)

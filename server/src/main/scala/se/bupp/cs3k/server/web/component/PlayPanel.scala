@@ -13,16 +13,18 @@ import org.apache.wicket.validation.{IValidatable, ValidationError}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.request.cycle.RequestCycle
 import org.apache.wicket.request.handler.resource.ResourceRequestHandler
-import org.apache.wicket.request.resource.ContextRelativeResource
+import org.apache.wicket.request.resource.{ResourceReference, ContextRelativeResource}
 import java.util.Scanner
 import org.apache.wicket.markup.html.WebMarkupContainer
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import org.apache.wicket.markup.html.link.Link
+import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, Link}
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
-import se.bupp.cs3k.server.model.{Team, Competitor, User}
-import se.bupp.cs3k.server.service.LadderService
+import se.bupp.cs3k.server.model.{GameOccassion, Team, Competitor, User}
+import se.bupp.cs3k.server.service.{GameReservationService, LadderService}
 import se.bupp.cs3k.server.service.dao.CompetitorDao
+import org.apache.wicket.markup.html.list.{ListItem, ListView}
+import org.apache.wicket.RestartResponseException
 
 /**
  * Created with IntelliJ IDEA.
@@ -246,5 +248,48 @@ class PlayPanel(id:String) extends Panel(id) {
 
 
   //add(new LadderFormPanel("ladderform"))
+
+  @SpringBean
+  var gameReservationService:GameReservationService = _
+
+  @LoggedInOnly
+  class ChallangePanel(id:String) extends WebMarkupContainer(id) {
+    var user: User = WiaSession.get().getUser
+    var challanges:List[GameOccassion] =
+      gameReservationService.findUnplayedGamesForCompetitor(user)
+
+
+    import scala.collection.JavaConversions.seqAsJavaList
+
+    add(new ListView[GameOccassion]("challanges",challanges) {
+      def populateItem(listItem: ListItem[GameOccassion]) {
+        var go = listItem.getModelObject
+        var parameters: PageParameters = new PageParameters()
+        //parameters.add("competitor_id", selectionModel.getObject.id)
+        parameters.add("user_id", user.id)
+        parameters.add("game_occassion_id", go.occassionId)
+
+
+        val ref = new ResourceReference("bupp") {
+          def getResource = WicketApplication.get.gameResource
+        }
+        listItem.add(new ResourceLink[String]("play", ref, parameters) {
+/*
+          def onClick() {
+            var parameters: PageParameters = new PageParameters()
+            //parameters.add("competitor_id", selectionModel.getObject.id)
+            parameters.add("user_id", user.id)
+            parameters.add("game_occassion_id", go.occassionId)
+
+            new RestartResponseException()
+            RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.gameResource, parameters))
+          }
+  */
+        })
+
+      }
+    })
+  }
+  add(new ChallangePanel("challangePanel"))
 
 }

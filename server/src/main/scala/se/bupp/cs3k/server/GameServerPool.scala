@@ -75,6 +75,7 @@ class GameServerPool {
   }
 
   def spawnServer(gps:GameProcessSettings, game:AbstractGameOccassion) = {
+    log.info("Starting game " + gps + " " + game.occassionId)
 
     val resultHandler = new DefaultExecuteResultHandler {
       override def onProcessComplete(exitValue: Int) {

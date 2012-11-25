@@ -3,8 +3,12 @@ package se.bupp.cs3k.server.web.component
 import org.apache.wicket.markup.html.panel.{FeedbackPanel, Panel}
 import se.bupp.cs3k.server.model._
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import se.bupp.cs3k.server.service.dao.{CompetitorDao, UserDao, TeamDao}
+import se.bupp.cs3k.server.service.dao.CompetitorDao
+import se.bupp.cs3k.server.service.dao.TeamDao
+import se.bupp.cs3k.server.service.dao.UserDao
 import org.apache.wicket.spring.injection.annot.SpringBean
+import se.bupp.cs3k.server.service.TeamService
+import se.bupp.cs3k.server.web.WiaSession
 import se.bupp.cs3k.server.web.{LoggedInOnly, WiaSession, WicketApplication}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import se.bupp.cs3k.server.service.{LadderService, TeamService}
@@ -198,6 +202,12 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
             case c:User => c.username
           }
       }))
+
+      item.add(new AjaxLink("challangeLink") {
+        def onClick(p1: AjaxRequestTarget) {
+          ts.challangeCompetitor(WiaSession.get().getUser, comp)
+        }
+      })
     }
   })
 

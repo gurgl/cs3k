@@ -14,7 +14,7 @@ import user.{AbstractPlayerIdentifier, RegisteredPlayerIdentifier, PlayerIdentif
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.service.GameReservationService._
 import java.lang
-import se.bupp.cs3k.server.service.dao.{GameResultDao, TicketDao, UserDao}
+import se.bupp.cs3k.server.service.dao.{GameDao, GameResultDao, TicketDao, UserDao}
 import org.springframework.transaction.annotation.Transactional
 import se.bupp.cs3k.server.model.GameResult
 
@@ -42,6 +42,9 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
 
   @Autowired
   var gameResultDao:GameResultDao = _
+
+  @Autowired
+  var gameDao:GameDao = _
 
   @Autowired
   var userDao:UserDao = _
@@ -93,6 +96,13 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   @Transactional
   def endGame(occassionId: JInt, serializedResult: String) {
     log.info("EndGame invoked  : " + serializedResult)
-    gameResultDao.insert(new GameResult(1, serializedResult))
+    reservationService.findGame(occassionSeqId) match {
+      case Some(g) =>
+        g.result = new GameResult(1, serializedResult)
+        g.result.game = g
+        gameDao.update(g)
+      case None =>
+        log.info("Game Not found" + serializedResult)
+    }
   }
 }

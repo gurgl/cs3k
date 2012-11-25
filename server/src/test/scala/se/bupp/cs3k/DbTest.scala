@@ -146,7 +146,7 @@ class DbTest extends Specification {
           queriedGameOcc !== None
           queriedGameOcc.get.id !== null
 
-          val gr = new GameResult(1,"asdfasdf")
+          val gr = new GameResult(1, "asdfasdf")
           queriedGameOcc.get.result = gr
           gr.game = queriedGameOcc.get
 

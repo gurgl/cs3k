@@ -51,8 +51,8 @@ class LadderRankingView(id:String) extends Panel(id) {
   }
   /*
     add(new DataView[Ladder]("list",provider) {
-    def populateItem(p1: Item[Ladder]) {
-      p1.add(new Label("item",p1.getModelObject.name))
+    def populateItem(attributes: Item[Ladder]) {
+      attributes.add(new Label("item",attributes.getModelObject.name))
 
     }
   })*/

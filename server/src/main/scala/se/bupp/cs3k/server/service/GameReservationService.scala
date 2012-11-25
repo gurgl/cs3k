@@ -2,12 +2,15 @@ package se.bupp.cs3k.server.service
 
 import dao.{GameDao, TicketDao}
 import org.springframework.stereotype.Component
-import se.bupp.cs3k.server.model.{NonPersisentGameOccassion, RunningGame, Ticket, GameOccassion}
+import se.bupp.cs3k.server.model._
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.web.{MyBean}
 import org.springframework.beans.factory.annotation.Autowired
 import se.bupp.cs3k.api.user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 import se.bupp.cs3k.api.{GateGamePass, IdentifyOnlyPass, AbstractGamePass}
+import se.bupp.cs3k.server.model.RunningGame
+import se.bupp.cs3k.server.model.NonPersisentGameOccassion
+import scala.Some
 
 /**
  * Created with IntelliJ IDEA.
@@ -150,6 +153,10 @@ class GameReservationService {
         map.find { case (seat, pi) => seat == id }.map( p => p._2 )
       } else None
     }
+  }
+
+  def findUnplayedGamesForCompetitor(c:Competitor) = {
+    gameDao.findAll
   }
 }
 

@@ -210,7 +210,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   var occassionId:Long = _
 
-  def timeTriggerStart = true
+  def timeTriggerStart = false
 
   @OneToOne(cascade = Array(CascadeType.ALL))
   @PrimaryKeyJoinColumn
