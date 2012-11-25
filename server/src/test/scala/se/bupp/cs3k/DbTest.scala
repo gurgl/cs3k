@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import se.bupp.cs3k.server.service.GameReservationService._
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.support.{FileSystemXmlApplicationContext, ClassPathXmlApplicationContext}
-import server.model.{LadderEnrollmentPk, LadderEnrollment, Ladder, Competitor}
-import server.service.dao.{CompetitorDao, UserDao}
+import server.model._
+import server.model.Ladder
+import server.model.LadderEnrollmentPk
 import server.model.User
+import server.service.dao.{GameDao, CompetitorDao, UserDao}
 import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.support.{TransactionCallbackWithoutResult, TransactionTemplate, DefaultTransactionDefinition}
 import org.springframework.transaction.{PlatformTransactionManager, TransactionStatus}
@@ -33,7 +35,7 @@ class DbTest extends Specification {
   }
 
   def withTx[T](body:(PlatformTransactionManager, BeanFactory) => T) : T = {
-    val appContext = new FileSystemXmlApplicationContext("server/src/main/webapp/WEB-INF/applicationContext.xml");
+    val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
     val factory =  appContext.asInstanceOf[BeanFactory];
     var txMgr = factory.getBean("transactionManager", classOf[JpaTransactionManager])
     //val tdef = new DefaultTransactionDefinition();
@@ -112,6 +114,52 @@ class DbTest extends Specification {
           q.getSingleResult must not be(null)
 
           1.shouldEqual(1)
+        }
+      }
+      2.shouldEqual(2)
+    }
+    "handle game occassion transistion to game result" in {
+
+      withTx {
+        case (txMgr, factory) => {
+          var gameOccasionDao = factory.getBean("gameDao").asInstanceOf[GameDao]
+          var userDao = factory.getBean("userDao").asInstanceOf[UserDao]
+
+
+
+          val user = new User("leffe")
+          val gameOcc = new GameOccassion(12)
+
+          val gppk = new GameParticipationPk(user,gameOcc)
+          val gp = new GameParticipation(gppk)
+          gameOcc.participants.add(gp)
+          inTx(txMgr) {
+            userDao.insert(user)
+            gameOccasionDao.insert(gameOcc)
+            //gameOccasionDao.insert(gp)
+          }
+
+          user.id !== null
+          gameOcc.id !== null
+
+          val queriedGameOcc = gameOccasionDao.find(gameOcc.id)
+          queriedGameOcc !== None
+          queriedGameOcc.get.id !== null
+
+          val gr = new GameResult(1,"asdfasdf")
+          queriedGameOcc.get.result = gr
+          gr.game = queriedGameOcc.get
+
+          inTx(txMgr) {
+            userDao.em.merge(queriedGameOcc.get)
+
+            //gameOccasionDao.insert(gp)
+          }
+          val queriedGameOcc2 = gameOccasionDao.find(gameOcc.id)
+
+          queriedGameOcc2.get.result !== null
+
+
         }
       }
       2.shouldEqual(2)

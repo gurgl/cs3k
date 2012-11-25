@@ -150,44 +150,77 @@ class Competitor extends Serializable {
 
 @Embeddable
 case class GameParticipationPk() extends Serializable{
-
   @ManyToOne
   var competitor:Competitor = _
 
   @ManyToOne
-  var game:PersistedGameOccassion = _
+  var game:GameOccassion = _
+
+  def this(_competitor:Competitor, _game:GameOccassion) = { this() ; competitor = _competitor ; game = _game }
+
 }
 
 @Entity
-class GameParticipation {
+class GameParticipation() {
+
   @Id
   var id:GameParticipationPk = _
+
+  def this(_id:GameParticipationPk) = { this() ; this.id = _id}
 }
 
 
+/* @org.hibernate.annotations.GenericGenerator(
+    name = "customForeignGenerator",
+    strategy = "foreign",
+    parameters = Array(new org.hibernate.annotations.Parameter(name = "property", value = "game"))
+  )
+  @Id @GeneratedValue(generator = "customForeignGenerator")
+  */
+
+//@Id @GeneratedValue(strategy=GenerationType.AUTO)
+
+/*@OneToOne(mappedBy = "result")
+@PrimaryKeyJoinColumn*/
+
+
 @Entity
-@PrimaryKeyJoinColumn(name="GAME_OCCASSION_ID")
-case class GameResult() extends PersistedGameOccassion {
+class GameResult extends Serializable {
+
+  @Id @Column(name="id") var id:JLLong = _
 
   var resultSerializedVersion: Int = _
   var resultSerialized:String = _
+
+  @MapsId
+  @OneToOne(mappedBy = "result")
+  @JoinColumn(name = "id")
+  var game:GameOccassion = _
+
+  def this(_resultSerializedVersion: Int, _resultSerialized:String ) = { this() ; resultSerialized = _resultSerialized ; resultSerializedVersion = _resultSerializedVersion }
 }
 
 @Entity
-@Inheritance(strategy=InheritanceType.JOINED)
-class PersistedGameOccassion extends Serializable with Same[JLLong] {
-  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+//@Inheritance(strategy=InheritanceType.JOINED)
+class GameOccassion extends AbstractGameOccassion with Serializable with Same[JLLong] {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO)  var id:JLLong = _
 
   @OneToMany(mappedBy = "id.game")
   var participants:JUList[GameParticipation] =  new JUArrayList[GameParticipation]()
-}
 
-@Entity
-@PrimaryKeyJoinColumn(name="GAME_OCCASSION_ID")
-case class GameOccassion(var occassionId:Long) extends PersistedGameOccassion with AbstractGameOccassion {
+  var occassionId:Long = _
 
   def timeTriggerStart = true
+
+  @OneToOne(cascade = Array(CascadeType.ALL))
+  @PrimaryKeyJoinColumn
+  var result:GameResult = _
+
+
+  def this(_occassionId:Long) = { this() ; occassionId = _occassionId}
 }
+
+
 
 case class NonPersisentGameOccassion(val occassionId:Long) extends AbstractGameOccassion {
 

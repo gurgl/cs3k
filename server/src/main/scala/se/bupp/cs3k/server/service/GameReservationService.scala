@@ -104,10 +104,10 @@ class GameReservationService {
 
         }
 
-      case RunningGame(GameOccassion(occassionId),_) => pi match {
+      case RunningGame(go:GameOccassion,_) => pi match {
         case p:RegisteredPlayerIdentifier =>
-          val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, occassionId).get
-          if(ticket.game.occassionId == occassionId) {
+          val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, go.occassionId).get
+          if(ticket.game.occassionId == go.occassionId) {
             Some(ticket)
           } else None
         case _ => None

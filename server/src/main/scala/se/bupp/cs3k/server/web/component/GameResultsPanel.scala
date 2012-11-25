@@ -55,7 +55,7 @@ class GameResultsPanel(id:String, scoreScheme:ScoreScheme) extends Panel(id) {
       add(new Component("container"){
         def onRender() {
           val bupp = objectMapper.readValue(gameResult.resultSerialized,classOf[ContestScore])
-          val competitors = gameResult.participants.map(_.id.competitor.id).toSet[java.lang.Long]
+          val competitors = gameResult.game.participants.map(_.id.competitor.id).toSet[java.lang.Long]
           scoreScheme.renderToHtml(bupp,competitors)
         }
       })
