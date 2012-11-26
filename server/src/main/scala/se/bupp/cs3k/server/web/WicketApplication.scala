@@ -13,7 +13,6 @@ import org.apache.wicket.protocol.http.WebApplication
 import org.slf4j.LoggerFactory
 import org.apache.wicket.Application
 
-import org.apache.wicket.protocol.ws.api.SimpleWebSocketConnectionRegistry
 import org.apache.wicket.util.resource.{IResourceStream, AbstractResourceStreamWriter}
 import java.io.{PrintWriter, IOException, OutputStream}
 import org.apache.wicket.request.resource._

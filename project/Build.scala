@@ -9,7 +9,9 @@ import WebStartPlugin._
 
 object MyBuild extends Build {
 
-lazy val root = Project(id = "root",
+  val WICKET_VERSION = "6.2.0"
+
+  lazy val root = Project(id = "root",
     base = file(".")) aggregate(serverProject, lobbyProject)
 
   lazy val serverProject = Project(
@@ -25,7 +27,7 @@ lazy val root = Project(id = "root",
     name := "cs3k Server",
     version := "0.1",
     libraryDependencies ++= Seq(
-      "org.apache.wicket" % "wicket-native-websocket-jetty" % "0.4",
+      //"org.apache.wicket" % "wicket-native-websocket-jetty" % "0.4",
       //"org.mockito" % "mockito-all" % "1.9.0" % "test" exclude("org.eclipse.jetty", "jetty"),
       //    "org.apache.wicket" % "wicket" % "6.0.0-beta2" exclude("org.eclipse.jetty", "jetty"),
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
@@ -52,13 +54,13 @@ lazy val root = Project(id = "root",
       "org.hibernate" % "hibernate-core" % "4.1.7.Final",
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
-      "org.apache.wicket" % "wicket-spring" % "6.2.0", //exclude("org.apache.wicket","wicket-ioc"),
+      "org.apache.wicket" % "wicket-spring" % WICKET_VERSION, //exclude("org.apache.wicket","wicket-ioc"),
       //"org.apache.wicket" % "wicket-ioc" % "6.1.0", //exclude("cglib","cglib"),
       //"cglib" % "cglib" % "2.2.2" exclude("asm", "asm")
-      "org.wicketstuff" % "wicketstuff-inmethod-grid" % "6.2.0" exclude("org.apache.wicket","wicket-core"),
+      "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
-        "org.hsqldb" % "hsqldb" % "2.2.8"
+      "org.hsqldb" % "hsqldb" % "2.2.8"
     ) ++ Seq(
       "junit" % "junit" % "4.10" % "test",
       "org.specs2" %% "specs2" % "1.12.3" % "test",
