@@ -211,8 +211,6 @@ class WebStartResourceFactory {
   class LobbyJnlpHandler extends AbstractResource {
 
 
-
-
     override def getCachingStrategy = NoOpResourceCachingStrategy.INSTANCE
 
     override def newResourceResponse(p1: Attributes) = {
@@ -260,6 +258,7 @@ class WebStartResourceFactory {
                 playerNameOpt.map(a => "<property name=\"javaws.playerName\" value=\"" + a + "\"/>").getOrElse("")
               )
 
+            println("hyeahha")
             println("playerNameOpt " + playerNameOpt)
             val jnlpXMLModified = jnlpXML
               .replace("http://localhost:8080/", "http://" + LobbyServer.remoteIp +":8080/")

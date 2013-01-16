@@ -33,16 +33,19 @@ object LobbyServer {
     new LobbyServer(0,2).start
   }
   lazy val remoteIp = {
-    val stackOverflowURL = "http://automation.whatismyip.com/n09230945.asp"
+    val stackOverflowURL = "http://www.biranchi.com/ip.php"
     val requestProperties = Map(
       "User-Agent" -> "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0"
     )
+
     val connection = new URL(stackOverflowURL).openConnection
     requestProperties.foreach({
       case (name, value) => connection.setRequestProperty(name, value)
     })
 
-    var response = Source.fromInputStream(connection.getInputStream).getLines.mkString("\n")
+    var response = Source.fromInputStream(connection.getInputStream).getLines.mkString("\n").substring(3)
+    println("*" + response + "*")
+
     response
   }
 }
