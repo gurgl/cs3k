@@ -1,0 +1,21 @@
+
+Launch sbt with "java -Xmx512M -XX:MaxPermSize=256m -jar sbt-launch.jar"
+
+(memory settings important)
+
+> project cs3k-server
+> container:start
+
+...
+
+> container:stop
+
+
+---
+
+
+Comamndline windows:
+
+javaws http://81.235.61.31:8080/lobby2.jnlp?user_id=1
+
+runas /user:brainlord\Bubbe "javaws http://81.235.61.31:8080/lobby2.jnlp?user_id=2"
