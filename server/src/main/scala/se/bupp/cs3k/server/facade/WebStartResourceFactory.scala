@@ -25,6 +25,8 @@ import se.bupp.cs3k.server.model.RunningGame
 import scala.Left
 import scala.Some
 import scala.Right
+import se.bupp.cs3k.server.Util.eitherSuccess
+
 import se.bupp.cs3k.server.model.RunningGame
 import org.apache.wicket.request.http.WebResponse
 import org.apache.wicket.request.resource.caching.NoOpResourceCachingStrategy
@@ -41,175 +43,8 @@ import se.bupp.cs3k.server.service.dao.UserDao
 
 object  WebStartResourceFactory {
   var JNLP_MIME = "application/x-java-jnlp-file"
-}
-@Component
-class WebStartResourceFactory {
-
-  import WebStartResourceFactory._
-
-  val log = Logger.getLogger(classOf[WebStartResourceFactory])
-
-  def createGameJnlpHandler = new GameJnlpHandler
-  def createLobbyJnlpHandler = new LobbyJnlpHandler
-
-  var objectMapper:ObjectMapper = new ObjectMapper()
-
-  @Autowired
-  var gameReservationService:GameReservationService = _
-
-  @Autowired
-  var dao:MyBean = _
-
-  @Autowired
-  var userDao:UserDao = _
-
-
-  class GameJnlpHandler extends AbstractResource {
-
-
-    //override def getCachingStrategy = super.getCachingStrategy.
-
-    override def newResourceResponse(p1: Attributes) = {
-
-
-      val reservationIdOpt:Option[SeatId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
-      val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
-
-      val gameOccasionIdOpt:Option[OccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
-
-      val playerNameOpt = Option(p1.getParameters().get("player_name").toOptionalString)
-      val userIdOpt:Option[UserId] = Option(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
-
-
-      log.info("playerNameOpt " + playerNameOpt)
-      log.info("reservationIdOpt " + reservationIdOpt)
-
-      val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => userDao.findUser(id).map( p => new RegisteredPlayerIdentifier(p.id))).orElse( playerNameOpt.map(n => new AnonymousPlayerIdentifier(n)) )
-
-      /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
-        case Some(p) => Some(new PlayerIdentifierWithInfo(p.username,p.id))
-        case None => playerNameOpt.map(n => new AnonymousPlayerIdentifier(n))
-      }*/
-      val userOrFail = userOpt.toRight("Couldnt Construct user")
-
-      val serverOrFail = userOrFail.right.flatMap { k => serverIdOpt match {
-        case Some(serverId) => // Rullande/Public
-          Left("Not implemented")
-
-        case None =>
-
-          val instrOpt = (reservationIdOpt, gameOccasionIdOpt) match {
-            case (None, Some(gameOccassionId)) => // Rullande/Public
-                Right((true,gameOccassionId))
-            case (Some(reservationId), _) => // Lobby
-              gameReservationService.findReservation(reservationId) match {
-                case Some((occassionId,_)) => Right((true, occassionId))
-                case None => Left("Reservation not found")
-              }
-            case _ => Left("No game id sent")
-          }
-          val rgOpt = instrOpt.right.flatMap {
-            case (canSpawn, occassionId) =>
-
-              val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
-              val r = alreadyRunningGame.orElse {
-                gameReservationService.findGame(occassionId).flatMap( g =>
-                  // TODO: Fix me - hardcoded below
-                  {
-                    log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
-                    if (!g.timeTriggerStart && canSpawn) {
-                      Some(GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g))
-                    } else {
-                      None
-                      //Left("Couldnt find game")
-                    }
-                  }
-                )
-              }
-              val s = r.map(Right(_)).getOrElse(Left("Couldnt find game"))
-              s
-          }
-          rgOpt
-        }
-      }
-
-      val serverAndPassOrFail = serverOrFail.right.flatMap { rg =>
-        val r = gameReservationService.createGamePass(rg,userOpt.get,reservationIdOpt) match {
-          case Some(gamePass) => Right((rg,gamePass))
-          case None => Left("Unable to acquire valid pass")
-        }
-        r
-
-      }
-
-      serverAndPassOrFail match {
-        case Right((rg, gamePass)) => produceGameJnlp(p1, gamePass, rg)
-        case Left(message) =>
-          var response = new AbstractResource.ResourceResponse
-          log.info("Resorting to fail response : " + message)
-
-          response.setContentType("application/html")
-          response.setLastModified(Time.now())
-          response.disableCaching()
-          response.setFileName("error.txt")
-          response.setWriteCallback(new WriteCallback {
-            def writeData(p2: Attributes) {
-              p2.getResponse.write("Erronous request : " + message)
-            }
-          })
-          response
-      }
-
-    }
-
-    def produceGameJnlp(attributes: Attributes, gamePass:AbstractGamePass, game: RunningGame): AbstractResource.ResourceResponse = {
-      var response = new ResourceResponse
-      response.setContentType(JNLP_MIME)
-      //response.setLastModified(Time.now())
-      //response.disableCaching()
-      response.setFileName("start_game.jnlp")
-      response.setWriteCallback(new WriteCallback {
-        def writeData(p2: Attributes) {
-          try {
-
-            val launchGameJnlp = new ContextRelativeResource("/game_deploy_dir_tmp/tanks/Game.jnlp")
-            val jnlpXML: String = new Scanner(launchGameJnlp.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
-
-            val pi = objectMapper.writeValueAsString(gamePass)
-
-
-            //var gamePass = new Ticket(reservationId)
-            val props = game.processSettings.props
-            println(attributes.getRequest.getClientUrl.toString)
-            val jnlpXMLModified = jnlpXML.replace("<resources>", "<resources>" +
-              "<property name=\"playerInfo\" value=\"" + Utility.escape(pi) + "\"/>" +
-              "<property name=\"gamePortUDP\" value=\"" + props("gamePortUDP") + "\"/>" +
-              "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
-              "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
-              .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + LobbyServer.remoteIp + ":8080/game_deploy_dir_tmp/tanks")
-              .replace("Game.jnlp", "http://" + LobbyServer.remoteIp + ":8080/" + Utility.escape(attributes.getRequest.getUrl.toString))
-
-
-            //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)
-            //writer.print(jnlpXMLModified)
-            p2.getResponse.write(jnlpXMLModified)
-            //ImageIO.write(img, "png", output);
-
-          }
-          catch {
-            case ex: IOException => ex.printStackTrace() /* never swallow exceptions! */
-          }
-
-        }
-      })
-      //AbstractResource.this.configureResponse(response, attributes);
-      response
-    }
-  }
-
 
   class LobbyJnlpHandler extends AbstractResource {
-
 
     override def getCachingStrategy = NoOpResourceCachingStrategy.INSTANCE
 
@@ -238,19 +73,6 @@ class WebStartResourceFactory {
             //val launchGameJnlp = new ContextRelativeResource("/game_deploy_dir_tmp/tanks/Game.jnlp")
             val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
 
-
-            /*
-          val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
-          val jnlpXML2 = jnlpXML.replace("<resources>", "<resources><property name=\"lobbyPort\" value=\"12345\"/>")
-            .replace("http://localhost:8080/", "http://" + LobbyServer.remoteIp +":8080/")
-            .replace("Test.jnlp", "http://" + LobbyServer.remoteIp +":8080/lobby2.jnlp")
-            */
-            //lobbyResource= new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp")
-            //getSharedResources().add(resourceKey2, lobbyResource)
-
-
-            //println(target.getRequest.getClientUrl.toString)
-
             val resourcesNew = "<resources>" +
               "<property name=\"javaws.lobbyPort\" value=\"12345\"/>" +
               "<property name=\"javaws.lobbyHost\" value=\"" + LobbyServer.remoteIp  + "\"/>" +
@@ -263,20 +85,12 @@ class WebStartResourceFactory {
             val jnlpXMLModified = jnlpXML
               .replace("http://localhost:8080/", "http://" + LobbyServer.remoteIp +":8080/")
               .replace("lobbyX.jnlp", "http://" + LobbyServer.remoteIp +":8080/lobby2.jnlp?" +
-                userIdOpt.map(a => "userId=" + a ).getOrElse(
-                  playerNameOpt.map(a => "playerName=" + a).getOrElse("")
-                )
-            )
-              .replace("<resources>", resourcesNew)
+              userIdOpt.map(a => "userId=" + a ).getOrElse(
+                playerNameOpt.map(a => "playerName=" + a).getOrElse("")
+              )
+            ).replace("<resources>", resourcesNew)
 
-
-
-
-            //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)
-            //writer.print(jnlpXMLModified)
             p2.getResponse.write(jnlpXMLModified)
-            //ImageIO.write(img, "png", output);
-
           }
           catch { case ex:IOException => ex.printStackTrace()/* never swallow exceptions! */ }
 
@@ -286,5 +100,188 @@ class WebStartResourceFactory {
       response
 
     }
+  }
+
+  class GameJnlpHandler(val factory:WebStartResourceFactory) extends AbstractResource {
+
+    //override def getCachingStrategy = super.getCachingStrategy.
+
+    override def newResourceResponse(p1: Attributes) = {
+
+
+      val reservationIdOpt:Option[SeatId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+      val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+
+      val gameOccasionIdOpt:Option[OccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+
+      val playerNameOpt = Option(p1.getParameters().get("player_name").toOptionalString)
+      val userIdOpt:Option[UserId] = Option(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+
+
+      factory.log.info("playerNameOpt " + playerNameOpt)
+      factory.log.info("reservationIdOpt " + reservationIdOpt)
+
+      val serverAndPassOrFail = factory.getServerAndCredentials(userIdOpt, reservationIdOpt, serverIdOpt, gameOccasionIdOpt, playerNameOpt)
+
+      serverAndPassOrFail match {
+        case Right((rg, gamePass)) => factory.produceGameJnlp(p1, gamePass, rg)
+        case Left(message) =>
+          var response = new AbstractResource.ResourceResponse
+          factory.log.info("Resorting to fail response : " + message)
+
+          response.setContentType("application/html")
+          response.setLastModified(Time.now())
+          response.disableCaching()
+          response.setFileName("error.txt")
+          response.setWriteCallback(new WriteCallback {
+            def writeData(p2: Attributes) {
+              p2.getResponse.write("Erronous request : " + message)
+            }
+          })
+          response
+      }
+
+    }
+  }
+}
+
+
+@Component
+class WebStartResourceFactory {
+
+  import WebStartResourceFactory._
+
+  val log = Logger.getLogger(classOf[WebStartResourceFactory])
+
+  def createGameJnlpHandler = new GameJnlpHandler(this)
+
+  def createLobbyJnlpHandler = new LobbyJnlpHandler
+
+  var objectMapper:ObjectMapper = new ObjectMapper()
+
+  @Autowired
+  var gameReservationService:GameReservationService = _
+
+  @Autowired
+  var dao:MyBean = _
+
+  @Autowired
+  var userDao:UserDao = _
+
+
+  def produceGameJnlp(attributes: Attributes, gamePass:AbstractGamePass, game: RunningGame): AbstractResource.ResourceResponse = {
+    var response = new ResourceResponse
+    response.setContentType(JNLP_MIME)
+    //response.setLastModified(Time.now())
+    //response.disableCaching()
+    response.setFileName("start_game.jnlp")
+    response.setWriteCallback(new WriteCallback {
+      def writeData(p2: Attributes) {
+        try {
+
+          val launchGameJnlp = new ContextRelativeResource("/game_deploy_dir_tmp/tanks/Game.jnlp")
+          val jnlpXML: String = new Scanner(launchGameJnlp.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
+
+          val pi = objectMapper.writeValueAsString(gamePass)
+
+
+          //var gamePass = new Ticket(reservationId)
+          val props = game.processSettings.props
+          println(attributes.getRequest.getClientUrl.toString)
+          val jnlpXMLModified = jnlpXML.replace("<resources>", "<resources>" +
+            "<property name=\"playerInfo\" value=\"" + Utility.escape(pi) + "\"/>" +
+            "<property name=\"gamePortUDP\" value=\"" + props("gamePortUDP") + "\"/>" +
+            "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
+            "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
+            .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + LobbyServer.remoteIp + ":8080/game_deploy_dir_tmp/tanks")
+            .replace("Game.jnlp", "http://" + LobbyServer.remoteIp + ":8080/" + Utility.escape(attributes.getRequest.getUrl.toString))
+
+
+          //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)
+          //writer.print(jnlpXMLModified)
+          p2.getResponse.write(jnlpXMLModified)
+          //ImageIO.write(img, "png", output);
+
+        }
+        catch {
+          case ex: IOException => ex.printStackTrace() /* never swallow exceptions! */
+        }
+
+      }
+    })
+    //AbstractResource.this.configureResponse(response, attributes);
+    response
+  }
+
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[SeatId], playerNameOpt:Option[String]) = {
+    val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap(
+      id => userDao.findUser(id).map(
+        p => new RegisteredPlayerIdentifier(p.id)
+      )
+    ).orElse(
+      playerNameOpt.map(
+        n => new AnonymousPlayerIdentifier(n)
+      )
+    )
+
+    /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
+      case Some(p) => Some(new PlayerIdentifierWithInfo(p.username,p.id))
+      case None => playerNameOpt.map(n => new AnonymousPlayerIdentifier(n))
+    }*/
+
+    val userValidation = userOpt.toRight("Couldnt Construct user")
+
+    val serverValidation = userValidation.onSuccess {
+      userId => serverIdOpt match {
+        case Some(serverId) =>
+          // Rullande / Public
+          Left("Not implemented")
+
+        case None => {
+
+          val canSpawnServerAndOccassionIdValidation = (reservationIdOpt, gameOccasionIdOpt) match {
+            case (None, Some(gameOccassionId)) => // Rullande/Public
+              Right((true,gameOccassionId))
+            case (Some(reservationId), _) => // Lobby
+              gameReservationService.findReservation(reservationId) match {
+                case Some((occassionId,_)) => Right((true, occassionId))
+                case None => Left("Reservation not found")
+              }
+            case _ => Left("No game id sent")
+          }
+
+          val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
+            case (canSpawn, occassionId) =>
+
+              val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
+              val r = alreadyRunningGame.orElse {
+                gameReservationService.findGame(occassionId).flatMap( g =>
+                // TODO: Fix me - hardcoded below
+                {
+                  log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
+                  if (!g.timeTriggerStart && canSpawn) {
+                    Some(GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g))
+                  } else {
+                    None
+                  }
+                }
+                )
+              }
+              val s = r.map(Right(_)).getOrElse(Left("Couldnt find game"))
+              s
+          }
+          runningGameValidation
+        }
+      }
+    }
+
+    val serverAndPassValidation = serverValidation.onSuccess { rg =>
+      val r = gameReservationService.createGamePass(rg,userOpt.get,reservationIdOpt) match {
+        case Some(gamePass) => Right((rg,gamePass))
+        case None => Left("Unable to acquire valid pass")
+      }
+      r
+    }
+    serverAndPassValidation
   }
 }

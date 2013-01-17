@@ -15,6 +15,12 @@ import org.springframework.transaction.support.{TransactionCallback, Transaction
 
 
 object Util {
+
+  class Validation[A,B](val e:Either[A,B]) {
+    def onSuccess[C](f:(B)=> Either[A,C]) = e.right.flatMap( x => f(x))
+  }
+  implicit def eitherSuccess[A,B](e:Either[A,B]) = new Validation(e)
+
   def _hashCode(x: Product): Int = {
     val arr =  x.productArity
     var code = arr
