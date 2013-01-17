@@ -58,8 +58,9 @@ class TheHomePage extends AbstractBasePage {
 
       val (labelText, panelGen) = p1.getModelObject
           p1.setOutputMarkupId(true)
+
       var label = new Label("linkLabel", labelText).setOutputMarkupId(true)
-      val link = new AjaxLink[String]("item") {
+      val link = new AjaxLink[String]("link") {
         def onClick(target: AjaxRequestTarget) {
           selected.foreach ( s => getItems.find(i => i.getModelObject._1 == s).foreach(i => target.add(i)) )
            selected = Some(labelText)
@@ -68,12 +69,17 @@ class TheHomePage extends AbstractBasePage {
           val comp = panelGen.apply("content")
           contentContainer.addOrReplace(comp)
           target.add(contentContainer)
-          target.add(label)
+          target.add(p1)
         }
       }
-      link.add(label.add(new AttributeAppender("class",new AbstractReadOnlyModel[String] {
-        def getObject = if(selected.exists(_ == labelText)) "section_menu bold" else ""
-      })))
+
+      link.add(label)
+
+
+      //var container: WebMarkupContainer = new WebMarkupContainer("item")
+      p1.add(new AttributeAppender("class",new AbstractReadOnlyModel[String] {
+        def getObject = if(selected.exists(_ == labelText)) "active" else ""
+      }))
       p1.add(link)
 
     }

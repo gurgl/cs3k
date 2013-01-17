@@ -1,9 +1,9 @@
 <wicket:panel>
     <div class="action_form">
-        <span wicket:id="title" class="header3"></span>
-        <form wicket:id="theform" >
+        <h6 wicket:id="title" ></h6>
+        <form wicket:id="theform" class="form-horizontal" >
             Name <input type="text" wicket:id="name"/>
-            <input type="button" wicket:id="submit" value="Save"></input>
+            <button type="button" wicket:id="submit" class="btn" value="Save">Save</button>
             <div wicket:id="feedback"></div>
         </form>
     </div>

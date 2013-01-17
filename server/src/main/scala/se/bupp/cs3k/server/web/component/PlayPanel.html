@@ -7,19 +7,19 @@
 <body>
     <wicket:panel>
 
-        <span class="header1">Play</span>
+        <h4>Play</h4>
         <br/>
 
         <br>
 
-        <div class="play_spot">
+        <div class="alert alert-info">
 
-            <span class="header2">Play now</span>
+            <h5>Play now</h5>
 
             <!--button wicket:id="logged_in_launch_btn">Launch</button-->
-            <form wicket:id="loggedInForm">
+            <form wicket:id="loggedInForm" class="form-horizontal">
                 Play As: <select wicket:id="competitorSelect"/>
-                <input type="submit" wicket:id="launch_button" name="Launch" value="Launch"/>
+                <button type="submit" wicket:id="launch_button" name="Launch" value="Launch" class="btn">Launch</button>
 
 
             </form>
@@ -27,23 +27,22 @@
 
             <br>
 
-            <form wicket:id="launch_with_name_form">
+            <form wicket:id="launch_with_name_form" class="form-horizontal">
                 Nickname: <input type="text" wicket:id="player_name">
-                <input type="submit" wicket:id="launch_button" name="Launch" value="Launch"></input>
-
+                <button type="submit" wicket:id="launch_button" name="Launch" value="Launch" class="btn">Launch</button>
                 <div wicket:id="feedback"></div>
             </form>
         </div>
 
-        <div class="play_spot non_implemented">
-            <span class="header2">Ladders</span>
+        <div class="alert alert-info">
+            <h5>Ladders</h5>
         </div>
 
-        <div class="play_spot non_implemented">
-            <span class="header2">Tournaments</span>
+        <div class="alert alert-info">
+            <h5>Tournaments</h5>
         </div>
 
-        <div wicket:id="challangePanel">
+        <div class="row-fluid alert alert-warning"  wicket:id="challangePanel">
             <table>
                 <tr wicket:id="challanges">
 
