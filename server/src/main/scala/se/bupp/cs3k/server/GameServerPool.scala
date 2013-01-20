@@ -1,12 +1,17 @@
 package se.bupp.cs3k.server
 
+import model.RunningGame
 import model.{AbstractGameOccassion, RunningGame}
 import org.apache.commons.exec._
-import se.bupp.cs3k.server.GameServerPool.GameProcessSettings
+
 import java.net.URL
 import se.bupp.cs3k.server.service.GameReservationService._
 import org.apache.log4j.Logger
 import se.bupp.cs3k.server.model.Model.UserId
+import scala.collection.immutable.HashMap
+import collection.{mutable, SortedSet}
+
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +21,137 @@ import se.bupp.cs3k.server.model.Model.UserId
  * To change this template use File | Settings | File Templates.
  */
 
+
+class GameServerSpecification(val cmdStr:String,val resourceNeeds:ResourceNeeds) {
+
+  def create(args:String, jnlpPath:String, props:Map[String,String]) = {
+    new GameProcessTemplate(cmdStr + args, "http://" + LobbyServer.remoteIp + ":8080/" + jnlpPath, props, resourceNeeds)
+  }
+}
+
+class ResourceNeeds(val numOfTcpPorts:Int, val numOfUdpPorts:Int)
+
+class GameProcessSettings(private var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String],val resourceNeeds:ResourceNeeds) {
+  def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
+
+  def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
+  def jnlpUrl(reservationId:SeatId,name:UserId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
+
+}
+
+
+
+class ResourceSet(val tcps:List[Int], val udps:List[Int]) {
+
+}
+
+object GameProcessTemplate {
+  val TcpPortExpression = """\$\{tcp\[(\d*)\]\}""".r
+  val UdpPortExpression = """\$\{udp\[(\d*)\]\}""".r
+  val Cs3kHostExpression = """\$\{cs3k_port\}""".r
+  val Cs3kPortExpression = """\$\{cs3k_host\}""".r
+  def blaha(s:String, resource:ResourceSet) = {
+
+    val cmdLineWithTcpAndUdp = Map(TcpPortExpression -> resource.tcps,UdpPortExpression -> resource.udps).foldLeft(s) {
+      case (cmdLien, (pattern, resources)) =>
+        var resourcesLeft:Seq[Int] = Seq(resources:_*)
+        resourcesLeft.lift(3)
+        val repl = pattern.replaceAllIn(cmdLien,
+          matcher => {
+            val index: Int = matcher.group(1).toInt
+            val removedOpt = resourcesLeft.lift.apply(index)
+            removedOpt.map { reducedValue =>
+              val res = reducedValue
+              val (s,e) = resourcesLeft splitAt index
+              resourcesLeft = s ++ (e drop 1)
+
+              "" + res + ""
+            }.getOrElse(throw new IllegalArgumentException("Matcher " + matcher.toString() + " aint defined at " +  index))
+          }
+        )
+        if(resourcesLeft.size > 0) {
+          throw new IllegalArgumentException("Not all requested resources used")
+        }
+        repl
+    }
+
+    val cmdLineWithMasterHost = Cs3kHostExpression.replaceAllIn(cmdLineWithTcpAndUdp,
+      matcher => {
+        val res = Cs3kConfig.CS3K_HOST
+        "" + res + ""
+      })
+
+    val cmdLineWithMasterPort = Cs3kPortExpression.replaceAllIn(cmdLineWithMasterHost,
+      matcher => {
+        val res = Cs3kConfig.CS3K_PORT
+        "" + res + ""
+      })
+
+    cmdLineWithMasterPort
+  }
+
+
+
+
+
+}
+class GameProcessTemplate(private var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String],val resourceNeeds:ResourceNeeds) {
+
+  //def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
+
+  //def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
+  //def jnlpUrl(reservationId:SeatId,name:UserId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
+
+  def specifyInstance() : GameProcessSettings = {
+    null
+  }
+
+}
+
+
+object GameServerRepository  {
+
+  type GameServerTypeId = Symbol
+  type GameProcessSettingsId = Symbol
+  type GameAndRulesId = (GameServerTypeId, GameProcessSettingsId)
+
+  var gameServerTypes = new HashMap[GameServerTypeId,GameServerSpecification]()
+  var gameServerSetups = new HashMap[(GameServerTypeId,GameProcessSettingsId),GameProcessTemplate]()
+
+
+  def findBy(ss:GameProcessSettingsId) : Option[GameProcessTemplate] = {
+    gameServerSetups.find( _._1._2 == ss).map(_._2)
+  }
+  def findBy(ss:GameAndRulesId) : Option[GameProcessTemplate] = {
+    gameServerSetups.get(ss)
+  }
+
+  def add(id:GameServerTypeId,spec: GameServerSpecification) = {
+    gameServerTypes = gameServerTypes + (id -> spec)
+  }
+
+  def addProcessSettings(id:(GameServerTypeId, GameProcessSettingsId),spec: GameProcessTemplate) = {
+    gameServerSetups = gameServerSetups + (id -> spec)
+  }
+
+
+
+    //Map('TANK_GAME -> Map[GameServerSettingsId, GameProcessTemplate]( 'TankGame2P-> tankGameSettings2, 'TankGame4P -> tankGameSettings4))
+
+
+
+
+  /*" --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp",
+  Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> LobbyServer.remoteIp)
+  */
+
+
+
+}
+
+
 object GameServerPool {
+
 
 
   def clock = System.currentTimeMillis()
@@ -26,26 +161,7 @@ object GameServerPool {
    * > evalTask( fullClasspath in Compile, currentState ).files foreach println
    *
    */
-  val cmdStr = "java " +
-    "-jar " +
-    "C:/dev/workspace/opengl-tanks/server/target/scala-2.9.2/server_2.9.2-0.1-one-jar.jar" +
-    //"C:/dev/workspace/opengl-tanks/target/scala-2.9.2/classes;C:/dev/workspace/opengl-tanks/lib/kryonet-2.18-all.jar;C:/Users/karlw/.sbt/boot/scala-2.9.1/lib/scala-library.jar;C:/Users/karlw/.ivy2/cache/org.scalaz/scalaz-core_2.9.1/jars/scalaz-core_2.9.1-6.0.4.jar;C:/Users/karlw/.ivy2/cache/org.objenesis/objenesis/jars/objenesis-1.2.jar;C:/Users/karlw/.ivy2/cache/log4j/log4j/bundles/log4j-1.2.17.jar;C:/Users/karlw/.ivy2/cache/com.jme3/eventbus/jars/eventbus-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jbullet/jars/jbullet-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jinput/jars/jinput-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-blender/jars/jME3-blender-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-core/jars/jME3-core-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-desktop/jars/jME3-desktop-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-effects/jars/jME3-effects-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-jbullet/jars/jME3-jbullet-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-jogg/jars/jME3-jogg-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-lwjgl/jars/jME3-lwjgl-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-lwjgl-natives/jars/jME3-lwjgl-natives-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-networking/jars/jME3-networking-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-niftygui/jars/jME3-niftygui-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-plugins/jars/jME3-plugins-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-terrain/jars/jME3-terrain-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/jME3-testdata/jars/jME3-testdata-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/j-ogg-oggd/jars/j-ogg-oggd-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/j-ogg-vorbisd/jars/j-ogg-vorbisd-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/lwjgl/jars/lwjgl-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/nifty/jars/nifty-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/nifty-default-controls/jars/nifty-default-controls-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/nifty-examples/jars/nifty-examples-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/nifty-style-black/jars/nifty-style-black-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/stack-alloc/jars/stack-alloc-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/vecmath/jars/vecmath-3.0.0.20120512-SNAPSHOT.jar;C:/Users/karlw/.ivy2/cache/com.jme3/xmlpull-xpp3/jars/xmlpull-xpp3-3.0.0.20120512-SNAPSHOT.jar " +
-    //"se.bupp.lek.server.Server"
-    " "
 
-
-  val tankGameSettings2  = new GameProcessSettings(
-    cmdStr + " --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp",
-    Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> LobbyServer.remoteIp))
-  val tankGameSettings4  = new GameProcessSettings(cmdStr + " 53556 53778", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp", Map() )
-
-  class GameProcessSettings(var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String]) {
-    def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
-
-
-    def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
-    def jnlpUrl(reservationId:SeatId,name:UserId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
-  }
 
   val pool = new GameServerPool
 
@@ -59,9 +175,63 @@ object GameServerPool {
   }
 }
 
+class ResourceAllocator {
+  val tcpRange = new AllocatablePortRange(Range(Cs3kConfig.TCP_RANGE_START,Cs3kConfig.TCP_RANGE_END), "TCP Range")
+  val udpRange = new AllocatablePortRange(Range(Cs3kConfig.UDP_RANGE_START,Cs3kConfig.UDP_RANGE_END), "UDP Range")
+
+  def allocate(udpPorts:Int, tcpPorts:Int) = {
+    val reservedUdp = (1 until udpPorts).map( b => udpRange.reservePort() )
+    val reservedTcp= (1 until tcpPorts).map( b => tcpRange.reservePort() )
+
+
+    (reservedTcp.flatten,reservedUdp.flatten) match {
+      case (tcps, udps) if (tcps.size, udps.size) == (tcpPorts, udpPorts) => Some((tcps, udps))
+      case (tcps, udps) =>
+        unallocate(tcps, tcpRange)
+        unallocate(udps, udpRange)
+        None
+    }
+  }
+
+  def unallocate(ports:IndexedSeq[Int], range:AllocatablePortRange) {
+    ports.foreach(range.unAllocate(_))
+  }
+
+  def unallocateTcp(tcps:IndexedSeq[Int]) {
+    unallocate(tcps,tcpRange)
+  }
+  def unallocateUdp(udps:IndexedSeq[Int]) {
+    unallocate(udps,udpRange)
+  }
+
+
+
+}
+class AllocatablePortRange(val range:Range, val id:String) {
+  val log = Logger.getLogger(classOf[AllocatablePortRange])
+
+  var allocated = SortedSet[Int]()
+
+  def reservePort() : Option[Int] = {
+    range.find(!allocated.contains(_))
+      .map {
+        p =>
+          allocated = allocated + p
+          p
+      }
+  }
+  def unAllocate(p:Int) {
+    if (allocated.contains(p))
+      allocated = allocated - p
+    else
+      log.warn("Unallocating " + p + " from " + id)
+  }
+}
 
 
 class GameServerPool {
+
+  val resourceAllocator = new ResourceAllocator()
 
   val log = Logger.getLogger(classOf[GameServerPool])
 
@@ -74,18 +244,19 @@ class GameServerPool {
     servers.find { case (rg,e) => rg.game.occassionId == occassionId}.map(_._1)
   }
 
-  def spawnServer(gps:GameProcessSettings, game:AbstractGameOccassion) = {
-    log.info("Starting game " + gps + " " + game.occassionId)
+  def spawnServer(gpsTemplate:GameProcessTemplate, game:AbstractGameOccassion) = {
+    log.info("Starting game " + gpsTemplate + " " + game.occassionId)
 
+    val gps = gpsTemplate.specifyInstance()
     val resultHandler = new DefaultExecuteResultHandler {
       override def onProcessComplete(exitValue: Int) {
         super.onProcessComplete(exitValue)
-        removeServerFromPool(game)
+        removeServerFromPoolIfExist(game)
       }
 
       override def onProcessFailed(e: ExecuteException) {
         super.onProcessFailed(e)
-        removeServerFromPool(game)
+        removeServerFromPoolIfExist(game)
       }
 
     }
@@ -121,14 +292,25 @@ class GameServerPool {
   }
 
 
-  private def removeServerFromPool(gps: AbstractGameOccassion) {
+  private def removeServerFromPoolIfExist(gps: AbstractGameOccassion) {
     //servers.remove(gps)
-    log.info("SHUTTING DOWN SERVER : " + gps.occassionId)
-    findRunningGame(gps.occassionId) foreach( rg => servers.remove(rg))
+
+    findRunningGame(gps.occassionId) foreach { rg =>
+      removeServerFromPool(gps, rg)
+    }
+
   }
 
-  def destroyServer = {
 
+  def removeServerFromPool(gps: AbstractGameOccassion, rg: RunningGame): Option[DefaultExecutor] = {
+    log.info("REMOVING SERVER FROM POOL: " + gps.occassionId)
+    servers.remove(rg)
+  }
+
+  def destroyServer(rg:RunningGame) = {
+    servers.get(rg).foreach { case executor =>
+      executor.getWatchdog.destroyProcess()
+    }
   }
 
 }

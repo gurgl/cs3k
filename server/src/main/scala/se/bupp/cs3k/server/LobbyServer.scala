@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server
 
 import com.esotericsoftware.kryonet.{KryoSerialization, Listener, Connection, Server}
-import model.NonPersisentGameOccassion
+import model.{RunningGame, NonPersisentGameOccassion}
 import se.bupp.cs3k._
 import api.user.{PlayerIdentifierWithInfo, RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 
@@ -29,9 +29,12 @@ import com.esotericsoftware.kryo.Kryo
  */
 
 object LobbyServer {
+
+
   def main(args:Array[String]) {
-    new LobbyServer(0,2).start
+    new LobbyServer(0,2, null).start
   }
+
   lazy val remoteIp = {
     val stackOverflowURL = "http://www.biranchi.com/ip.php"
     val requestProperties = Map(
@@ -50,7 +53,7 @@ object LobbyServer {
   }
 }
 
-class LobbyServer(val seqId:Int, val numOfPlayers:Int) {
+class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) {
 
   val log = Logger.getLogger(classOf[LobbyServer])
 
@@ -104,12 +107,16 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int) {
               connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
 
               val api = request.userIdOpt.map(new RegisteredPlayerIdentifier(_)).getOrElse {
-                if (request.name == "") throw new RuntimeException("YO") ; new AnonymousPlayerIdentifier(request.name)
+                if (request.name == "") throw new RuntimeException("YO")
+                new AnonymousPlayerIdentifier(request.name)
               }
               queue += Pair(connection, api)
               server.sendToAllTCP(new ProgressUpdated(queue.size))
               if (queue.size >= numOfPlayers) {
-                launchServerInstance()
+                GameServerRepository.findBy(gameAndRulesId) match {
+                  case Some(gameServerSettings) =>  launchServerInstance(gameServerSettings)
+                  case None => log.error("Unknown game server setting")
+                }
                 ()
             }
           case e => log.info("uknown rec" + e)
@@ -118,7 +125,7 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int) {
     })
   }
 
-  def launchServerInstance() {
+  def launchServerInstance(settings:GameProcessTemplate) {
 
     var party = List[(Connection,AbstractPlayerIdentifier)]()
 
@@ -134,7 +141,8 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int) {
 
     val occassionId = gameReservationService.allocateOccassion()
 
-    GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, new NonPersisentGameOccassion(occassionId))
+
+    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(occassionId))
 
     val scheduler = Executors.newScheduledThreadPool(1);
 
@@ -149,8 +157,8 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int) {
 
             log.info("Reserving seat and sending sending start game")
             var jnlpUrl: URL = pi match {
-              case i:AnonymousPlayerIdentifier => GameServerPool.tankGameSettings2.jnlpUrl(reservationId, i.getName)
-              case i:RegisteredPlayerIdentifier  => GameServerPool.tankGameSettings2.jnlpUrl(reservationId, i.getUserId)
+              case i:AnonymousPlayerIdentifier => runningGame.processSettings.jnlpUrl(reservationId, i.getName)
+              case i:RegisteredPlayerIdentifier  => runningGame.processSettings.jnlpUrl(reservationId, i.getUserId)
             }
             c.sendTCP(new StartGame(LobbyServer.remoteIp, 54555 + seqId, 54777 + seqId,jnlpUrl.toExternalForm))
           } catch {

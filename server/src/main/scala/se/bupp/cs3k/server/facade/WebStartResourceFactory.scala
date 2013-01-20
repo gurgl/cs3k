@@ -5,7 +5,7 @@ import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
 import org.apache.wicket.util.time.{Duration, Time}
 import java.util.Scanner
-import se.bupp.cs3k.server.{GameServerPool, LobbyServer}
+import se.bupp.cs3k.server.{GameServerRepository, GameServerPool, LobbyServer}
 import java.io.IOException
 import org.springframework.stereotype.Component
 import se.bupp.cs3k.api._
@@ -250,6 +250,8 @@ class WebStartResourceFactory {
             case _ => Left("No game id sent")
           }
 
+          var processSettings = GameServerRepository.findBy('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+
           val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
             case (canSpawn, occassionId) =>
 
@@ -260,7 +262,7 @@ class WebStartResourceFactory {
                 {
                   log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
                   if (!g.timeTriggerStart && canSpawn) {
-                    Some(GameServerPool.pool.spawnServer(GameServerPool.tankGameSettings2, g))
+                    Some(GameServerPool.pool.spawnServer(processSettings, g))
                   } else {
                     None
                   }

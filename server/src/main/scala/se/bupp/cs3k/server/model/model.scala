@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.model
 
-import se.bupp.cs3k.server.GameServerPool.GameProcessSettings
+
 import javax.persistence._
 import java.io.Serializable
 import se.bupp.cs3k.api.{Ticket => ApiTicket}
@@ -11,6 +11,7 @@ import se.bupp.cs3k.model.CompetitorType
 import org.hibernate.metamodel.source.binder.Orderable
 import java.util
 import java.lang.{Long => JLLong }
+import se.bupp.cs3k.server.{GameProcessSettings, GameProcessTemplate}
 
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")

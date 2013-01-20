@@ -44,7 +44,6 @@ abstract class GenericFormPanel[T](id:String, label:String, var ladder:T) extend
 
     if (ladder == null) {
       ladder = createNew
-      //println("YEAH")
     }
 
     setDefaultModel(new CompoundPropertyModel(ladder))
