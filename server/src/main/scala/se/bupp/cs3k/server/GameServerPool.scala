@@ -31,8 +31,7 @@ class GameServerSpecification(val cmdStr:String,val resourceNeeds:ResourceNeeds)
 
 class ResourceNeeds(val numOfTcpPorts:Int, val numOfUdpPorts:Int)
 
-class GameProcessSettings(private var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String], val gpt:GameProcessTemplate) {
-  def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
+class GameProcessSettings(var commandLine:CommandLine, var clientJNLPUrl:String, val props:Map[String,String], val gpt:GameProcessTemplate) {
 
   def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
   def jnlpUrl(reservationId:SeatId,name:UserId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
@@ -41,16 +40,14 @@ class GameProcessSettings(private var commandLine:String, var clientJNLPUrl:Stri
 
 
 
-class ResourceSet(val tcps:Set[Int], val udps:Set[Int]) {
-
-}
+class AllocatedResourceSet(val tcps:Set[Int], val udps:Set[Int]) {}
 
 object GameProcessTemplate {
   val TcpPortExpression = """\$\{tcp\[(\d*)\]\}""".r
   val UdpPortExpression = """\$\{udp\[(\d*)\]\}""".r
   val Cs3kHostExpression = """\$\{cs3k_port\}""".r
   val Cs3kPortExpression = """\$\{cs3k_host\}""".r
-  def applyInstanceSpecificResources(s:String, resource:ResourceSet) = {
+  def applyInstanceCommandLinePlaceholders(s:String, resource:AllocatedResourceSet) = {
 
     val cmdLineWithTcpAndUdp = Map(TcpPortExpression -> resource.tcps,UdpPortExpression -> resource.udps).foldLeft(s) {
       case (cmdLien, (pattern, resources)) =>
@@ -89,26 +86,18 @@ object GameProcessTemplate {
 
     cmdLineWithMasterPort
   }
-
-
-
-
-
 }
+
 class GameProcessTemplate(private var commandLineTemplate:String, var clientJNLPUrl:String, val props:Map[String,String],val gameSpecification:GameServerSpecification) {
 
   import GameProcessTemplate._
-  //def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
 
-  //def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
-  //def jnlpUrl(reservationId:SeatId,name:UserId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
+  def specifyInstance(resourceSet:AllocatedResourceSet, commandLineExtras:String) : GameProcessSettings = {
+    val cmdLine = applyInstanceCommandLinePlaceholders(commandLineTemplate, resourceSet)
+    var cmdLineWithExtras: CommandLine = CommandLine.parse(cmdLine + commandLineExtras)
 
-  def specifyInstance(resourceSet:ResourceSet) : GameProcessSettings = {
-    val commandLine = applyInstanceSpecificResources(commandLineTemplate, resourceSet)
-    new GameProcessSettings(commandLine,clientJNLPUrl,props,this)
-
+    new GameProcessSettings(cmdLineWithExtras,clientJNLPUrl,props,this)
   }
-
 }
 
 
@@ -136,12 +125,7 @@ object GameServerRepository  {
   def addProcessSettings(id:(GameServerTypeId, GameProcessSettingsId),spec: GameProcessTemplate) = {
     gameServerSetups = gameServerSetups + (id -> spec)
   }
-
-
-
-    //Map('TANK_GAME -> Map[GameServerSettingsId, GameProcessTemplate]( 'TankGame2P-> tankGameSettings2, 'TankGame4P -> tankGameSettings4))
-
-
+   //Map('TANK_GAME -> Map[GameServerSettingsId, GameProcessTemplate]( 'TankGame2P-> tankGameSettings2, 'TankGame4P -> tankGameSettings4))
 
 
   /*" --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp",
@@ -188,7 +172,7 @@ class ResourceAllocator {
 
 
     (reservedTcp.flatten,reservedUdp.flatten) match {
-      case (tcps, udps) if (tcps.size, udps.size) == (rn.numOfTcpPorts, rn.numOfUdpPorts) => Some(new ResourceSet(tcps.toSet, udps.toSet))
+      case (tcps, udps) if (tcps.size, udps.size) == (rn.numOfTcpPorts, rn.numOfUdpPorts) => Some(new AllocatedResourceSet(tcps.toSet, udps.toSet))
       case (tcps, udps) =>
         unallocate(tcps, tcpRange)
         unallocate(udps, udpRange)
@@ -251,10 +235,15 @@ class GameServerPool {
     log.info("Starting game " + gpsTemplate + " " + game.occassionId)
 
 
+    var time: Long = (GameServerPool.clock / 1000) % (10*365*24*60*60)
+    var logName: String = "logs/srv_" + time + "_" + game.occassionId + ".log"
+
+
     val resourceAllocations = resourceAllocator.allocate(gpsTemplate.gameSpecification.resourceNeeds).getOrElse(
       throw new RuntimeException("Not enought resources available")
     )
-    val gps = gpsTemplate.specifyInstance(resourceAllocations)
+    val gameProcessSettings = gpsTemplate.specifyInstance(resourceAllocations, " --occassion-id " + game.occassionId + " --log " + logName)
+
     val resultHandler = new DefaultExecuteResultHandler {
       override def onProcessComplete(exitValue: Int) {
         super.onProcessComplete(exitValue)
@@ -280,16 +269,13 @@ class GameServerPool {
 
     executor.setProcessDestroyer(processDestroyer)
 
-    var time: Long = (GameServerPool.clock / 1000) % (10*365*24*60*60)
-    var logName: String = "logs/srv_" + time + "_" + game.occassionId + ".log"
-    var cmdLine: CommandLine = gps.cmdLine(" --occassion-id " + game.occassionId + " --log " + logName)
 
-    log.info("Begin server start, cmd line : " + cmdLine)
-    executor.execute(cmdLine, resultHandler)
+    log.info("Begin server start, cmd line : " + gameProcessSettings.commandLine)
+    executor.execute(gameProcessSettings.commandLine, resultHandler)
     log.info("End server start")
 
 
-    var running: RunningGame = new RunningGame(game, gps)
+    var running: RunningGame = new RunningGame(game, gameProcessSettings)
     servers = servers + (running -> executor)
 
     // some time later the result handler callback was invoked so we

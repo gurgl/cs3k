@@ -14,7 +14,7 @@ class GameProcessSettingsTest extends Specification {
 
   "Settings Template" should {
     "replace arguments and insert given resources" in {
-      val lal = GameProcessTemplate.applyInstanceSpecificResources("asdf ${tcp[0]} qwer ${udp[1]} + ${udp[0]}", new ResourceSet(Set(2), Set(3,4)))
+      val lal = GameProcessTemplate.applyInstanceCommandLinePlaceholders("asdf ${tcp[0]} qwer ${udp[1]} + ${udp[0]}", new AllocatedResourceSet(Set(2), Set(3,4)))
 
       lal === "asdf 2 qwer 4 + 3"
     }

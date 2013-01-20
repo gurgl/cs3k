@@ -13,8 +13,8 @@ import server.{GameServerPool, GameProcessTemplate, Init, GameServerRepository}
  */
 class ServerPoolTest  extends Specification {
 
-  "bupp" should {
-    "lal" in {
+  "server pool" should {
+    "should handle instances beeing killed" in {
 
       new Init()
 
@@ -26,7 +26,7 @@ class ServerPoolTest  extends Specification {
 
       executor1.getWatchdog.killedProcess() === false
       try {
-        Thread.sleep(5000)
+        Thread.sleep(2000)
       } catch {
         case e:InterruptedException =>
       }
@@ -37,7 +37,7 @@ class ServerPoolTest  extends Specification {
 
       pool.destroyServer(server1)
       try {
-        Thread.sleep(5000)
+        Thread.sleep(2000)
       } catch {
         case e:InterruptedException =>
       }
@@ -47,15 +47,12 @@ class ServerPoolTest  extends Specification {
       executor2.getWatchdog.killedProcess() === false
       pool.destroyServer(server2)
       try {
-        Thread.sleep(5000)
+        Thread.sleep(2000)
       } catch {
         case e:InterruptedException =>
       }
       pool.servers.size === 0
       executor2.getWatchdog.killedProcess() === true
-
-
-
-    }
+     }
   }
 }
