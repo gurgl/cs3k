@@ -25,13 +25,13 @@ import collection.{mutable, SortedSet}
 class GameServerSpecification(val cmdStr:String,val resourceNeeds:ResourceNeeds) {
 
   def create(args:String, jnlpPath:String, props:Map[String,String]) = {
-    new GameProcessTemplate(cmdStr + args, "http://" + LobbyServer.remoteIp + ":8080/" + jnlpPath, props, resourceNeeds)
+    new GameProcessTemplate(cmdStr + args, "http://" + LobbyServer.remoteIp + ":8080/" + jnlpPath, props, this)
   }
 }
 
 class ResourceNeeds(val numOfTcpPorts:Int, val numOfUdpPorts:Int)
 
-class GameProcessSettings(private var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String],val resourceNeeds:ResourceNeeds) {
+class GameProcessSettings(private var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String], val gpt:GameProcessTemplate) {
   def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
 
   def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
@@ -41,7 +41,7 @@ class GameProcessSettings(private var commandLine:String, var clientJNLPUrl:Stri
 
 
 
-class ResourceSet(val tcps:List[Int], val udps:List[Int]) {
+class ResourceSet(val tcps:Set[Int], val udps:Set[Int]) {
 
 }
 
@@ -50,11 +50,11 @@ object GameProcessTemplate {
   val UdpPortExpression = """\$\{udp\[(\d*)\]\}""".r
   val Cs3kHostExpression = """\$\{cs3k_port\}""".r
   val Cs3kPortExpression = """\$\{cs3k_host\}""".r
-  def blaha(s:String, resource:ResourceSet) = {
+  def applyInstanceSpecificResources(s:String, resource:ResourceSet) = {
 
     val cmdLineWithTcpAndUdp = Map(TcpPortExpression -> resource.tcps,UdpPortExpression -> resource.udps).foldLeft(s) {
       case (cmdLien, (pattern, resources)) =>
-        var resourcesLeft:Seq[Int] = Seq(resources:_*)
+        var resourcesLeft:Seq[Int] = Seq(resources.toSeq:_*)
         resourcesLeft.lift(3)
         val repl = pattern.replaceAllIn(cmdLien,
           matcher => {
@@ -95,15 +95,18 @@ object GameProcessTemplate {
 
 
 }
-class GameProcessTemplate(private var commandLine:String, var clientJNLPUrl:String, val props:Map[String,String],val resourceNeeds:ResourceNeeds) {
+class GameProcessTemplate(private var commandLineTemplate:String, var clientJNLPUrl:String, val props:Map[String,String],val gameSpecification:GameServerSpecification) {
 
+  import GameProcessTemplate._
   //def cmdLine(extra:String) = CommandLine.parse(commandLine + extra);
 
   //def jnlpUrl(reservationId:SeatId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
   //def jnlpUrl(reservationId:SeatId,name:UserId) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
 
-  def specifyInstance() : GameProcessSettings = {
-    null
+  def specifyInstance(resourceSet:ResourceSet) : GameProcessSettings = {
+    val commandLine = applyInstanceSpecificResources(commandLineTemplate, resourceSet)
+    new GameProcessSettings(commandLine,clientJNLPUrl,props,this)
+
   }
 
 }
@@ -179,13 +182,13 @@ class ResourceAllocator {
   val tcpRange = new AllocatablePortRange(Range(Cs3kConfig.TCP_RANGE_START,Cs3kConfig.TCP_RANGE_END), "TCP Range")
   val udpRange = new AllocatablePortRange(Range(Cs3kConfig.UDP_RANGE_START,Cs3kConfig.UDP_RANGE_END), "UDP Range")
 
-  def allocate(udpPorts:Int, tcpPorts:Int) = {
-    val reservedUdp = (1 until udpPorts).map( b => udpRange.reservePort() )
-    val reservedTcp= (1 until tcpPorts).map( b => tcpRange.reservePort() )
+  def allocate(rn:ResourceNeeds) = {
+    val reservedUdp = (1 until rn.numOfUdpPorts).map( b => udpRange.reservePort() )
+    val reservedTcp= (1 until rn.numOfTcpPorts).map( b => tcpRange.reservePort() )
 
 
     (reservedTcp.flatten,reservedUdp.flatten) match {
-      case (tcps, udps) if (tcps.size, udps.size) == (tcpPorts, udpPorts) => Some((tcps, udps))
+      case (tcps, udps) if (tcps.size, udps.size) == (rn.numOfTcpPorts, rn.numOfUdpPorts) => Some(new ResourceSet(tcps.toSet, udps.toSet))
       case (tcps, udps) =>
         unallocate(tcps, tcpRange)
         unallocate(udps, udpRange)
@@ -247,7 +250,11 @@ class GameServerPool {
   def spawnServer(gpsTemplate:GameProcessTemplate, game:AbstractGameOccassion) = {
     log.info("Starting game " + gpsTemplate + " " + game.occassionId)
 
-    val gps = gpsTemplate.specifyInstance()
+
+    val resourceAllocations = resourceAllocator.allocate(gpsTemplate.gameSpecification.resourceNeeds).getOrElse(
+      throw new RuntimeException("Not enought resources available")
+    )
+    val gps = gpsTemplate.specifyInstance(resourceAllocations)
     val resultHandler = new DefaultExecuteResultHandler {
       override def onProcessComplete(exitValue: Int) {
         super.onProcessComplete(exitValue)

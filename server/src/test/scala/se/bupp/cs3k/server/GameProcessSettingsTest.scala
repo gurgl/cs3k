@@ -1,6 +1,7 @@
 package se.bupp.cs3k.server
 
 import org.specs2.mutable.Specification
+import collection.SortedSet
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +14,7 @@ class GameProcessSettingsTest extends Specification {
 
   "Settings Template" should {
     "replace arguments and insert given resources" in {
-      val lal = GameProcessTemplate.blaha("asdf ${tcp[0]} qwer ${udp[1]} + ${udp[0]}", new ResourceSet(List(2), List(3,4)))
+      val lal = GameProcessTemplate.applyInstanceSpecificResources("asdf ${tcp[0]} qwer ${udp[1]} + ${udp[0]}", new ResourceSet(Set(2), Set(3,4)))
 
       lal === "asdf 2 qwer 4 + 3"
     }
