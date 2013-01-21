@@ -9,7 +9,6 @@ import java.lang.{Integer => JInt}
 import org.apache.log4j.Logger
 import java.rmi.RemoteException
 import org.springframework.beans.factory.annotation.Autowired
-import se.bupp.cs3k.server.web.MyBean
 import user.{AbstractPlayerIdentifier, RegisteredPlayerIdentifier, PlayerIdentifierWithInfo, AnonymousPlayerIdentifier}
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.service.GameReservationService._

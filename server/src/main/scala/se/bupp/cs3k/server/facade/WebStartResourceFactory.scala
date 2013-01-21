@@ -83,12 +83,15 @@ object  WebStartResourceFactory {
               )
 
 
+            log.debug("Lobby req : ")
+            log.debug("userIdOpt " + userIdOpt)
             log.debug("playerNameOpt " + playerNameOpt)
+
             val jnlpXMLModified = jnlpXML
               .replace("http://localhost:8080/", "http://" + Cs3kConfig.REMOTE_IP +":8080/")
               .replace("lobbyX.jnlp", "http://" + Cs3kConfig.REMOTE_IP +":8080/lobby2.jnlp?" +
-              userIdOpt.map(a => "userId=" + a ).getOrElse(
-                playerNameOpt.map(a => "playerName=" + a).getOrElse("")
+              userIdOpt.map(a => "user_id=" + a ).getOrElse(
+                playerNameOpt.map(a => "player_name=" + a).getOrElse("")
               )
             ).replace("<resources>", resourcesNew)
 
@@ -212,6 +215,57 @@ class WebStartResourceFactory {
     response
   }
 
+
+
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[SeatId], playerNameOpt:Option[String]) = {
+    import se.bupp.cs3k.server.Util.eitherSuccess
+    val serverAndPassValidation:Either[String,(RunningGame,AbstractGamePass)] = (userIdOpt, playerNameOpt) match {
+      case (None, None) =>
+        Left("No user identification given")
+      case (Some(userId), _) =>
+        val userOpt = userDao.findUser(userId).map(
+          p => new RegisteredPlayerIdentifier(p.id)
+        )
+        val userValidation = userOpt.toRight("Couldnt Construct user")
+        userValidation.onSuccess { existingUserId =>
+          try {
+
+            val rgAndPass = (serverIdOpt, reservationIdOpt, gameOccasionIdOpt) match {
+              case (Some(serverId),_,_) =>
+                gameReservationService.playServer(serverId, existingUserId)
+              case (None,Some(reservationId),_) =>
+                gameReservationService.playScheduled(reservationId, existingUserId)
+              case (None,reservationIdOpt , Some(gameOccassionId)) =>
+                gameReservationService.playSpawned(gameOccassionId, existingUserId)
+              case _ => throw new IllegalArgumentException("No game identification given " + (serverIdOpt, reservationIdOpt, gameOccasionIdOpt))
+            }
+            Right(rgAndPass)
+
+          } catch {
+            case e:IllegalArgumentException => Left(e.getMessage)
+          }
+        }
+      case (None, Some(name)) =>
+        try {
+          val p = new AnonymousPlayerIdentifier(name)
+          val rgAndPass = (serverIdOpt, gameOccasionIdOpt) match {
+            case (Some(serverId), None) =>
+              gameReservationService.playServer(serverId,p)
+            case (reservationIdOpt, Some(gameOccassionId)) =>
+              gameReservationService.playSpawned(gameOccassionId, p)
+            case _ => throw new IllegalArgumentException("No game identification given" + (serverIdOpt, gameOccasionIdOpt))
+          }
+          Right(rgAndPass)
+        } catch {
+          case e:IllegalArgumentException => Left(e.getMessage)
+        }
+    }
+
+    serverAndPassValidation
+  }
+
+
+  /*
   def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[SeatId], playerNameOpt:Option[String]) = {
     val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap(
       id => userDao.findUser(id).map(
@@ -284,5 +338,5 @@ class WebStartResourceFactory {
       r
     }
     serverAndPassValidation
-  }
+  }*/
 }

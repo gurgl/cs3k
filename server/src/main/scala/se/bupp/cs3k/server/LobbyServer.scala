@@ -87,22 +87,22 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
       override def received (connection:Connection , ob:Object) {
         ob match {
           case request:LobbyJoinRequest =>
+            log.info("LobbyJoinRequest received : " + request)
+            connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
 
-            log.info("LobbyJoinRequest received")
-              connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
 
-              val api = request.userIdOpt.map(new RegisteredPlayerIdentifier(_)).getOrElse {
-                if (request.name == "") throw new RuntimeException("YO")
-                new AnonymousPlayerIdentifier(request.name)
+            val api = request.userIdOpt.map(new RegisteredPlayerIdentifier(_)).getOrElse {
+              if (request.name == "") throw new RuntimeException("YO")
+              new AnonymousPlayerIdentifier(request.name)
+            }
+            queue += Pair(connection, api)
+            server.sendToAllTCP(new ProgressUpdated(queue.size))
+            if (queue.size >= numOfPlayers) {
+              GameServerRepository.findBy(gameAndRulesId) match {
+                case Some(gameServerSettings) =>  launchServerInstance(gameServerSettings)
+                case None => log.error("Unknown game server setting : " + gameAndRulesId)
               }
-              queue += Pair(connection, api)
-              server.sendToAllTCP(new ProgressUpdated(queue.size))
-              if (queue.size >= numOfPlayers) {
-                GameServerRepository.findBy(gameAndRulesId) match {
-                  case Some(gameServerSettings) =>  launchServerInstance(gameServerSettings)
-                  case None => log.error("Unknown game server setting : " + gameAndRulesId)
-                }
-                ()
+              ()
             }
           case e => log.info("uknown rec" + e)
         }

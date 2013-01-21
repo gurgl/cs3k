@@ -49,4 +49,12 @@ public class LobbyJoinRequest implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "LobbyJoinRequest{" +
+                "userId=" + userId +
+                ", name=" + (name != null ? "'" + name + '\'' : "null") +
+                '}';
+    }
 }

@@ -1,16 +1,25 @@
 package se.bupp.cs3k.server.service
 
-import dao.{GameDao, TicketDao}
+import dao.{UserDao, GameDao, TicketDao}
+import gameserver.{GameServerPool, GameServerRepository}
 import org.springframework.stereotype.Component
 import se.bupp.cs3k.server.model._
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.web.{MyBean}
 import org.springframework.beans.factory.annotation.Autowired
 import se.bupp.cs3k.api.user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 import se.bupp.cs3k.api.{GateGamePass, IdentifyOnlyPass, AbstractGamePass}
 import se.bupp.cs3k.server.model.RunningGame
 import se.bupp.cs3k.server.model.NonPersisentGameOccassion
+import scala._
+import se.bupp.cs3k.server.model.Model._
+import se.bupp.cs3k.server.model.NonPersisentGameOccassion
+import se.bupp.cs3k.server.model.RunningGame
+import org.apache.log4j.Logger
+import scala.Left
+import se.bupp.cs3k.server.model.NonPersisentGameOccassion
 import scala.Some
+import se.bupp.cs3k.server.model.RunningGame
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 /**
  * Created with IntelliJ IDEA.
@@ -78,6 +87,9 @@ object GameReservationService {
 @Component
 class GameReservationService {
 
+  val log = Logger.getLogger(this.getClass)
+
+
   import GameReservationService._
 
   @Autowired
@@ -85,6 +97,10 @@ class GameReservationService {
 
   @Autowired
   var gameDao:GameDao = _
+
+
+  @Autowired
+  var userDao:UserDao = _
 
   def findGame(occassionId:Long) : Option[GameOccassion] = {
     gameDao.findGame(occassionSeqId)
@@ -104,7 +120,6 @@ class GameReservationService {
           findReservation(res).map { case (occ,part) =>
             new GateGamePass(res)
           }
-
         }
 
       case RunningGame(go:GameOccassion,_) => pi match {
@@ -158,5 +173,127 @@ class GameReservationService {
   def findUnplayedGamesForCompetitor(c:Competitor) = {
     gameDao.findAll
   }
+
+
+  def findOrCreateServer(occassionId:OccassionId) = {
+    val canSpawn = true
+    var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+
+    val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
+    val r = alreadyRunningGame.orElse {
+      this.findGame(occassionId).flatMap( g =>
+      // TODO: Fix me - hardcoded below
+      {
+        log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
+        if (!g.timeTriggerStart && canSpawn) {
+          Some(GameServerPool.pool.spawnServer(processSettings, g))
+        } else {
+          None
+        }
+      }
+      )
+    }
+    r.getOrElse(throw new IllegalArgumentException("Couldnt find or create game " + occassionId))
+  }
+
+  def playServer(serverId:Long, playerId:AbstractPlayerIdentifier) = {
+    throw new NotImplementedException()
+  }
+
+  def playScheduled(reservationId:Long, userId:RegisteredPlayerIdentifier) = {
+    val occassionId = this.findReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+    val rg = findOrCreateServer(occassionId)
+    val gp = this.createGamePass(rg, userId, Some(reservationId)).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+    (rg,gp)
+  }
+
+  def playSpawned(gameOccassionId:SeatId, playerId:AbstractPlayerIdentifier) =  {
+    val rg = findOrCreateServer(gameOccassionId)
+    val gp = this.createGamePass(rg, playerId, None /*?*/).getOrElse(throw new IllegalArgumentException("Unable to create game pass for " + playerId + " " + gameOccassionId))
+    (rg,gp)
+  }
+
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[SeatId], playerNameOpt:Option[String]) = {
+
+
+
+    /*
+    val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap(
+      id => userDao.findUser(id).map(
+        p => new RegisteredPlayerIdentifier(p.id)
+      )
+    ).orElse(
+      playerNameOpt.map(
+        n => new AnonymousPlayerIdentifier(n)
+      )
+    )
+
+    /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
+      case Some(p) => Some(new PlayerIdentifierWithInfo(p.username,p.id))
+      case None => playerNameOpt.map(n => new AnonymousPlayerIdentifier(n))
+    }*/
+
+    val userValidation = userOpt.toRight("Couldnt Construct user")
+
+    val serverValidation = userValidation.onSuccess {
+      userId => serverIdOpt match {
+        case Some(serverId) =>
+          // Rullande / Public
+          Left("Not implemented")
+
+        case None => {
+
+          val canSpawnServerAndOccassionIdValidation = (reservationIdOpt, gameOccasionIdOpt) match {
+            case (None, Some(gameOccassionId)) => // Rullande/Public
+              Right((true,gameOccassionId))
+            case (Some(reservationId), _) => // Lobby
+              this.findReservation(reservationId) match {
+                case Some((occassionId,_)) => Right((true, occassionId))
+                case None => Left("Reservation not found")
+              }
+            case _ => Left("No game id sent")
+          }
+
+          var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+
+          val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
+            case (canSpawn, occassionId) =>
+
+              val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
+              val r = alreadyRunningGame.orElse {
+                gameReservationService.findGame(occassionId).flatMap( g =>
+                // TODO: Fix me - hardcoded below
+                {
+                  log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
+                  if (!g.timeTriggerStart && canSpawn) {
+                    Some(GameServerPool.pool.spawnServer(processSettings, g))
+                  } else {
+                    None
+                  }
+                }
+                )
+              }
+              val s = r.map(Right(_)).getOrElse(Left("Couldnt find game"))
+              s
+          }
+          runningGameValidation
+        }
+      }
+    }
+
+    val serverAndPassValidation = serverValidation.onSuccess { rg =>
+      val r = this.createGamePass(rg,userOpt.get,reservationIdOpt) match {
+        case Some(gamePass) => Right((rg,gamePass))
+        case None => Left("Unable to acquire valid pass")
+      }
+      r
+    }
+    serverAndPassValidation
+    */
+  }
+
+
+
+
 }
 
