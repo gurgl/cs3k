@@ -114,7 +114,7 @@ object  WebStartResourceFactory {
     override def newResourceResponse(p1: Attributes) = {
 
 
-      val reservationIdOpt:Option[SeatId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+      val reservationIdOpt:Option[NonPersistentOccassionTicketId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
       val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
       val gameOccasionIdOpt:Option[OccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
@@ -217,7 +217,7 @@ class WebStartResourceFactory {
 
 
 
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[SeatId], playerNameOpt:Option[String]) = {
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[OccassionId], playerNameOpt:Option[String]) = {
     import se.bupp.cs3k.server.Util.eitherSuccess
     val serverAndPassValidation:Either[String,(RunningGame,AbstractGamePass)] = (userIdOpt, playerNameOpt) match {
       case (None, None) =>
@@ -231,12 +231,13 @@ class WebStartResourceFactory {
           try {
 
             val rgAndPass = (serverIdOpt, reservationIdOpt, gameOccasionIdOpt) match {
-              case (Some(serverId),_,_) =>
-                gameReservationService.playServer(serverId, existingUserId)
-              case (None,Some(reservationId),_) =>
-                gameReservationService.playScheduled(reservationId, existingUserId)
-              case (None,reservationIdOpt , Some(gameOccassionId)) =>
-                gameReservationService.playSpawned(gameOccassionId, existingUserId)
+              case (Some(serverId), None, None) =>
+                // Continuous
+                gameReservationService.playOpenServer(serverId, existingUserId)
+              case (None, Some(reservationId), None) =>
+                gameReservationService.playNonScheduledClosed(reservationId, existingUserId)
+              case (None, None , Some(gameOccassionId)) =>
+                gameReservationService.playScheduledClosed(gameOccassionId, existingUserId)
               case _ => throw new IllegalArgumentException("No game identification given " + (serverIdOpt, reservationIdOpt, gameOccasionIdOpt))
             }
             Right(rgAndPass)
@@ -248,11 +249,12 @@ class WebStartResourceFactory {
       case (None, Some(name)) =>
         try {
           val p = new AnonymousPlayerIdentifier(name)
-          val rgAndPass = (serverIdOpt, gameOccasionIdOpt) match {
+          val rgAndPass = (serverIdOpt, reservationIdOpt) match {
             case (Some(serverId), None) =>
-              gameReservationService.playServer(serverId,p)
-            case (reservationIdOpt, Some(gameOccassionId)) =>
-              gameReservationService.playSpawned(gameOccassionId, p)
+              // Continuous
+              gameReservationService.playOpenServer(serverId,p)
+            case (None, Some(reservationId)) =>
+              gameReservationService.playNonScheduledClosed(reservationId, p)
             case _ => throw new IllegalArgumentException("No game identification given" + (serverIdOpt, gameOccasionIdOpt))
           }
           Right(rgAndPass)
@@ -266,7 +268,7 @@ class WebStartResourceFactory {
 
 
   /*
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[SeatId], playerNameOpt:Option[String]) = {
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[OccassionId], playerNameOpt:Option[String]) = {
     val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap(
       id => userDao.findUser(id).map(
         p => new RegisteredPlayerIdentifier(p.id)
@@ -296,7 +298,7 @@ class WebStartResourceFactory {
             case (None, Some(gameOccassionId)) => // Rullande/Public
               Right((true,gameOccassionId))
             case (Some(reservationId), _) => // Lobby
-              gameReservationService.findReservation(reservationId) match {
+              gameReservationService.findInMemoryReservation(reservationId) match {
                 case Some((occassionId,_)) => Right((true, occassionId))
                 case None => Left("Reservation not found")
               }

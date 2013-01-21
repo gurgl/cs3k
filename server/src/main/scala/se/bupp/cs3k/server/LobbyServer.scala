@@ -140,12 +140,12 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
           try {
             val reservationId = gameReservationService.reserveSeat(occassionId, pi)
 
-            log.info("Reserving seat and sending sending start game")
+            log.info("Reserving seat and sending sending start game instructions")
             var jnlpUrl: URL = pi match {
               case i:AnonymousPlayerIdentifier => runningGame.processSettings.jnlpUrl(reservationId, i.getName)
               case i:RegisteredPlayerIdentifier  => runningGame.processSettings.jnlpUrl(reservationId, i.getUserId)
             }
-            c.sendTCP(new StartGame(Cs3kConfig.REMOTE_IP, 54555 + seqId, 54777 + seqId,jnlpUrl.toExternalForm))
+            c.sendTCP(new StartGame(jnlpUrl.toExternalForm))
           } catch {
             case e:Exception => e.printStackTrace()
           }

@@ -64,7 +64,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
       log.info("evaluateGamePass invoked" + absPI)
       val r = absPI match {
         case t:GateGamePass =>
-          val l = reservationService.findReservation(t.getReservationId).flatMap { case (o,map) =>
+          val l = reservationService.findInMemoryReservation(t.getReservationId).flatMap { case (o,map) =>
             val piOpt = if (occassionId == o) {
               map.find { case (seat, pi) => seat == t.getReservationId }.map( p => p._2 )
             } else None

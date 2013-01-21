@@ -78,10 +78,10 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 object GameReservationService {
   type OccassionId = Long
-  type SeatId = Long
+  type NonPersistentOccassionTicketId = Long
   var occassionSeqId:Long = 1L
   var seatSeqId:Long= 1L
-  var openOccassions = collection.mutable.Map[OccassionId,collection.mutable.Map[SeatId,AbstractPlayerIdentifier]]()
+  var openOccassions = collection.mutable.Map[OccassionId,collection.mutable.Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier]]()
 
 }
 @Component
@@ -112,12 +112,12 @@ class GameReservationService {
     new Ticket(reservationId)
   }*/
 
-  def createGamePass(rg:RunningGame, pi:AbstractPlayerIdentifier, reservationIdOpt:Option[SeatId]) : Option[AbstractGamePass] = {
+  def createGamePass(rg:RunningGame, pi:AbstractPlayerIdentifier, reservationIdOpt:Option[NonPersistentOccassionTicketId]) : Option[AbstractGamePass] = {
     rg match {
       case RunningGame(null,_) => Some(new IdentifyOnlyPass(pi))
       case RunningGame(NonPersisentGameOccassion(occasionId),_) =>
         reservationIdOpt.flatMap { res =>
-          findReservation(res).map { case (occ,part) =>
+          findInMemoryReservation(res).map { case (occ,part) =>
             new GateGamePass(res)
           }
         }
@@ -149,21 +149,21 @@ class GameReservationService {
     openOccassions += res -> collection.mutable.Map.empty
     res
   }
-  def reserveSeat(occassionId:OccassionId, pi:AbstractPlayerIdentifier) : SeatId = {
-    var res:SeatId = seatSeqId
+  def reserveSeat(occassionId:OccassionId, pi:AbstractPlayerIdentifier) : NonPersistentOccassionTicketId = {
+    var res:NonPersistentOccassionTicketId = seatSeqId
     openOccassions(occassionId) += (res -> pi)
     seatSeqId = seatSeqId + 1
     res
   }
 
-  def findReservation(id:SeatId) : Option[(OccassionId,Map[SeatId,AbstractPlayerIdentifier])] = {
+  def findInMemoryReservation(id:NonPersistentOccassionTicketId) : Option[(OccassionId,Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier])] = {
     openOccassions.find {
       case (occassionId, seatMap) => seatMap.exists( s => s._1 == id)
     }.map( r => (r._1,Map.empty ++ r._2))
   }
 
-  def findReservationPlayerIdentifer(id:SeatId, verifyOccId:OccassionId) : Option[(AbstractPlayerIdentifier)] = {
-    findReservation(id).flatMap { case (occassionId,map) =>
+  def findReservationPlayerIdentifer(id:NonPersistentOccassionTicketId, verifyOccId:OccassionId) : Option[(AbstractPlayerIdentifier)] = {
+    findInMemoryReservation(id).flatMap { case (occassionId,map) =>
       if (occassionId == verifyOccId) {
         map.find { case (seat, pi) => seat == id }.map( p => p._2 )
       } else None
@@ -196,24 +196,24 @@ class GameReservationService {
     r.getOrElse(throw new IllegalArgumentException("Couldnt find or create game " + occassionId))
   }
 
-  def playServer(serverId:Long, playerId:AbstractPlayerIdentifier) = {
+  def playOpenServer(serverId:Long, playerId:AbstractPlayerIdentifier) = {
     throw new NotImplementedException()
   }
 
-  def playScheduled(reservationId:Long, userId:RegisteredPlayerIdentifier) = {
-    val occassionId = this.findReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+  def playNonScheduledClosed(reservationId:NonPersistentOccassionTicketId, userId:AbstractPlayerIdentifier) = {
+    val occassionId = this.findInMemoryReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     val rg = findOrCreateServer(occassionId)
     val gp = this.createGamePass(rg, userId, Some(reservationId)).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     (rg,gp)
   }
 
-  def playSpawned(gameOccassionId:SeatId, playerId:AbstractPlayerIdentifier) =  {
+  def playScheduledClosed(gameOccassionId:OccassionId, playerId:RegisteredPlayerIdentifier) =  {
     val rg = findOrCreateServer(gameOccassionId)
     val gp = this.createGamePass(rg, playerId, None /*?*/).getOrElse(throw new IllegalArgumentException("Unable to create game pass for " + playerId + " " + gameOccassionId))
     (rg,gp)
   }
 
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[SeatId], playerNameOpt:Option[String]) = {
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[NonPersistentOccassionTicketId], playerNameOpt:Option[String]) = {
 
 
 
@@ -247,7 +247,7 @@ class GameReservationService {
             case (None, Some(gameOccassionId)) => // Rullande/Public
               Right((true,gameOccassionId))
             case (Some(reservationId), _) => // Lobby
-              this.findReservation(reservationId) match {
+              this.findInMemoryReservation(reservationId) match {
                 case Some((occassionId,_)) => Right((true, occassionId))
                 case None => Left("Reservation not found")
               }

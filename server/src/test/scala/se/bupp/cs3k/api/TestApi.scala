@@ -26,7 +26,7 @@ class TestApi extends Specification {
   "should return my address" should {
     "handle conversions1" in {
       def llll : java.lang.Long = if (1 == 1) null else 1L
-      val reservationIdOpt:Option[SeatId] = Option(llll).map(p=> p.asInstanceOf[Long])
+      val reservationIdOpt:Option[NonPersistentOccassionTicketId] = Option(llll).map(p=> p.asInstanceOf[Long])
       reservationIdOpt.shouldEqual(None)
     }
     "handle conversions" in {
