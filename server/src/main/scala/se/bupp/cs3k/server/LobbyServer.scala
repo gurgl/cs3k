@@ -100,7 +100,7 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
               if (queue.size >= numOfPlayers) {
                 GameServerRepository.findBy(gameAndRulesId) match {
                   case Some(gameServerSettings) =>  launchServerInstance(gameServerSettings)
-                  case None => log.error("Unknown game server setting")
+                  case None => log.error("Unknown game server setting : " + gameAndRulesId)
                 }
                 ()
             }

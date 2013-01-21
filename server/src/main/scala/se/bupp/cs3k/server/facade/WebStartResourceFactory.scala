@@ -19,7 +19,6 @@ import user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlay
 import xml.Utility.Escapes
 import xml.Utility
 import se.bupp.cs3k.server.model.Model._
-import se.bupp.cs3k.server.web.MyBean
 import scala.Some
 import se.bupp.cs3k.server.model.RunningGame
 import scala.Left
@@ -166,9 +165,6 @@ class WebStartResourceFactory {
   var gameReservationService:GameReservationService = _
 
   @Autowired
-  var dao:MyBean = _
-
-  @Autowired
   var userDao:UserDao = _
 
 
@@ -253,7 +249,7 @@ class WebStartResourceFactory {
             case _ => Left("No game id sent")
           }
 
-          var processSettings = GameServerRepository.findBy('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+          var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
 
           val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
             case (canSpawn, occassionId) =>

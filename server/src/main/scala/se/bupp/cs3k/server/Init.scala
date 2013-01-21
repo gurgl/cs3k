@@ -23,7 +23,7 @@ class Init {
 
   //Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> LobbyServer.remoteIp)
   val tankGameSettings2  = tankGameServer.create(
-    " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_port} --master-port ${cs3k_port} ", "start_game.jnlp",
+    " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} ", "start_game.jnlp",
     Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
   )
 

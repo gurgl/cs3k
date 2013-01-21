@@ -18,6 +18,14 @@ import org.specs2.runner.JUnitRunner
 class ServerPoolTest  extends Specification {
 
   "server pool" should {
+    "sasdf" in {
+
+      new Init()
+
+      var setup = GameServerRepository.findBy(('TankGame, 'TG2Player))
+      setup.isDefined === true
+
+    }
     "should handle instances beeing killed" in {
 
       new Init()

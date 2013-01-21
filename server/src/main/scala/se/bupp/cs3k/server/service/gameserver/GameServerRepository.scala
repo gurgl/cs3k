@@ -13,14 +13,14 @@ import collection.immutable.HashMap
 object GameServerRepository  {
 
   type GameServerTypeId = Symbol
-  type GameProcessSettingsId = Symbol
-  type GameAndRulesId = (GameServerTypeId, GameProcessSettingsId)
+  type GameProcessTemplateId = Symbol
+  type GameAndRulesId = (GameServerTypeId, GameProcessTemplateId)
 
   var gameServerTypes = new HashMap[GameServerTypeId,GameServerSpecification]()
-  var gameServerSetups = new HashMap[(GameServerTypeId,GameProcessSettingsId),GameProcessTemplate]()
+  var gameServerSetups = new HashMap[(GameServerTypeId,GameProcessTemplateId),GameProcessTemplate]()
 
 
-  def findBy(ss:GameProcessSettingsId) : Option[GameProcessTemplate] = {
+  def findByProcessTemplate(ss:GameProcessTemplateId) : Option[GameProcessTemplate] = {
     gameServerSetups.find( _._1._2 == ss).map(_._2)
   }
   def findBy(ss:GameAndRulesId) : Option[GameProcessTemplate] = {
@@ -31,7 +31,7 @@ object GameServerRepository  {
     gameServerTypes = gameServerTypes + (id -> spec)
   }
 
-  def addProcessSettings(id:(GameServerTypeId, GameProcessSettingsId),spec: GameProcessTemplate) = {
+  def addProcessSettings(id:(GameServerTypeId, GameProcessTemplateId),spec: GameProcessTemplate) = {
     gameServerSetups = gameServerSetups + (id -> spec)
   }
   //Map('TANK_GAME -> Map[GameServerSettingsId, GameProcessTemplate]( 'TankGame2P-> tankGameSettings2, 'TankGame4P -> tankGameSettings4))

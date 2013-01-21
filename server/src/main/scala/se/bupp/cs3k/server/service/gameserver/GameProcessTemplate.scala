@@ -14,10 +14,16 @@ import se.bupp.cs3k.server.Cs3kConfig
 object GameProcessTemplate {
   val TcpPortExpression = """\$\{tcp\[(\d*)\]\}""".r
   val UdpPortExpression = """\$\{udp\[(\d*)\]\}""".r
-  val Cs3kHostExpression = """\$\{cs3k_port\}""".r
-  val Cs3kPortExpression = """\$\{cs3k_host\}""".r
+  val Cs3kHostExpression = """\$\{cs3k_host\}""".r
+  val Cs3kPortExpression = """\$\{cs3k_port\}""".r
 
+  def replacePropsPlaceholders(props:Map[String,String], resource:AllocatedResourceSet) = {
+    props.mapValues(replaceTextWithValue(_,resource,false))
+  }
   def applyInstanceCommandLinePlaceholders(s:String, resource:AllocatedResourceSet) = {
+    replaceTextWithValue(s,resource, true)
+  }
+  def replaceTextWithValue(s:String, resource:AllocatedResourceSet, doFailOnNonExhausted:Boolean) = {
 
     val cmdLineWithTcpAndUdp = Map(TcpPortExpression -> resource.tcps,UdpPortExpression -> resource.udps).foldLeft(s) {
       case (cmdLien, (pattern, resources)) =>
@@ -36,7 +42,7 @@ object GameProcessTemplate {
             }.getOrElse(throw new IllegalArgumentException("Matcher " + matcher.toString() + " aint defined at " +  index))
           }
         )
-        if(resourcesLeft.size > 0) {
+        if(doFailOnNonExhausted && resourcesLeft.size > 0) {
           throw new IllegalArgumentException("Not all requested resources used")
         }
         repl
@@ -66,7 +72,8 @@ class GameProcessTemplate(private var commandLineTemplate:String, var clientJNLP
     val cmdLine = applyInstanceCommandLinePlaceholders(commandLineTemplate, resourceSet)
     var cmdLineWithExtras: CommandLine = CommandLine.parse(cmdLine + commandLineExtras)
 
-    new GameProcessSettings(cmdLineWithExtras,clientJNLPUrl,props, resourceSet, this)
+    var propsReplaced: Map[String, String] = replacePropsPlaceholders(props,resourceSet)
+    new GameProcessSettings(cmdLineWithExtras,clientJNLPUrl, propsReplaced, resourceSet, this)
   }
 }
 

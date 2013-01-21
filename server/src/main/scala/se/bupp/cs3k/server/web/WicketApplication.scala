@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Component, Service}
 import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
-import se.bupp.cs3k.server.{LobbyServer, web}
+import se.bupp.cs3k.server.{Init, LobbyServer, web}
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}
@@ -59,43 +59,6 @@ object WicketApplication {
 }
 
 
-
-
-
-
-@Component("mySBean")
-@Transactional
-class MyBean {
-
-  @PersistenceContext(unitName="MyPersistenceUnit")
-  var em:EntityManager = _
-
-  //@Transactional(propagation = Propagation.REQUIRES_NEW)
-  def insert(a:User) {
-    em.persist(a)
-  }
-
-
-
-
-
-  import scala.collection.JavaConversions.asScalaBuffer
-
-  //@Transactional()
-  def read() {
-    var q: Query = em.createQuery("from User")
-    val res = q.getResultList.mkString(",")
-    //println(res)
-  }
-
-  //@Transactional(propagation = Propagation.REQUIRES_NEW)
-  def store() {
-    //instance.useBeanFactory()
-
-    em.persist(new User("Tja" + System.currentTimeMillis()))
-  }
-}
-
 class WicketApplication extends WebApplication {
 
   import WicketApplication._
@@ -125,6 +88,8 @@ class WicketApplication extends WebApplication {
   var lobbyResource: AbstractResource = _
   override def init() {
     super.init()
+
+    new Init
 
     val authStrat = new WiaAuthorizationStrategy();
     val securitySettings = getSecuritySettings();
