@@ -6,6 +6,8 @@ import service.GameReservationService
 
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.api.user.AnonymousPlayerIdentifier
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +16,7 @@ import se.bupp.cs3k.api.user.AnonymousPlayerIdentifier
  * Time: 19:18
  * To change this template use File | Settings | File Templates.
  */
+@RunWith(classOf[JUnitRunner])
 class GameReservationServiceTest extends Specification {
 
   "should handle reservations " should {

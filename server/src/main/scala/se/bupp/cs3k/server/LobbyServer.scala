@@ -17,7 +17,7 @@ import org.apache.log4j.Logger
 import com.esotericsoftware.minlog.Log
 import com.esotericsoftware.kryo.serializers.{BeanSerializer, TaggedFieldSerializer, JavaSerializer}
 import com.esotericsoftware.kryo.Kryo
-
+import service.gameserver.{GameProcessTemplate, GameServerPool, GameServerRepository}
 
 
 /**
@@ -35,22 +35,7 @@ object LobbyServer {
     new LobbyServer(0,2, null).start
   }
 
-  lazy val remoteIp = {
-    val stackOverflowURL = "http://www.biranchi.com/ip.php"
-    val requestProperties = Map(
-      "User-Agent" -> "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0"
-    )
 
-    val connection = new URL(stackOverflowURL).openConnection
-    requestProperties.foreach({
-      case (name, value) => connection.setRequestProperty(name, value)
-    })
-
-    var response = Source.fromInputStream(connection.getInputStream).getLines.mkString("\n").substring(3)
-    println("*" + response + "*")
-
-    response
-  }
 }
 
 class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) {
@@ -92,8 +77,8 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
       override def disconnected(p1: Connection) {
         super.disconnected(p1)
         queue.dequeueFirst(_._1.getID == p1.getID) match {
-          case None => println("Removing UNKNOWN disconnect ")
-          case Some(c) =>  println("Removing disconnect")
+          case None => log.info("Removing UNKNOWN disconnect ")
+          case Some(c) =>  log.info("Removing disconnect")
             server.sendToAllTCP(new ProgressUpdated(queue.size))
             //queue = mutable.Queue.empty[Connection].dequeue++ queue.drop(i)
         }
@@ -131,7 +116,7 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
 
 
 
-    println("quueu size " + queue.size)
+    log.info("quueu size " + queue.size)
 
     (0 until numOfPlayers).foreach { s =>
       val c = queue.dequeue()
@@ -160,7 +145,7 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
               case i:AnonymousPlayerIdentifier => runningGame.processSettings.jnlpUrl(reservationId, i.getName)
               case i:RegisteredPlayerIdentifier  => runningGame.processSettings.jnlpUrl(reservationId, i.getUserId)
             }
-            c.sendTCP(new StartGame(LobbyServer.remoteIp, 54555 + seqId, 54777 + seqId,jnlpUrl.toExternalForm))
+            c.sendTCP(new StartGame(Cs3kConfig.REMOTE_IP, 54555 + seqId, 54777 + seqId,jnlpUrl.toExternalForm))
           } catch {
             case e:Exception => e.printStackTrace()
           }

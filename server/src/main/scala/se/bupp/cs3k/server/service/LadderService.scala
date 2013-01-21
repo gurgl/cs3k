@@ -45,7 +45,7 @@ class LadderService {
 
     val ll = ladderDao.em.merge(l)
 
-    println(ll.participants.size)
+    log.debug("ll.participants.size" + ll.participants.size)
     ll.participants.exists( p => p.id.competitor.id == t.id)
   }
 
@@ -71,7 +71,7 @@ class LadderService {
 
     val ll = ladderDao.em.merge(l)
 
-    println(ll.participants.size)
+    log.debug("ll.participants.size" + ll.participants.size)
     ll.participants.exists( p => p.id.competitor.id == t.id)
   }
 

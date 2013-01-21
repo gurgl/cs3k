@@ -11,7 +11,7 @@ import se.bupp.cs3k.model.CompetitorType
 import org.hibernate.metamodel.source.binder.Orderable
 import java.util
 import java.lang.{Long => JLLong }
-import se.bupp.cs3k.server.{GameProcessSettings, GameProcessTemplate}
+import se.bupp.cs3k.server.service.gameserver.GameProcessSettings
 
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")

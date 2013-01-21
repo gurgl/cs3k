@@ -25,6 +25,7 @@ import se.bupp.cs3k.server.service.{GameReservationService, LadderService}
 import se.bupp.cs3k.server.service.dao.CompetitorDao
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.RestartResponseException
+import org.slf4j.LoggerFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,6 +35,8 @@ import org.apache.wicket.RestartResponseException
  * To change this template use File | Settings | File Templates.
  */
 class PlayPanel(id:String) extends Panel(id) {
+
+  val log = LoggerFactory.getLogger(this.getClass)
 
   @AnonymousOnly
   class AnonLaunchForm(id: String) extends Form[String](id) {
@@ -49,13 +52,13 @@ class PlayPanel(id:String) extends Panel(id) {
 
     override def onError() {
       super.onError()
-      println("err")
+      log.debug("err")
 
       button.setEnabled(false)
     }
 
     override def onSubmit() {
-      println("submitting form")
+      log.debug("submitting form")
       button.setEnabled(true)
       //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
       //RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, new PageParameters()))
@@ -72,7 +75,7 @@ class PlayPanel(id:String) extends Panel(id) {
     field.add(new AjaxFormValidatingBehavior(AnonLaunchForm.this, "onblur") {
       override def onError(target: AjaxRequestTarget) {
         super.onError(target)
-        println("beh error")
+        log.debug("beh error")
         //error("bupp")
         //target.add(fbp)
         button.setEnabled(true)
@@ -84,7 +87,7 @@ class PlayPanel(id:String) extends Panel(id) {
         super.onSubmit(target)
         //var resp: Response = resp
         //RequestCycle.get().setResponse(resp)
-        println("submitting behav")
+        log.debug("submitting behav")
         button.setEnabled(true)
         target.add(button)
         //WicketApplication.get.get
@@ -120,7 +123,7 @@ class PlayPanel(id:String) extends Panel(id) {
       }
 
       def onUpdate(target: AjaxRequestTarget) {
-        println(field.isValid)
+        log.debug("field.isValid" + field.isValid.toString)
         button.setEnabled(field.isValid)
         target.add(button)
       }
@@ -141,7 +144,7 @@ class PlayPanel(id:String) extends Panel(id) {
 
 
       override def onSubmit() {
-        println("submitting button, player_name = " + nameReference.getObject)
+        log.debug("submitting button, player_name = " + nameReference.getObject)
         //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
         var parameters: PageParameters = new PageParameters()
 

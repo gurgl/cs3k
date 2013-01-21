@@ -13,20 +13,14 @@
         <br>
 
         <div class="alert alert-info">
-
-            <h5>Play now</h5>
-
             <!--button wicket:id="logged_in_launch_btn">Launch</button-->
+            <h5>Play now</h5>
             <form wicket:id="loggedInForm" class="form-horizontal">
                 Play As: <select wicket:id="competitorSelect"/>
                 <button type="submit" wicket:id="launch_button" name="Launch" value="Launch" class="btn">Launch</button>
 
 
             </form>
-
-
-            <br>
-
             <form wicket:id="launch_with_name_form" class="form-horizontal">
                 Nickname: <input type="text" wicket:id="player_name">
                 <button type="submit" wicket:id="launch_button" name="Launch" value="Launch" class="btn">Launch</button>

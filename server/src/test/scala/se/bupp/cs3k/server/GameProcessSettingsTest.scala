@@ -2,6 +2,10 @@ package se.bupp.cs3k.server
 
 import org.specs2.mutable.Specification
 import collection.SortedSet
+import service.gameserver.GameProcessTemplate
+import service.resourceallocation.AllocatedResourceSet
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,6 +14,7 @@ import collection.SortedSet
  * Time: 20:00
  * To change this template use File | Settings | File Templates.
  */
+@RunWith(classOf[JUnitRunner])
 class GameProcessSettingsTest extends Specification {
 
   "Settings Template" should {
@@ -19,6 +24,8 @@ class GameProcessSettingsTest extends Specification {
       lal === "asdf 2 qwer 4 + 3"
     }
   }
+
+
 
 
 }

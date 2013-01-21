@@ -1,5 +1,8 @@
 package se.bupp.cs3k.server
 
+import service.gameserver.{GameServerRepository, GameServerSpecification}
+import service.resourceallocation.ResourceNeeds
+
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -21,10 +24,10 @@ class Init {
   //Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> LobbyServer.remoteIp)
   val tankGameSettings2  = tankGameServer.create(
     " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_port} --master-port ${cs3k_port} ", "start_game.jnlp",
-    Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> LobbyServer.remoteIp)
+    Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
   )
 
-  val tankGameSettings4  = tankGameServer.create(" 53556 53778", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp", Map() )
+  val tankGameSettings4  = tankGameServer.create(" 53556 53778", "http://" + Cs3kConfig.REMOTE_IP + ":8080/start_game.jnlp", Map() )
 
 
 

@@ -2,7 +2,10 @@ package se.bupp.cs3k
 
 import org.specs2.mutable.Specification
 import server.model.{RunningGame, NonPersisentGameOccassion}
-import server.{GameServerPool, GameProcessTemplate, Init, GameServerRepository}
+import server.service.gameserver.{GameServerPool, GameServerRepository, GameProcessTemplate}
+import server.{Init}
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,6 +14,7 @@ import server.{GameServerPool, GameProcessTemplate, Init, GameServerRepository}
  * Time: 23:53
  * To change this template use File | Settings | File Templates.
  */
+@RunWith(classOf[JUnitRunner])
 class ServerPoolTest  extends Specification {
 
   "server pool" should {

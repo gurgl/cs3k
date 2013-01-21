@@ -1,5 +1,9 @@
 package se.bupp.cs3k.server
 
+import java.net.URL
+import io.Source
+import org.apache.log4j.Logger
+
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -9,6 +13,8 @@ package se.bupp.cs3k.server
  */
 object Cs3kConfig {
 
+  val log = Logger.getLogger(this.getClass)
+
   val TCP_RANGE_START = 54555
   val TCP_RANGE_END = 54565
 
@@ -17,4 +23,21 @@ object Cs3kConfig {
 
   val CS3K_HOST = "localhost"
   val CS3K_PORT = 1199
+
+  lazy val REMOTE_IP = {
+    val stackOverflowURL = "http://www.biranchi.com/ip.php"
+    val requestProperties = Map(
+      "User-Agent" -> "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0"
+    )
+
+    val connection = new URL(stackOverflowURL).openConnection
+    requestProperties.foreach({
+      case (name, value) => connection.setRequestProperty(name, value)
+    })
+
+    var response = Source.fromInputStream(connection.getInputStream).getLines.mkString("\n").substring(3)
+    log.info("*" + response + "*")
+
+    response
+  }
 }

@@ -6,6 +6,8 @@ import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryo.serializers.BeanSerializer
 import com.esotericsoftware.kryo.io.{Input, Output}
 import java.io.ByteArrayOutputStream
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +16,7 @@ import java.io.ByteArrayOutputStream
  * Time: 19:18
  * To change this template use File | Settings | File Templates.
  */
+//@RunWith(classOf[JUnitRunner])
 class KryoTest extends Specification {
 
   "should return my address" should {

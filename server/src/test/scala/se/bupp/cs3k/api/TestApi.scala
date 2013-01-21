@@ -10,6 +10,8 @@ import user.{AnonymousPlayerIdentifier, PlayerIdentifierWithInfo}
 import xml.Utility
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.example.ExampleScoreScheme._
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,6 +20,7 @@ import se.bupp.cs3k.example.ExampleScoreScheme._
  * Time: 19:18
  * To change this template use File | Settings | File Templates.
  */
+@RunWith(classOf[JUnitRunner])
 class TestApi extends Specification {
 
   "should return my address" should {
@@ -87,7 +90,8 @@ class TestApi extends Specification {
       mapAsScalaMap(r.s) must haveTheSameElementsAs(mapAsScalaMap(original.s), (a:AnyRef,b:AnyRef) => {
         val c = a == b
         (a,b) match {
-          case (a:Tuple2[_,_], b:Tuple2[_,_]) => println("a.canEqual(b) " + a.canEqual(b))
+          case (a:Tuple2[_,_], b:Tuple2[_,_]) =>
+            println("a.canEqual(b) " + a.canEqual(b))
             println("a._1 == b._1 " + (a._1 == b._1))
           println("a._2 == b._2 " + (a._2 == b._2))
           println("a._1 == b._1 " + a._1.getClass +" " + b._1.getClass)

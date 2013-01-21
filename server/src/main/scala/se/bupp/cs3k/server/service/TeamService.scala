@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import se.bupp.cs3k.server.model.{TeamMember, TeamMemberPk, Team, User}
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
+import org.slf4j.LoggerFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired
 @Service
 class TeamService {
 
+  val log = LoggerFactory.getLogger(this.getClass)
+
   @Autowired
   var teamDao:TeamDao = _
 
@@ -25,7 +28,7 @@ class TeamService {
 
     val tt = teamDao.em.merge(t)
 
-    println(tt.members.size)
+    log.debug(tt.members.size.toString)
     tt.members.exists( p => p.id.user.id == u.id)
   }
 

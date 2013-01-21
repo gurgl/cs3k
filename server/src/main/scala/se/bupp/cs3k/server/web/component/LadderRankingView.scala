@@ -20,11 +20,12 @@ import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal.Render
 import se.bupp.cs3k.api.score.{CompetitorScore, ContestScore, ScoreScheme}
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import reflect.BeanProperty
-
-
+import org.slf4j.LoggerFactory
 
 
 class LadderRankingView(id:String) extends Panel(id) {
+
+  val log = LoggerFactory.getLogger(this.getClass)
 
 
   @SpringBean
@@ -76,7 +77,9 @@ class LadderRankingView(id:String) extends Panel(id) {
   ).++(gameSpecificCols)
 
 
-  cols.map( p => p.asInstanceOf[PropertyColumn[_,_,_,_]].getPropertyExpression).foreach(println)
+  cols.map( p => p.asInstanceOf[PropertyColumn[_,_,_,_]].getPropertyExpression).foreach( p =>
+    log.debug(p)
+  )
 
 
 

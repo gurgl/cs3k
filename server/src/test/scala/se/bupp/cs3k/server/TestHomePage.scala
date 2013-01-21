@@ -5,12 +5,13 @@ package se.bupp.cs3k.server
 
 import org.apache.wicket.util.tester.WicketTester
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
+
 import web.{TheHomePage, WicketApplication}
 import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
 
+@RunWith(classOf[JUnitRunner])
 class TestHomePage extends Specification {
 
   /*"TestHomePage" should {

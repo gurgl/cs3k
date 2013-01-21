@@ -15,6 +15,8 @@ import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.support.{TransactionCallbackWithoutResult, TransactionTemplate, DefaultTransactionDefinition}
 import org.springframework.transaction.{PlatformTransactionManager, TransactionStatus}
 import javax.persistence.TypedQuery
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,6 +25,7 @@ import javax.persistence.TypedQuery
  * Time: 19:18
  * To change this template use File | Settings | File Templates.
  */
+@RunWith(classOf[JUnitRunner])
 class DbTest extends Specification {
 
 
