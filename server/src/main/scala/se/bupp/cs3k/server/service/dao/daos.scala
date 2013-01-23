@@ -90,6 +90,13 @@ class GameResultDao extends GenericDaoImpl[GameResult](classOf[GameResult]) {
 
 
 
+@Repository
+class GameParticipationDao extends GenericDaoImpl[GameParticipation](classOf[GameParticipation]) {
+
+}
+
+
+
 
 @Repository
 class GameDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {

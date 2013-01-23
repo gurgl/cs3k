@@ -104,30 +104,5 @@ class LadderService {
     ladderDao.em.remove(tm)
   }
 
-  @Transactional
-  def challangeCompetitor(challanger:Competitor, challangee:Competitor) {
-    (challanger, challangee) match {
-      case (u1:User, u2:User) =>
 
-        val occasionId = gameReservationService.allocateOccassion()
-        val go = new GameOccassion(occasionId)
-        val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
-        val gp2 = new GameParticipation(new GameParticipationPk(u1,go))
-        go.participants.add(gp1)
-        go.participants.add(gp2)
-        gameDao.insert(go)
-
-        val t = new Ticket()
-        t.game = go
-        t.user = u1
-        val t2 = new Ticket()
-        t2.game = go
-        t2.user = u2
-        ticketDao.insert(t)
-        ticketDao.insert(t2)
-
-
-      case _ => throw new IllegalStateException("Not implemented")
-    }
-  }
 }

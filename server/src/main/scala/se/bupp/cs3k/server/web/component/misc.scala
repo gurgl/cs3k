@@ -7,11 +7,10 @@ import se.bupp.cs3k.server.service.dao.CompetitorDao
 import se.bupp.cs3k.server.service.dao.TeamDao
 import se.bupp.cs3k.server.service.dao.UserDao
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.service.TeamService
+import se.bupp.cs3k.server.service.{GameReservationService, TeamService, LadderService}
 import se.bupp.cs3k.server.web.WiaSession
 import se.bupp.cs3k.server.web.{LoggedInOnly, WiaSession, WicketApplication}
 import org.apache.wicket.ajax.AjaxRequestTarget
-import se.bupp.cs3k.server.service.{LadderService, TeamService}
 import org.apache.wicket.ajax.markup.html
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.model.{LoadableDetachableModel, AbstractReadOnlyModel}
@@ -74,6 +73,9 @@ abstract class JoinTeamPanel(id:String, t:Team) extends Panel(id) {
 
 //@LoggedInOnly
 abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
+
+  @SpringBean
+  var gs:GameReservationService = _
 
   @SpringBean
   var ts:LadderService = _
@@ -205,7 +207,7 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
 
       item.add(new AjaxLink("challangeLink") {
         def onClick(p1: AjaxRequestTarget) {
-          ts.challangeCompetitor(WiaSession.get().getUser, comp)
+          gs.challangeCompetitor(WiaSession.get().getUser, comp)
         }
       })
     }

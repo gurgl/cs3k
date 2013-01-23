@@ -1,8 +1,8 @@
 package se.bupp.cs3k.server.service
 
-import dao.{UserDao, GameDao, TicketDao}
+import dao.{GameParticipationDao, UserDao, GameDao, TicketDao}
 import gameserver.{GameServerPool, GameServerRepository}
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.{Service, Component}
 import se.bupp.cs3k.server.model._
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +20,7 @@ import se.bupp.cs3k.server.model.NonPersisentGameOccassion
 import scala.Some
 import se.bupp.cs3k.server.model.RunningGame
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Created with IntelliJ IDEA.
@@ -84,7 +85,7 @@ object GameReservationService {
   var openOccassions = collection.mutable.Map[OccassionId,collection.mutable.Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier]]()
 
 }
-@Component
+@Service
 class GameReservationService {
 
   val log = Logger.getLogger(this.getClass)
@@ -97,6 +98,9 @@ class GameReservationService {
 
   @Autowired
   var gameDao:GameDao = _
+
+  @Autowired
+  var gameParicipationDao:GameParticipationDao = _
 
 
   @Autowired
@@ -141,7 +145,49 @@ class GameReservationService {
     } else {
 
     }*/
+  }
 
+  /*@Transactional
+  def createPersistedGame(compByParticipants:List[Competitor]) {
+
+    val game= new GameOccassion(123)
+
+    compByParticipants.foreach { case (c) =>
+        //gameParicipationDao.insert(new GameParticipation(new GameParticipationPk(c,)))
+      game.participants = compByParticipants
+    }
+
+    gameDao.insert(game)
+
+  }*/
+
+  @Transactional
+  def challangeCompetitor(challanger:Competitor, challangee:Competitor) : GameOccassion = {
+    (challanger, challangee) match {
+      case (u1:User, u2:User) =>
+
+        val occasionId = allocateOccassion()
+        val go = new GameOccassion(occasionId)
+        val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
+        val gp2 = new GameParticipation(new GameParticipationPk(u1,go))
+        go.participants.add(gp1)
+        go.participants.add(gp2)
+        gameDao.insert(go)
+
+        val t = new Ticket()
+        t.game = go
+        t.user = u1
+        val t2 = new Ticket()
+        t2.game = go
+        t2.user = u2
+        ticketDao.insert(t)
+        ticketDao.insert(t2)
+
+
+        go
+
+      case _ => throw new IllegalStateException("Not implemented")
+    }
   }
 
   def allocateOccassion() : OccassionId = {

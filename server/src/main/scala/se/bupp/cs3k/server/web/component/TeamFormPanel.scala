@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.form.{TextField, Form}
 import se.bupp.cs3k.server.model.Team
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.TeamDao
+import se.bupp.cs3k.server.service.CompetitorService
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,7 +20,7 @@ class TeamFormPanel(id:String, label:String, ladder:Team) extends GenericFormPan
   def this(id:String, label:String) = this(id, label,null)
 
   @SpringBean
-  var teamDao:TeamDao = _
+  var competitorService:CompetitorService = _
 
   def createNew() = new Team()
 
@@ -28,5 +29,5 @@ class TeamFormPanel(id:String, label:String, ladder:Team) extends GenericFormPan
     f.add(new TextField("name"))
   }
 
-  def save(s: Team) { teamDao.insert(s) }
+  def save(s: Team) { competitorService.createTeam(s) }
 }
