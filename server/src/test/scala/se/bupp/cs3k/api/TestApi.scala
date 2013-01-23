@@ -66,6 +66,11 @@ class TestApi extends Specification {
       str.shouldEqual("{\"@class\":\"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore\",\"s\":{\"1\":{\"a\":10,\"b\":1},\"2\":{\"a\":3,\"b\":4}}}")
 
       val r = mapper.readValue(str, sc.getContestStoreClass)
+
+
+      /*u.put(1L, new ExCompetitorScore(10,0,1))
+      u.put(2L, new ExCompetitorScore(3,0,4))*/
+      r.competitorScores()
       //original.s.asInstanceOf[java.util.Map[Long,JavaTuple2]].shouldEqual(r.s.asInstanceOf[java.util.Map[Long,JavaTuple2]])
       //val a = Map.empty ++ collection.mutable.Map(r.s.toSeq:_*)
       //val b = Map.empty ++ collection.mutable.Map( original.s.toSeq:_*)

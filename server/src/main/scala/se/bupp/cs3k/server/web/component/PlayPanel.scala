@@ -3,7 +3,7 @@ package se.bupp.cs3k.server.web.component
 import org.apache.wicket.markup.html.panel.{FeedbackPanel, Panel}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.form._
-import org.apache.wicket.markup.ComponentTag
+import org.apache.wicket.markup.{MarkupStream, MarkupType, MarkupFragment, ComponentTag}
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
 import org.apache.wicket.model.{IModel, Model}
 import org.apache.wicket.ajax.form.{OnChangeAjaxBehavior, AjaxFormValidatingBehavior}
@@ -20,12 +20,19 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, Link}
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
-import se.bupp.cs3k.server.model.{GameOccassion, Team, Competitor, User}
+import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service.{GameReservationService, LadderService}
-import se.bupp.cs3k.server.service.dao.CompetitorDao
+import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
-import org.apache.wicket.RestartResponseException
+import org.apache.wicket.{MarkupContainer, RestartResponseException}
 import org.slf4j.LoggerFactory
+import org.apache.wicket.markup.repeater.RepeatingView
+import se.bupp.cs3k.server.model.User
+import java.io.{BufferedWriter, OutputStreamWriter, PrintWriter}
+import com.fasterxml.jackson.databind.ObjectMapper
+import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExCompetitorScore}
+import se.bupp.cs3k.example.ExampleScoreScheme
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,6 +44,12 @@ import org.slf4j.LoggerFactory
 class PlayPanel(id:String) extends Panel(id) {
 
   val log = LoggerFactory.getLogger(this.getClass)
+
+  @SpringBean
+  var gameResultDao:GameResultDao = _
+  @SpringBean
+  var gameReservationService:GameReservationService = _
+
 
   @AnonymousOnly
   class AnonLaunchForm(id: String) extends Form[String](id) {
@@ -220,6 +233,8 @@ class PlayPanel(id:String) extends Panel(id) {
 
     }
   }
+
+
   /*
   @LoggedInOnly
   class LoggedInOnlyButton(id:String) extends Button(id) {
@@ -252,8 +267,6 @@ class PlayPanel(id:String) extends Panel(id) {
 
   //add(new LadderFormPanel("ladderform"))
 
-  @SpringBean
-  var gameReservationService:GameReservationService = _
 
   @LoggedInOnly
   class ChallangePanel(id:String) extends WebMarkupContainer(id) {
@@ -293,6 +306,29 @@ class PlayPanel(id:String) extends Panel(id) {
       }
     })
   }
+
+
   add(new ChallangePanel("challangePanel"))
 
+
+  import scala.collection.JavaConversions.seqAsJavaList
+  var all: List[GameResult] = gameResultDao.findAll
+
+  @transient var om = new ObjectMapper()
+  add(new ListView("lastGames", all) {
+    def populateItem(item: ListItem[GameResult]) {
+      item.add(new MarkupContainer("item") {
+
+        override def onComponentTagBody(markupStream: MarkupStream, openTag: ComponentTag) {
+          super.onComponentTagBody(markupStream, openTag)
+          var gs: GameResult = item.getModelObject
+          var value: ExContestScore = om.readValue(gs.resultSerialized, classOf[ExContestScore])
+          val markup = ExampleScoreScheme.ExScoreScheme.renderToHtml(value,null)
+          val response = getRequestCycle().getResponse();
+          response.write(markup)
+        }
+      })
+
+    }
+  })
 }

@@ -36,7 +36,9 @@ class TheHomePage extends AbstractBasePage {
   add(new RegisterLink)
 
   @LoggedInOnly
-  class AdminOnlyLabel(id: String, text: String) extends Label(id, text)
+  class AdminOnlyLabel(id: String, text: String) extends BookmarkablePageLink(id, classOf[TheHomePage]) {
+    override def isEnabled = false
+  }
 
   add(new AdminOnlyLabel("lbl", "Tja"))
 
@@ -63,8 +65,7 @@ class TheHomePage extends AbstractBasePage {
       val link = new AjaxLink[String]("link") {
         def onClick(target: AjaxRequestTarget) {
           selected.foreach ( s => getItems.find(i => i.getModelObject._1 == s).foreach(i => target.add(i)) )
-           selected = Some(labelText)
-
+          selected = Some(labelText)
 
           val comp = panelGen.apply("content")
           contentContainer.addOrReplace(comp)
@@ -74,7 +75,6 @@ class TheHomePage extends AbstractBasePage {
       }
 
       link.add(label)
-
 
       //var container: WebMarkupContainer = new WebMarkupContainer("item")
       p1.add(new AttributeAppender("class",new AbstractReadOnlyModel[String] {

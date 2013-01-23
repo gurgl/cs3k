@@ -218,7 +218,8 @@ object MyBuild extends Build {
     file("api"),
     settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
-      "com.fasterxml.jackson.core" % "jackson-annotations" % "2.1.0"
+      "com.fasterxml.jackson.core" % "jackson-annotations" % "2.1.0",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0"
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
     )) ++ Seq(
       publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),

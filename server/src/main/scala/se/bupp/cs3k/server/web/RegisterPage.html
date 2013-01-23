@@ -6,19 +6,52 @@
 </head>
 <body>
 <wicket:extend>
-    The requested page is only available for authenticated users.
 
+    <div class="row-liquid">
+        <span>&nbsp;</span>
+    </div>
+    <div class="row-liquid">
+        <span>&nbsp;</span>
+    </div>
     <form wicket:id="registerForm" class="form-horizontal">
-        &nbsp;&nbsp;username
-        <input type="text" wicket:id="username" /><br>
-        email <input type="text" wicket:id="email" /><br>
+        <div class="control-group">
+            <label class="control-label" for="username">Username</label>
 
-        password <input type="password" wicket:id="password" /><br>
-        password confirmation <input type="password" wicket:id="wiaPasswordConfirm" /><br>
+            <div class="controls">
+                <input id="username" type="text" wicket:id="username"/><br>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="username">E-Mail</label>
 
-        <input type="submit" value="Register" />
+            <div class="controls">
+                <input type="text" wicket:id="email"/><br>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="pass">Password</label>
+
+            <div class="controls">
+                <input id="pass" type="password" wicket:id="password"/><br>
+
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="passConfirm">Password Confirm</label>
+
+            <div class="controls">
+                <input id="passConfirm" type="password" wicket:id="wiaPasswordConfirm" /><br>
+            </div>
+        </div>
+        <div class="control-group">
+
+            <div class="controls">
+                <button class="btn" type="submit" value="Register">Register</button>
+            </div>
+        </div>
+
     </form>
-    <span wicket:id="feedback" />
+    <span wicket:id="feedback"/>
 
 
 </wicket:extend>

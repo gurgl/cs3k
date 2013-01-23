@@ -103,6 +103,7 @@ class GameReservationService {
   var userDao:UserDao = _
 
   def findGame(occassionId:Long) : Option[GameOccassion] = {
+    log.info("query db occassion = " + occassionId)
     gameDao.findGame(occassionSeqId)
 
   }

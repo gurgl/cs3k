@@ -4,8 +4,12 @@ import se.bupp.cs3k.api.score.{ScoreScheme, ContestScore, CompetitorScore}
 import reflect.BeanProperty
 import java.{util, lang}
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal
-import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.{JsonAutoDetect, JsonTypeInfo}
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal.Render
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.{DeserializationContext, JsonDeserializer}
+import com.fasterxml.jackson.core.JsonParser
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,15 +23,25 @@ object ExampleScoreScheme {
 
   case class ExCompetitorScore(val kills:Int, val diffKills:Int, val trophys:Int) extends CompetitorScore
 
-  case class JavaTuple2(@BeanProperty var a:Int,@BeanProperty var b:Int)  {
+  case class JavaTuple2( @BeanProperty @JsonDeserialize(as=classOf[java.lang.Integer]) var a:Int,@BeanProperty @JsonDeserialize(as=classOf[java.lang.Integer]) var b:Int)  {
     def this() = this(-1,-1)
   }
-  class ExContestScore(@BeanProperty var s:java.util.Map[Long,JavaTuple2]) extends ContestScore {
+
+  class ExContestScore(_s:java.util.Map[Long,JavaTuple2]) extends ContestScore {
+    @JsonDeserialize(keyAs = classOf[java.lang.Long], contentAs=classOf[JavaTuple2], as=classOf[util.HashMap[Long,JavaTuple2]]) var s:java.util.Map[Long,JavaTuple2] = _s
+
+
     def this() = this(null)
     import scala.collection.JavaConversions.mapAsScalaMap
     import scala.collection.JavaConversions.mutableMapAsJavaMap
+    def getS = s
+    def setS(_s:util.HashMap[Long,JavaTuple2]) { s = _s}
+
     def competitorScores() = {
-      val r = s.map { case (k,v) => new java.lang.Long(k) -> new ExCompetitorScore(v.a,0,v.b) }
+      val r = s.map { case (k,v) =>
+        var kk: lang.Long = new java.lang.Long(k)
+        var va: ExCompetitorScore = new ExCompetitorScore(v.a, 0, v.b)
+        kk -> va }
       mutableMapAsJavaMap(r)
     }
 
@@ -63,10 +77,20 @@ object ExampleScoreScheme {
 
     def compareField(a: CompetitorTotal, b: CompetitorTotal, field: Int) = 0
 
-    def renderToHtml(cs: ContestScore, competitors: util.Set[lang.Long]) =
-      """
-        | <b>TJA</b>
-      """.stripMargin
+    def renderToHtml(cs: ContestScore, competitors: util.Set[lang.Long]) = {
+      //val exCs:ExContestScore = cs.asInstanceOf[ExContestScore]
+
+      var scores: util.Map[lang.Long, _ <: CompetitorScore] = cs.competitorScores()
+
+      import scala.collection.JavaConversions.mapAsScalaMap
+      val res = scores.toList.map {
+        case (competitorId, compS:ExCompetitorScore) => {
+          "<div><span>" + competitorId + "</span><span>" + compS.kills + "</span><span>" + compS.diffKills + "</span><span>" + compS.trophys + "</span></div>"
+        }
+        case _ => "BLA"
+      }
+      res.mkString("")
+    }
   }
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")

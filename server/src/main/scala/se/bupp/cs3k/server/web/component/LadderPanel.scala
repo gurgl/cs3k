@@ -9,6 +9,7 @@ import se.bupp.cs3k.server.service.dao.LadderDao
 import org.apache.wicket.model.LoadableDetachableModel
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.WebMarkupContainer
+import org.apache.wicket.extensions.breadcrumb.BreadCrumbBar
 
 
 /**

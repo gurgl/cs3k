@@ -217,11 +217,18 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @PrimaryKeyJoinColumn
   var result:GameResult = _
 
+  def game = new GameType(
+    "tanks",
+    "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
+    "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
 
   def this(_occassionId:Long) = { this() ; occassionId = _occassionId}
 }
 
 
+class GameType(val name:String, val contestScoreClass:String, val scoreSchemeClass:String) {
+
+}
 
 case class NonPersisentGameOccassion(val occassionId:Long) extends AbstractGameOccassion {
 
