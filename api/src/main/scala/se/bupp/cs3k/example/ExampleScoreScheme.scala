@@ -77,7 +77,7 @@ object ExampleScoreScheme {
 
     def compareField(a: CompetitorTotal, b: CompetitorTotal, field: Int) = 0
 
-    def renderToHtml(cs: ContestScore, competitors: util.Set[lang.Long]) = {
+    def renderToHtml(cs: ContestScore, competitors: util.Map[lang.Long,String]) = {
       //val exCs:ExContestScore = cs.asInstanceOf[ExContestScore]
 
       var scores: util.Map[lang.Long, _ <: CompetitorScore] = cs.competitorScores()
@@ -85,11 +85,11 @@ object ExampleScoreScheme {
       import scala.collection.JavaConversions.mapAsScalaMap
       val res = scores.toList.map {
         case (competitorId, compS:ExCompetitorScore) => {
-          "<div><span>" + competitorId + "</span><span>" + compS.kills + "</span><span>" + compS.diffKills + "</span><span>" + compS.trophys + "</span></div>"
+          "<tr><td>" + competitors(competitorId) + "</td><td>" + competitorId + "</td><td>" + compS.kills + "</td><td>" + compS.diffKills + "</td><td>" + compS.trophys + "</td></tr>"
         }
         case _ => "BLA"
       }
-      res.mkString("")
+      "<tr><th>Competitor</th><th>A</th><th>B</th><th>C</th><th>D</th></tr>" + res.mkString("")
     }
   }
 

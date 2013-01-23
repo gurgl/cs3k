@@ -18,7 +18,7 @@ public interface ScoreScheme extends Serializable {
     public Class<? extends ContestScore> getContestStoreClass();
 
     String [] competitorTotalColHeaders();
-    String renderToHtml(ContestScore cs, Set<Long> competitors);
+    String renderToHtml(ContestScore cs,  Map<Long,String> competitors);
 
     public interface CompetitorTotal extends Serializable {
 

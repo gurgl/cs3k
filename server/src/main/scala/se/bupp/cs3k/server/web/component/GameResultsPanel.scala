@@ -46,17 +46,19 @@ class GameResultsPanel(id:String, scoreScheme:ScoreScheme) extends Panel(id) {
     def detach() {}
   }
   import scala.collection.JavaConversions.asScalaBuffer
-  import scala.collection.JavaConversions.setAsJavaSet
+  import scala.collection.JavaConversions.mapAsJavaMap
+
 
   var selector:WebMarkupContainer = _
+
   selector = new DataView[GameResult]("listSelector", provider) {
     def populateItem(p1: Item[GameResult]) {
       var gameResult: GameResult = p1.getModelObject
       add(new Component("container"){
         def onRender() {
           val bupp = objectMapper.readValue(gameResult.resultSerialized,classOf[ContestScore])
-          val competitors = gameResult.game.participants.map(_.id.competitor.id).toSet[java.lang.Long]
-          scoreScheme.renderToHtml(bupp,competitors)
+          val competitorsByName = gameResult.game.participants.map( p => (p.id.competitor.id -> p.id.competitor.nameAccessor)).toMap //.toSet[java.lang.Long]
+          scoreScheme.renderToHtml(bupp,competitorsByName)
         }
       })
 

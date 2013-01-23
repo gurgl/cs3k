@@ -21,7 +21,7 @@ import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, L
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
 import se.bupp.cs3k.server.model._
-import se.bupp.cs3k.server.service.{GameReservationService, LadderService}
+import se.bupp.cs3k.server.service.{GameResultService, GameReservationService, LadderService}
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.{MarkupContainer, RestartResponseException}
@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExCompetitorScore}
 import se.bupp.cs3k.example.ExampleScoreScheme
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
+import org.springframework.beans.factory.annotation.Autowired
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,6 +50,9 @@ class PlayPanel(id:String) extends Panel(id) {
   var gameResultDao:GameResultDao = _
   @SpringBean
   var gameReservationService:GameReservationService = _
+
+  @SpringBean
+  var gameResultService:GameResultService = _
 
 
   @AnonymousOnly
@@ -313,6 +317,9 @@ class PlayPanel(id:String) extends Panel(id) {
 
   import scala.collection.JavaConversions.seqAsJavaList
   var all: List[GameResult] = gameResultDao.findAll
+  import scala.collection.JavaConversions.asScalaBuffer
+  import scala.collection.JavaConversions.mapAsJavaMap
+
 
   @transient var om = new ObjectMapper()
   add(new ListView("lastGames", all) {
@@ -322,8 +329,11 @@ class PlayPanel(id:String) extends Panel(id) {
         override def onComponentTagBody(markupStream: MarkupStream, openTag: ComponentTag) {
           super.onComponentTagBody(markupStream, openTag)
           var gs: GameResult = item.getModelObject
+          val competitorsByName = gameResultService.getCompetitorsByName(gs)
+
           var value: ExContestScore = om.readValue(gs.resultSerialized, classOf[ExContestScore])
-          val markup = ExampleScoreScheme.ExScoreScheme.renderToHtml(value,null)
+          val markup = "<table class=\"table table-striped\"><tbody>" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</tbody></table>"
+
           val response = getRequestCycle().getResponse();
           response.write(markup)
         }
