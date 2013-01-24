@@ -3,6 +3,7 @@ package se.bupp.cs3k.server
 import java.net.URL
 import io.Source
 import org.apache.log4j.Logger
+import service.gameserver.GameServerRepository
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +26,9 @@ object Cs3kConfig {
   val CS3K_PORT = 1199
 
   val LOBBY_SERVER_PORT_RANGE = Range(12345,12355)
+
+  var TEMP_FIX_FOR_STORING_GAME_TYPE: GameServerRepository.GameAndRulesId = ('TankGame, 'TG2Player)
+  var LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 2
 
   lazy val REMOTE_IP = {
     val stackOverflowURL = "http://www.biranchi.com/ip.php"

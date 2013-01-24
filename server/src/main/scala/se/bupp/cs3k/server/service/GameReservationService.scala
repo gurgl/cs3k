@@ -21,6 +21,7 @@ import scala.Some
 import se.bupp.cs3k.server.model.RunningGame
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import org.springframework.transaction.annotation.Transactional
+import java.util.Date
 
 /**
  * Created with IntelliJ IDEA.
@@ -221,23 +222,30 @@ class GameReservationService {
     gameDao.findAll
   }
 
+  def startPersistedGameServer(g:GameOccassion) = {
+    log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart)
+    if (!g.timeTriggerStart) {
+      var processSettings = GameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+      var server: RunningGame = GameServerPool.pool.spawnServer(processSettings, g)
+
+      g.startedAt = new Date()
+      gameDao.update(g)
+
+      Some(server)
+    } else {
+      None
+    }
+  }
 
   def findOrCreateServer(gameSessionId:GameSessionId) = {
     val canSpawn = true
-    var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+
 
     val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
     val r = alreadyRunningGame.orElse {
       this.findGame(gameSessionId).flatMap( g =>
-      // TODO: Fix me - hardcoded below
-      {
-        log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
-        if (!g.timeTriggerStart && canSpawn) {
-          Some(GameServerPool.pool.spawnServer(processSettings, g))
-        } else {
-          None
-        }
-      }
+        startPersistedGameServer(g)
+
       )
     }
     r.getOrElse(throw new IllegalArgumentException("Couldnt find or create game " + gameSessionId))

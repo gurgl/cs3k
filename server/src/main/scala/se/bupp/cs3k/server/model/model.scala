@@ -11,7 +11,8 @@ import se.bupp.cs3k.model.CompetitorType
 import org.hibernate.metamodel.source.binder.Orderable
 import java.lang.{Long => JLLong }
 import se.bupp.cs3k.server.service.gameserver.GameProcessSettings
-import util.Date
+import java.util.Date
+import se.bupp.cs3k.server.Cs3kConfig
 
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")
@@ -219,6 +220,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   def timeTriggerStart = false
 
+  def gameAndRulesId = Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE
 
 
   @OneToOne(cascade = Array(CascadeType.ALL))

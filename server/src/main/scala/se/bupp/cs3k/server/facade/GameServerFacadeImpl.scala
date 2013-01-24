@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.rmi.server.UnicastRemoteObject
 import java.lang.Integer
-import java.lang.{Integer => JInt}
+import java.lang.{Integer => JInt,Long => JLong}
 import org.apache.log4j.Logger
 import java.rmi.RemoteException
 import org.springframework.beans.factory.annotation.Autowired
@@ -84,16 +84,16 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
 
   }
 
-  def startGame(gameSessionId: JInt, teamsByBlayers: java.util.Map[JInt, JInt]) {
+  def startGame(gameSessionId: JLong, teamsByBlayers: java.util.Map[JInt, JInt]) {
     log.info("StartGame invoked")
   }
 
-  def startGame(gameSessionId: JInt, players: java.util.List[JInt]) {
+  def startGame(gameSessionId: JLong, players: java.util.List[JInt]) {
 
   }
 
   @Transactional
-  def endGame(gameSessionId: JInt, serializedResult: String) {
+  def endGame(gameSessionId: JLong, serializedResult: String) {
     log.info("EndGame invoked  : " + serializedResult)
     reservationService.findGame(occassionSeqId) match {
       case Some(g) =>

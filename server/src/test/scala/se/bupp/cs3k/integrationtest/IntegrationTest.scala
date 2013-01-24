@@ -10,14 +10,17 @@ import org.springframework.transaction.{PlatformTransactionManager, TransactionS
 import javax.persistence.TypedQuery
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
-import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.model.{RunningGame, User}
 import se.bupp.cs3k.server.service.{GameReservationService, CompetitorService}
-import se.bupp.cs3k.server.LobbyHandler
+import se.bupp.cs3k.server.{Cs3kConfig, LobbyHandler}
 import se.bupp.cs3k.LobbyJoinRequest
 import com.esotericsoftware.kryonet.Connection
 
 import org.specs2.mock.Mockito
-import se.bupp.cs3k.server.service.gameserver.{GameServerSpecification, GameProcessTemplate, GameServerRepository, GameServerPool}
+import se.bupp.cs3k.server.service.gameserver._
+import se.bupp.cs3k.api.GameServerFacade
+import se.bupp.cs3k.server.model.RunningGame
+import java.net.URL
 
 /**
  * Created with IntelliJ IDEA.
@@ -59,6 +62,7 @@ class IntegrationTest extends Specification with Mockito {
       val factory =  appContext.asInstanceOf[BeanFactory];
       var competitorService = factory.getBean("competitorService", classOf[CompetitorService])
       var gameReservationService = factory.getBean(classOf[GameReservationService])
+      var gameServerFacade = factory.getBean(classOf[GameServerFacade])
 
       val user1 = competitorService.createUser("leffe")
       val user2 = competitorService.createUser("janne")
@@ -66,8 +70,13 @@ class IntegrationTest extends Specification with Mockito {
       val game = gameReservationService.challangeCompetitor(user1,user2)
       game !== null
       var gameAndSettingsId: GameServerRepository.GameAndRulesId = ('Asdf, 'QWer)
+
+      var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
+      GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
       val lobbyHandler = new LobbyHandler(2,gameAndSettingsId)
 
+      Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE = gameAndSettingsId
+      Cs3kConfig.LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 1
       val connection1 = mock[Connection]
       connection1.getID() returns 11
       var connection2 = mock[Connection]
@@ -78,14 +87,25 @@ class IntegrationTest extends Specification with Mockito {
 
       GameServerPool.pool = mock[GameServerPool]
 
-      GameServerRepository.addProcessTemplate(gameAndSettingsId, new GameProcessTemplate("asdf","asdf",null,new GameServerSpecification("asdf", null)))
+      var gpSettings: GameProcessSettings = mock[GameProcessSettings]
+      gpSettings.jnlpUrl(any,anyInt) returns new URL("http://www.dn.se")
+      gpSettings.jnlpUrl(any,anyString) returns new URL("http://www.dn.se")
+
+      GameServerPool.pool.spawnServer(any,any) returns new RunningGame(game,gpSettings)
 
       lobbyHandler.playerJoined(new LobbyJoinRequest(user1.id,user1.nameAccessor),connection1)
       lobbyHandler.playerJoined(new LobbyJoinRequest(user2.id,user2.nameAccessor),connection2)
 
+      try {
+        Thread.sleep(3000)
+      } catch { case e:InterruptedException => }
 
-      game.hasStarted == true
+      game.hasStarted === true
+      game.result === null
 
+      gameServerFacade.endGame(game.gameSessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1":{"a":0,"b":0},"2":{"a":2,"b":0}}}""")
+
+      game.result !== null
 
 
       appContext.close()

@@ -53,6 +53,8 @@ object LobbyHandler {
   val log = Logger.getLogger(this.getClass)
   var gameReservationService:GameReservationService = _
 }
+
+
 class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) {
 
   import LobbyHandler._
@@ -98,10 +100,10 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
 
     val scheduler = Executors.newScheduledThreadPool(1);
 
-    log.info("creating start task " + party.size)
+    log.info("creating delayed game launch announcer task " + party.size)
     val beeper = new Runnable() {
       def  run() {
-        log.info("in start task " + party.size)
+        log.info("In delayed game launch announcer " + party.size)
         party.foreach { case (c,pi) =>
 
           try {
@@ -120,7 +122,7 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
         }
       }
     }
-    val beeperHandle = scheduler.schedule(beeper, 2,  TimeUnit.SECONDS);
+    val beeperHandle = scheduler.schedule(beeper, Cs3kConfig.LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY,  TimeUnit.SECONDS);
   }
 
   def removeConnection(p1: Connection): Boolean = {

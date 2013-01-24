@@ -20,9 +20,9 @@ object GameServerRepository  {
   var gameServerSetups = new HashMap[(GameServerTypeId,GameProcessTemplateId),GameProcessTemplate]()
 
 
-  def findByProcessTemplate(ss:GameProcessTemplateId) : Option[GameProcessTemplate] = {
+  /*def findByProcessTemplate(ss:GameProcessTemplateId) : Option[GameProcessTemplate] = {
     gameServerSetups.find( _._1._2 == ss).map(_._2)
-  }
+  }*/
   def findBy(ss:GameAndRulesId) : Option[GameProcessTemplate] = {
     gameServerSetups.get(ss)
   }
