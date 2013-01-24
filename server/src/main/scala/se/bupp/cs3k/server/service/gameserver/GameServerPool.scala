@@ -30,8 +30,7 @@ object GameServerPool {
    * > evalTask( fullClasspath in Compile, currentState ).files foreach println
    *
    */
-
-  val pool = new GameServerPool
+  var pool = new GameServerPool
 
   def main(args:Array[String]) {
     val pool: GameServerPool = new GameServerPool

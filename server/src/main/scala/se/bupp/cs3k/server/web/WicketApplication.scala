@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Component, Service}
 import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
-import se.bupp.cs3k.server.{Init, LobbyServer, web}
+import se.bupp.cs3k.server.{LobbyHandler, Init, LobbyServer, web}
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}
@@ -112,10 +112,10 @@ class WicketApplication extends WebApplication {
     webStartResourceFactory = beanFactory.getBean(classOf[WebStartResourceFactory])
     //eventSystem = new EventSystem(this)
     try {
-      lobby2Player = new LobbyServer(0, 2,('TankGame, 'TG2Player))
-      lobby2Player.gameReservationService = gameReservationService
+      lobby2Player = LobbyServer.createInstance(2,('TankGame, 'TG2Player))
+      LobbyHandler.gameReservationService = gameReservationService
       lobby2Player.start
-      lobby4Player = new LobbyServer(1, 4,('TankGame, 'TG4Player))
+      lobby4Player = LobbyServer.createInstance(4,('TankGame, 'TG4Player))
       lobby4Player.start
     } catch {
       case e:Exception => e.printStackTrace()

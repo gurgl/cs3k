@@ -24,6 +24,8 @@ object Cs3kConfig {
   val CS3K_HOST = "localhost"
   val CS3K_PORT = 1199
 
+  val LOBBY_SERVER_PORT_RANGE = Range(12345,12355)
+
   lazy val REMOTE_IP = {
     val stackOverflowURL = "http://www.biranchi.com/ip.php"
     val requestProperties = Map(

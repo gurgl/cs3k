@@ -31,7 +31,7 @@ object GameServerRepository  {
     gameServerTypes = gameServerTypes + (id -> spec)
   }
 
-  def addProcessSettings(id:(GameServerTypeId, GameProcessTemplateId),spec: GameProcessTemplate) = {
+  def addProcessTemplate(id:(GameServerTypeId, GameProcessTemplateId),spec: GameProcessTemplate) = {
     gameServerSetups = gameServerSetups + (id -> spec)
   }
   //Map('TANK_GAME -> Map[GameServerSettingsId, GameProcessTemplate]( 'TankGame2P-> tankGameSettings2, 'TankGame4P -> tankGameSettings4))

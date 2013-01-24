@@ -6,12 +6,13 @@ import java.io.Serializable
 import se.bupp.cs3k.api.{Ticket => ApiTicket}
 import scala.Predef._
 
-import java.util.{List => JUList, ArrayList => JUArrayList }
+import util.{List => JUList, ArrayList => JUArrayList, Date}
 import se.bupp.cs3k.model.CompetitorType
 import org.hibernate.metamodel.source.binder.Orderable
 import java.util
 import java.lang.{Long => JLLong }
 import se.bupp.cs3k.server.service.gameserver.GameProcessSettings
+import util.Date
 
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")
@@ -211,7 +212,15 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   var gameSessionId:Long = _
 
+  var startedAt:Date = _
+
+  def hasStarted = startedAt != null
+
+  def hasFinished = result != null
+
   def timeTriggerStart = false
+
+
 
   @OneToOne(cascade = Array(CascadeType.ALL))
   @PrimaryKeyJoinColumn

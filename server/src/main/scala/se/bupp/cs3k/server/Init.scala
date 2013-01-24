@@ -32,8 +32,8 @@ class Init {
 
 
   GameServerRepository.add('TankGame, tankGameServer)
-  GameServerRepository.addProcessSettings(('TankGame, 'TG2Player), tankGameSettings2)
-  GameServerRepository.addProcessSettings(('TankGame, 'TG4Player), tankGameSettings4)
+  GameServerRepository.addProcessTemplate(('TankGame, 'TG2Player), tankGameSettings2)
+  GameServerRepository.addProcessTemplate(('TankGame, 'TG4Player), tankGameSettings4)
 
 
 

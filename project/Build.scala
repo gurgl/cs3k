@@ -28,7 +28,7 @@ object MyBuild extends Build {
     version := "0.1",
     libraryDependencies ++= Seq(
       //"org.apache.wicket" % "wicket-native-websocket-jetty" % "0.4",
-      //"org.mockito" % "mockito-all" % "1.9.0" % "test" exclude("org.eclipse.jetty", "jetty"),
+
       //    "org.apache.wicket" % "wicket" % "6.0.0-beta2" exclude("org.eclipse.jetty", "jetty"),
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
@@ -63,6 +63,7 @@ object MyBuild extends Build {
       "org.hsqldb" % "hsqldb" % "2.2.8"
     ) ++ Seq(
       "junit" % "junit" % "4.10" % "test",
+      "org.mockito" % "mockito-all" % "1.9.0" % "test",
       "org.specs2" %% "specs2" % "1.12.3" % "test",
       "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.1.0" % "test",
       "org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty")
