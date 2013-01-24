@@ -6,10 +6,9 @@ import java.io.Serializable
 import se.bupp.cs3k.api.{Ticket => ApiTicket}
 import scala.Predef._
 
-import util.{List => JUList, ArrayList => JUArrayList, Date}
+import java.util.{List => JUList, ArrayList => JUArrayList, Date}
 import se.bupp.cs3k.model.CompetitorType
 import org.hibernate.metamodel.source.binder.Orderable
-import java.util
 import java.lang.{Long => JLLong }
 import se.bupp.cs3k.server.service.gameserver.GameProcessSettings
 import util.Date
