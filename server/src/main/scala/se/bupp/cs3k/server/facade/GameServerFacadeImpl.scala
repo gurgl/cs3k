@@ -57,7 +57,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
 
 
   @throws(classOf[java.rmi.RemoteException])
-  def evaluateGamePass(pass: String, occassionId: lang.Long) : SimplePlayerInfo = {
+  def evaluateGamePass(pass: String, gameSessionId: lang.Long) : SimplePlayerInfo = {
     try {
       log.info("evaluateGamePass invoked")
       var absPI = om.readValue(pass, classOf[AbstractGamePass])
@@ -65,7 +65,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
       val r = absPI match {
         case t:GateGamePass =>
           val l = reservationService.findInMemoryReservation(t.getReservationId).flatMap { case (o,map) =>
-            val piOpt = if (occassionId == o) {
+            val piOpt = if (gameSessionId == o) {
               map.find { case (seat, pi) => seat == t.getReservationId }.map( p => p._2 )
             } else None
             piOpt.flatMap( p => getSimplePlayerInfo(p))
@@ -84,16 +84,16 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
 
   }
 
-  def startGame(occassionId: JInt, teamsByBlayers: java.util.Map[JInt, JInt]) {
+  def startGame(gameSessionId: JInt, teamsByBlayers: java.util.Map[JInt, JInt]) {
     log.info("StartGame invoked")
   }
 
-  def startGame(occassionId: JInt, players: java.util.List[JInt]) {
+  def startGame(gameSessionId: JInt, players: java.util.List[JInt]) {
 
   }
 
   @Transactional
-  def endGame(occassionId: JInt, serializedResult: String) {
+  def endGame(gameSessionId: JInt, serializedResult: String) {
     log.info("EndGame invoked  : " + serializedResult)
     reservationService.findGame(occassionSeqId) match {
       case Some(g) =>

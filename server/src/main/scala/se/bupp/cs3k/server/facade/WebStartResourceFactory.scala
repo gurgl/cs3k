@@ -117,7 +117,7 @@ object  WebStartResourceFactory {
       val reservationIdOpt:Option[NonPersistentOccassionTicketId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
       val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
-      val gameOccasionIdOpt:Option[OccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+      val gameOccasionIdOpt:Option[GameSessionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
       val playerNameOpt = Option(p1.getParameters().get("player_name").toOptionalString)
       val userIdOpt:Option[UserId] = Option(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
@@ -217,7 +217,7 @@ class WebStartResourceFactory {
 
 
 
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[OccassionId], playerNameOpt:Option[String]) = {
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[GameSessionId], playerNameOpt:Option[String]) = {
     import se.bupp.cs3k.server.Util.eitherSuccess
     val serverAndPassValidation:Either[String,(RunningGame,AbstractGamePass)] = (userIdOpt, playerNameOpt) match {
       case (None, None) =>
@@ -299,7 +299,7 @@ class WebStartResourceFactory {
               Right((true,gameOccassionId))
             case (Some(reservationId), _) => // Lobby
               gameReservationService.findInMemoryReservation(reservationId) match {
-                case Some((occassionId,_)) => Right((true, occassionId))
+                case Some((gameSessionId,_)) => Right((true, gameSessionId))
                 case None => Left("Reservation not found")
               }
             case _ => Left("No game id sent")
@@ -308,11 +308,11 @@ class WebStartResourceFactory {
           var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
 
           val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
-            case (canSpawn, occassionId) =>
+            case (canSpawn, gameSessionId) =>
 
-              val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
+              val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
               val r = alreadyRunningGame.orElse {
-                gameReservationService.findGame(occassionId).flatMap( g =>
+                gameReservationService.findGame(gameSessionId).flatMap( g =>
                 // TODO: Fix me - hardcoded below
                 {
                   log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)

@@ -13,13 +13,13 @@ import java.util.Map;
  */
 public interface GameServerFacade {
 
-    public SimplePlayerInfo evaluateGamePass(String pass, Long occassionId) throws RemoteException;
+    public SimplePlayerInfo evaluateGamePass(String pass, Long gameSessionId) throws RemoteException;
 
-    //public void setScore(Integer occassionId, String serializedScore) throws RemoteException;
+    //public void setScore(Integer gameSessionId, String serializedScore) throws RemoteException;
 
-    public void startGame(Integer occassionId, Map<Integer,Integer> teamsByBlayers) throws RemoteException;
+    public void startGame(Integer gameSessionId, Map<Integer,Integer> teamsByBlayers) throws RemoteException;
 
-    public void startGame(Integer occassionId, List<Integer> players) throws RemoteException;
+    public void startGame(Integer gameSessionId, List<Integer> players) throws RemoteException;
 
-    public void endGame(Integer occassionId, String serializedScore) throws RemoteException;
+    public void endGame(Integer gameSessionId, String serializedScore) throws RemoteException;
 }

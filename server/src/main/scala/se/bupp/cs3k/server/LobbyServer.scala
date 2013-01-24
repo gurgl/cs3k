@@ -71,7 +71,6 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
 
     server.bind(12345 + seqId);
 
-
     server.addListener(new Listener() {
 
       override def disconnected(p1: Connection) {
@@ -124,10 +123,10 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
     }
 
 
-    val occassionId = gameReservationService.allocateOccassion()
+    val gameSessionId = gameReservationService.allocateGameSession()
 
 
-    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(occassionId))
+    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(gameSessionId))
 
     val scheduler = Executors.newScheduledThreadPool(1);
 
@@ -138,7 +137,7 @@ class LobbyServer(val seqId:Int, val numOfPlayers:Int, gameAndRulesId: GameServe
         party.foreach { case (c,pi) =>
 
           try {
-            val reservationId = gameReservationService.reserveSeat(occassionId, pi)
+            val reservationId = gameReservationService.reserveSeat(gameSessionId, pi)
 
             log.info("Reserving seat and sending sending start game instructions")
             var jnlpUrl: URL = pi match {

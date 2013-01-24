@@ -78,11 +78,11 @@ import org.springframework.transaction.annotation.Transactional
  */
 
 object GameReservationService {
-  type OccassionId = Long
+  type GameSessionId = Long
   type NonPersistentOccassionTicketId = Long
   var occassionSeqId:Long = 1L
   var seatSeqId:Long= 1L
-  var openOccassions = collection.mutable.Map[OccassionId,collection.mutable.Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier]]()
+  var openGameSessions = collection.mutable.Map[GameSessionId,collection.mutable.Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier]]()
 
 }
 @Service
@@ -106,13 +106,13 @@ class GameReservationService {
   @Autowired
   var userDao:UserDao = _
 
-  def findGame(occassionId:Long) : Option[GameOccassion] = {
-    log.info("query db occassion = " + occassionId)
+  def findGame(gameSessionId:Long) : Option[GameOccassion] = {
+    log.info("query db occassion = " + gameSessionId)
     gameDao.findGame(occassionSeqId)
 
   }
 
-  /*def createGamePass(occassionId:OccassionId, reservationId:SeatId) : Ticket = {
+  /*def createGamePass(gameSessionId:OccassionId, reservationId:SeatId) : Ticket = {
     // Ticket - pre created
     new Ticket(reservationId)
   }*/
@@ -129,8 +129,8 @@ class GameReservationService {
 
       case RunningGame(go:GameOccassion,_) => pi match {
         case p:RegisteredPlayerIdentifier =>
-          val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, go.occassionId).get
-          if(ticket.game.occassionId == go.occassionId) {
+          val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, go.gameSessionId).get
+          if(ticket.game.gameSessionId == go.gameSessionId) {
             Some(ticket)
           } else None
         case _ => None
@@ -166,7 +166,7 @@ class GameReservationService {
     (challanger, challangee) match {
       case (u1:User, u2:User) =>
 
-        val occasionId = allocateOccassion()
+        val occasionId = allocateGameSession()
         val go = new GameOccassion(occasionId)
         val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
         val gp2 = new GameParticipation(new GameParticipationPk(u1,go))
@@ -190,28 +190,28 @@ class GameReservationService {
     }
   }
 
-  def allocateOccassion() : OccassionId = {
-    val res:OccassionId = occassionSeqId
+  def allocateGameSession() : GameSessionId = {
+    val res:GameSessionId = occassionSeqId
     occassionSeqId = occassionSeqId + 1
-    openOccassions += res -> collection.mutable.Map.empty
+    openGameSessions += res -> collection.mutable.Map.empty
     res
   }
-  def reserveSeat(occassionId:OccassionId, pi:AbstractPlayerIdentifier) : NonPersistentOccassionTicketId = {
+  def reserveSeat(gameSessionId:GameSessionId, pi:AbstractPlayerIdentifier) : NonPersistentOccassionTicketId = {
     var res:NonPersistentOccassionTicketId = seatSeqId
-    openOccassions(occassionId) += (res -> pi)
+    openGameSessions(gameSessionId) += (res -> pi)
     seatSeqId = seatSeqId + 1
     res
   }
 
-  def findInMemoryReservation(id:NonPersistentOccassionTicketId) : Option[(OccassionId,Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier])] = {
-    openOccassions.find {
-      case (occassionId, seatMap) => seatMap.exists( s => s._1 == id)
+  def findInMemoryReservation(id:NonPersistentOccassionTicketId) : Option[(GameSessionId,Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier])] = {
+    openGameSessions.find {
+      case (gameSessionId, seatMap) => seatMap.exists( s => s._1 == id)
     }.map( r => (r._1,Map.empty ++ r._2))
   }
 
-  def findReservationPlayerIdentifer(id:NonPersistentOccassionTicketId, verifyOccId:OccassionId) : Option[(AbstractPlayerIdentifier)] = {
-    findInMemoryReservation(id).flatMap { case (occassionId,map) =>
-      if (occassionId == verifyOccId) {
+  def findReservationPlayerIdentifer(id:NonPersistentOccassionTicketId, verifyOccId:GameSessionId) : Option[(AbstractPlayerIdentifier)] = {
+    findInMemoryReservation(id).flatMap { case (gameSessionId,map) =>
+      if (gameSessionId == verifyOccId) {
         map.find { case (seat, pi) => seat == id }.map( p => p._2 )
       } else None
     }
@@ -222,13 +222,13 @@ class GameReservationService {
   }
 
 
-  def findOrCreateServer(occassionId:OccassionId) = {
+  def findOrCreateServer(gameSessionId:GameSessionId) = {
     val canSpawn = true
     var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
 
-    val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
+    val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
     val r = alreadyRunningGame.orElse {
-      this.findGame(occassionId).flatMap( g =>
+      this.findGame(gameSessionId).flatMap( g =>
       // TODO: Fix me - hardcoded below
       {
         log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
@@ -240,7 +240,7 @@ class GameReservationService {
       }
       )
     }
-    r.getOrElse(throw new IllegalArgumentException("Couldnt find or create game " + occassionId))
+    r.getOrElse(throw new IllegalArgumentException("Couldnt find or create game " + gameSessionId))
   }
 
   def playOpenServer(serverId:Long, playerId:AbstractPlayerIdentifier) = {
@@ -248,13 +248,13 @@ class GameReservationService {
   }
 
   def playNonScheduledClosed(reservationId:NonPersistentOccassionTicketId, userId:AbstractPlayerIdentifier) = {
-    val occassionId = this.findInMemoryReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
-    val rg = findOrCreateServer(occassionId)
+    val gameSessionId = this.findInMemoryReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+    val rg = findOrCreateServer(gameSessionId)
     val gp = this.createGamePass(rg, userId, Some(reservationId)).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     (rg,gp)
   }
 
-  def playScheduledClosed(gameOccassionId:OccassionId, playerId:RegisteredPlayerIdentifier) =  {
+  def playScheduledClosed(gameOccassionId:GameSessionId, playerId:RegisteredPlayerIdentifier) =  {
     val rg = findOrCreateServer(gameOccassionId)
     val gp = this.createGamePass(rg, playerId, None /*?*/).getOrElse(throw new IllegalArgumentException("Unable to create game pass for " + playerId + " " + gameOccassionId))
     (rg,gp)
@@ -295,7 +295,7 @@ class GameReservationService {
               Right((true,gameOccassionId))
             case (Some(reservationId), _) => // Lobby
               this.findInMemoryReservation(reservationId) match {
-                case Some((occassionId,_)) => Right((true, occassionId))
+                case Some((gameSessionId,_)) => Right((true, gameSessionId))
                 case None => Left("Reservation not found")
               }
             case _ => Left("No game id sent")
@@ -304,11 +304,11 @@ class GameReservationService {
           var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
 
           val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
-            case (canSpawn, occassionId) =>
+            case (canSpawn, gameSessionId) =>
 
-              val alreadyRunningGame = GameServerPool.pool.findRunningGame(occassionId)
+              val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
               val r = alreadyRunningGame.orElse {
-                gameReservationService.findGame(occassionId).flatMap( g =>
+                gameReservationService.findGame(gameSessionId).flatMap( g =>
                 // TODO: Fix me - hardcoded below
                 {
                   log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)

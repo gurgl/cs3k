@@ -32,7 +32,7 @@ object Model {
 }
 
 trait AbstractGameOccassion {
-  def occassionId:Long
+  def gameSessionId:Long
 
   def timeTriggerStart:Boolean
 }
@@ -209,7 +209,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @OneToMany(mappedBy = "id.game")
   var participants:JUList[GameParticipation] =  new JUArrayList[GameParticipation]()
 
-  var occassionId:Long = _
+  var gameSessionId:Long = _
 
   def timeTriggerStart = false
 
@@ -222,7 +222,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
     "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
     "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
 
-  def this(_occassionId:Long) = { this() ; occassionId = _occassionId}
+  def this(_gameSessionId:Long) = { this() ; gameSessionId = _gameSessionId}
 }
 
 
@@ -230,7 +230,7 @@ class GameType(val name:String, val contestScoreClass:String, val scoreSchemeCla
 
 }
 
-case class NonPersisentGameOccassion(val occassionId:Long) extends AbstractGameOccassion {
+case class NonPersisentGameOccassion(val gameSessionId:Long) extends AbstractGameOccassion {
 
   def timeTriggerStart = true
 }

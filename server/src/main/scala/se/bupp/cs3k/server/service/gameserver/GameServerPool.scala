@@ -51,24 +51,24 @@ class GameServerPool {
   var servers = collection.mutable.Map.empty[RunningGame, DefaultExecutor]
 
 
-  def findRunningGame(occassionId:OccassionId) : Option[RunningGame] = {
-    log.debug("findRunningGame " + occassionId + " " + servers.size)
-    servers.foreach { case (rg,e) => log.debug("rg.game.occassionId " + rg.game.occassionId) }
-    servers.find { case (rg,e) => rg.game.occassionId == occassionId}.map(_._1)
+  def findRunningGame(gameSessionId:GameSessionId) : Option[RunningGame] = {
+    log.debug("findRunningGame " + gameSessionId + " " + servers.size)
+    servers.foreach { case (rg,e) => log.debug("rg.game.gameSessionId " + rg.game.gameSessionId) }
+    servers.find { case (rg,e) => rg.game.gameSessionId == gameSessionId}.map(_._1)
   }
 
   def spawnServer(gpsTemplate:GameProcessTemplate, game:AbstractGameOccassion) = {
-    log.info("Starting game " + gpsTemplate + " " + game.occassionId)
+    log.info("Starting game " + gpsTemplate + " " + game.gameSessionId)
 
 
     var time: Long = (GameServerPool.clock / 1000) % (10*365*24*60*60)
-    var logName: String = "logs/srv_" + time + "_" + game.occassionId + ".log"
+    var logName: String = "logs/srv_" + time + "_" + game.gameSessionId + ".log"
 
 
     val resourceAllocations = resourceAllocator.allocate(gpsTemplate.gameSpecification.resourceNeeds).getOrElse(
       throw new RuntimeException("Not enought resources available")
     )
-    val gameProcessSettings = gpsTemplate.specifyInstance(resourceAllocations, " --occassion-id " + game.occassionId + " --log " + logName)
+    val gameProcessSettings = gpsTemplate.specifyInstance(resourceAllocations, " --occassion-id " + game.gameSessionId + " --log " + logName)
 
     val resultHandler = new DefaultExecuteResultHandler {
 
@@ -119,7 +119,7 @@ class GameServerPool {
   private def removeServerFromPoolIfExist(gps: AbstractGameOccassion) {
     //servers.remove(gps)
 
-    findRunningGame(gps.occassionId) foreach { rg =>
+    findRunningGame(gps.gameSessionId) foreach { rg =>
       removeServerFromPool(gps, rg)
     }
 
@@ -127,7 +127,7 @@ class GameServerPool {
 
 
   def removeServerFromPool(gps: AbstractGameOccassion, rg: RunningGame): Option[DefaultExecutor] = {
-    log.info("REMOVING SERVER FROM POOL: " + gps.occassionId)
+    log.info("REMOVING SERVER FROM POOL: " + gps.gameSessionId)
     servers.remove(rg)
   }
 

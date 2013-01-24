@@ -16,7 +16,7 @@ package se.bupp.cs3k.api;
 
 /*
 class Reservee() {
-  var occassionId:Int = _
+  var gameSessionId:Int = _
 }
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")

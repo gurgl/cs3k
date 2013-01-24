@@ -24,7 +24,7 @@ class GameReservationServiceTest extends Specification {
 
       val service = new GameReservationService
 
-      var occassion: GameReservationService.OccassionId = service.allocateOccassion()
+      var occassion: GameReservationService.GameSessionId = service.allocateGameSession()
       var p1: AnonymousPlayerIdentifier = new AnonymousPlayerIdentifier("Tja")
       var seat1 = service.reserveSeat(occassion, p1)
       var p2: AnonymousPlayerIdentifier = new AnonymousPlayerIdentifier("Tja2")

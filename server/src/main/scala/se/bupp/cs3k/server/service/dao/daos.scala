@@ -101,9 +101,9 @@ class GameParticipationDao extends GenericDaoImpl[GameParticipation](classOf[Gam
 @Repository
 class GameDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
 
-  def findGame(occassionId:Long) = {
-    var q = em.createQuery("from GameOccassion g where g.occassionId = :o", classOf[GameOccassion])
-    q.setParameter("o", occassionId)
+  def findGame(gameSessionId:Long) = {
+    var q = em.createQuery("from GameOccassion g where g.gameSessionId = :o", classOf[GameOccassion])
+    q.setParameter("o", gameSessionId)
     getSingle(q)
   }
 }
@@ -116,8 +116,8 @@ class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
     Option(em.find(classOf[Ticket], id))
   }
 
-  def findTicketByUserAndGame(id:Long,occId:OccassionId) : Option[Ticket] = {
-    var q = em.createQuery("from Ticket t where t.user.id = :u and t.game.occassionId = :o", classOf[Ticket])
+  def findTicketByUserAndGame(id:Long,occId:GameSessionId) : Option[Ticket] = {
+    var q = em.createQuery("from Ticket t where t.user.id = :u and t.game.gameSessionId = :o", classOf[Ticket])
     q.setParameter("u", id)
     q.setParameter("o", occId)
     getSingle(q)

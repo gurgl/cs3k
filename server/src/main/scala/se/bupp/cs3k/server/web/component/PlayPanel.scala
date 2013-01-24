@@ -287,7 +287,7 @@ class PlayPanel(id:String) extends Panel(id) {
         var parameters: PageParameters = new PageParameters()
         //parameters.add("competitor_id", selectionModel.getObject.id)
         parameters.add("user_id", user.id)
-        parameters.add("game_occassion_id", go.occassionId)
+        parameters.add("game_occassion_id", go.gameSessionId)
 
 
         val ref = new ResourceReference("bupp") {
@@ -299,7 +299,7 @@ class PlayPanel(id:String) extends Panel(id) {
             var parameters: PageParameters = new PageParameters()
             //parameters.add("competitor_id", selectionModel.getObject.id)
             parameters.add("user_id", user.id)
-            parameters.add("game_occassion_id", go.occassionId)
+            parameters.add("game_occassion_id", go.gameSessionId)
 
             new RestartResponseException()
             RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.gameResource, parameters))

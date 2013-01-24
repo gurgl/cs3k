@@ -47,7 +47,7 @@ class IntegrationTest extends Specification {
   }
 
   "game setup" should {
-    "handle user insert" in {
+    "handle 1vs1 " in {
       val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
       val factory =  appContext.asInstanceOf[BeanFactory];
       var competitorService = factory.getBean("competitorService", classOf[CompetitorService])
@@ -57,6 +57,8 @@ class IntegrationTest extends Specification {
       val user2 = competitorService.createUser("janne")
 
       val game = gameReservationService.challangeCompetitor(user1,user2)
+
+      //enqueue
 
       game !== null
       appContext.close()
