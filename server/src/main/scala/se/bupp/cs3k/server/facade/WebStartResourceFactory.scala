@@ -192,6 +192,8 @@ class WebStartResourceFactory {
           log.debug(attributes.getRequest.getClientUrl.toString)
           val jnlpXMLModified = jnlpXML.replace("<resources>", "<resources>" +
             "<property name=\"playerInfo\" value=\"" + Utility.escape(pi) + "\"/>" +
+
+            // Game specific
             "<property name=\"gamePortUDP\" value=\"" + props("gamePortUDP") + "\"/>" +
             "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
             "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
@@ -333,7 +335,7 @@ class WebStartResourceFactory {
     }
 
     val serverAndPassValidation = serverValidation.onSuccess { rg =>
-      val r = gameReservationService.createGamePass(rg,userOpt.get,reservationIdOpt) match {
+      val r = gameReservationService.createGameServerPass(rg,userOpt.get,reservationIdOpt) match {
         case Some(gamePass) => Right((rg,gamePass))
         case None => Left("Unable to acquire valid pass")
       }

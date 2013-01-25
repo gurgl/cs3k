@@ -113,12 +113,12 @@ class GameReservationService {
 
   }
 
-  /*def createGamePass(gameSessionId:OccassionId, reservationId:SeatId) : Ticket = {
+  /*def createGameServerPass(gameSessionId:OccassionId, reservationId:SeatId) : Ticket = {
     // Ticket - pre created
     new Ticket(reservationId)
   }*/
 
-  def createGamePass(rg:RunningGame, pi:AbstractPlayerIdentifier, reservationIdOpt:Option[NonPersistentOccassionTicketId]) : Option[AbstractGamePass] = {
+  def createGameServerPass(rg:RunningGame, pi:AbstractPlayerIdentifier, reservationIdOpt:Option[NonPersistentOccassionTicketId]) : Option[AbstractGamePass] = {
     rg match {
       case RunningGame(null,_) => Some(new IdentifyOnlyPass(pi))
       case RunningGame(NonPersisentGameOccassion(occasionId),_) =>
@@ -235,7 +235,7 @@ class GameReservationService {
       var server: RunningGame = GameServerPool.pool.spawnServer(processSettings, g)
 
 
-      g.startedAt = new Date()
+      g.gameServerStartedAt = new Date()
 
       gameDao.update(g)
 
@@ -265,13 +265,14 @@ class GameReservationService {
   def playNonScheduledClosed(reservationId:NonPersistentOccassionTicketId, userId:AbstractPlayerIdentifier) = {
     val gameSessionId = this.findInMemoryReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     val rg = findOrCreateServer(gameSessionId)
-    val gp = this.createGamePass(rg, userId, Some(reservationId)).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+    val gp = this.createGameServerPass(rg, userId, Some(reservationId)).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     (rg,gp)
   }
 
   def playScheduledClosed(gameOccassionId:GameSessionId, playerId:RegisteredPlayerIdentifier) =  {
+    // TODO, check eligable
     val rg = findOrCreateServer(gameOccassionId)
-    val gp = this.createGamePass(rg, playerId, None /*?*/).getOrElse(throw new IllegalArgumentException("Unable to create game pass for " + playerId + " " + gameOccassionId))
+    val gp = this.createGameServerPass(rg, playerId, None /*?*/).getOrElse(throw new IllegalArgumentException("Unable to create game pass for " + playerId + " " + gameOccassionId))
     (rg,gp)
   }
 
@@ -344,7 +345,7 @@ class GameReservationService {
     }
 
     val serverAndPassValidation = serverValidation.onSuccess { rg =>
-      val r = this.createGamePass(rg,userOpt.get,reservationIdOpt) match {
+      val r = this.createGameServerPass(rg,userOpt.get,reservationIdOpt) match {
         case Some(gamePass) => Right((rg,gamePass))
         case None => Left("Unable to acquire valid pass")
       }

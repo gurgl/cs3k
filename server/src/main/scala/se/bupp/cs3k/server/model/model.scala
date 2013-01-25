@@ -212,9 +212,9 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   var gameSessionId:JLLong = _
 
-  var startedAt:Date = _
+  var gameServerStartedAt:Date = _
 
-  def hasStarted = startedAt != null
+  def hasStarted = gameServerStartedAt != null
 
   def hasFinished = result != null
 
@@ -235,6 +235,10 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   def this(_gameSessionId:Long) = { this() ; gameSessionId = _gameSessionId}
 
    override def toString = "(id = " + id + ", gameSessionId = " + gameSessionId + ")"
+}
+
+class LineUp {
+
 }
 
 

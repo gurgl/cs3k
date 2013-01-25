@@ -38,7 +38,6 @@ import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.service.GameReservationService._
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.context.WebApplicationContext
-import se.bupp.cs3k.server.model.{Ticket, GameOccassion}
 import se.bupp.cs3k.server.model.Model._
 
 

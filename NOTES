@@ -19,3 +19,8 @@ Comamndline windows:
 javaws http://81.235.61.31:8080/lobby2.jnlp?user_id=1
 
 runas /user:brainlord\Bubbe "javaws http://81.235.61.31:8080/lobby2.jnlp?user_id=2"
+
+
+-------
+
+ticket helfel, "participation" ska antingen va individ, team (fritt val bland lagmedlemmar) eller lineup (bestämd ur laget)
