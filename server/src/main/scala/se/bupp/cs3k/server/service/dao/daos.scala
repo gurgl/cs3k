@@ -104,6 +104,8 @@ class GameDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
   def findGame(gameSessionId:Long) = {
     var q = em.createQuery("from GameOccassion g where g.gameSessionId = :o", classOf[GameOccassion])
     q.setParameter("o", gameSessionId)
+    import scala.collection.JavaConversions.asScalaBuffer
+    log.info("gameSessionId" + gameSessionId +  " " + q.getResultList.toList)
     getSingle(q)
   }
 }

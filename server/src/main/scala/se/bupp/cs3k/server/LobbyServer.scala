@@ -34,17 +34,12 @@ object LobbyServer {
 
   var seqId = Cs3kConfig.LOBBY_SERVER_PORT_RANGE.head
 
-  def createInstance(numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) = {
+  def createContinousForNonPersistedGameOcassionsInstance(numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) = {
     if (seqId + 1 >= Cs3kConfig.LOBBY_SERVER_PORT_RANGE.last) throw new RuntimeException("Range ended")
-    val lobbyServer = new LobbyServer(seqId, numOfPlayers, gameAndRulesId)
+    val lobbyServer = new LobbyServer(seqId, new LobbyHandler(numOfPlayers, gameAndRulesId))
     seqId = seqId + 1
     lobbyServer
   }
-
-  def main(args:Array[String]) {
-    new LobbyServer(0,2, null).start
-  }
-
 
 }
 
@@ -86,6 +81,7 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
     var party = List[(Connection,AbstractPlayerIdentifier)]()
 
 
+    log.info("Removing " + numOfPlayers + " players from a queue of " + queue.size)
 
     (0 until numOfPlayers).foreach { s =>
       val c = queue.dequeue()
@@ -136,9 +132,9 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
   }
 }
 
-class LobbyServer(val portId:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) {
+class LobbyServer(val portId:Int, var lobbyHandler:LobbyHandler) {
 
-  var lobbyHandler = new LobbyHandler(numOfPlayers, gameAndRulesId)
+
 
   val log = Logger.getLogger(classOf[LobbyServer])
 
@@ -180,7 +176,7 @@ class LobbyServer(val portId:Int, val numOfPlayers:Int, gameAndRulesId: GameServ
         ob match {
           case request:LobbyJoinRequest =>
             log.info("LobbyJoinRequest received : " + request)
-            connection.sendTCP(new LobbyJoinResponse(numOfPlayers))
+            connection.sendTCP(new LobbyJoinResponse(lobbyHandler.numOfPlayers))
 
             lobbyHandler.playerJoined(request, connection)
 

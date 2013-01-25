@@ -68,7 +68,14 @@ class IntegrationTest extends Specification with Mockito {
       val user2 = competitorService.createUser("janne")
 
       val game = gameReservationService.challangeCompetitor(user1,user2)
+
+
+
+      game.gameSessionId === 100
       game !== null
+      game.participants.size === 2
+      gameReservationService.findGame(game.gameSessionId).isDefined === true
+
       var gameAndSettingsId: GameServerRepository.GameAndRulesId = ('Asdf, 'QWer)
 
       var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
@@ -81,31 +88,38 @@ class IntegrationTest extends Specification with Mockito {
       connection1.getID() returns 11
       var connection2 = mock[Connection]
       connection2.getID() returns 12
-
+      game.gameSessionId === 100
 
       LobbyHandler.gameReservationService = gameReservationService
 
       GameServerPool.pool = mock[GameServerPool]
 
       var gpSettings: GameProcessSettings = mock[GameProcessSettings]
+
       gpSettings.jnlpUrl(any,anyInt) returns new URL("http://www.dn.se")
       gpSettings.jnlpUrl(any,anyString) returns new URL("http://www.dn.se")
 
       GameServerPool.pool.spawnServer(any,any) returns new RunningGame(game,gpSettings)
-
-      lobbyHandler.playerJoined(new LobbyJoinRequest(user1.id,user1.nameAccessor),connection1)
+      game.gameSessionId === 100
+      /*lobbyHandler.playerJoined(new LobbyJoinRequest(user1.id,user1.nameAccessor),connection1)
       lobbyHandler.playerJoined(new LobbyJoinRequest(user2.id,user2.nameAccessor),connection2)
 
+      */
+
+      gameReservationService.startPersistedGameServer(game)
+      game.gameSessionId === 100
       try {
         Thread.sleep(3000)
       } catch { case e:InterruptedException => }
 
       game.hasStarted === true
       game.result === null
-
+      game.gameSessionId === 100
       gameServerFacade.endGame(game.gameSessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1":{"a":0,"b":0},"2":{"a":2,"b":0}}}""")
 
-      game.result !== null
+      //game.result !== null
+      val gg = gameReservationService.findGame(game.gameSessionId).get
+      gg.result !== null
 
 
       appContext.close()

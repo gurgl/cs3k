@@ -81,7 +81,7 @@ import java.util.Date
 object GameReservationService {
   type GameSessionId = Long
   type NonPersistentOccassionTicketId = Long
-  var occassionSeqId:Long = 1L
+  private var occassionSeqId:Long = 100L
   var seatSeqId:Long= 1L
   var openGameSessions = collection.mutable.Map[GameSessionId,collection.mutable.Map[NonPersistentOccassionTicketId,AbstractPlayerIdentifier]]()
 
@@ -109,7 +109,7 @@ class GameReservationService {
 
   def findGame(gameSessionId:Long) : Option[GameOccassion] = {
     log.info("query db occassion = " + gameSessionId)
-    gameDao.findGame(occassionSeqId)
+    gameDao.findGame(gameSessionId)
 
   }
 
@@ -170,11 +170,14 @@ class GameReservationService {
         val occasionId = allocateGameSession()
         val go = new GameOccassion(occasionId)
         val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
-        val gp2 = new GameParticipation(new GameParticipationPk(u1,go))
+        val gp2 = new GameParticipation(new GameParticipationPk(u2,go))
         go.participants.add(gp1)
         go.participants.add(gp2)
+
         gameDao.insert(go)
 
+        gameDao.em.persist(gp1)
+        gameDao.em.persist(gp2)
         val t = new Ticket()
         t.game = go
         t.user = u1
@@ -193,6 +196,7 @@ class GameReservationService {
 
   def allocateGameSession() : GameSessionId = {
     val res:GameSessionId = occassionSeqId
+    log.info("Allocating new game sessiond id " + res)
     occassionSeqId = occassionSeqId + 1
     openGameSessions += res -> collection.mutable.Map.empty
     res
@@ -222,13 +226,17 @@ class GameReservationService {
     gameDao.findAll
   }
 
+  @Transactional
   def startPersistedGameServer(g:GameOccassion) = {
     log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart)
     if (!g.timeTriggerStart) {
       var processSettings = GameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+      log.info("GAMES IN startPersistedGameServer " + gameDao.findAll.mkString(","))
       var server: RunningGame = GameServerPool.pool.spawnServer(processSettings, g)
 
+
       g.startedAt = new Date()
+
       gameDao.update(g)
 
       Some(server)
@@ -245,7 +253,6 @@ class GameReservationService {
     val r = alreadyRunningGame.orElse {
       this.findGame(gameSessionId).flatMap( g =>
         startPersistedGameServer(g)
-
       )
     }
     r.getOrElse(throw new IllegalArgumentException("Couldnt find or create game " + gameSessionId))

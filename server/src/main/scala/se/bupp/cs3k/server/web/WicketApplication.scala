@@ -112,10 +112,10 @@ class WicketApplication extends WebApplication {
     webStartResourceFactory = beanFactory.getBean(classOf[WebStartResourceFactory])
     //eventSystem = new EventSystem(this)
     try {
-      lobby2Player = LobbyServer.createInstance(2,('TankGame, 'TG2Player))
+      lobby2Player = LobbyServer.createContinousForNonPersistedGameOcassionsInstance(2,('TankGame, 'TG2Player))
       LobbyHandler.gameReservationService = gameReservationService
       lobby2Player.start
-      lobby4Player = LobbyServer.createInstance(4,('TankGame, 'TG4Player))
+      lobby4Player = LobbyServer.createContinousForNonPersistedGameOcassionsInstance(4,('TankGame, 'TG4Player))
       lobby4Player.start
     } catch {
       case e:Exception => e.printStackTrace()
