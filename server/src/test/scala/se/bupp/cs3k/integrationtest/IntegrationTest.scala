@@ -170,11 +170,10 @@ class IntegrationTest extends Specification with Mockito {
       teamService.storeTeamMember(user4,team2)
 
       val game = gameReservationService.challangeCompetitor(team1,team2)
-
       game !== null
       game.participants.size === 2
-
-      gameReservationService.findByGameSessionId(game.gameSessionId).isDefined === true
+      game.gameSessionIdOpt.isDefined === false
+      //gameReservationService.findByGameSessionId(game.gameSessionId).isDefined === true
 
       var gameAndSettingsId: GameServerRepository.GameAndRulesId = ('Asdf, 'QWer)
 
@@ -189,7 +188,6 @@ class IntegrationTest extends Specification with Mockito {
       var connection2 = mock[Connection]
       connection2.getID() returns 12
 
-
       LobbyHandler.gameReservationService = gameReservationService
 
       GameServerPool.pool = mock[GameServerPool]
@@ -199,27 +197,53 @@ class IntegrationTest extends Specification with Mockito {
       gpSettings.jnlpUrl(any,anyInt) returns new URL("http://www.dn.se")
       gpSettings.jnlpUrl(any,anyString) returns new URL("http://www.dn.se")
 
-      GameServerPool.pool.spawnServer(any,any) returns new RunningGame(game,gpSettings)
+
+      GameServerPool.pool.spawnServer(any, any) answers {
+        (p,b) => new RunningGame(p.asInstanceOf[Array[_]](1).asInstanceOf[GameOccassion], null)
+      }
+
+      //GameServerPool.pool.spawnServer(any,any) returns new RunningGame(game,gpSettings)
 
       /*lobbyHandler.playerJoined(new LobbyJoinRequest(user1.id,user1.nameAccessor),connection1)
       lobbyHandler.playerJoined(new LobbyJoinRequest(user2.id,user2.nameAccessor),connection2)
 
       */
+      game.gameSessionIdOpt.isDefined === false
+      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user1.id))
+      there was one(GameServerPool.pool).spawnServer(any,any)
 
-      gameReservationService.startPersistedGameServer(game)
+      val game_v1 = gameReservationService.findGame(game.id).get
+      game_v1.gameSessionIdOpt.isDefined === true
+
+      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
+      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user2.id))
+      there was one(GameServerPool.pool).findRunningGame(any)
+
+      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
+      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user3.id))
+      there was two(GameServerPool.pool).findRunningGame(any)
+
+      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
+      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user4.id))
+      there was three(GameServerPool.pool).findRunningGame(any)
+
+
+
+      //gameReservationService.startPersistedGameServer(game)
 
       try {
         Thread.sleep(3000)
       } catch { case e:InterruptedException => }
 
-      game.hasStarted === true
-      game.result === null
+      val game_v2 = gameReservationService.findGame(game.id).get
+      game_v2.hasStarted === true
+      game_v2.result === null
 
-      gameServerFacade.endGame(game.gameSessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1":{"a":0,"b":0},"2":{"a":2,"b":0}}}""")
+      gameServerFacade.endGame(game_v2.gameSessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1":{"a":0,"b":0},"2":{"a":2,"b":0}}}""")
 
       //game.result !== null
-      val gg = gameReservationService.findByGameSessionId(game.gameSessionId).get
-      gg.result !== null
+      val game_v3 = gameReservationService.findGame(game.id).get
+      game_v3.result !== null
 
 
       appContext.close()

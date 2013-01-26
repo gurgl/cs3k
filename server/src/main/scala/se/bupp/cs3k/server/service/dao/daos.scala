@@ -137,7 +137,7 @@ class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
 
   def findPlayerTeams(id:Long) = {
       var q: TypedQuery[Team] = em.createNamedQuery[Team]("User.findUserTeams", classOf[Team])
-      q.setParameter("id",id)
+      q.setParameter("userId",id)
       q.getResultList.toList.map(_.asInstanceOf[Team])
 
     }

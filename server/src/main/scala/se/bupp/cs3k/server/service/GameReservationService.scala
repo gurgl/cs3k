@@ -195,8 +195,8 @@ class GameReservationService {
         go
 
       case (t1:Team, t2:Team) =>
-        val occasionId = allocateGameSession()
-        val go = new GameOccassion(occasionId,"individual")
+        val go = new GameOccassion()
+        go.competitorType = "team"
 
         val gp1 = new GameParticipation(new GameParticipationPk(t1,go))
         val gp2 = new GameParticipation(new GameParticipationPk(t2,go))
@@ -333,11 +333,13 @@ class GameReservationService {
       case "team" =>
         competitorDao.findPlayerTeams(playerId.getUserId)
           .exists(
-            ut => game.participants.exists {
+            ut => game.participants.exists ( gp =>
+              gp.id.competitor match {
               case t:Team => t.members.exists( m => m.id.user.id == playerId.getUserId)
               case _ => throw new IllegalStateException("bajja")
             }
           )
+        )
       case _ => false
 
     }
