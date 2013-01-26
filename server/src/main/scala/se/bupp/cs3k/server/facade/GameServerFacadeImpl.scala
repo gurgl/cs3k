@@ -97,7 +97,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   def endGame(gameSessionId: JLong, serializedResult: String) {
     log.info("EndGame invoked  : " + serializedResult)
     log.info("GAMES IN ENDGAME " + gameDao.findAll.mkString(","))
-    reservationService.findGame(gameSessionId) match {
+    reservationService.findByGameSessionId(gameSessionId) match {
       case Some(g) =>
         g.result = new GameResult(1, serializedResult)
         g.result.game = g

@@ -314,7 +314,7 @@ class WebStartResourceFactory {
 
               val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
               val r = alreadyRunningGame.orElse {
-                gameReservationService.findGame(gameSessionId).flatMap( g =>
+                gameReservationService.findByGameSessionId(gameSessionId).flatMap( g =>
                 // TODO: Fix me - hardcoded below
                 {
                   log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)

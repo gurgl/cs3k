@@ -220,10 +220,10 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   //@Column("game_session_id")
   var gameSessionId:JLLong = _
 
-  def gameSessionIdOpt_= (v:Option[GameReservationService.GameSessionId]):Unit = { gameSessionId = v.map(new lang.Long(_)).getOrElse(null.asInstanceOf[lang.Long])}
 
   var gameServerStartedAt:Date = _
   def gameSessionIdOpt = Option(gameSessionId)
+  def gameSessionIdOpt_=(v:Option[GameReservationService.GameSessionId]):Unit = { gameSessionId = v.map(new lang.Long(_)).getOrElse(null.asInstanceOf[lang.Long])}
 
   def hasStarted = gameServerStartedAt != null
 

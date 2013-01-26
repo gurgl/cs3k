@@ -106,11 +106,16 @@ class GameReservationService {
   @Autowired
   var userDao:UserDao = _
 
-  def findGame(gameSessionId:Long) : Option[GameOccassion] = {
+  def findByGameSessionId(gameSessionId:Long) : Option[GameOccassion] = {
     log.info("query db occassion = " + gameSessionId)
     gameDao.findGame(gameSessionId)
-
   }
+
+
+  def findGame(id:Long) : Option[GameOccassion] = {
+    gameDao.find(new lang.Long(id))
+  }
+
 
   /*def createGameServerPass(gameSessionId:OccassionId, reservationId:SeatId) : Ticket = {
     // Ticket - pre created
@@ -168,8 +173,9 @@ class GameReservationService {
     val go = (challanger, challangee) match {
       case (u1:User, u2:User) =>
 
-        val occasionId = allocateGameSession()
-        val go = new GameOccassion(occasionId,"individual")
+        //val occasionId = allocateGameSession()
+        val go = new GameOccassion()
+        go.competitorType = "individual"
 
         val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
         val gp2 = new GameParticipation(new GameParticipationPk(u2,go))
@@ -247,7 +253,6 @@ class GameReservationService {
     log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart)
 
     if (!g.timeTriggerStart) {
-
       val gameSessionId = allocateGameSession()
       g.gameSessionIdOpt = Some(gameSessionId)
       var processSettings = GameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
@@ -271,7 +276,7 @@ class GameReservationService {
 
     val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
     val r = alreadyRunningGame.orElse {
-      this.findGame(gameSessionId).flatMap( g =>
+      this.findByGameSessionId(gameSessionId).flatMap( g =>
         startPersistedGameServer(g)
       )
     }
@@ -289,10 +294,9 @@ class GameReservationService {
     (rg,gp)
   }
 
+  @Transactional
   def playScheduledClosed(gameOccassionId:GameOccassionId, playerId:RegisteredPlayerIdentifier) =  {
     // TODO, check eligable
-
-
 
     val game = gameDao.find(new lang.Long(gameOccassionId)).getOrElse(throw new IllegalArgumentException("GameOccassion " + gameOccassionId + " not found"))
 
@@ -301,11 +305,15 @@ class GameReservationService {
     }
 
     val rgOpt = game.gameSessionIdOpt match {
-      case Some(gameSessionId) => GameServerPool.pool.findRunningGame(gameSessionId)
-      case None => startPersistedGameServer(game)
+      case Some(gameSessionId) =>
+        log.info("path a")
+        GameServerPool.pool.findRunningGame(gameSessionId)
+      case None =>
+        log.info("path b")
+        startPersistedGameServer(game)
     }
 
-
+    log.info("rgOpt " + rgOpt)
     //val rg = findOrCreateServer(gameOccassionId)
     val rg = rgOpt.getOrElse(throw new IllegalStateException("No server could be started for " + game))
     val gp = this.createGameServerPass(rg, playerId, None /*?*/).getOrElse(throw new IllegalArgumentException("Unable to create game pass for " + playerId + " " + gameOccassionId))
@@ -315,8 +323,11 @@ class GameReservationService {
   @Autowired
   var competitorDao:CompetitorDao = _
 
-  def eligableForGameOccassion(game:GameOccassion, playerId:RegisteredPlayerIdentifier) = {
+
+  protected def eligableForGameOccassion(game:GameOccassion, playerId:RegisteredPlayerIdentifier) = {
     import scala.collection.JavaConversions.asScalaBuffer
+    log.info("Yo")
+
     game.competitorType match {
       case "individual" => game.participants.exists(_.id.competitor.id == playerId.getUserId)
       case "team" =>
@@ -380,7 +391,7 @@ class GameReservationService {
 
               val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
               val r = alreadyRunningGame.orElse {
-                gameReservationService.findGame(gameSessionId).flatMap( g =>
+                gameReservationService.findByGameSessionId(gameSessionId).flatMap( g =>
                 // TODO: Fix me - hardcoded below
                 {
                   log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
