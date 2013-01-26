@@ -21,6 +21,7 @@ import se.bupp.cs3k.server.service.gameserver._
 import se.bupp.cs3k.api.GameServerFacade
 import java.net.URL
 import se.bupp.cs3k.api.user.RegisteredPlayerIdentifier
+import com.fasterxml.jackson.databind.ObjectMapper
 
 /**
  * Created with IntelliJ IDEA.
@@ -208,26 +209,32 @@ class IntegrationTest extends Specification with Mockito {
       lobbyHandler.playerJoined(new LobbyJoinRequest(user2.id,user2.nameAccessor),connection2)
 
       */
+
+      var mapper: ObjectMapper = new ObjectMapper()
       game.gameSessionIdOpt.isDefined === false
-      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user1.id))
+      var (g1,p1) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user1.id))
       there was one(GameServerPool.pool).spawnServer(any,any)
 
       val game_v1 = gameReservationService.findGame(game.id).get
       game_v1.gameSessionIdOpt.isDefined === true
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
-      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user2.id))
+      var (g2,p2) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user2.id))
       there was one(GameServerPool.pool).findRunningGame(any)
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
-      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user3.id))
+      var (g3,p3) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user3.id))
       there was two(GameServerPool.pool).findRunningGame(any)
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
-      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user4.id))
+      var (g4,p4) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user4.id))
       there was three(GameServerPool.pool).findRunningGame(any)
 
+      val spi1 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(p1),game_v1.gameSessionIdOpt.get)
+      spi1.getName === "leffe"
 
+      val spi4 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(p4),game_v1.gameSessionIdOpt.get)
+      spi4.getName === "nisse"
 
       //gameReservationService.startPersistedGameServer(game)
 
@@ -250,7 +257,7 @@ class IntegrationTest extends Specification with Mockito {
       1 === 1
     }
 
-
+    /*
     "asdf" in {
       val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
       val factory =  appContext.asInstanceOf[BeanFactory];
@@ -261,6 +268,7 @@ class IntegrationTest extends Specification with Mockito {
       1 === 1
 
     }
+    */
 
   }
 }
