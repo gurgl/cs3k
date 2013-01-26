@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service
 
-import dao.{TicketDao, GameDao, CompetitorDao, LadderDao}
+import dao.{GameDao, CompetitorDao, LadderDao}
 import org.springframework.stereotype.Service
 import se.bupp.cs3k.server.model._
 import org.springframework.transaction.annotation.Transactional
@@ -30,9 +30,6 @@ class LadderService {
 
   @Autowired
   var gameDao:GameDao = _
-
-  @Autowired
-  var ticketDao:TicketDao = _
 
 
   @Autowired

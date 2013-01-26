@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service
 
-import dao.{GameParticipationDao, UserDao, GameDao, TicketDao}
+import dao.{CompetitorDao, GameParticipationDao, UserDao, GameDao}
 import gameserver.{GameServerPool, GameServerRepository}
 import org.springframework.stereotype.{Service, Component}
 import se.bupp.cs3k.server.model._
@@ -22,6 +22,7 @@ import se.bupp.cs3k.server.model.RunningGame
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import org.springframework.transaction.annotation.Transactional
 import java.util.Date
+import java.lang
 
 /**
  * Created with IntelliJ IDEA.
@@ -80,6 +81,7 @@ import java.util.Date
 
 object GameReservationService {
   type GameSessionId = Long
+  type GameOccassionId = Long
   type NonPersistentOccassionTicketId = Long
   private var occassionSeqId:Long = 100L
   var seatSeqId:Long= 1L
@@ -93,9 +95,6 @@ class GameReservationService {
 
 
   import GameReservationService._
-
-  @Autowired
-  var ticketDao:TicketDao = _
 
   @Autowired
   var gameDao:GameDao = _
@@ -130,10 +129,12 @@ class GameReservationService {
 
       case RunningGame(go:GameOccassion,_) => pi match {
         case p:RegisteredPlayerIdentifier =>
-          val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, go.gameSessionId).get
+          // Might be wrong?
+          Some(new GateGamePass(reserveSeat(go.gameSessionIdOpt.get,pi)))
+          /*val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, go.gameSessionId).get
           if(ticket.game.gameSessionId == go.gameSessionId) {
             Some(ticket)
-          } else None
+          } else None*/
         case _ => None
       }
     }
@@ -164,34 +165,49 @@ class GameReservationService {
 
   @Transactional
   def challangeCompetitor(challanger:Competitor, challangee:Competitor) : GameOccassion = {
-    (challanger, challangee) match {
+    val go = (challanger, challangee) match {
       case (u1:User, u2:User) =>
 
         val occasionId = allocateGameSession()
-        val go = new GameOccassion(occasionId)
+        val go = new GameOccassion(occasionId,"individual")
+
         val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
         val gp2 = new GameParticipation(new GameParticipationPk(u2,go))
         go.participants.add(gp1)
         go.participants.add(gp2)
 
-        gameDao.insert(go)
-
-        gameDao.em.persist(gp1)
-        gameDao.em.persist(gp2)
-        val t = new Ticket()
+        /*val t = new Ticket()
         t.game = go
         t.user = u1
         val t2 = new Ticket()
         t2.game = go
         t2.user = u2
         ticketDao.insert(t)
-        ticketDao.insert(t2)
+        ticketDao.insert(t2)*/
 
 
         go
 
-      case _ => throw new IllegalStateException("Not implemented")
+      case (t1:Team, t2:Team) =>
+        val occasionId = allocateGameSession()
+        val go = new GameOccassion(occasionId,"individual")
+
+        val gp1 = new GameParticipation(new GameParticipationPk(t1,go))
+        val gp2 = new GameParticipation(new GameParticipationPk(t2,go))
+        go.participants.add(gp1)
+        go.participants.add(gp2)
+        go
+
     }
+
+
+    gameDao.insert(go)
+
+    import scala.collection.JavaConversions.asScalaBuffer
+    go.participants.foreach(gameDao.em.persist(_))
+
+    go
+
   }
 
   def allocateGameSession() : GameSessionId = {
@@ -229,7 +245,11 @@ class GameReservationService {
   @Transactional
   def startPersistedGameServer(g:GameOccassion) = {
     log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart)
+
     if (!g.timeTriggerStart) {
+
+      val gameSessionId = allocateGameSession()
+      g.gameSessionIdOpt = Some(gameSessionId)
       var processSettings = GameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
       log.info("GAMES IN startPersistedGameServer " + gameDao.findAll.mkString(","))
       var server: RunningGame = GameServerPool.pool.spawnServer(processSettings, g)
@@ -264,16 +284,52 @@ class GameReservationService {
 
   def playNonScheduledClosed(reservationId:NonPersistentOccassionTicketId, userId:AbstractPlayerIdentifier) = {
     val gameSessionId = this.findInMemoryReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
-    val rg = findOrCreateServer(gameSessionId)
+    val rg = GameServerPool.pool.findRunningGame(gameSessionId).getOrElse(throw new IllegalStateException("No server found for " + gameSessionId))
     val gp = this.createGameServerPass(rg, userId, Some(reservationId)).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     (rg,gp)
   }
 
-  def playScheduledClosed(gameOccassionId:GameSessionId, playerId:RegisteredPlayerIdentifier) =  {
+  def playScheduledClosed(gameOccassionId:GameOccassionId, playerId:RegisteredPlayerIdentifier) =  {
     // TODO, check eligable
-    val rg = findOrCreateServer(gameOccassionId)
+
+
+
+    val game = gameDao.find(new lang.Long(gameOccassionId)).getOrElse(throw new IllegalArgumentException("GameOccassion " + gameOccassionId + " not found"))
+
+    if (!eligableForGameOccassion(game,playerId)) {
+      throw new IllegalArgumentException("Player " + playerId + "not eligable for " + game )
+    }
+
+    val rgOpt = game.gameSessionIdOpt match {
+      case Some(gameSessionId) => GameServerPool.pool.findRunningGame(gameSessionId)
+      case None => startPersistedGameServer(game)
+    }
+
+
+    //val rg = findOrCreateServer(gameOccassionId)
+    val rg = rgOpt.getOrElse(throw new IllegalStateException("No server could be started for " + game))
     val gp = this.createGameServerPass(rg, playerId, None /*?*/).getOrElse(throw new IllegalArgumentException("Unable to create game pass for " + playerId + " " + gameOccassionId))
     (rg,gp)
+  }
+
+  @Autowired
+  var competitorDao:CompetitorDao = _
+
+  def eligableForGameOccassion(game:GameOccassion, playerId:RegisteredPlayerIdentifier) = {
+    import scala.collection.JavaConversions.asScalaBuffer
+    game.competitorType match {
+      case "individual" => game.participants.exists(_.id.competitor.id == playerId.getUserId)
+      case "team" =>
+        competitorDao.findPlayerTeams(playerId.getUserId)
+          .exists(
+            ut => game.participants.exists {
+              case t:Team => t.members.exists( m => m.id.user.id == playerId.getUserId)
+              case _ => throw new IllegalStateException("bajja")
+            }
+          )
+      case _ => false
+
+    }
   }
 
   def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[NonPersistentOccassionTicketId], playerNameOpt:Option[String]) = {

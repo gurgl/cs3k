@@ -10,10 +10,16 @@ import java.util.{List => JUList, ArrayList => JUArrayList, Date}
 import se.bupp.cs3k.model.CompetitorType
 import org.hibernate.metamodel.source.binder.Orderable
 import java.lang.{Long => JLLong }
-import se.bupp.cs3k.server.service.gameserver.GameProcessSettings
+import se.bupp.cs3k.server.service.gameserver.{GameServerRepository, GameProcessSettings}
 import java.util.Date
 import se.bupp.cs3k.server.Cs3kConfig
+import se.bupp.cs3k.server.service.GameReservationService
+import java.lang
 
+
+@NamedQueries(Array(
+  new NamedQuery(name = "User.findUserTeams", query = "select t from TeamMember tm left join tm.id.team t where tm.id.user.id = :userId")
+))
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")
 case class User(var username:String) extends Competitor {
@@ -210,9 +216,14 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @OneToMany(mappedBy = "id.game")
   var participants:JUList[GameParticipation] =  new JUArrayList[GameParticipation]()
 
+  //TODO : Make me private
+  //@Column("game_session_id")
   var gameSessionId:JLLong = _
 
+  def gameSessionIdOpt_= (v:Option[GameReservationService.GameSessionId]):Unit = { gameSessionId = v.map(new lang.Long(_)).getOrElse(null.asInstanceOf[lang.Long])}
+
   var gameServerStartedAt:Date = _
+  def gameSessionIdOpt = Option(gameSessionId)
 
   def hasStarted = gameServerStartedAt != null
 
@@ -222,6 +233,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   def gameAndRulesId = Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE
 
+  var competitorType:String = _
 
   @OneToOne(cascade = Array(CascadeType.ALL))
   @PrimaryKeyJoinColumn
@@ -232,7 +244,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
     "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
     "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
 
-  def this(_gameSessionId:Long) = { this() ; gameSessionId = _gameSessionId}
+  def this(_gameSessionId:Long,_competitorType:String) = { this() ; gameSessionId = _gameSessionId ; competitorType = _competitorType}
 
    override def toString = "(id = " + id + ", gameSessionId = " + gameSessionId + ")"
 }
@@ -259,6 +271,8 @@ case class NonPersisentGameOccassion(val gameSessionId:JLLong) extends AbstractG
  * To change this template use File | Settings | File Templates.
  */
 
+
+/*
 @Entity
 class Ticket() extends ApiTicket with Serializable {
 
@@ -278,7 +292,7 @@ class Ticket() extends ApiTicket with Serializable {
   }
 
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id: Long = _
-}
+}*/
 
 
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal

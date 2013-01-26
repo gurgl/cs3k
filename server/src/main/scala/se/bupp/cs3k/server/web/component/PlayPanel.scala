@@ -287,7 +287,7 @@ class PlayPanel(id:String) extends Panel(id) {
         var parameters: PageParameters = new PageParameters()
         //parameters.add("competitor_id", selectionModel.getObject.id)
         parameters.add("user_id", user.id)
-        parameters.add("game_occassion_id", go.gameSessionId)
+        parameters.add("game_occassion_id", go.id)
 
 
         val ref = new ResourceReference("bupp") {

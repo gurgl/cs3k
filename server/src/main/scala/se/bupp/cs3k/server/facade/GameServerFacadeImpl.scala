@@ -13,7 +13,7 @@ import user.{AbstractPlayerIdentifier, RegisteredPlayerIdentifier, PlayerIdentif
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.service.GameReservationService._
 import java.lang
-import se.bupp.cs3k.server.service.dao.{GameDao, GameResultDao, TicketDao, UserDao}
+import se.bupp.cs3k.server.service.dao.{GameDao, GameResultDao, UserDao}
 import org.springframework.transaction.annotation.Transactional
 import se.bupp.cs3k.server.model.GameResult
 import scala.Some
@@ -37,8 +37,8 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   @Autowired
   var reservationService:GameReservationService = _
 
-  @Autowired
-  var ticketDao:TicketDao = _
+  /*@Autowired
+  var ticketDao:TicketDao = _*/
 
   @Autowired
   var gameResultDao:GameResultDao = _
@@ -72,8 +72,8 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
             piOpt.flatMap( p => getSimplePlayerInfo(p))
           }
           l
-        case t:Ticket => val l = ticketDao.findTicket(t.getId).map( tt => new PlayerIdentifierWithInfo(tt.user.username,tt.user.id))
-          l
+        /*case t:Ticket => val l = ticketDao.findTicket(t.getId).map( tt => new PlayerIdentifierWithInfo(tt.user.username,tt.user.id))
+          l*/
         case t:IdentifyOnlyPass =>
           getSimplePlayerInfo(t.getUserIdentifier)
       }

@@ -117,7 +117,7 @@ object  WebStartResourceFactory {
       val reservationIdOpt:Option[NonPersistentOccassionTicketId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
       val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
-      val gameOccasionIdOpt:Option[GameSessionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+      val gameOccasionIdOpt:Option[GameOccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
       val playerNameOpt = Option(p1.getParameters().get("player_name").toOptionalString)
       val userIdOpt:Option[UserId] = Option(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
@@ -219,7 +219,7 @@ class WebStartResourceFactory {
 
 
 
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[GameSessionId], playerNameOpt:Option[String]) = {
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[GameOccassionId], playerNameOpt:Option[String]) = {
     import se.bupp.cs3k.server.Util.eitherSuccess
     val serverAndPassValidation:Either[String,(RunningGame,AbstractGamePass)] = (userIdOpt, playerNameOpt) match {
       case (None, None) =>

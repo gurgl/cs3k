@@ -110,7 +110,7 @@ class GameDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
   }
 }
 
-
+/*
 @Repository
 class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
 
@@ -124,7 +124,7 @@ class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
     q.setParameter("o", occId)
     getSingle(q)
   }
-}
+}*/
 
 
 //@NamedQueries({(
@@ -134,6 +134,14 @@ class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
 @Repository
 class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
   import scala.collection.JavaConversions.asScalaBuffer
+
+  def findPlayerTeams(id:Long) = {
+      var q: TypedQuery[Team] = em.createNamedQuery[Team]("User.findUserTeams", classOf[Team])
+      q.setParameter("id",id)
+      q.getResultList.toList.map(_.asInstanceOf[Team])
+
+    }
+
   def findByUser(u:User)  =  {
 
     val q = em.createNamedQuery("Competitor.findByUser")
