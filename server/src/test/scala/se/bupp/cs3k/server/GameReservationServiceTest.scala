@@ -32,7 +32,7 @@ class GameReservationServiceTest extends Specification {
       var seat1 = service.reserveSeat(occassion, p1, None)
       var p2 = new AnonUser("Tja2")
       var seat2 = service.reserveSeat(occassion, p2, None)
-      service.findInMemoryReservation(seat1) shouldEqual(Some(1,collection.mutable.Map(seat1 -> p1, seat2 -> p2)))
+      service.findGameSessionByReservationId(seat1) shouldEqual(Some(1,collection.mutable.Map(seat1 -> p1, seat2 -> p2)))
 
     }
 
@@ -45,7 +45,7 @@ class GameReservationServiceTest extends Specification {
       var seat1 = service.reserveSeat(occassion, p1, None)
       var p2 = new AnonUser("Tja2")
       var seat2 = service.reserveSeat(occassion, p2, None)
-      service.findInMemoryReservation(seat1) shouldEqual(Some(1,collection.mutable.Map(seat1 -> p1, seat2 -> p2)))
+      service.findGameSessionByReservationId(seat1) shouldEqual(Some(1,collection.mutable.Map(seat1 -> p1, seat2 -> p2)))
     }
 
   }

@@ -139,7 +139,7 @@ class GameReservationService {
         Some(new IdentifyOnlyPass(apiIdentifier))
       case RunningGame(NonPersisentGameOccassion(occasionId),_) =>
         reservationIdOpt.flatMap { res =>
-          findInMemoryReservation(res).map { case (occ,part) =>
+          findGameSessionByReservationId(res).map { case (occ,part) =>
             new GateGamePass(res)
           }
         }
@@ -229,18 +229,25 @@ class GameReservationService {
     res
   }
 
-  def findInMemoryReservation(id:GameServerReservationId) : Option[(GameSessionId,Map[GameServerReservationId,ReservationDetails])] = {
+
+
+  def findGameSessionByReservationId(id:GameServerReservationId) : Option[(GameSessionId,Map[GameServerReservationId,ReservationDetails])] = {
     openGameSessions.find {
       case (gameSessionId, seatMap) => seatMap.exists( s => s._1 == id)
     }.map( r => (r._1,Map.empty ++ r._2))
   }
 
-  def findInMemoryReservation(reservationId:GameServerReservationId, reservationGameSessionId: GameSessionId) : Option[ReservationDetails] = {
+  def findReservation(reservationId:GameServerReservationId, reservationGameSessionId: GameSessionId) : Option[ReservationDetails] = {
     openGameSessions.get(reservationGameSessionId).flatMap( m => m.get(reservationId))
   }
 
+  def findGameSession(gameSessionId: GameSessionId) : Option[Map[GameServerReservationId,ReservationDetails]] = {
+    openGameSessions.get(gameSessionId).map { case m => m.toMap }
+  }
+
+
   def findReservationPlayerIdentifer(id:GameServerReservationId, verifyOccId:GameSessionId) : Option[ReservationDetails] = {
-    findInMemoryReservation(id).flatMap { case (gameSessionId,map) =>
+    findGameSessionByReservationId(id).flatMap { case (gameSessionId,map) =>
       if (gameSessionId == verifyOccId) {
         map.find { case (seat, user) => seat == id }.map( p => p._2 )
       } else {
@@ -293,7 +300,7 @@ class GameReservationService {
   }
 
   def playNonScheduledClosed(reservationId:GameServerReservationId, userId:AbstractUser) = {
-    val gameSessionId = this.findInMemoryReservation(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+    val gameSessionId = this.findGameSessionByReservationId(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     val rg = GameServerPool.pool.findRunningGame(gameSessionId).getOrElse(throw new IllegalStateException("No server found for " + gameSessionId))
     val gp = this.createGameServerPass(rg, userId, Some(reservationId), None).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     (rg,gp)
@@ -388,7 +395,7 @@ class GameReservationService {
             case (None, Some(gameOccassionId)) => // Rullande/Public
               Right((true,gameOccassionId))
             case (Some(reservationId), _) => // Lobby
-              this.findInMemoryReservation(reservationId) match {
+              this.findGameSessionByReservationId(reservationId) match {
                 case Some((gameSessionId,_)) => Right((true, gameSessionId))
                 case None => Left("Reservation not found")
               }

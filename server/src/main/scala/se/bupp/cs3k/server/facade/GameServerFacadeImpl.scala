@@ -26,6 +26,8 @@ import se.bupp.cs3k.server.model.AnonUser
 import scala.Some
 import se.bupp.cs3k.server.model.RegedUser
 import se.bupp.cs3k.server.model.AnonUser
+import java.io.File
+import io.Source
 
 
 /**
@@ -62,6 +64,13 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   var competitorDao:TeamDao = _
 
 
+  /**
+   * For virtual teams
+   *
+   * @param pi
+   * @param teamOpt
+   * @return
+   */
   private def getSimplePlayerInfo(pi:AbstractPlayerIdentifier, teamOpt:Option[Team]) = {
 
     val team = teamOpt.map( t => new TeamIdentifier(t.id, t.nameAccessor)).orNull
@@ -81,7 +90,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
       log.info("evaluateGamePass invoked" + absGamePass)
       val r = absGamePass match {
         case t:GateGamePass =>
-          val pi = reservationService.findInMemoryReservation(t.getReservationId, gameSessionId).flatMap {
+          val pi = reservationService.findReservation(t.getReservationId, gameSessionId).flatMap {
             case (user,teamIdOpt) =>
                 val apiPlayerIdentifier = user match {
                   case RegedUser(id) => new RegisteredPlayerIdentifier(id)
@@ -114,6 +123,11 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
 
   }
 
+  /**
+   *
+   * @param gameSessionId
+   * @param serializedResult
+   */
   @Transactional
   def endGame(gameSessionId: JLong, serializedResult: String) {
     log.info("EndGame invoked  : " + serializedResult)
@@ -126,7 +140,15 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
         gameDao.update(g)
 
       case None =>
+        storeToDisk(gameSessionId, serializedResult)
         log.info("Game Not found " + gameSessionId + " " + serializedResult)
+    }
+  }
+  def storeToDisk(gameSessionId: JLong, serializedResult: String) {
+    reservationService.findGameSession(gameSessionId).foreach {
+      case gameSessionReservations =>
+
+
     }
   }
 }

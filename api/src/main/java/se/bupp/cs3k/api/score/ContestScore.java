@@ -16,6 +16,8 @@ import java.util.Map;
 public interface ContestScore{
     /**
      *
+     *
+     *
      * @return Map(gameCompetitorId -> ScoreType)
      */
     public Map<Long, ? extends CompetitorScore> competitorScores();

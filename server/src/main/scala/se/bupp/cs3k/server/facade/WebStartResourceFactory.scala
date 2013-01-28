@@ -298,7 +298,7 @@ class WebStartResourceFactory {
             case (None, Some(gameOccassionId)) => // Rullande/Public
               Right((true,gameOccassionId))
             case (Some(reservationId), _) => // Lobby
-              gameReservationService.findInMemoryReservation(reservationId) match {
+              gameReservationService.findGameSessionByReservationId(reservationId) match {
                 case Some((gameSessionId,_)) => Right((true, gameSessionId))
                 case None => Left("Reservation not found")
               }
