@@ -24,7 +24,7 @@ class AbstractPlayerIdentifier(val name:String) {
 
 }
 
-class PlayerIdentifierWithInfo(name:String, val playerId:Int) extends AbstractPlayerIdentifier(name) { }
+class RegisteredPlayerIdentifierWithInfo(name:String, val playerId:Int) extends AbstractPlayerIdentifier(name) { }
 
 class AnonymousPlayerIdentifier(name:String, val playerId:Int) extends AbstractPlayerIdentifier(name) { }
   */

@@ -49,6 +49,10 @@ object ExampleScoreScheme {
       val otherTeamsKills = s.filter { case (k,v) => k != c }.foldLeft(0){ case (t,b) => t + b._2.a}
       s.find(_._1 == c).map { case (k,v) => new ExCompetitorScore(v.a,v.a - otherTeamsKills,v.b) }.get
     }
+
+    def teamNames() = null
+
+    def masterPlayerIdentifierByGamePlayerIdByTeamId() = null
   }
 
   object ExScoreScheme extends ScoreScheme {

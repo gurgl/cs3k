@@ -34,9 +34,22 @@ case class User(var username:String) extends Competitor {
   override def toString = id + " " + username
 }
 
+
+
+
 object Model {
   type UserId = java.lang.Long
+  type TeamId = java.lang.Long
 }
+
+import Model._
+
+
+sealed abstract class AbstractUser {
+  var reservationId:Option[GameReservationService.GameServerReservationId] = None
+}
+case class RegedUser(var id:UserId) extends AbstractUser
+case class AnonUser(var name:String) extends AbstractUser
 
 trait AbstractGameOccassion {
   def gameSessionId:JLLong
@@ -123,6 +136,7 @@ class TeamMember {
   var id:TeamMemberPk = _
 
 }
+
 
 @Entity
 @PrimaryKeyJoinColumn(name="COMPETITOR_ID")

@@ -9,14 +9,23 @@ import java.lang.{Integer => JInt,Long => JLong}
 import org.apache.log4j.Logger
 import java.rmi.RemoteException
 import org.springframework.beans.factory.annotation.Autowired
-import user.{AbstractPlayerIdentifier, RegisteredPlayerIdentifier, PlayerIdentifierWithInfo, AnonymousPlayerIdentifier}
+import user._
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.service.GameReservationService._
 import java.lang
-import se.bupp.cs3k.server.service.dao.{GameDao, GameResultDao, UserDao}
+import se.bupp.cs3k.server.service.dao._
 import org.springframework.transaction.annotation.Transactional
-import se.bupp.cs3k.server.model.GameResult
+import se.bupp.cs3k.server.model.{Team, AnonUser, RegedUser, GameResult}
 import scala.Some
+import scala.Some
+import se.bupp.cs3k.server.model.RegedUser
+import se.bupp.cs3k.server.model.AnonUser
+import scala.Some
+import se.bupp.cs3k.server.model.RegedUser
+import se.bupp.cs3k.server.model.AnonUser
+import scala.Some
+import se.bupp.cs3k.server.model.RegedUser
+import se.bupp.cs3k.server.model.AnonUser
 
 
 /**
@@ -49,10 +58,17 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   @Autowired
   var userDao:UserDao = _
 
-  private def getSimplePlayerInfo(pi:AbstractPlayerIdentifier) = {
+  @Autowired
+  var competitorDao:TeamDao = _
+
+
+  private def getSimplePlayerInfo(pi:AbstractPlayerIdentifier, teamOpt:Option[Team]) = {
+
+    val team = teamOpt.map( t => new TeamIdentifier(t.id, t.nameAccessor)).orNull
+
     pi match {
-      case ru:RegisteredPlayerIdentifier => userDao.findUser(ru.getUserId).map(p=> new PlayerIdentifierWithInfo(p.username,p.id))
-      case api:AnonymousPlayerIdentifier => Some(api)
+      case ru:RegisteredPlayerIdentifier => userDao.findUser(ru.getUserId).map( p => new RegisteredPlayerIdentifierWithInfo(p.id, p.username, team))
+      case api:AnonymousPlayerIdentifier => Some(new AnonymousPlayerIdentifierWithInfo(api.getName,team))
     }
   }
 
@@ -61,23 +77,28 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   def evaluateGamePass(pass: String, gameSessionId: lang.Long) : SimplePlayerInfo = {
     try {
       log.info("evaluateGamePass invoked")
-      var absPI = om.readValue(pass, classOf[AbstractGamePass])
-      log.info("evaluateGamePass invoked" + absPI)
-      val r = absPI match {
+      var absGamePass = om.readValue(pass, classOf[AbstractGamePass])
+      log.info("evaluateGamePass invoked" + absGamePass)
+      val r = absGamePass match {
         case t:GateGamePass =>
-          val l = reservationService.findInMemoryReservation(t.getReservationId).flatMap { case (o,map) =>
-            val piOpt = if (gameSessionId == o) {
-              map.find { case (seat, pi) => seat == t.getReservationId }.map( p => p._2 )
-            } else None
-            piOpt.flatMap( p => getSimplePlayerInfo(p))
+          val pi = reservationService.findInMemoryReservation(t.getReservationId, gameSessionId).flatMap {
+            case (user,teamIdOpt) =>
+                val apiPlayerIdentifier = user match {
+                  case RegedUser(id) => new RegisteredPlayerIdentifier(id)
+                  case AnonUser(name) => new AnonymousPlayerIdentifier(name)
+                }
+                apiPlayerIdentifier
+
+                val teamOpt = teamIdOpt.flatMap( t => competitorDao.find(t) )
+                getSimplePlayerInfo(apiPlayerIdentifier, teamOpt)
+              //piOpt.flatMap( p => getSimplePlayerInfo(p))
           }
-          l
-        /*case t:Ticket => val l = ticketDao.findTicket(t.getId).map( tt => new PlayerIdentifierWithInfo(tt.user.username,tt.user.id))
+          pi
+        /*case t:Ticket => val l = ticketDao.findTicket(t.getId).map( tt => new RegisteredPlayerIdentifierWithInfo(tt.user.username,tt.user.id))
           l*/
-        case t:IdentifyOnlyPass =>
-          getSimplePlayerInfo(t.getUserIdentifier)
+        case t:IdentifyOnlyPass => getSimplePlayerInfo(t.getUserIdentifier,None)
       }
-      r.getOrElse(null)
+      r.orNull
     } catch {
       case e:Exception => e.printStackTrace()
       throw new RemoteException("Tjenare")

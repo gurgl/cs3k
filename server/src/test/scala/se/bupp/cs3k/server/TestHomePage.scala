@@ -9,8 +9,10 @@ import org.junit.runner.RunWith
 import web.{TheHomePage, WicketApplication}
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+import org.junit.Ignore
 
 
+@Ignore
 @RunWith(classOf[JUnitRunner])
 class TestHomePage extends Specification {
 

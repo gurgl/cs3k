@@ -39,7 +39,6 @@ class ModelTest extends Specification with Mockito {
 
       occassion.gameSessionIdOpt.isDefined === true
       occassion.gameSessionIdOpt.get === 123
-
     }
 
   }

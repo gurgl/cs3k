@@ -10,7 +10,7 @@ import se.bupp.cs3k.api.user.AbstractPlayerIdentifier;
  * Time: 21:22
  * To change this template use File | Settings | File Templates.
  */
-public class AnonymousPlayerIdentifier extends AbstractPlayerIdentifier implements SimplePlayerInfo {
+public class AnonymousPlayerIdentifier extends AbstractPlayerIdentifier  {
 
     public AnonymousPlayerIdentifier() {
     }
@@ -24,4 +24,7 @@ public class AnonymousPlayerIdentifier extends AbstractPlayerIdentifier implemen
     public String getName() {
         return name;
     }
+
+
+
 }

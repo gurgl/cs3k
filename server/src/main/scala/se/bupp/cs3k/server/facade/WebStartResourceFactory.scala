@@ -13,20 +13,18 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.server.service.GameReservationService
 import org.springframework.beans.factory.annotation.Autowired
-import se.bupp.cs3k.server.model.RunningGame
+import se.bupp.cs3k.server.model.{AnonUser, RegedUser, RunningGame}
 import org.apache.log4j.Logger
 import user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 import xml.Utility.Escapes
 import xml.Utility
 import se.bupp.cs3k.server.model.Model._
 import scala.Some
-import se.bupp.cs3k.server.model.RunningGame
 import scala.Left
 import scala.Some
 import scala.Right
 import se.bupp.cs3k.server.Util.eitherSuccess
 
-import se.bupp.cs3k.server.model.RunningGame
 import org.apache.wicket.request.http.WebResponse
 import org.apache.wicket.request.resource.caching.NoOpResourceCachingStrategy
 import se.bupp.cs3k.server.service.dao.UserDao
@@ -114,7 +112,7 @@ object  WebStartResourceFactory {
     override def newResourceResponse(p1: Attributes) = {
 
 
-      val reservationIdOpt:Option[NonPersistentOccassionTicketId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+      val reservationIdOpt:Option[GameServerReservationId] = Option(p1.getParameters().get("reservation_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
       val serverIdOpt = Option(p1.getParameters().get("server_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
 
       val gameOccasionIdOpt:Option[GameOccassionId] = Option(p1.getParameters().get("game_occassion_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
@@ -219,14 +217,14 @@ class WebStartResourceFactory {
 
 
 
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[GameOccassionId], playerNameOpt:Option[String]) = {
+  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[GameServerReservationId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[GameOccassionId], playerNameOpt:Option[String]) = {
     import se.bupp.cs3k.server.Util.eitherSuccess
     val serverAndPassValidation:Either[String,(RunningGame,AbstractGamePass)] = (userIdOpt, playerNameOpt) match {
       case (None, None) =>
         Left("No user identification given")
       case (Some(userId), _) =>
         val userOpt = userDao.findUser(userId).map(
-          p => new RegisteredPlayerIdentifier(p.id)
+          p => new RegedUser(userId)
         )
         val userValidation = userOpt.toRight("Couldnt Construct user")
         userValidation.onSuccess { existingUserId =>
@@ -250,7 +248,7 @@ class WebStartResourceFactory {
         }
       case (None, Some(name)) =>
         try {
-          val p = new AnonymousPlayerIdentifier(name)
+          val p = new AnonUser(name)
           val rgAndPass = (serverIdOpt, reservationIdOpt) match {
             case (Some(serverId), None) =>
               // Continuous
@@ -282,7 +280,7 @@ class WebStartResourceFactory {
     )
 
     /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
-      case Some(p) => Some(new PlayerIdentifierWithInfo(p.username,p.id))
+      case Some(p) => Some(new RegisteredPlayerIdentifierWithInfo(p.username,p.id))
       case None => playerNameOpt.map(n => new AnonymousPlayerIdentifier(n))
     }*/
 

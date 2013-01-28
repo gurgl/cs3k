@@ -10,15 +10,25 @@ import se.bupp.cs3k.api.user.RegisteredPlayerIdentifier;
  * Time: 21:22
  * To change this template use File | Settings | File Templates.
  */
-public class PlayerIdentifierWithInfo extends RegisteredPlayerIdentifier implements SimplePlayerInfo {
+public class RegisteredPlayerIdentifierWithInfo extends RegisteredPlayerIdentifier implements SimplePlayerInfo {
     String name;
 
-    public PlayerIdentifierWithInfo(String name, Long userId) {
+    TeamIdentifier team;
+
+    public RegisteredPlayerIdentifierWithInfo(Long userId, String name, TeamIdentifier team) {
         super(userId);
         this.name = name;
+        this.team = team;
     }
 
     public String getName() {
         return name;
     }
+
+    @Override
+    public TeamIdentifier getTeam() {
+        return team;
+    }
 }
+
+

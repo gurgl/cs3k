@@ -1,5 +1,7 @@
 package se.bupp.cs3k.api;
 
+import se.bupp.cs3k.api.user.TeamIdentifier;
+
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -9,4 +11,6 @@ package se.bupp.cs3k.api;
  */
 public interface SimplePlayerInfo {
     public String getName();
+
+    public TeamIdentifier getTeam();
 }

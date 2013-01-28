@@ -1,9 +1,12 @@
 package se.bupp.cs3k.server
 
 import com.esotericsoftware.kryonet.{KryoSerialization, Listener, Connection, Server}
-import model.{RunningGame, NonPersisentGameOccassion}
+import model._
+import model.NonPersisentGameOccassion
+import model.RegedUser
+import model.RunningGame
 import se.bupp.cs3k._
-import api.user.{PlayerIdentifierWithInfo, RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
+import api.user.{RegisteredPlayerIdentifierWithInfo, RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 
 import collection.mutable
 import java.util.{Timer, HashMap}
@@ -18,6 +21,7 @@ import com.esotericsoftware.minlog.Log
 import com.esotericsoftware.kryo.serializers.{BeanSerializer, TaggedFieldSerializer, JavaSerializer}
 import com.esotericsoftware.kryo.Kryo
 import service.gameserver.{GameProcessTemplate, GameServerPool, GameServerRepository}
+import scala.Some
 
 
 /**
@@ -54,16 +58,16 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
 
   import LobbyHandler._
 
-  var queue = mutable.Queue.empty[(Connection,AbstractPlayerIdentifier)]
+  var queue = mutable.Queue.empty[(Connection,AbstractUser)]
   var queueItemInfo = mutable.Map[Long,AnyRef]()
 
   var launchQueue = mutable.Queue.empty[List[Connection]]
 
 
   def playerJoined(request: LobbyJoinRequest, connection: Connection) {
-    val api = request.userIdOpt.map(new RegisteredPlayerIdentifier(_)).getOrElse {
+    val api = request.userIdOpt.map(new RegedUser(_)).getOrElse {
       if (request.name == "") throw new RuntimeException("YO")
-      new AnonymousPlayerIdentifier(request.name)
+      new AnonUser(request.name)
     }
     queue += Pair(connection, api)
 
@@ -78,7 +82,7 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
 
   def launchServerInstance(settings:GameProcessTemplate) {
 
-    var party = List[(Connection,AbstractPlayerIdentifier)]()
+    var party = List[(Connection,AbstractUser)]()
 
 
     log.info("Removing " + numOfPlayers + " players from a queue of " + queue.size)
@@ -103,13 +107,11 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
         party.foreach { case (c,pi) =>
 
           try {
-            val reservationId = gameReservationService.reserveSeat(gameSessionId, pi)
+            val reservationId = gameReservationService.reserveSeat(gameSessionId, pi, None)
 
             log.info("Reserving seat and sending sending start game instructions")
-            var jnlpUrl: URL = pi match {
-              case i:AnonymousPlayerIdentifier => runningGame.processSettings.jnlpUrl(reservationId, i.getName)
-              case i:RegisteredPlayerIdentifier  => runningGame.processSettings.jnlpUrl(reservationId, i.getUserId)
-            }
+            // TODO Associate reservation with either ID or name (depending on pi subclass)
+            var jnlpUrl: URL = runningGame.processSettings.jnlpUrl(reservationId, None)
             c.sendTCP(new StartGame(jnlpUrl.toExternalForm))
           } catch {
             case e:Exception => e.printStackTrace()

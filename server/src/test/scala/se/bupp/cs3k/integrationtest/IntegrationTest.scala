@@ -10,7 +10,7 @@ import org.springframework.transaction.{PlatformTransactionManager, TransactionS
 import javax.persistence.TypedQuery
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
-import se.bupp.cs3k.server.model.{GameOccassion, Team, RunningGame, User}
+import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service.{TeamService, GameReservationService, CompetitorService}
 import se.bupp.cs3k.server.{Cs3kConfig, LobbyHandler}
 import se.bupp.cs3k.LobbyJoinRequest
@@ -22,6 +22,8 @@ import se.bupp.cs3k.api.GameServerFacade
 import java.net.URL
 import se.bupp.cs3k.api.user.RegisteredPlayerIdentifier
 import com.fasterxml.jackson.databind.ObjectMapper
+import scala.Some
+import se.bupp.cs3k.server.model.RunningGame
 
 /**
  * Created with IntelliJ IDEA.
@@ -97,12 +99,12 @@ class IntegrationTest extends Specification with Mockito {
 
       var gpSettings: GameProcessSettings = mock[GameProcessSettings]
 
-      gpSettings.jnlpUrl(any,anyInt) returns new URL("http://www.dn.se")
-      gpSettings.jnlpUrl(any,anyString) returns new URL("http://www.dn.se")
+      gpSettings.jnlpUrl(any,any) returns new URL("http://www.dn.se")
+      //gpSettings.jnlpUrl(any) returns new URL("http://www.dn.se")
 
 
       GameServerPool.pool.spawnServer(any, any) answers {
-        (p,b) => new RunningGame(p.asInstanceOf[Array[_]](1).asInstanceOf[GameOccassion], null)
+        (params,mock) => new RunningGame(params.asInstanceOf[Array[_]](1).asInstanceOf[GameOccassion], null)
       }
 
       //GameServerPool.pool.spawnServer(any,any) returns new RunningGame(game,gpSettings)
@@ -112,14 +114,14 @@ class IntegrationTest extends Specification with Mockito {
 
       */
       game.gameSessionIdOpt.isDefined === false
-      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user1.id))
+      gameReservationService.playScheduledClosed(game.id,new RegedUser(user1.id))
       there was one(GameServerPool.pool).spawnServer(any,any)
 
       val game_v1 = gameReservationService.findGame(game.id).get
       game_v1.gameSessionIdOpt.isDefined === true
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
-      gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user2.id))
+      gameReservationService.playScheduledClosed(game.id,new RegedUser(user2.id))
       there was one(GameServerPool.pool).findRunningGame(any)
 
       //gameReservationService.startPersistedGameServer(game)
@@ -143,7 +145,7 @@ class IntegrationTest extends Specification with Mockito {
       1 === 1
     }
 
-    "bubba" in {
+    "handle 2vs2" in {
       //GameServerPool.pool = new GameServerPool()
       val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
       val factory =  appContext.asInstanceOf[BeanFactory];
@@ -195,8 +197,8 @@ class IntegrationTest extends Specification with Mockito {
 
       var gpSettings: GameProcessSettings = mock[GameProcessSettings]
 
-      gpSettings.jnlpUrl(any,anyInt) returns new URL("http://www.dn.se")
-      gpSettings.jnlpUrl(any,anyString) returns new URL("http://www.dn.se")
+      //gpSettings.jnlpUrl(any,) returns new URL("http://www.dn.se")
+      gpSettings.jnlpUrl(any,any) returns new URL("http://www.dn.se")
 
 
       GameServerPool.pool.spawnServer(any, any) answers {
@@ -212,22 +214,22 @@ class IntegrationTest extends Specification with Mockito {
 
       var mapper: ObjectMapper = new ObjectMapper()
       game.gameSessionIdOpt.isDefined === false
-      var (g1,p1) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user1.id))
+      var (g1,p1) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user1.id))
       there was one(GameServerPool.pool).spawnServer(any,any)
 
       val game_v1 = gameReservationService.findGame(game.id).get
       game_v1.gameSessionIdOpt.isDefined === true
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
-      var (g2,p2) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user2.id))
+      var (g2,p2) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user2.id))
       there was one(GameServerPool.pool).findRunningGame(any)
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
-      var (g3,p3) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user3.id))
+      var (g3,p3) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user3.id))
       there was two(GameServerPool.pool).findRunningGame(any)
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
-      var (g4,p4) = gameReservationService.playScheduledClosed(game.id,new RegisteredPlayerIdentifier(user4.id))
+      var (g4,p4) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user4.id))
       there was three(GameServerPool.pool).findRunningGame(any)
 
       val spi1 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(p1),game_v1.gameSessionIdOpt.get)
@@ -235,6 +237,11 @@ class IntegrationTest extends Specification with Mockito {
 
       val spi4 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(p4),game_v1.gameSessionIdOpt.get)
       spi4.getName === "nisse"
+
+      spi1.getTeam !== null
+      spi1.getTeam.getId === team1.id
+      spi4.getTeam !== null
+      spi4.getTeam.getId === team2.id
 
       //gameReservationService.startPersistedGameServer(game)
 

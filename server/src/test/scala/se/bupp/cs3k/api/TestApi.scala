@@ -6,7 +6,7 @@ import java.net.URL
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.util.StringUtils
 import score.ContestScore
-import user.{AnonymousPlayerIdentifier, PlayerIdentifierWithInfo}
+import user.{AnonymousPlayerIdentifier, RegisteredPlayerIdentifierWithInfo}
 import xml.Utility
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.example.ExampleScoreScheme._
@@ -26,9 +26,10 @@ class TestApi extends Specification {
   "should return my address" should {
     "handle conversions1" in {
       def llll : java.lang.Long = if (1 == 1) null else 1L
-      val reservationIdOpt:Option[NonPersistentOccassionTicketId] = Option(llll).map(p=> p.asInstanceOf[Long])
+      val reservationIdOpt:Option[GameServerReservationId] = Option(llll).map(p=> p.asInstanceOf[Long])
       reservationIdOpt.shouldEqual(None)
     }
+
     "handle conversions" in {
 
       var mapper: ObjectMapper = new ObjectMapper()
@@ -120,7 +121,6 @@ class TestApi extends Specification {
       var game1 = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
       game1.competitorScore(1L) === new ExCompetitorScore(10, 7, 1)
       game1.competitorScore(2L) === new ExCompetitorScore(3, -7, 4)
-
     }
 
     "handle contest score addition to total" in {
@@ -134,7 +134,5 @@ class TestApi extends Specification {
 
       total === new ExCompetitorTotal(12,6,4)
     }
-
-
   }
 }

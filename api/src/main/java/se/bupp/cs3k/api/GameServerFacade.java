@@ -17,7 +17,7 @@ public interface GameServerFacade {
 
     //public void setScore(Integer gameSessionId, String serializedScore) throws RemoteException;
 
-    public void startGame(Long gameSessionId, Map<Integer,Integer> teamsByBlayers) throws RemoteException;
+    public void startGame(Long gameSessionId, Map<Integer,Integer> teamsByPlayers) throws RemoteException;
 
     public void startGame(Long gameSessionId, List<Integer> players) throws RemoteException;
 
