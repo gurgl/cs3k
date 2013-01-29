@@ -12,13 +12,18 @@ import se.bupp.cs3k.api.user.RegisteredPlayerIdentifier;
  */
 public class RegisteredPlayerIdentifierWithInfo extends RegisteredPlayerIdentifier implements SimplePlayerInfo {
     String name;
-
+    Long reportableId;
     TeamIdentifier team;
 
-    public RegisteredPlayerIdentifierWithInfo(Long userId, String name, TeamIdentifier team) {
+    public RegisteredPlayerIdentifierWithInfo(Long userId, String name, Long reportableId, TeamIdentifier team) {
         super(userId);
         this.name = name;
+        this.reportableId = reportableId;
         this.team = team;
+    }
+
+    public Long getReportableId() {
+        return reportableId;
     }
 
     public String getName() {

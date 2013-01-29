@@ -9,16 +9,16 @@ package se.bupp.cs3k.api.user;
  */
 public class TeamIdentifier {
 
-    Long id;
+    Long reportableId;
     String name;
 
-    public TeamIdentifier(Long id, String name) {
-        this.id = id;
+    public TeamIdentifier(Long reportableId, String name) {
+        this.reportableId = reportableId;
         this.name = name;
     }
 
-    public Long getId() {
-        return id;
+    public Long getReportableId() {
+        return reportableId;
     }
 
     public String getName() {

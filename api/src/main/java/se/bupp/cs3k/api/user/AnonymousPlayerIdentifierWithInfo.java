@@ -11,11 +11,17 @@ import se.bupp.cs3k.api.SimplePlayerInfo;
  */
 public class AnonymousPlayerIdentifierWithInfo extends AnonymousPlayerIdentifier implements SimplePlayerInfo {
 
+    Long reportableId;
     TeamIdentifier team;
 
-    public AnonymousPlayerIdentifierWithInfo(String name, TeamIdentifier team) {
+    public AnonymousPlayerIdentifierWithInfo(String name, Long reportableId, TeamIdentifier team) {
         super(name);
+        this.reportableId = reportableId;
         this.team = team;
+    }
+
+    public Long getReportableId() {
+        return reportableId;
     }
 
     @Override

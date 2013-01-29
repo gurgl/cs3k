@@ -98,6 +98,10 @@ case class Ladder() extends Serializable with Same[JLLong] {
 
 }
 
+abstract sealed class AbstractTeamRef()
+case class TeamRef(val id:TeamId) extends AbstractTeamRef
+case class VirtualTeamRef(val virtaulTeamId:Long, val name:Option[String]) extends AbstractTeamRef
+
 @Embeddable
 case class LadderEnrollmentPk() extends Serializable{
 
@@ -301,7 +305,7 @@ class Ticket() extends ApiTicket with Serializable {
     this.id = id
   }
 
-  override def getId: JLLong = {
+  override def getReportableId: JLLong = {
     id
   }
 

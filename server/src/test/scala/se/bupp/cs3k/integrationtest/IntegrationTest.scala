@@ -11,7 +11,7 @@ import javax.persistence.TypedQuery
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model._
-import se.bupp.cs3k.server.service.{TeamService, GameReservationService, CompetitorService}
+import se.bupp.cs3k.server.service.{GameResultService, TeamService, GameReservationService, CompetitorService}
 import se.bupp.cs3k.server.{Cs3kConfig, LobbyHandler}
 import se.bupp.cs3k.LobbyJoinRequest
 import com.esotericsoftware.kryonet.Connection
@@ -20,10 +20,11 @@ import org.specs2.mock.Mockito
 import se.bupp.cs3k.server.service.gameserver._
 import se.bupp.cs3k.api.GameServerFacade
 import java.net.URL
-import se.bupp.cs3k.api.user.RegisteredPlayerIdentifier
+import se.bupp.cs3k.api.user.{AnonymousPlayerIdentifierWithInfo, TeamIdentifier, RegisteredPlayerIdentifier}
 import com.fasterxml.jackson.databind.ObjectMapper
 import scala.Some
 import se.bupp.cs3k.server.model.RunningGame
+import se.bupp.cs3k.server.facade.GameServerFacadeImpl
 
 /**
  * Created with IntelliJ IDEA.
@@ -239,9 +240,9 @@ class IntegrationTest extends Specification with Mockito {
       spi4.getName === "nisse"
 
       spi1.getTeam !== null
-      spi1.getTeam.getId === team1.id
+      spi1.getTeam.getReportableId === team1.id
       spi4.getTeam !== null
-      spi4.getTeam.getId === team2.id
+      spi4.getTeam.getReportableId === team2.id
 
       //gameReservationService.startPersistedGameServer(game)
 
@@ -264,18 +265,47 @@ class IntegrationTest extends Specification with Mockito {
       1 === 1
     }
 
-    /*
+
     "asdf" in {
       val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
       val factory =  appContext.asInstanceOf[BeanFactory];
       var competitorService = factory.getBean("competitorService", classOf[CompetitorService])
       var gameReservationService = factory.getBean(classOf[GameReservationService])
+      var gameServerFacade = factory.getBean(classOf[GameServerFacade])
+      //var gameResultService = factory.getBean(classOf[GameResultService])
+
+      GameReservationService.openGameSessions = Map.empty
+
+
+      val service = new GameReservationService()
+
+      val sessionId = service.allocateGameSession()
+      val t1 = service.createVirtualTeam(sessionId, Some("Ena"))
+
+      var t2 = new VirtualTeamRef(123, Some("Tjing"))
+      //var t1 = new VirtualTeamRef(123, "Tjing")
+      /*var p1 = new AnonymousPlayerIdentifierWithInfo("Nisse", t1)
+      var p2 = new AnonymousPlayerIdentifierWithInfo("Lars", t1)
+      */
+      //
+      /*var p3 = new AnonymousPlayerIdentifierWithInfo("Nisse", t2)
+      var p4 = new AnonymousPlayerIdentifierWithInfo("Lars", t2)*/
+      val user2 = competitorService.createUser("leffe")
+
+      service.reserveSeat(sessionId,AnonUser("Nisse"),Some(t1))
+      service.reserveSeat(sessionId,RegedUser(user2.id),Some(t1))
+
+      service.reserveSeat(sessionId,AnonUser("Peter"),Some(t2))
+      service.reserveSeat(sessionId,AnonUser("Fredrik"),Some(t2))
+
+      gameServerFacade.endGame(sessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1":{"a":0,"b":0},"2":{"a":2,"b":0}}}""")
+
+      val gameResultService = mock[GameResultService]
+
+      //gameResultService.transformToRenderable(sessionId)
 
       appContext.close()
       1 === 1
-
     }
-    */
-
   }
 }

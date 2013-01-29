@@ -2,7 +2,7 @@ package se.bupp.cs3k.example
 
 import se.bupp.cs3k.api.score.{ScoreScheme, ContestScore, CompetitorScore}
 import reflect.BeanProperty
-import java.{util, lang}
+import java.{lang, util}
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal
 import com.fasterxml.jackson.annotation.{JsonAutoDetect, JsonTypeInfo}
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal.Render
@@ -28,7 +28,8 @@ object ExampleScoreScheme {
   }
 
   class ExContestScore(_s:java.util.Map[Long,JavaTuple2]) extends ContestScore {
-    @JsonDeserialize(keyAs = classOf[java.lang.Long], contentAs=classOf[JavaTuple2], as=classOf[util.HashMap[Long,JavaTuple2]]) var s:java.util.Map[Long,JavaTuple2] = _s
+    @JsonDeserialize(keyAs = classOf[java.lang.Long], contentAs=classOf[JavaTuple2], as=classOf[util.HashMap[Long,JavaTuple2]])
+    var s:java.util.Map[Long,JavaTuple2] = _s
 
 
     def this() = this(null)
@@ -43,6 +44,12 @@ object ExampleScoreScheme {
         var va: ExCompetitorScore = new ExCompetitorScore(v.a, 0, v.b)
         kk -> va }
       mutableMapAsJavaMap(r)
+    }
+
+
+    def transformCompetitor(fromTo: util.Map[lang.Long, lang.Long]) = {
+      val res = s.map { case (k,v) => fromTo.get(k).toLong -> v }
+      new ExContestScore(mutableMapAsJavaMap(res))
     }
 
     def competitorScore(c: lang.Long) : ExCompetitorScore  = {

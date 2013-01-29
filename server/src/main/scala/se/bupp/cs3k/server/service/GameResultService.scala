@@ -9,6 +9,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 import org.apache.log4j.Logger
+import java.lang.Long
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +26,9 @@ class GameResultService {
   @Autowired
   var gameResultDao:GameResultDao = _
 
+  @Autowired
+  var reservationService:GameReservationService = _
+
 
   @Transactional
   def getCompetitorsByName(gsDetached:GameResult) = {
@@ -37,6 +41,15 @@ class GameResultService {
     val competitorsByName = gs.game.participants.map( p => (p.id.competitor.id -> p.id.competitor.nameAccessor)).toMap //.toSet[java.lang.Long]
     log.info("competitorsByName " + competitorsByName)
     competitorsByName
+  }
+
+
+  def transformToRenderable(gameSessionId: GameReservationService.GameOccassionId, serializedResult: String) {
+
+    reservationService.findGameSession(gameSessionId).foreach {
+      case gameSessionReservations =>
+
+    }
   }
 
 

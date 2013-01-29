@@ -13,7 +13,7 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public interface ContestScore{
+public interface ContestScore {
     /**
      *
      *
@@ -21,6 +21,9 @@ public interface ContestScore{
      * @return Map(gameCompetitorId -> ScoreType)
      */
     public Map<Long, ? extends CompetitorScore> competitorScores();
+
+
+    ContestScore transformCompetitor(Map<Long,Long> fromTo);
 
 
     /**

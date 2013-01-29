@@ -12,5 +12,7 @@ import se.bupp.cs3k.api.user.TeamIdentifier;
 public interface SimplePlayerInfo {
     public String getName();
 
+    public Long getReportableId();
+
     public TeamIdentifier getTeam();
 }

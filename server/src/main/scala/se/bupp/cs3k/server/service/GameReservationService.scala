@@ -83,15 +83,24 @@ import se.bupp.cs3k.server.model.AnonUser
 object GameReservationService {
   type GameSessionId = Long
   type GameOccassionId = Long
-  type ReservationDetails = (AbstractUser, Option[TeamId])
+  type ReservationDetails = (AbstractUser, Option[AbstractTeamRef])
+  type VirtualTeamId = Long
+
+  type Players = Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])]
+  type TeamsDetailsOpt = Option[List[AbstractTeamRef]]
+  type Session = (Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])], TeamsDetailsOpt)
   // TODO rename me
   type GameServerReservationId = Long
   private var occassionSeqId:Long = 100L
+  private var virtualTeamSeqId:Long = 1000L
+
   var seatSeqId:Long= 1L
   var openGameSessions =
-    collection.mutable.Map[GameSessionId,
-      collection.mutable.Map[GameServerReservationId,(AbstractUser,Option[TeamId])]
+    Map[GameSessionId,
+      (Players, TeamsDetailsOpt)
       ]()
+
+  //var openGameSessionsTeams = Map[GameSessionId,List[AbstractTeamRef]]()
 
 }
 @Service
@@ -147,7 +156,7 @@ class GameReservationService {
       case RunningGame(go:GameOccassion,_) => pi match {
         case p:RegedUser =>
           // Might be wrong?
-          Some(new GateGamePass(reserveSeat(go.gameSessionIdOpt.get, pi, teamOpt.map(_.id))))
+          Some(new GateGamePass(reserveSeat(go.gameSessionIdOpt.get, pi, teamOpt.map( t => TeamRef(t.id)))))
           /*val ticket = ticketDao.findTicketByUserAndGame(p.getUserId, go.gameSessionId).get
           if(ticket.game.gameSessionId == go.gameSessionId) {
             Some(ticket)
@@ -215,41 +224,70 @@ class GameReservationService {
 
   }
 
+  def createVirtualTeam(gameSessionId:GameSessionId, name:Option[String]) : VirtualTeamRef = {
+
+
+    findGameSession(gameSessionId) match {
+      case Some((players, teamsOpt)) =>
+        val res  = new VirtualTeamRef(virtualTeamSeqId, name)
+        log.info("Allocating new virtual team id " + res)
+        virtualTeamSeqId = virtualTeamSeqId + 1
+
+        val teams:List[_ <: AbstractTeamRef] = Nil //teamsOpt.flatten
+
+        val newEntry = (gameSessionId -> (players, Some(teams)))
+        openGameSessions = openGameSessions +  newEntry
+        res
+      case None =>
+        throw new RuntimeException("Session Not found")
+    }
+
+
+  }
+
   def allocateGameSession() : GameSessionId = {
     val res:GameSessionId = occassionSeqId
     log.info("Allocating new game sessiond id " + res)
     occassionSeqId = occassionSeqId + 1
-    openGameSessions += res -> collection.mutable.Map.empty
-    res
-  }
-  def reserveSeat(gameSessionId:GameSessionId, pi:AbstractUser, teamOpt:Option[TeamId]) : GameServerReservationId = {
-    var res:GameServerReservationId = seatSeqId
-    openGameSessions(gameSessionId) += (res -> (pi,teamOpt))
-    seatSeqId = seatSeqId + 1
+    openGameSessions = openGameSessions + (res -> (Map.empty, None))
     res
   }
 
+  def reserveSeat(gameSessionId:GameSessionId, pi:AbstractUser, pTeamOpt:Option[AbstractTeamRef]) : GameServerReservationId = {
+    findGameSession(gameSessionId) match {
+      case Some((players, teamsOpt)) =>
+        var res:GameServerReservationId = seatSeqId
+        seatSeqId = seatSeqId + 1
+        val modifiedSessionEntry = gameSessionId -> (players + (res ->(pi, pTeamOpt)), teamsOpt)
+        openGameSessions = openGameSessions + modifiedSessionEntry
+        //openGameSessions(gameSessionId) +  (res -> (pi,teamOpt))
+        res
+      case None =>
+        throw new RuntimeException("Session Not found")
+    }
+  }
 
 
-  def findGameSessionByReservationId(id:GameServerReservationId) : Option[(GameSessionId,Map[GameServerReservationId,ReservationDetails])] = {
+
+  def findGameSessionByReservationId(id:GameServerReservationId) : Option[(GameSessionId,Session)] = {
     openGameSessions.find {
-      case (gameSessionId, seatMap) => seatMap.exists( s => s._1 == id)
-    }.map( r => (r._1,Map.empty ++ r._2))
+      case (gameSessionId, (seatMap, teamsOpt)) => seatMap.exists( s => s._1 == id)
+    } // .map( r => (r._1, Map.empty ++ r._2))
   }
 
   def findReservation(reservationId:GameServerReservationId, reservationGameSessionId: GameSessionId) : Option[ReservationDetails] = {
-    openGameSessions.get(reservationGameSessionId).flatMap( m => m.get(reservationId))
+    openGameSessions.get(reservationGameSessionId).flatMap { case (plyrs,teamsOpt)=> plyrs.get(reservationId) }
   }
 
-  def findGameSession(gameSessionId: GameSessionId) : Option[Map[GameServerReservationId,ReservationDetails]] = {
-    openGameSessions.get(gameSessionId).map { case m => m.toMap }
+  def findGameSession(gameSessionId: GameSessionId) : Option[Session] = {
+    openGameSessions.get(gameSessionId) //.map { case m => m.toMap }
   }
 
 
   def findReservationPlayerIdentifer(id:GameServerReservationId, verifyOccId:GameSessionId) : Option[ReservationDetails] = {
-    findGameSessionByReservationId(id).flatMap { case (gameSessionId,map) =>
+    findGameSessionByReservationId(id).flatMap { case (gameSessionId,(plyers,teamsOpt)) =>
       if (gameSessionId == verifyOccId) {
-        map.find { case (seat, user) => seat == id }.map( p => p._2 )
+        plyers.find { case (seat, details) => seat == id }.map( p => p._2 )
       } else {
         None
       }

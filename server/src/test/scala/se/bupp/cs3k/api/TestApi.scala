@@ -6,12 +6,14 @@ import java.net.URL
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.util.StringUtils
 import score.ContestScore
-import user.{AnonymousPlayerIdentifier, RegisteredPlayerIdentifierWithInfo}
+import user.{TeamIdentifier, AnonymousPlayerIdentifierWithInfo, AnonymousPlayerIdentifier, RegisteredPlayerIdentifierWithInfo}
 import xml.Utility
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.example.ExampleScoreScheme._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
+import se.bupp.cs3k.server.service.GameReservationService
+import se.bupp.cs3k.server.model.AnonUser
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,7 +37,7 @@ class TestApi extends Specification {
       var mapper: ObjectMapper = new ObjectMapper()
 
       /*var original: Ticket = new Ticket {
-        def getId = 3
+        def getReportableId = 3
       }
       var str: String = mapper.writeValueAsString(original)
       str.shouldEqual("{\"@class\":\"se.bupp.cs3k.api.Ticket\",\"reservationId\":3}")
@@ -134,5 +136,20 @@ class TestApi extends Specification {
 
       total === new ExCompetitorTotal(12,6,4)
     }
+
+
+    "ex impl" in {
+      //val scoreByCompetitors = Map(0 -> (1,3), 1 -> (3,3))
+
+      var result = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
+
+      //ExScoreScheme.renderToHtml()
+
+         1  === 2
+
+
+
+    }
+
   }
 }
