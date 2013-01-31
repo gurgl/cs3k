@@ -16,10 +16,7 @@ import java.lang
 import se.bupp.cs3k.server.service.dao._
 import org.springframework.transaction.annotation.Transactional
 import se.bupp.cs3k.server.model._
-import scala.Some
-import scala.Some
-import scala.Some
-import scala.Some
+import se.bupp.cs3k.server.model.Model._
 import java.io.File
 import io.Source
 import org.scalatest.Reporter

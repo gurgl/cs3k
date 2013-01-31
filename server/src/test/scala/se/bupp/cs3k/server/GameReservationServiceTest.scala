@@ -10,7 +10,7 @@ import se.bupp.cs3k.api.user.AnonymousPlayerIdentifier
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.junit.Ignore
-
+import se.bupp.cs3k.server.model.Model._
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -27,7 +27,7 @@ class GameReservationServiceTest extends Specification {
 
       val service = new GameReservationService
 
-      var occassion: GameReservationService.GameSessionId = service.allocateGameSession()
+      var occassion: GameSessionId = service.allocateGameSession()
       var p1 = new AnonUser("Tja")
       var seat1 = service.reserveSeat(occassion, p1, None)
       var p2 = new AnonUser("Tja2")
@@ -40,7 +40,7 @@ class GameReservationServiceTest extends Specification {
     "provide" in {
 
       val service = new GameReservationService
-      var occassion: GameReservationService.GameSessionId = service.allocateGameSession()
+      var occassion: GameSessionId = service.allocateGameSession()
       var p1 = new AnonUser("Tja")
       var seat1 = service.reserveSeat(occassion, p1, None)
       var p2 = new AnonUser("Tja2")

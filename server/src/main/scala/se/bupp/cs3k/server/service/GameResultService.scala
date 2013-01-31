@@ -4,6 +4,7 @@ import dao.{TeamDao, UserDao, GameDao, GameResultDao}
 import se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore
 import se.bupp.cs3k.example.ExampleScoreScheme
 import se.bupp.cs3k.server.model._
+import se.bupp.cs3k.server.model.Model._
 import org.springframework.stereotype.Service
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,15 +68,15 @@ class GameResultService {
   }
 
 
-  def transformToRenderableTeamGame(gameSessionId: GameReservationService.GameOccassionId, serializedResult: String, teams:List[AbstractTeamRef]) = {
+  def transformToRenderableTeamGame(gameSessionId: GameOccassionId, serializedResult: String, teams:List[AbstractTeamRef]) = {
     ""
   }
 
-  def transformToRenderablePlayerGame(gameSessionId: GameReservationService.GameOccassionId, serializedResult: String, users:Map[GameReservationService.GameServerReservationId, AbstractUser]) = {
+  def transformToRenderablePlayerGame(gameSessionId: GameOccassionId, serializedResult: String, users:Map[GameServerReservationId, AbstractUser]) = {
     ""
   }
 
-  def endGame(gameSessionId: GameReservationService.GameSessionId, serializedResult: String) {
+  def endGame(gameSessionId: GameSessionId, serializedResult: String) {
     log.info("EndGame invoked  : " + serializedResult)
     log.info("GAMES IN ENDGAME " + gameDao.findAll.mkString(","))
     reservationService.findGameSession(gameSessionId).foreach { session =>
@@ -120,10 +121,16 @@ class GameResultService {
             gameOccassionOpt match {
               case Some(g) =>
                 import scala.collection.JavaConversions.asScalaBuffer
-                if (g.participants.forall ( part => playersRefs.exists { case (pid, RegedUser(id)) => part.id.competitor.id == id  })) {
+                if (g.participants.forall ( part => playersRefs.exists { case (reservationId, RegedUser(id)) => part.id.competitor.id == id  })) {
+
+                  val res2pidMap = playersRefs.map {
+                    case (reservationId, RegedUser(pid)) => (new java.lang.Long(reservationId), new java.lang.Long(pid))
+                  }
 
                   var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
-                  val transformedValue = value.transformCompetitor(new java.util.HashMap())
+
+                  import scala.collection.JavaConversions.mapAsJavaMap
+                  val transformedValue = value.transformCompetitor(res2pidMap)
                   g.result = new GameResult(1,om.writeValueAsString(transformedValue))
                   g.result.game = g
                   gameResultDao.insert(g.result)

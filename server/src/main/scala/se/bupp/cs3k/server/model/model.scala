@@ -40,6 +40,20 @@ case class User(var username:String) extends Competitor {
 object Model {
   type UserId = java.lang.Long
   type TeamId = java.lang.Long
+
+
+
+  type GameSessionId = Long
+  type GameOccassionId = Long
+  type ReservationDetails = (AbstractUser, Option[AbstractTeamRef])
+  type VirtualTeamId = Long
+
+  type Players = Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])]
+  type TeamsDetailsOpt = Option[List[AbstractTeamRef]]
+  type Session = (Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])], TeamsDetailsOpt)
+  // TODO rename me
+  type GameServerReservationId = Long
+
 }
 
 import Model._
@@ -47,7 +61,7 @@ import Model._
 
 sealed abstract class AbstractUser {
   // TODO : am i used?
-  var reservationId:Option[GameReservationService.GameServerReservationId] = None
+  var reservationId:Option[GameServerReservationId] = None
 }
 case class RegedUser(var id:UserId) extends AbstractUser
 case class AnonUser(var name:String) extends AbstractUser
@@ -242,7 +256,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   var gameServerStartedAt:Date = _
   def gameSessionIdOpt = Option(gameSessionId)
-  def gameSessionIdOpt_=(v:Option[GameReservationService.GameSessionId]):Unit = { gameSessionId = v.map(new lang.Long(_)).getOrElse(null.asInstanceOf[lang.Long])}
+  def gameSessionIdOpt_=(v:Option[GameSessionId]):Unit = { gameSessionId = v.map(new lang.Long(_)).getOrElse(null.asInstanceOf[lang.Long])}
 
   def hasStarted = gameServerStartedAt != null
 

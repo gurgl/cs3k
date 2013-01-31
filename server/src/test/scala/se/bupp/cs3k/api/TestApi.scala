@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.model.AnonUser
-
+import se.bupp.cs3k.server.model.Model._
 /**
  * Created with IntelliJ IDEA.
  * User: karlw

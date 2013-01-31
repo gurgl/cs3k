@@ -81,16 +81,7 @@ import se.bupp.cs3k.server.model.AnonUser
  */
 
 object GameReservationService {
-  type GameSessionId = Long
-  type GameOccassionId = Long
-  type ReservationDetails = (AbstractUser, Option[AbstractTeamRef])
-  type VirtualTeamId = Long
 
-  type Players = Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])]
-  type TeamsDetailsOpt = Option[List[AbstractTeamRef]]
-  type Session = (Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])], TeamsDetailsOpt)
-  // TODO rename me
-  type GameServerReservationId = Long
   private var occassionSeqId:Long = 100L
   private var virtualTeamSeqId:Long = 1000L
 
@@ -190,16 +181,6 @@ class GameReservationService {
         go.participants.add(gp1)
         go.participants.add(gp2)
 
-        /*val t = new Ticket()
-        t.game = go
-        t.user = u1
-        val t2 = new Ticket()
-        t2.game = go
-        t2.user = u2
-        ticketDao.insert(t)
-        ticketDao.insert(t2)*/
-
-
         go
 
       case (t1:Team, t2:Team) =>
@@ -211,9 +192,7 @@ class GameReservationService {
         go.participants.add(gp1)
         go.participants.add(gp2)
         go
-
     }
-
 
     gameDao.insert(go)
 
@@ -221,15 +200,14 @@ class GameReservationService {
     go.participants.foreach(gameDao.em.persist(_))
 
     go
-
-  }
+ }
 
   def addTeamToSession(gameSessionId:GameSessionId, at:AbstractTeamRef)  {
 
     findGameSession(gameSessionId) match {
       case Some((players, teamsOpt)) =>
 
-        val teams = teamsOpt.flatten( t => t).toList :+ at
+        val teams = teamsOpt.flatten.toList :+ at
 
         val newEntry = (gameSessionId -> (players, Some(teams)))
         log.info("Modifying gs : add team " + newEntry)
@@ -276,7 +254,7 @@ class GameReservationService {
   def findGameSessionByReservationId(id:GameServerReservationId) : Option[(GameSessionId,Session)] = {
     openGameSessions.find {
       case (gameSessionId, (seatMap, teamsOpt)) => seatMap.exists( s => s._1 == id)
-    } // .map( r => (r._1, Map.empty ++ r._2))
+    }
   }
 
   def findReservation(reservationId:GameServerReservationId, reservationGameSessionId: GameSessionId) : Option[ReservationDetails] = {
@@ -284,9 +262,8 @@ class GameReservationService {
   }
 
   def findGameSession(gameSessionId: GameSessionId) : Option[Session] = {
-    openGameSessions.get(gameSessionId) //.map { case m => m.toMap }
+    openGameSessions.get(gameSessionId)
   }
-
 
   def findReservationPlayerIdentifer(id:GameServerReservationId, verifyOccId:GameSessionId) : Option[ReservationDetails] = {
     findGameSessionByReservationId(id).flatMap { case (gameSessionId,(plyers,teamsOpt)) =>
@@ -413,88 +390,5 @@ class GameReservationService {
         None
     }
   }
-
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[Long], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[GameServerReservationId], playerNameOpt:Option[String]) = {
-
-
-
-    /*
-    val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap(
-      id => userDao.findUser(id).map(
-        p => new RegisteredPlayerIdentifier(p.id)
-      )
-    ).orElse(
-      playerNameOpt.map(
-        n => new AnonymousPlayerIdentifier(n)
-      )
-    )
-
-    /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
-      case Some(p) => Some(new RegisteredPlayerIdentifierWithInfo(p.username,p.id))
-      case None => playerNameOpt.map(n => new AnonymousPlayerIdentifier(n))
-    }*/
-
-    val userValidation = userOpt.toRight("Couldnt Construct user")
-
-    val serverValidation = userValidation.onSuccess {
-      userId => serverIdOpt match {
-        case Some(serverId) =>
-          // Rullande / Public
-          Left("Not implemented")
-
-        case None => {
-
-          val canSpawnServerAndOccassionIdValidation = (reservationIdOpt, gameOccasionIdOpt) match {
-            case (None, Some(gameOccassionId)) => // Rullande/Public
-              Right((true,gameOccassionId))
-            case (Some(reservationId), _) => // Lobby
-              this.findGameSessionByReservationId(reservationId) match {
-                case Some((gameSessionId,_)) => Right((true, gameSessionId))
-                case None => Left("Reservation not found")
-              }
-            case _ => Left("No game id sent")
-          }
-
-          var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
-
-          val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
-            case (canSpawn, gameSessionId) =>
-
-              val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
-              val r = alreadyRunningGame.orElse {
-                gameReservationService.findByGameSessionId(gameSessionId).flatMap( g =>
-                // TODO: Fix me - hardcoded below
-                {
-                  log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
-                  if (!g.timeTriggerStart && canSpawn) {
-                    Some(GameServerPool.pool.spawnServer(processSettings, g))
-                  } else {
-                    None
-                  }
-                }
-                )
-              }
-              val s = r.map(Right(_)).getOrElse(Left("Couldnt find game"))
-              s
-          }
-          runningGameValidation
-        }
-      }
-    }
-
-    val serverAndPassValidation = serverValidation.onSuccess { rg =>
-      val r = this.createGameServerPass(rg,userOpt.get,reservationIdOpt) match {
-        case Some(gamePass) => Right((rg,gamePass))
-        case None => Left("Unable to acquire valid pass")
-      }
-      r
-    }
-    serverAndPassValidation
-    */
-  }
-
-
-
-
 }
 

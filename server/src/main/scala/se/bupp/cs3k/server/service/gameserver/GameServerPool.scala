@@ -5,12 +5,13 @@ import org.apache.commons.exec._
 import java.net.URL
 import se.bupp.cs3k.server.service.GameReservationService._
 import org.apache.log4j.Logger
-import se.bupp.cs3k.server.model.Model.UserId
+
 import scala.collection.immutable.HashMap
 import collection.{mutable, SortedSet}
 import se.bupp.cs3k.server.model.{AbstractGameOccassion, RunningGame}
 import se.bupp.cs3k.server.service.resourceallocation.ResourceAllocator
 
+import se.bupp.cs3k.server.model.Model._
 
 /**
  * Created with IntelliJ IDEA.
