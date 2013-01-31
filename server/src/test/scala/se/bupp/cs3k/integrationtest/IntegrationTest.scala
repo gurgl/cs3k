@@ -161,8 +161,8 @@ class IntegrationTest extends Specification with Mockito {
       val user3 = competitorService.createUser("klas")
       val user4 = competitorService.createUser("nisse")
 
-      var team1 = new Team()
-      var team2 = new Team()
+      var team1 = new Team("ena")
+      var team2 = new Team("andre")
 
       competitorService.createTeam(team1)
       competitorService.createTeam(team2)
@@ -280,9 +280,10 @@ class IntegrationTest extends Specification with Mockito {
       val service = new GameReservationService()
 
       val sessionId = service.allocateGameSession()
-      val t1 = service.createVirtualTeam(sessionId, Some("Ena"))
-
-      var t2 = new VirtualTeamRef(123, Some("Tjing"))
+      val t1 = service.createVirtualTeam(Some("Ena"))
+      service.addTeamToSession(sessionId,t1)
+      var t2 = service.createVirtualTeam(Some("Tjing"))
+      service.addTeamToSession(sessionId,t2)
       //var t1 = new VirtualTeamRef(123, "Tjing")
       /*var p1 = new AnonymousPlayerIdentifierWithInfo("Nisse", t1)
       var p2 = new AnonymousPlayerIdentifierWithInfo("Lars", t1)

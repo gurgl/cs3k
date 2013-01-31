@@ -15,20 +15,22 @@ import se.bupp.cs3k.server.service.GameReservationService._
 import java.lang
 import se.bupp.cs3k.server.service.dao._
 import org.springframework.transaction.annotation.Transactional
-import se.bupp.cs3k.server.model.{Team, AnonUser, RegedUser, GameResult}
+import se.bupp.cs3k.server.model._
 import scala.Some
 import scala.Some
-import se.bupp.cs3k.server.model.RegedUser
-import se.bupp.cs3k.server.model.AnonUser
 import scala.Some
-import se.bupp.cs3k.server.model.RegedUser
-import se.bupp.cs3k.server.model.AnonUser
 import scala.Some
-import se.bupp.cs3k.server.model.RegedUser
-import se.bupp.cs3k.server.model.AnonUser
 import java.io.File
 import io.Source
 import org.scalatest.Reporter
+import scala.Some
+import se.bupp.cs3k.server.model.VirtualTeamRef
+import scala.Some
+import se.bupp.cs3k.server.model.RegedUser
+import se.bupp.cs3k.server.model.TeamRef
+import se.bupp.cs3k.server.model.AnonUser
+import se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore
+import se.bupp.cs3k.example.ExampleScoreScheme
 
 
 /**
@@ -62,7 +64,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   var userDao:UserDao = _
 
   @Autowired
-  var competitorDao:TeamDao = _
+  var teamDao:TeamDao = _
 
   @Autowired
   var gameResultService:GameResultService = _
@@ -75,9 +77,9 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
    * @param teamOpt
    * @return
    */
-  private def getSimplePlayerInfo(pi:AbstractPlayerIdentifier, reservationIdOpt:Option[GameServerReservationId], teamOpt:Option[Team]) = {
+  private def getSimplePlayerInfo(pi:AbstractPlayerIdentifier, reservationIdOpt:Option[GameServerReservationId], teamOpt:Option[TeamIdentifier]) = {
 
-    val team = teamOpt.map( t => new TeamIdentifier(t.id, t.nameAccessor)).orNull
+    val team = teamOpt.orNull
 
     val nullableReservationId:lang.Long = reservationIdOpt.map(new lang.Long(_)).orNull
     pi match {
@@ -96,16 +98,19 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
       val r = absGamePass match {
         case t:GateGamePass =>
           val pi = reservationService.findReservation(t.getReservationId, gameSessionId).flatMap {
-            case (user,teamIdOpt) =>
-                val apiPlayerIdentifier = user match {
-                  case RegedUser(id) => new RegisteredPlayerIdentifier(id)
-                  case AnonUser(name) => new AnonymousPlayerIdentifier(name)
-                }
-                //apiPlayerIdentifier
-
-                val teamOpt = teamIdOpt.flatMap( teamId => competitorDao.find(teamId) )
-                getSimplePlayerInfo(apiPlayerIdentifier, Some(t.getReservationId), teamOpt)
-              //piOpt.flatMap( p => getSimplePlayerInfo(p))
+            case (user, teamOpt) =>
+              val apiTeamOpt = (user, teamOpt) match {
+                case (RegedUser(id),Some(TeamRef(teamId))) => Some(new TeamIdentifier(teamId, teamDao.find(teamId).get.name))
+                case (AnonUser(id),Some(TeamRef(teamId))) => throw new IllegalStateException("blaj")
+                case (u,Some(VirtualTeamRef(vtid,optName))) => Some(new TeamIdentifier(vtid,optName.orNull))
+                case (u,None) => None
+              }
+              val apiPlayerIdentifier = user match {
+                case RegedUser(id) => new RegisteredPlayerIdentifier(id)
+                case AnonUser(name) => new AnonymousPlayerIdentifier(name)
+              }
+              //apiPlayerIdentifier
+              getSimplePlayerInfo(apiPlayerIdentifier, Some(t.getReservationId), apiTeamOpt)
           }
           pi
         /*case t:Ticket => val l = ticketDao.findTicket(t.getReportableId).map( tt => new RegisteredPlayerIdentifierWithInfo(tt.user.username,tt.user.id))
@@ -134,24 +139,11 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
    */
   @Transactional
   def endGame(gameSessionId: JLong, serializedResult: String) {
-    log.info("EndGame invoked  : " + serializedResult)
-    log.info("GAMES IN ENDGAME " + gameDao.findAll.mkString(","))
-    reservationService.findGameSession(gameSessionId).foreach {
-      case gameSessionReservations =>
-
-    }
-    reservationService.findByGameSessionId(gameSessionId) match {
-      case Some(g) =>
-        g.result = new GameResult(1, serializedResult)
-        g.result.game = g
-        gameResultDao.insert(g.result)
-        gameDao.update(g)
-
-      case None =>
-        val res = gameResultService.transformToRenderable(gameSessionId, serializedResult)
-        log.info("Game Not found " + gameSessionId + " " + serializedResult)
-    }
+    gameResultService.endGame(gameSessionId, serializedResult)
   }
+
+
+
 
 
 }

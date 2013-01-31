@@ -46,6 +46,7 @@ import Model._
 
 
 sealed abstract class AbstractUser {
+  // TODO : am i used?
   var reservationId:Option[GameReservationService.GameServerReservationId] = None
 }
 case class RegedUser(var id:UserId) extends AbstractUser
@@ -98,7 +99,7 @@ case class Ladder() extends Serializable with Same[JLLong] {
 
 }
 
-abstract sealed class AbstractTeamRef()
+sealed abstract class AbstractTeamRef
 case class TeamRef(val id:TeamId) extends AbstractTeamRef
 case class VirtualTeamRef(val virtaulTeamId:Long, val name:Option[String]) extends AbstractTeamRef
 

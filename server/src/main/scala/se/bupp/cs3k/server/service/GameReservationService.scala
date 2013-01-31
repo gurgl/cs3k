@@ -224,26 +224,30 @@ class GameReservationService {
 
   }
 
-  def createVirtualTeam(gameSessionId:GameSessionId, name:Option[String]) : VirtualTeamRef = {
-
+  def addTeamToSession(gameSessionId:GameSessionId, at:AbstractTeamRef)  {
 
     findGameSession(gameSessionId) match {
       case Some((players, teamsOpt)) =>
-        val res  = new VirtualTeamRef(virtualTeamSeqId, name)
-        log.info("Allocating new virtual team id " + res)
-        virtualTeamSeqId = virtualTeamSeqId + 1
 
-        val teams:List[_ <: AbstractTeamRef] = Nil //teamsOpt.flatten
+        val teams = teamsOpt.flatten( t => t).toList :+ at
 
         val newEntry = (gameSessionId -> (players, Some(teams)))
+        log.info("Modifying gs : add team " + newEntry)
         openGameSessions = openGameSessions +  newEntry
-        res
       case None =>
         throw new RuntimeException("Session Not found")
     }
-
-
   }
+
+  def createVirtualTeam(name:Option[String]) : VirtualTeamRef = {
+
+    val res  = new VirtualTeamRef(virtualTeamSeqId, name)
+    log.info("Allocating new virtual team id " + res)
+    virtualTeamSeqId = virtualTeamSeqId + 1
+
+    res
+  }
+
 
   def allocateGameSession() : GameSessionId = {
     val res:GameSessionId = occassionSeqId
@@ -304,6 +308,17 @@ class GameReservationService {
 
     if (!g.timeTriggerStart) {
       val gameSessionId = allocateGameSession()
+
+      import scala.collection.JavaConversions.asScalaBuffer
+      val teams = g.participants.map( _.id.competitor ) .collect { case t: Team  => t }
+      if(teams.size > 0 ) {
+        if(teams.size == g.participants.size) {
+          teams.foreach { t => addTeamToSession(gameSessionId, new TeamRef(t.id)) }
+        } else {
+          throw new IllegalStateException("Mixed competitors in gameocassion")
+        }
+      }
+
       g.gameSessionIdOpt = Some(gameSessionId)
       var processSettings = GameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
       log.info("GAMES IN startPersistedGameServer " + gameDao.findAll.mkString(","))
