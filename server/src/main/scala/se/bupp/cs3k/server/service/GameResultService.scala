@@ -52,6 +52,9 @@ class GameResultService {
 
 
 
+  @Autowired
+  var gameLog:GameLogService = _
+
 
 
   @Transactional
@@ -68,12 +71,29 @@ class GameResultService {
   }
 
 
-  def transformToRenderableTeamGame(gameSessionId: GameOccassionId, serializedResult: String, teams:List[AbstractTeamRef]) = {
-    ""
+  def transformToRenderableTeamGame(gameSessionId: GameSessionId, serializedResult: String, teams:List[AbstractTeamRef]) = {
+    val resIdToLabelList = teams.map {
+      case TeamRef(u) => teamDao.find(u).get ; (u.toLong,  "${teamId:" + u + "}" )
+      case VirtualTeamRef(id, nameOpt) => (id, nameOpt.getOrElse("Fix me - insert list of anon members/pids"))
+    } toMap
+    val resIdToLabelMap = resIdToLabelList.map { case (k,v) => (new java.lang.Long(k),v) }
+    var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
+    import scala.collection.JavaConversions.mapAsJavaMap
+    val html = ExampleScoreScheme.ExScoreScheme.renderToHtml(value, resIdToLabelMap)
+    gameLog.write(html)
   }
 
-  def transformToRenderablePlayerGame(gameSessionId: GameOccassionId, serializedResult: String, users:Map[GameServerReservationId, AbstractUser]) = {
-    ""
+  def transformToRenderablePlayerGame(gameSessionId: GameSessionId, serializedResult: String, users:Map[GameServerReservationId, AbstractUser]) = {
+
+    val resIdToLabelMap = users.mapValues {
+      case RegedUser(u) => userDao.find(u).get ; "${playerId:" + u + "}"
+      case AnonUser(name) => name
+    } map { case (k,v) => (new java.lang.Long(k),v) }
+    var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
+    import scala.collection.JavaConversions.mapAsJavaMap
+    val html = ExampleScoreScheme.ExScoreScheme.renderToHtml(value, resIdToLabelMap)
+    gameLog.write(html)
+
   }
 
   def endGame(gameSessionId: GameSessionId, serializedResult: String) {
@@ -147,6 +167,12 @@ class GameResultService {
                 //val markup = "<table class=\"table table-striped\"><tbody>" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</tbody></table>"
                 val res = transformToRenderablePlayerGame(gameSessionId, serializedResult, players. map { case (pid, (u,None)) => (pid,u) } )
             }
+          } else {
+            // MIXED
+            //val competitorsByName = getCompetitorsByName(gs)
+            //var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
+            //val markup = "<table class=\"table table-striped\"><tbody>" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</tbody></table>"
+            val res = transformToRenderablePlayerGame(gameSessionId, serializedResult,  players. map { case (pid, (u,None)) => (pid,u) } )
           }
           //val teamRefs = teamsDetails.collect { case t: TeamRef => t }
         }

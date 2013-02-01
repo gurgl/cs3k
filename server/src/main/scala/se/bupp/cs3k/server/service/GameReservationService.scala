@@ -251,6 +251,9 @@ class GameReservationService {
 
 
 
+  def findGameSessionIdAndPlayerByReservationId(id:GameServerReservationId) : Option[(GameSessionId,ReservationDetails)] = {
+    findGameSessionByReservationId(id:GameServerReservationId).map { case (gsId, (plyrs,teams)) => (gsId,plyrs(id)) }
+  }
   def findGameSessionByReservationId(id:GameServerReservationId) : Option[(GameSessionId,Session)] = {
     openGameSessions.find {
       case (gameSessionId, (seatMap, teamsOpt)) => seatMap.exists( s => s._1 == id)
@@ -329,10 +332,10 @@ class GameReservationService {
     throw new NotImplementedException()
   }
 
-  def playNonScheduledClosed(reservationId:GameServerReservationId, userId:AbstractUser) = {
-    val gameSessionId = this.findGameSessionByReservationId(reservationId).map(_._1).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+  def playNonScheduledClosed(reservationId:GameServerReservationId) = {
+    val (gameSessionId, (user, teamOpt) ) = findGameSessionIdAndPlayerByReservationId(reservationId).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     val rg = GameServerPool.pool.findRunningGame(gameSessionId).getOrElse(throw new IllegalStateException("No server found for " + gameSessionId))
-    val gp = this.createGameServerPass(rg, userId, Some(reservationId), None).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
+    val gp = createGameServerPass(rg, user, Some(reservationId), None).getOrElse(throw new IllegalArgumentException("reservationId doenst exist " + reservationId ))
     (rg,gp)
   }
 

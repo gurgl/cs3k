@@ -24,8 +24,6 @@ import se.bupp.cs3k.server.model.GameOccassion
  * To change this template use File | Settings | File Templates.
  */
 
-
-
 @Transactional
 class GenericDaoImpl[T](clz:Class[T]) {
 
@@ -38,6 +36,7 @@ class GenericDaoImpl[T](clz:Class[T]) {
     em.persist(o)
     o
   }
+
   def find[I](i:AnyRef) = Option(em.find(clz,i))
   def delete(o:T) = em.remove(o)
   def update(o:T) = em.merge(o)
@@ -79,24 +78,15 @@ class GenericDaoImpl[T](clz:Class[T]) {
   }
 }
 
-
-
 @Repository
 class GameResultDao extends GenericDaoImpl[GameResult](classOf[GameResult]) {
 
 }
 
-
-
-
-
 @Repository
 class GameParticipationDao extends GenericDaoImpl[GameParticipation](classOf[GameParticipation]) {
 
 }
-
-
-
 
 @Repository
 class GameDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
@@ -179,11 +169,7 @@ class LadderDao extends GenericDaoImpl[Ladder](classOf[Ladder]) {
 @Transactional
 class TeamDao extends GenericDaoImpl[Team](classOf[Team]) {
 
-
-
-
 }
-
 
 @Repository
 @Transactional
@@ -203,4 +189,7 @@ class UserDao extends GenericDaoImpl[User](classOf[User]) {
     getSingle(q).getOrElse(null)
   }
 
+  override def delete(o: User) {
+    throw new RuntimeException("Disallowed method for UserDao")
+  }
 }

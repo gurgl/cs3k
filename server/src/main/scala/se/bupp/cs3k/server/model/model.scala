@@ -45,14 +45,15 @@ object Model {
 
   type GameSessionId = Long
   type GameOccassionId = Long
+  type GameServerReservationId = Long
   type ReservationDetails = (AbstractUser, Option[AbstractTeamRef])
   type VirtualTeamId = Long
 
-  type Players = Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])]
+  type Players = Map[GameServerReservationId,ReservationDetails]
   type TeamsDetailsOpt = Option[List[AbstractTeamRef]]
-  type Session = (Map[GameServerReservationId,(AbstractUser,Option[AbstractTeamRef])], TeamsDetailsOpt)
+  type Session = (Players, TeamsDetailsOpt)
   // TODO rename me
-  type GameServerReservationId = Long
+
 
 }
 

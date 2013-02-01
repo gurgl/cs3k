@@ -11,7 +11,7 @@ import javax.persistence.TypedQuery
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model._
-import se.bupp.cs3k.server.service.{GameResultService, TeamService, GameReservationService, CompetitorService}
+import se.bupp.cs3k.server.service._
 import se.bupp.cs3k.server.{Cs3kConfig, LobbyHandler}
 import se.bupp.cs3k.LobbyJoinRequest
 import com.esotericsoftware.kryonet.Connection
@@ -25,6 +25,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import scala.Some
 import se.bupp.cs3k.server.model.RunningGame
 import se.bupp.cs3k.server.facade.GameServerFacadeImpl
+import se.bupp.cs3k.server.model.NonPersisentGameOccassion
+import scala.Some
+import se.bupp.cs3k.server.model.RunningGame
+import se.bupp.cs3k.server.model.RegedUser
+import se.bupp.cs3k.server.model.AnonUser
 
 /**
  * Created with IntelliJ IDEA.
@@ -59,8 +64,9 @@ class IntegrationTest extends Specification with Mockito {
     appContext.close()
     res
   }
+  var mapper = new ObjectMapper()
 
-  "game setup" should {
+  "scheduled game setup" should {
     "handle 1vs1 " in {
       //GameServerPool.pool = new GameServerPool()
       val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
@@ -146,7 +152,7 @@ class IntegrationTest extends Specification with Mockito {
       1 === 1
     }
 
-    "handle 2vs2" in {
+    "handle 2vs2 scheduled" in {
       //GameServerPool.pool = new GameServerPool()
       val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
       val factory =  appContext.asInstanceOf[BeanFactory];
@@ -213,7 +219,7 @@ class IntegrationTest extends Specification with Mockito {
 
       */
 
-      var mapper: ObjectMapper = new ObjectMapper()
+
       game.gameSessionIdOpt.isDefined === false
       var (g1,p1) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user1.id))
       there was one(GameServerPool.pool).spawnServer(any,any)
@@ -222,14 +228,13 @@ class IntegrationTest extends Specification with Mockito {
       game_v1.gameSessionIdOpt.isDefined === true
 
       GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
+
       var (g2,p2) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user2.id))
       there was one(GameServerPool.pool).findRunningGame(any)
 
-      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
       var (g3,p3) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user3.id))
       there was two(GameServerPool.pool).findRunningGame(any)
 
-      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
       var (g4,p4) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user4.id))
       there was three(GameServerPool.pool).findRunningGame(any)
 
@@ -264,15 +269,16 @@ class IntegrationTest extends Specification with Mockito {
       appContext.close()
       1 === 1
     }
+  }
 
-
-    "asdf" in {
+ "non scheduled closed setup" should {
+    "handle 2vs2 g" in {
       val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
       val factory =  appContext.asInstanceOf[BeanFactory];
       var competitorService = factory.getBean("competitorService", classOf[CompetitorService])
       var gameReservationService = factory.getBean(classOf[GameReservationService])
       var gameServerFacade = factory.getBean(classOf[GameServerFacade])
-      //var gameResultService = factory.getBean(classOf[GameResultService])
+      var gameResultService = factory.getBean(classOf[GameResultService])
 
       GameReservationService.openGameSessions = Map.empty
 
@@ -284,24 +290,43 @@ class IntegrationTest extends Specification with Mockito {
       service.addTeamToSession(sessionId,t1)
       var t2 = service.createVirtualTeam(Some("Tjing"))
       service.addTeamToSession(sessionId,t2)
-      //var t1 = new VirtualTeamRef(123, "Tjing")
-      /*var p1 = new AnonymousPlayerIdentifierWithInfo("Nisse", t1)
-      var p2 = new AnonymousPlayerIdentifierWithInfo("Lars", t1)
-      */
-      //
-      /*var p3 = new AnonymousPlayerIdentifierWithInfo("Nisse", t2)
-      var p4 = new AnonymousPlayerIdentifierWithInfo("Lars", t2)*/
+
       val user2 = competitorService.createUser("leffe")
 
-      service.reserveSeat(sessionId,AnonUser("Nisse"),Some(t1))
-      service.reserveSeat(sessionId,RegedUser(user2.id),Some(t1))
+      val seat1 = service.reserveSeat(sessionId, AnonUser("Nisse"), Some(t1))
+      val seat2 = service.reserveSeat(sessionId, RegedUser(user2.id), Some(t1))
 
-      service.reserveSeat(sessionId,AnonUser("Peter"),Some(t2))
-      service.reserveSeat(sessionId,AnonUser("Fredrik"),Some(t2))
+      val seat3 = service.reserveSeat(sessionId, AnonUser("Peter"), Some(t2))
+      val seat4 = service.reserveSeat(sessionId, AnonUser("Fredrik"), Some(t2))
 
-      gameServerFacade.endGame(sessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1":{"a":0,"b":0},"2":{"a":2,"b":0}}}""")
+      GameServerPool.pool = mock[GameServerPool]
 
-      val gameResultService = mock[GameResultService]
+      // TODO : Spawn swerver
+      val occassion = NonPersisentGameOccassion(sessionId)
+
+      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(occassion, null))
+      val (_,gp1) = gameReservationService.playNonScheduledClosed(seat1)
+      there was one(GameServerPool.pool).findRunningGame(any)
+      val (_,gp2) = gameReservationService.playNonScheduledClosed(seat2)
+      there was two(GameServerPool.pool).findRunningGame(any)
+      val (_,gp3) = gameReservationService.playNonScheduledClosed(seat3)
+      there was three(GameServerPool.pool).findRunningGame(any)
+      val (_,gp4) = gameReservationService.playNonScheduledClosed(seat4)
+
+      val p1 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(gp1), occassion.gameSessionId)
+      val p2 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(gp2), occassion.gameSessionId)
+      val p3 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(gp3), occassion.gameSessionId)
+      val p4 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(gp4), occassion.gameSessionId)
+
+
+      gameResultService.gameLog = mock[GameLogService]
+      //val gameResultService = mock[GameResultService]
+
+
+      gameServerFacade.endGame(sessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1000":{"a":10,"b":30},"1001":{"a":2,"b":40}}}""")
+      there was one(gameResultService.gameLog).write("<tr><th>Competitor</th><th>A</th><th>B</th><th>C</th><th>D</th></tr><tr><td>Ena</td><td>1000</td><td>10</td><td>0</td><td>30</td></tr><tr><td>Tjing</td><td>1001</td><td>2</td><td>0</td><td>40</td></tr>")
+
+
 
       //gameResultService.transformToRenderable(sessionId)
 

@@ -235,7 +235,7 @@ class WebStartResourceFactory {
                 // Continuous
                 gameReservationService.playOpenServer(serverId, existingUserId)
               case (None, Some(reservationId), None) =>
-                gameReservationService.playNonScheduledClosed(reservationId, existingUserId)
+                gameReservationService.playNonScheduledClosed(reservationId)
               case (None, None , Some(gameOccassionId)) =>
                 gameReservationService.playScheduledClosed(gameOccassionId, existingUserId)
               case _ => throw new IllegalArgumentException("No game identification given " + (serverIdOpt, reservationIdOpt, gameOccasionIdOpt))
@@ -254,7 +254,7 @@ class WebStartResourceFactory {
               // Continuous
               gameReservationService.playOpenServer(serverId,p)
             case (None, Some(reservationId)) =>
-              gameReservationService.playNonScheduledClosed(reservationId, p)
+              gameReservationService.playNonScheduledClosed(reservationId)
             case _ => throw new IllegalArgumentException("No game identification given" + (serverIdOpt, gameOccasionIdOpt))
           }
           Right(rgAndPass)
