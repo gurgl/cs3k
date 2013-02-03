@@ -19,7 +19,6 @@ import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.model.Model._
 import java.io.File
 import io.Source
-import org.scalatest.Reporter
 import scala.Some
 import se.bupp.cs3k.server.model.VirtualTeamRef
 import scala.Some
@@ -101,6 +100,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
                 case (AnonUser(id),Some(TeamRef(teamId))) => throw new IllegalStateException("blaj")
                 case (u,Some(VirtualTeamRef(vtid,optName))) => Some(new TeamIdentifier(vtid,optName.orNull))
                 case (u,None) => None
+                case (_,_) => throw new IllegalStateException("impossible state")
               }
               val apiPlayerIdentifier = user match {
                 case RegedUser(id) => new RegisteredPlayerIdentifier(id)
