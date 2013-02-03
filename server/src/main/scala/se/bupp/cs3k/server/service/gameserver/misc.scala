@@ -26,7 +26,8 @@ class GameServerSpecification(val cmdStr:String,val resourceNeeds:ResourceNeeds)
 class GameProcessSettings(var commandLine:CommandLine, var clientJNLPUrl:String, val props:Map[String,String], val resourceSet: AllocatedResourceSet, val gpt:GameProcessTemplate) {
 
   //def jnlpUrl(reservationId:NonPersistentOccassionTicketId,name:String) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&player_name=" + name)
-  def jnlpUrl(reservationId:GameServerReservationId,name:Option[UserId]) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId+"&user_id=" + name)
+  // TODO: Move to lobby someway - as it decides what params are needed
+  def jnlpUrl(reservationId:GameServerReservationId,name:Option[UserId]) : URL = new URL(clientJNLPUrl + "?reservation_id=" + reservationId)
 }
 
 

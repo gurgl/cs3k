@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.server.service.GameReservationService
 import org.springframework.beans.factory.annotation.Autowired
-import se.bupp.cs3k.server.model.{AnonUser, RegedUser, RunningGame}
+import se.bupp.cs3k.server.model.{AbstractUser, AnonUser, RegedUser, RunningGame}
 import org.apache.log4j.Logger
 import user.{RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
 import xml.Utility.Escapes
@@ -71,6 +71,7 @@ object  WebStartResourceFactory {
 
             val lobbyJnlpFile = new ContextRelativeResource("./lobbyX.jnlp")
             //val launchGameJnlp = new ContextRelativeResource("/game_deploy_dir_tmp/tanks/Game.jnlp")
+
             val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
 
             val resourcesNew = "<resources>" +
@@ -219,34 +220,43 @@ class WebStartResourceFactory {
 
   def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[GameServerReservationId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[GameOccassionId], playerNameOpt:Option[String]) = {
     import se.bupp.cs3k.server.Util.eitherSuccess
-    val serverAndPassValidation:Either[String,(RunningGame,AbstractGamePass)] = (userIdOpt, playerNameOpt) match {
-      case (None, None) =>
-        Left("No user identification given")
+    val serverAndPassValidation:Either[String,(RunningGame,AbstractGamePass)] = {
+      val userOpt = (userIdOpt, playerNameOpt) match {
+      case (None, Some(name)) =>
+        Some(AnonUser(name))
       case (Some(userId), _) =>
-        val userOpt = userDao.findUser(userId).map(
+        userDao.findUser(userId).map(
           p => new RegedUser(userId)
         )
-        val userValidation = userOpt.toRight("Couldnt Construct user")
-        userValidation.onSuccess { existingUserId =>
+      case (_, _) =>
+        None //Left("No user identification given")
+      }
+        //val userValidation = userOpt.toRight("Couldnt Construct user")
+        //userValidation.onSuccess { existingUserId =>
           try {
 
-            val rgAndPass = (serverIdOpt, reservationIdOpt, gameOccasionIdOpt) match {
-              case (Some(serverId), None, None) =>
-                // Continuous
-                gameReservationService.playOpenServer(serverId, existingUserId)
-              case (None, Some(reservationId), None) =>
+            val rgAndPass = (serverIdOpt, reservationIdOpt, gameOccasionIdOpt, userOpt) match {
+              case (None, Some(reservationId), None, uOpt) =>
                 gameReservationService.playNonScheduledClosed(reservationId)
-              case (None, None , Some(gameOccassionId)) =>
+              case (None, None , Some(gameOccassionId), Some(existingUserId:RegedUser)) =>
                 gameReservationService.playScheduledClosed(gameOccassionId, existingUserId)
-              case _ => throw new IllegalArgumentException("No game identification given " + (serverIdOpt, reservationIdOpt, gameOccasionIdOpt))
+
+              case (Some(serverId), None, None, Some(p)) =>
+                // Continuous
+                gameReservationService.playOpenServer(serverId,p)
+              /*case (None, Some(reservationId)) =>
+                gameReservationService.playNonScheduledClosed(reservationId) */
+              case _ => throw new IllegalArgumentException("No game identification given " + (serverIdOpt, reservationIdOpt, gameOccasionIdOpt, userOpt))
+
+
             }
             Right(rgAndPass)
 
           } catch {
             case e:IllegalArgumentException => Left(e.getMessage)
           }
-        }
-      case (None, Some(name)) =>
+        //}
+      /*case (None, Some(name)) =>
         try {
           val p = new AnonUser(name)
           val rgAndPass = (serverIdOpt, reservationIdOpt) match {
@@ -260,7 +270,7 @@ class WebStartResourceFactory {
           Right(rgAndPass)
         } catch {
           case e:IllegalArgumentException => Left(e.getMessage)
-        }
+        }*/
     }
 
     serverAndPassValidation

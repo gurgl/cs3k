@@ -21,7 +21,7 @@ import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, L
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
 import se.bupp.cs3k.server.model._
-import se.bupp.cs3k.server.service.{GameResultService, GameReservationService, LadderService}
+import se.bupp.cs3k.server.service.{GameLogService, GameResultService, GameReservationService, LadderService}
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.{MarkupContainer, RestartResponseException}
@@ -54,6 +54,8 @@ class PlayPanel(id:String) extends Panel(id) {
   @SpringBean
   var gameResultService:GameResultService = _
 
+  @SpringBean
+  var gameLogService:GameLogService = _
 
   @AnonymousOnly
   class AnonLaunchForm(id: String) extends Form[String](id) {
@@ -339,6 +341,19 @@ class PlayPanel(id:String) extends Panel(id) {
         }
       })
 
+    }
+  })
+
+
+  add(new WebMarkupContainer("latestAnonScores") {
+    override def onComponentTagBody(markupStream: MarkupStream, openTag: ComponentTag) {
+      super.onComponentTagBody(markupStream, openTag)
+      val response = getRequestCycle().getResponse();
+      val read = gameLogService.read()
+
+      import scala.collection.JavaConversions.asScalaBuffer
+      val res = read.split("<br class=\"score-separator\">").map( i => """<table class="table">""" + i +  "</table>").mkString("<br>")
+      response.write(res)
     }
   })
 }
