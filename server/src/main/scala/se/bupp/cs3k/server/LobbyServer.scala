@@ -32,9 +32,9 @@ import com.esotericsoftware.kryo.serializers.{BeanSerializer, TaggedFieldSeriali
 import com.esotericsoftware.kryo.Kryo
 import service.gameserver.{GameProcessTemplate, GameServerPool, GameServerRepository}
 import se.bupp.cs3k.server.model.Model._
-import actors.{OutputChannel, Actor}
-import scala.actors.Actor._
 import scala.Some
+import concurrent.{Promise, Future, future, promise}
+import collection.immutable.Queue
 
 
 /**
@@ -102,26 +102,45 @@ object ServerAllocator {
   case class DropInterrest()
   case class AllocateAccept()
 
-  var serverAllocator = new ServerAllocator
+  var serverAllocator = new ServerAllocator(Cs3kConfig.MAX_NUM_OF_GAME_SERVER_PROCESSES)
 
 }
 
 
-class ServerAllocator extends Typed{
-  var queue = mutable.Queue.empty[OutputChannel[Any]]
-  var free = 0
-  def allocate() = {
-      if(free > 0) {
-        free = free - 1
-          sender ! AllocateAccept()
-        } else {
-          queue.enqueue(sender)
-          sender ! AllocateDenyQueued()
-        }
-      case DropInterrest() => queue.dequeueFirst( _ == sender)
-      case Free() => free = free + 1
-      case Init(i) => free = i
-      case _ => println("error")
+class ServerAllocator(val numOfTotalSlots:Int) {
+  var queue = Queue.empty[Promise[Int]]
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  var numOfSlotsAllocated = 0
+
+  private def allocation() = {
+    val r = numOfSlotsAllocated
+    numOfSlotsAllocated = numOfSlotsAllocated + 1
+    r
+  }
+  def allocate() : Future[Int] = {
+    if (numOfSlotsAllocated < numOfTotalSlots) {
+      val f = allocation()
+      future {
+        f
+      }
+    } else {
+      val p = promise[Int]
+      queue = queue.enqueue(p)
+      p.future
+    }
+  }
+  def deallocate() {
+    if (queue.size > 0) {
+      queue = queue.dequeue match {
+        case (p, queueNew) =>
+          p success allocation()
+
+          queueNew
+      }
+    } else {
+      numOfSlotsAllocated = numOfSlotsAllocated - 1
     }
   }
 }
@@ -132,8 +151,9 @@ abstract class AbstractLobbyHandler[T] {
 
   var queue = mutable.Queue.empty[(Connection,T)]
 
-  def allocate() = {
 
+  def allocate() = {
+    ServerAllocator.serverAllocator.allocate()
   }
 
   def evaluateQueue() : Unit
@@ -176,11 +196,9 @@ class TeamLobbyHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId:
 
   import AbstractLobbyHandler._
 
-
   def customize(u: AbstractUser) = null
 
   def evaluateQueue() {}
-
 
 }
 
@@ -207,10 +225,14 @@ class NonTeamLobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerReposi
 
   def evaluateQueue() {
     if (queue.size >= numOfPlayers) {
+
       GameServerRepository.findBy(gameAndRulesId) match {
         case Some(gameServerSettings) =>
+          allocate()
           val party = createParty
           launchServerInstance(gameServerSettings,party)
+
+
         case None => log.error("Unknown game server setting : " + gameAndRulesId)
       }
       ()

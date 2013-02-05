@@ -6,6 +6,7 @@ import org.specs2.mutable.Specification
 import org.specs2.mock.Mockito
 import se.bupp.cs3k.LobbyJoinRequest
 import se.bupp.cs3k.server.ServerAllocator.{AllocateAccept, Allocate}
+import scala.util.Success
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,20 +18,24 @@ import se.bupp.cs3k.server.ServerAllocator.{AllocateAccept, Allocate}
 @RunWith(classOf[JUnitRunner])
 class ServerAllocatorTest extends Specification with Mockito {
 
-
   "server allocator " should {
     "allocata" in {
 
+      val allocator = new ServerAllocator(2)
 
-      val allocator = ServerAllocator.serverAllocator
-      allocator.start()
+      val al1 = allocator.allocate()
+      val al2 = allocator.allocate()
+      val al3 = allocator.allocate()
 
-      val res = allocator ! Allocate()
+      /*al1.value === Some(Success(0))
+      al2.value === Some(Success(1))
+      al3.value === None*/
 
-      res must beAnInstanceOf[AllocateAccept]
+      al1.isCompleted === true
+      al2.isCompleted === true
+      al3.isCompleted === false
 
 
     }
-
   }
 }

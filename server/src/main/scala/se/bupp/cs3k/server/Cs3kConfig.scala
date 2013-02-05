@@ -31,7 +31,7 @@ object Cs3kConfig {
   var LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 2
 
 
-  val NUM_OF_GAME_SERVER_PROCESS = 10
+  val MAX_NUM_OF_GAME_SERVER_PROCESSES = 10
 
   lazy val REMOTE_IP = {
     val stackOverflowURL = "http://www.biranchi.com/ip.php"

@@ -37,8 +37,4 @@ class Init {
   GameServerRepository.addProcessTemplate(('TankGame, 'TG4Player), tankGameSettings4)
 
 
-
-  ServerAllocator.serverAllocator.start()
-  ServerAllocator.serverAllocator ! Init(Cs3kConfig.NUM_OF_GAME_SERVER_PROCESS)
-
 }
