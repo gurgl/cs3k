@@ -217,3 +217,88 @@ Caused by: net.sourceforge.nanoxml.XMLParseException: XML Parse Exception during
     Date: Sat, 03 Nov 2012 15:43:06 GMT
     Connection: keep-alive
     Content-Type: application/x-java-jnlp-file
+    
+    ------------------
+    
+    
+    
+
+
+21<zartura>21 Squarism, http://docs.scala-lang.org/overviews/core/futures.html
+18<zartura> read upon promises
+31<Isch>30 ok
+21<judkinsstephen>21 Squarism: how long do you plan on keeping a Res "allocated"?
+18<zartura> what I suggest is that you have a fifo queue of promises
+ stefan-_ StefanQn judkinsstephen stevefink stew stnly 
+18<zartura> return futures from those promises
+31<Isch>30 judkinsstephen, 5-10 minutes
+18<zartura> and when you get a free resource, just fullfill the promise with Res
+19* 19miclorb (~miclorb@ppp121-44-115-96.lns20.syd6.internode.on.net) gick in i #scala
+18<zartura> and remove it from FIFO queue
+19* 19kppullin (~kppullin@pdpc/supporter/active/kppullin) gick in i #scala
+21<zartura>21 Squarism, does that make any sense?
+23* 23fsvehla har avslutat (23Quit: fsvehla23)
+21<judkinsstephen>21 Squarism: what exactly are these "Res" instances? backend connections? do you code to handle a single unique instance for 5 minutes, or can it borrow it for one operation? 
+31<Isch>30 arturaz, it does... it feels like a knot has disolved in my brain
+19* 19mcclellan (42c0ea9e@gateway/web/freenode/ip.66.192.234.158) gick in i #scala
+21<judkinsstephen>21 Squarism: I would really recommend removing "deallocate" entirely
+18<zartura> judkinsstephen, why?
+18<judkinsstephen> instead making allocate(A => Future[B]):Future[B]
+18<judkinsstephen> arturaz: because you'll have to make sure to "deallocate" under all error conditions
+18<judkinsstephen> especially when you're dealing with Futures that can be annoying
+31<Isch>30 judkinsstephen, its more of an "allowance to spawn a process" 
+31<Isch>30 ...Res that is
+23* 23Gryffin har avslutat (23Ping timeout: 252 seconds23)
+31<Isch>30 thanks alot guys
+21<zartura>21 Squarism, judkinsstephen has a point
+21<judkinsstephen>21 Squarism: ok, and you can use Futures to tell the pool that you're done with the process
+31<Isch>30 ill read up on promises
+18<zartura> function style allocation is safer than explicit allocation/deallocation :)
+31<Isch>30 ah ok.. 
+18<qu1j0t3> loan pattern?
+31<Isch>30 ill look into that too
+23* 23jsuereth har avslutat (23Quit: Ex-Chat23)
+18<zartura> qu1j0t3, +1 :)
+18<qu1j0t3> ok, just checking
+23* 23milosn har avslutat (23Ping timeout: 248 seconds23)
+18<judkinsstephen> that way, you can use "ensure" on the future returned by whatever borrows the process 
+ stefan-_ StefanQn judkinsstephen stevefink stew stnly 
+ stefan-_ StefanQn judkinsstephen stevefink stew stnly 
+31<Isch>30 judkinsstephen, i see what u mean
+18<judkinsstephen> qu1j0t3: yeah, I'm recommending using basically the same thing, except with Futures instead of pure functions
+23* 23asrail har avslutat (23Ping timeout: 252 seconds23)
+23* 23jedws har avslutat (23Quit: Computer has gone to sleep.23)
+19* 19_florian_ (~flo@205.233.39.2) gick in i #scala
+18<zartura> judkinsstephen, why A => Future[B] and not just (A => B): Future[B] ?
+18<_florian_> join #scala
+18<zartura> more specifically
+18<_florian_> hi - why does the following not compile: def getQueryParams(uri : URI) : Map[String, Option[String]] = {
+18<_florian_>     uri.getQuery.split("&").map(_.split("=")).map({ x => if (x.length==2) (x(0),x(1)) else (x(0),None)})
+18<_florian_>       .toMap
+18<_florian_>   }
+18<zartura> allocate(Res => B): Future[B]
+18<_florian_> scala thinks that the result is Map[String, Serializable] 
+18<judkinsstephen> arturaz: because it's possible you will be doing other async computations with Futures when you borrow the Res
+18<zartura> _florian_, what's the error?
+19* 19Gryffin (~anoop@cpc3-croy15-0-0-cust386.croy.cable.virginmedia.com) gick in i #scala
+18<judkinsstephen> arturaz: and it's trivial to turn A => B to A => Future[B], but impossible to turn A => Future[B] to A => B without blocking a thread
+18<_florian_> scala.collection.immutable.Map[java.lang.String,java.io.Serializable]
+18<zartura> judkinsstephen, B can be Future[Something], why force the flatmap on it? :)
+18<_florian_> found   : scala.collection.immutable.Map[java.lang.String,java.io.Serializable]
+18<_florian_>  required: Map[String,Option[String]]
+23* 23dekroning har avslutat (23Quit: leaving23)
+18<judkinsstephen> arturaz: right, but you're using Futures anyway for this: if you are using any *other* libraries that depend on Futures for IO, if you have A => B you will be forced to block a thread
+23* 23lazyshot har avslutat (23Quit: Leaving...23)
+18<judkinsstephen> and like I said, turning A => B to A => Future[B] is trivial
+18<zartura> _florian_, I'd say else (x(0),None)})
+18<zartura> <_florian_>       .toMap
+23* 23RRSchulz har avslutat (23Ping timeout: 252 seconds23)
+18<zartura> x(0) is a string, None is not
+18<_florian_> sure but None fits into Option[String]
+18<zartura> but pure String does not
+18<_florian_> oh shit
+18<_florian_> you're right - my bad :)
+18<_florian_> that was silly of me
+18<_florian_> :)
+18<zartura> judkinsstephen, Promise.pure? :)
+18<_florian_> thanks 

@@ -35,6 +35,7 @@ import se.bupp.cs3k.server.model.Model._
 import scala.Some
 import concurrent.{Promise, Future, future, promise}
 import collection.immutable.Queue
+import scala.util.{Failure, Success}
 
 
 /**
@@ -228,9 +229,19 @@ class NonTeamLobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerReposi
 
       GameServerRepository.findBy(gameAndRulesId) match {
         case Some(gameServerSettings) =>
-          allocate()
+
           val party = createParty
-          launchServerInstance(gameServerSettings,party)
+          import scala.concurrent.ExecutionContext.Implicits.global
+          allocate() onComplete {
+            case Success(i) =>
+              // TODO : Send lobby created
+              launchServerInstance(gameServerSettings,party)
+            case Failure(t) =>
+              // TODO : Send lobby destroyed
+              log.error("Allocation went bad - reinserting party " + t)
+              queue = party ++: queue
+          }
+
 
 
         case None => log.error("Unknown game server setting : " + gameAndRulesId)
