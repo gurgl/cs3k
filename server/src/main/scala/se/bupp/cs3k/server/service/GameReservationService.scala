@@ -207,7 +207,7 @@ class GameReservationService {
     findGameSession(gameSessionId) match {
       case Some((players, teamsOpt)) =>
 
-        val teams = teamsOpt.flatten.toList :+ at
+        val teams = teamsOpt.toList.flatten :+ at
 
         val newEntry = (gameSessionId -> (players, Some(teams)))
         log.info("Modifying gs : add team " + newEntry)

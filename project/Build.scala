@@ -11,13 +11,18 @@ object MyBuild extends Build {
 
   val WICKET_VERSION = "6.2.0"
 
+
+  override def settings = super.settings ++ Seq(scalaVersion := "2.10.0")
+
   lazy val root = Project(id = "root",
-    base = file(".")) aggregate(serverProject, lobbyProject)
+    base = file("."), settings = defaultSettings) aggregate(serverProject, lobbyProject)
+
+  lazy val defaultSettings = Defaults.defaultSettings ++ Seq(scalaVersion := "2.10.0")
 
   lazy val serverProject = Project(
     "server",
     file("server"),
-    settings = Project.defaultSettings ++ webSettings ++ serverSettings
+    settings = defaultSettings ++ webSettings ++ serverSettings
       //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
   ) aggregate(lobbyProject,commonProject) dependsOn(commonProject, apiProject)
 
@@ -65,8 +70,8 @@ object MyBuild extends Build {
       "junit" % "junit" % "4.10" % "test",
       "org.mockito" % "mockito-all" % "1.9.0" % "test",
       "org.specs2" %% "specs2" % "1.12.3" % "test",
-      "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.1.0" % "test",
-      "org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty")
+      "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.1.0" % "test"
+      //"org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty")
   ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
       //"more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",
@@ -110,39 +115,10 @@ object MyBuild extends Build {
 
   )
 
-  /*
-         (target, webstartBuild in lobbyProject) map {
-      (target, webstartBuild) =>
-        System.err.println("Tja")
-        () => {
-          System.err.println("Tja")
-          val newFiles: PathFinder = (webstartBuild * "*")
-          val webapp: File = target / "webapp"
-          val copyFiles: Seq[(File, File)] = newFiles x (Path rebase(webstartBuild, webapp))
-          IO copy copyFiles
-        }
-    }
-   */
-
-  //    "org.eclipse.jetty" % "jetty-webapp" % "7.5.4.v20111024" % "container",
-  //    "org.eclipse.jetty" % "jetty-websocket" % "7.5.4.v20111024" % "container",
-  //    "org.eclipse.jetty" % "jetty-server" % "7.5.4.v20111024" % "container",
-  // "org.eclipse.jetty" % "jetty-webapp" % "7.6.4.v20120524" % "container" exclude("org.eclipse.jetty.orbit", "javax.servlet"),
-  //    "org.eclipse.jetty" % "jetty-websocket" % "7.6.4.v20120524" % "container" exclude("org.eclipse.jetty.orbit", "javax.servlet"),
-  //    "org.eclipse.jetty" % "jetty-server" % "7.6.4.v20120524" % "container" exclude("org.eclipse.jetty.orbit", "javax.servlet"),
-  //    "org.eclipse.jetty" % "jetty-webapp" % "7.6.0.v20120127" % "container",
-  //  "org.eclipse.jetty" % "jetty-server" % "8.1.2.v20120308" % "container"
-  // 	"org.eclipse.jetty.aggregate" % "jetty-all-server" % "8.0.4.v20111024" % "container"
-  //"org.eclipse.jetty.aggregate" % "jetty-all-server" % "7.6.4.v20120524" % "container"
-  //"javax.servlet" % "servlet-api" % "2.5" % "provided",
-  //	"org.eclipse.jetty" % "jetty-server" % "7.6.4.v20120524" % "container",
-  //	"org.eclipse.jetty" % "jetty-webapp" % "7.6.4.v20120524" % "container"
-
-
   lazy val lobbyProject = Project(
     id = "lobby",
     base = file("lobby"),
-    settings = Project.defaultSettings ++ lobbySettings ++ webStartSettings ++ Seq(
+    settings = defaultSettings ++ lobbySettings ++ webStartSettings ++ Seq(
       mappings in(Compile, packageBin) ~= {
         (ms: Seq[(File, String)]) =>
           ms filter {
@@ -151,7 +127,6 @@ object MyBuild extends Build {
           }
       }
     )
-      //++ addArtifact(Artifact("blaj", "dir"), webstartBuild)
   ) dependsOn(commonProject)
 
   lazy val lobbySettings =
@@ -160,10 +135,6 @@ object MyBuild extends Build {
       libraryDependencies ++= Seq(
         "com.intellij" % "forms_rt" % "7.0.3",
         "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
-        //"org.ow2.asm" % "asm" % "4.0",
-        //"org.objenesis" % "objenesis" % "1.2"
-        //"com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm")
-        //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
       ),
       name := "cs3k Lobby",
       organization := "se.pearshine.cs3k",
@@ -204,7 +175,7 @@ object MyBuild extends Build {
   lazy val commonProject = Project(
     "common",
     file("common"),
-    settings = Project.defaultSettings ++ Seq(
+    settings = defaultSettings ++ Seq(
       javacOptions ++= Seq("-source", "1.6"),
       compileOrder := CompileOrder.JavaThenScala,
       libraryDependencies ++= Seq(
@@ -217,7 +188,7 @@ object MyBuild extends Build {
   lazy val apiProject = Project(
     "api",
     file("api"),
-    settings = Project.defaultSettings ++ Seq(libraryDependencies ++= Seq(
+    settings = defaultSettings ++ Seq(libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-annotations" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0"
