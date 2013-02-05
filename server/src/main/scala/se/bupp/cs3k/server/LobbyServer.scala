@@ -2,8 +2,13 @@ package se.bupp.cs3k.server
 
 import com.esotericsoftware.kryonet.{KryoSerialization, Listener, Connection, Server}
 import model._
+import model.AnonUser
+import model.AnonUser
+import model.NonPersisentGameOccassion
 import model.NonPersisentGameOccassion
 import model.RegedUser
+import model.RegedUser
+import model.RunningGame
 import model.RunningGame
 import se.bupp.cs3k._
 import api.user.{RegisteredPlayerIdentifierWithInfo, RegisteredPlayerIdentifier, AnonymousPlayerIdentifier, AbstractPlayerIdentifier}
@@ -14,13 +19,21 @@ import org.apache.commons.exec.{DefaultExecutor, ExecuteWatchdog, DefaultExecute
 import java.util.concurrent.{TimeUnit, Executors}
 import java.net.URL
 import io.Source
+import server.ServerAllocator._
+import server.ServerAllocator.Allocate
+import server.ServerAllocator.AllocateAccept
+import server.ServerAllocator.DropInterrest
+import server.ServerAllocator.Free
 import service.GameReservationService
-import scala.Some
+
 import org.apache.log4j.Logger
 import com.esotericsoftware.minlog.Log
 import com.esotericsoftware.kryo.serializers.{BeanSerializer, TaggedFieldSerializer, JavaSerializer}
 import com.esotericsoftware.kryo.Kryo
 import service.gameserver.{GameProcessTemplate, GameServerPool, GameServerRepository}
+import se.bupp.cs3k.server.model.Model._
+import actors.{OutputChannel, Actor}
+import scala.actors.Actor._
 import scala.Some
 
 
@@ -40,7 +53,7 @@ object LobbyServer {
 
   def createContinousForNonPersistedGameOcassionsInstance(numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) = {
     if (seqId + 1 >= Cs3kConfig.LOBBY_SERVER_PORT_RANGE.last) throw new RuntimeException("Range ended")
-    val lobbyServer = new LobbyServer(seqId, new LobbyHandler(numOfPlayers, gameAndRulesId))
+    val lobbyServer = new LobbyServer(seqId, new NonTeamLobbyHandler(numOfPlayers, gameAndRulesId))
     seqId = seqId + 1
     lobbyServer
   }
@@ -48,58 +61,13 @@ object LobbyServer {
 }
 
 
-object LobbyHandler {
+object AbstractLobbyHandler {
   val log = Logger.getLogger(this.getClass)
   var gameReservationService:GameReservationService = _
-}
 
 
-class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) {
-
-  import LobbyHandler._
-
-  var queue = mutable.Queue.empty[(Connection,AbstractUser)]
-  var queueItemInfo = mutable.Map[Long,AnyRef]()
-
-  var launchQueue = mutable.Queue.empty[List[Connection]]
-
-
-  def playerJoined(request: LobbyJoinRequest, connection: Connection) {
-    val api = request.userIdOpt.map(new RegedUser(_)).getOrElse {
-      if (request.name == "") throw new RuntimeException("YO")
-      new AnonUser(request.name)
-    }
-    queue += Pair(connection, api)
-
-    if (queue.size >= numOfPlayers) {
-      GameServerRepository.findBy(gameAndRulesId) match {
-        case Some(gameServerSettings) => launchServerInstance(gameServerSettings)
-        case None => log.error("Unknown game server setting : " + gameAndRulesId)
-      }
-      ()
-    }
-  }
-
-  def launchServerInstance(settings:GameProcessTemplate) {
-
-    var party = List[(Connection,AbstractUser)]()
-
-
-    log.info("Removing " + numOfPlayers + " players from a queue of " + queue.size)
-
-    (0 until numOfPlayers).foreach { s =>
-      val c = queue.dequeue()
-      party = c :: party
-    }
-
-    log.info("New queue size " + queue.size)
-
-    val gameSessionId = gameReservationService.allocateGameSession()
-    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(gameSessionId))
-
-
+  def sendStartGameInstructionsToParty(party:List[(Connection,AbstractUser)], gameSessionId : GameSessionId, runningGame: RunningGame) {
     val scheduler = Executors.newScheduledThreadPool(1);
-
     log.info("creating delayed game launch announcer task " + party.size)
     val beeper = new Runnable() {
       def  run() {
@@ -122,6 +90,76 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
     }
     val beeperHandle = scheduler.schedule(beeper, Cs3kConfig.LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY,  TimeUnit.SECONDS);
   }
+}
+
+object ServerAllocator {
+  case class Allocate()
+  case class Free()
+  case class Init(val numOf:Int)
+
+
+  case class AllocateDenyQueued()
+  case class DropInterrest()
+  case class AllocateAccept()
+
+  var serverAllocator = new ServerAllocator
+
+}
+
+
+class ServerAllocator extends Typed{
+  var queue = mutable.Queue.empty[OutputChannel[Any]]
+  var free = 0
+  def allocate() = {
+      if(free > 0) {
+        free = free - 1
+          sender ! AllocateAccept()
+        } else {
+          queue.enqueue(sender)
+          sender ! AllocateDenyQueued()
+        }
+      case DropInterrest() => queue.dequeueFirst( _ == sender)
+      case Free() => free = free + 1
+      case Init(i) => free = i
+      case _ => println("error")
+    }
+  }
+}
+
+abstract class AbstractLobbyHandler[T] {
+  import AbstractLobbyHandler._
+
+
+  var queue = mutable.Queue.empty[(Connection,T)]
+
+  def allocate() = {
+
+  }
+
+  def evaluateQueue() : Unit
+
+  def customize(u:AbstractUser) : T
+
+  def playerJoined(request: LobbyJoinRequest, connection: Connection) {
+    val api = request.userIdOpt.map(new RegedUser(_)).getOrElse {
+      if (request.name == "") throw new RuntimeException("YO")
+      new AnonUser(request.name)
+    }
+    queue += Pair(connection, customize(api))
+
+    evaluateQueue()
+  }
+
+  def launchServerInstance(settings:GameProcessTemplate, party: List[(Connection, AbstractUser)]) {
+
+
+    log.info("New queue size " + queue.size)
+
+    val gameSessionId = gameReservationService.allocateGameSession()
+    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(gameSessionId))
+
+    sendStartGameInstructionsToParty(party, gameSessionId, runningGame)
+  }
 
   def removeConnection(p1: Connection): Boolean = {
     queue.dequeueFirst(_._1.getID == p1.getID) match {
@@ -134,7 +172,53 @@ class LobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.Ga
   }
 }
 
-class LobbyServer(val portId:Int, var lobbyHandler:LobbyHandler) {
+class TeamLobbyHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyHandler[AbstractUser] {
+
+  import AbstractLobbyHandler._
+
+
+  def customize(u: AbstractUser) = null
+
+  def evaluateQueue() {}
+
+
+}
+
+
+class NonTeamLobbyHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyHandler[AbstractUser] {
+  import AbstractLobbyHandler._
+
+  var launchQueue = mutable.Queue.empty[List[Connection]]
+
+
+  def customize(u: AbstractUser) = null
+
+  def createParty = {
+    var party = List[(Connection,AbstractUser)]()
+
+    log.info("Removing " + numOfPlayers + " players from a queue of " + queue.size)
+
+    (0 until numOfPlayers).foreach { s =>
+      val c = queue.dequeue()
+      party = c :: party
+    }
+    party
+  }
+
+  def evaluateQueue() {
+    if (queue.size >= numOfPlayers) {
+      GameServerRepository.findBy(gameAndRulesId) match {
+        case Some(gameServerSettings) =>
+          val party = createParty
+          launchServerInstance(gameServerSettings,party)
+        case None => log.error("Unknown game server setting : " + gameAndRulesId)
+      }
+      ()
+    }
+  }
+}
+
+class LobbyServer(val portId:Int, var lobbyHandler:NonTeamLobbyHandler) {
 
 
 

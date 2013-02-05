@@ -2,6 +2,7 @@ package se.bupp.cs3k.server
 
 import service.gameserver.{GameServerRepository, GameServerSpecification}
 import service.resourceallocation.ResourceNeeds
+import se.bupp.cs3k.server.ServerAllocator.Init
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,5 +38,7 @@ class Init {
 
 
 
+  ServerAllocator.serverAllocator.start()
+  ServerAllocator.serverAllocator ! Init(Cs3kConfig.NUM_OF_GAME_SERVER_PROCESS)
 
 }

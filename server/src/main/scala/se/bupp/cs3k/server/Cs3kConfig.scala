@@ -30,6 +30,9 @@ object Cs3kConfig {
   var TEMP_FIX_FOR_STORING_GAME_TYPE: GameServerRepository.GameAndRulesId = ('TankGame, 'TG2Player)
   var LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 2
 
+
+  val NUM_OF_GAME_SERVER_PROCESS = 10
+
   lazy val REMOTE_IP = {
     val stackOverflowURL = "http://www.biranchi.com/ip.php"
     val requestProperties = Map(

@@ -24,7 +24,7 @@ object MyBuild extends Build {
     file("server"),
     settings = defaultSettings ++ webSettings ++ serverSettings
       //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
-  ) aggregate(lobbyProject,commonProject) dependsOn(commonProject, apiProject)
+  ) dependsOn(commonProject, apiProject) aggregate(lobbyProject,commonProject)
 
   //val Start = config()
 

@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.{Component, Service}
 import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
-import se.bupp.cs3k.server.{LobbyHandler, Init, LobbyServer, web}
+import se.bupp.cs3k.server._
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}
@@ -111,8 +111,8 @@ class WicketApplication extends WebApplication {
     webStartResourceFactory = beanFactory.getBean(classOf[WebStartResourceFactory])
     //eventSystem = new EventSystem(this)
     try {
+      AbstractLobbyHandler.gameReservationService = gameReservationService
       lobby2Player = LobbyServer.createContinousForNonPersistedGameOcassionsInstance(2,('TankGame, 'TG2Player))
-      LobbyHandler.gameReservationService = gameReservationService
       lobby2Player.start
       lobby4Player = LobbyServer.createContinousForNonPersistedGameOcassionsInstance(4,('TankGame, 'TG4Player))
       lobby4Player.start

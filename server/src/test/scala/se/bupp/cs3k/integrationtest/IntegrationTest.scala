@@ -12,7 +12,7 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service._
-import se.bupp.cs3k.server.{Cs3kConfig, LobbyHandler}
+import se.bupp.cs3k.server.{AbstractLobbyHandler, Cs3kConfig, NonTeamLobbyHandler}
 import se.bupp.cs3k.LobbyJoinRequest
 import com.esotericsoftware.kryonet.Connection
 
@@ -91,7 +91,7 @@ class IntegrationTest extends Specification with Mockito {
 
       var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
       GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
-      val lobbyHandler = new LobbyHandler(2,gameAndSettingsId)
+      val lobbyHandler = new NonTeamLobbyHandler(2,gameAndSettingsId)
 
       Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE = gameAndSettingsId
       Cs3kConfig.LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 1
@@ -100,7 +100,7 @@ class IntegrationTest extends Specification with Mockito {
       var connection2 = mock[Connection]
       connection2.getID() returns 12
 
-      LobbyHandler.gameReservationService = gameReservationService
+      AbstractLobbyHandler.gameReservationService = gameReservationService
 
       GameServerPool.pool = mock[GameServerPool]
 
@@ -189,7 +189,7 @@ class IntegrationTest extends Specification with Mockito {
 
       var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
       GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
-      val lobbyHandler = new LobbyHandler(2,gameAndSettingsId)
+      val lobbyHandler = new NonTeamLobbyHandler(2,gameAndSettingsId)
 
       Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE = gameAndSettingsId
       Cs3kConfig.LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 1
@@ -198,7 +198,7 @@ class IntegrationTest extends Specification with Mockito {
       var connection2 = mock[Connection]
       connection2.getID() returns 12
 
-      LobbyHandler.gameReservationService = gameReservationService
+      AbstractLobbyHandler.gameReservationService = gameReservationService
 
       GameServerPool.pool = mock[GameServerPool]
 
