@@ -1,8 +1,8 @@
 package se.bupp.cs3k.server
 
 import service.gameserver.{GameServerRepository, GameServerSpecification}
-import service.resourceallocation.ResourceNeeds
-import se.bupp.cs3k.server.ServerAllocator.Init
+import service.resourceallocation.{ServerAllocator, ResourceNeeds}
+import ServerAllocator.Init
 
 /**
  * Created with IntelliJ IDEA.

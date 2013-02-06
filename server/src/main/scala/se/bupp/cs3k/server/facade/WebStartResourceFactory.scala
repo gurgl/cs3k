@@ -5,7 +5,7 @@ import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
 import org.apache.wicket.util.time.{Duration, Time}
 import java.util.Scanner
-import se.bupp.cs3k.server.{Cs3kConfig,  LobbyServer}
+import se.bupp.cs3k.server.{Cs3kConfig}
 import java.io.IOException
 import org.springframework.stereotype.Component
 import se.bupp.cs3k.api._

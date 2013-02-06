@@ -5,7 +5,8 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
 import org.specs2.mock.Mockito
 import se.bupp.cs3k.LobbyJoinRequest
-import se.bupp.cs3k.server.ServerAllocator.{AllocateAccept, Allocate}
+import service.resourceallocation.ServerAllocator
+import ServerAllocator.{AllocateAccept, Allocate}
 import scala.util.Success
 
 /**
