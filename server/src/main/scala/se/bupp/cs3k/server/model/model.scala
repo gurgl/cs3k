@@ -15,6 +15,7 @@ import java.util.Date
 import se.bupp.cs3k.server.Cs3kConfig
 import se.bupp.cs3k.server.service.GameReservationService
 import java.lang
+import concurrent.Future
 
 
 @NamedQueries(Array(
@@ -41,6 +42,7 @@ object Model {
   type UserId = java.lang.Long
   type TeamId = java.lang.Long
 
+  type ProcessToken = Int
 
 
   type GameSessionId = Long
@@ -53,6 +55,8 @@ object Model {
   type TeamsDetailsOpt = Option[List[AbstractTeamRef]]
   type Session = (Players, TeamsDetailsOpt)
   // TODO rename me
+
+
 
 
 }
@@ -338,7 +342,7 @@ class TotalAwaredPointsAndScore(var competitor: Competitor, val points:Long, val
 }
 
 
-case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameProcessSettings) {
+case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameProcessSettings, var done:Future[ProcessToken]) {
 
   def isPublic = game == null
 

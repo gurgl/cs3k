@@ -12,6 +12,7 @@ import se.bupp.cs3k.server.model.{AbstractGameOccassion, RunningGame}
 import se.bupp.cs3k.server.service.resourceallocation.ResourceAllocator
 
 import se.bupp.cs3k.server.model.Model._
+import concurrent.{Future,Promise, future, promise }
 
 /**
  * Created with IntelliJ IDEA.
@@ -44,6 +45,8 @@ object GameServerPool {
 
 class GameServerPool {
 
+  import GameServerPool._
+
   val resourceAllocator = new ResourceAllocator()
 
   val log = Logger.getLogger(classOf[GameServerPool])
@@ -57,13 +60,15 @@ class GameServerPool {
     servers.find { case (rg,e) => rg.game.gameSessionId == gameSessionId}.map(_._1)
   }
 
-  def spawnServer(gpsTemplate:GameProcessTemplate, game:AbstractGameOccassion) = {
+  def spawnServer(gpsTemplate:GameProcessTemplate, game:AbstractGameOccassion, processToken:ProcessToken) : RunningGame = {
     log.info("Starting game " + gpsTemplate + " " + game.gameSessionId)
 
 
     var time: Long = (GameServerPool.clock / 1000) % (10*365*24*60*60)
     var logName: String = "logs/srv_" + time + "_" + game.gameSessionId + ".log"
 
+
+    val done = promise[ProcessToken]
 
     val resourceAllocations = resourceAllocator.allocate(gpsTemplate.gameSpecification.resourceNeeds).getOrElse(
       throw new RuntimeException("Not enought resources available")
@@ -77,13 +82,14 @@ class GameServerPool {
         super.onProcessComplete(exitValue)
         resourceAllocator.unallocate(gameProcessSettings.resourceSet)
         removeServerFromPoolIfExist(game)
-
+        done success processToken
       }
 
       override def onProcessFailed(e: ExecuteException) {
         super.onProcessFailed(e)
         resourceAllocator.unallocate(gameProcessSettings.resourceSet)
         removeServerFromPoolIfExist(game)
+        done success processToken
       }
 
     }
@@ -106,7 +112,7 @@ class GameServerPool {
     log.info("End server start")
 
 
-    var running: RunningGame = new RunningGame(game, gameProcessSettings)
+    var running: RunningGame = new RunningGame(game, gameProcessSettings, done.future)
     servers = servers + (running -> executor)
 
     // some time later the result handler callback was invoked so we

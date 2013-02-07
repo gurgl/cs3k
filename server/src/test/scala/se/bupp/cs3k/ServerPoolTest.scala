@@ -33,7 +33,7 @@ class ServerPoolTest  extends Specification {
       var setup: GameProcessTemplate = GameServerRepository.gameServerSetups(('TankGame, 'TG2Player))
 
       var pool: GameServerPool = new GameServerPool()
-      var server1: RunningGame = pool.spawnServer(setup, new NonPersisentGameOccassion(123L))
+      var server1: RunningGame = pool.spawnServer(setup, new NonPersisentGameOccassion(123L),1)
       val executor1 = pool.servers(server1)
 
       executor1.getWatchdog.killedProcess() === false
@@ -43,7 +43,7 @@ class ServerPoolTest  extends Specification {
         case e:InterruptedException =>
       }
 
-      var server2: RunningGame = pool.spawnServer(setup, new NonPersisentGameOccassion(234L))
+      var server2: RunningGame = pool.spawnServer(setup, new NonPersisentGameOccassion(234L),2)
       val executor2 = pool.servers(server2)
       pool.servers.size === 2
 

@@ -27,7 +27,7 @@ object ServerAllocator {
 }
 
 class ServerAllocator(val numOfTotalSlots:Int) {
-  var queue = Queue.empty[Promise[Int]]
+  var queue = Queue.empty[(Promise[Int], Int => Future[Int])]
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -38,24 +38,31 @@ class ServerAllocator(val numOfTotalSlots:Int) {
     numOfSlotsAllocated = numOfSlotsAllocated + 1
     r
   }
-  def allocate() : Future[Int] = {
+  def allocate(done:Int => Future[Int]) : Future[Int] = {
     if (numOfSlotsAllocated < numOfTotalSlots) {
-      val f = allocation()
+      val token = allocation()
       future {
-        f
+        handleCompletion(done, token)
       }
     } else {
       val p = promise[Int]
-      queue = queue.enqueue(p)
+      queue = queue.enqueue((p,done))
       p.future
     }
   }
-  def deallocate() {
+  private def handleCompletion(done:Int => Future[Int],token:Int) : Int = {
+    done(token) onComplete {
+       case _ => deallocate()
+    }
+    token
+  }
+
+  private def deallocate() {
     if (queue.size > 0) {
       queue = queue.dequeue match {
-        case (p, queueNew) =>
-          p success allocation()
-
+        case ((p, done)  , queueNew) =>
+          val token = allocation()
+          p success handleCompletion(done,token)
           queueNew
       }
     } else {

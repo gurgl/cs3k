@@ -3,6 +3,7 @@ package se.bupp.cs3k.server.service
 import dao.{CompetitorDao, GameParticipationDao, UserDao, GameDao}
 import gameserver.{GameServerPool, GameServerRepository}
 import org.springframework.stereotype.{Service, Component}
+import resourceallocation.ServerAllocator
 import se.bupp.cs3k.server.model._
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
@@ -130,21 +131,21 @@ class GameReservationService {
 
   def createGameServerPass(rg:RunningGame, pi:AbstractUser, reservationIdOpt:Option[GameServerReservationId], teamOpt:Option[Team]) : Option[AbstractGamePass] = {
     rg match {
-      case RunningGame(null,_) =>
+      case RunningGame(null,_,_) =>
         val apiIdentifier = pi match {
           case RegedUser(i) => new RegisteredPlayerIdentifier(i)
           case AnonUser(s) => new AnonymousPlayerIdentifier(s)
         }
 
         Some(new IdentifyOnlyPass(apiIdentifier))
-      case RunningGame(NonPersisentGameOccassion(occasionId),_) =>
+      case RunningGame(NonPersisentGameOccassion(occasionId),_,_) =>
         reservationIdOpt.flatMap { res =>
           findGameSessionByReservationId(res).map { case (occ,part) =>
             new GateGamePass(res)
           }
         }
 
-      case RunningGame(go:GameOccassion,_) => pi match {
+      case RunningGame(go:GameOccassion,_,_) => pi match {
         case p:RegedUser =>
           // Might be wrong?
           Some(new GateGamePass(reserveSeat(go.gameSessionIdOpt.get, pi, teamOpt.map( t => TeamRef(t.id)))))
@@ -302,7 +303,21 @@ class GameReservationService {
       g.gameSessionIdOpt = Some(gameSessionId)
       var processSettings = GameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
       log.info("GAMES IN startPersistedGameServer " + gameDao.findAll.mkString(","))
-      var server: RunningGame = GameServerPool.pool.spawnServer(processSettings, g)
+
+
+      /*val launcher = (pt:ProcessToken) => {
+        removePartyFromQueue(party)
+        val runningGame = launchServerInstance(gameServerSettings, party, pt)
+        runningGame.done
+      }
+      val allocation = ServerAllocator.serverAllocator.allocate(launcher)
+
+      */
+
+
+      //TODO Fixeme
+      val processToken = 11
+      var server: RunningGame = GameServerPool.pool.spawnServer(processSettings, g, processToken)
 
 
       g.gameServerStartedAt = new Date()

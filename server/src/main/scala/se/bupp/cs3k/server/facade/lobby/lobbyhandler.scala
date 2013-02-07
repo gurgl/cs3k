@@ -26,6 +26,7 @@ import scala.Some
 import server.model.RegedUser
 import server.model.RunningGame
 import util.{Failure, Success}
+import collection.immutable.Queue
 
 /**
  * Created with IntelliJ IDEA.
@@ -66,18 +67,28 @@ object AbstractLobbyQueueHandler {
 }
 
 
-abstract class AbstractLobbyQueueHandler[T] {
+abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository.GameAndRulesId) {
 
+
+
+  val gameServerSettings =  GameServerRepository.findBy(gameAndRulesId).getOrElse(throw new RuntimeException("Not found " + gameAndRulesId))
+
+  type Info = T
 
   import AbstractLobbyQueueHandler._
   var queue = scala.collection.mutable.Queue.empty[(Connection,T)]
+  var queueMembersWithLobbyAssignments = List.empty[(AbstractUser,Int)]
 
+
+  //def removePartyFromQueue(party:List[(Connection,AbstractUser)]) : List[(Connection,AbstractUser)]
 
   def allocate() = {
-    ServerAllocator.serverAllocator.allocate()
+    //ServerAllocator.serverAllocator.allocate()
   }
 
   def evaluateQueue() : Unit
+
+
 
   def customize(u:AbstractUser) : T
 
@@ -91,15 +102,16 @@ abstract class AbstractLobbyQueueHandler[T] {
     evaluateQueue()
   }
 
-  def launchServerInstance(settings:GameProcessTemplate, party: List[(Connection, AbstractUser)]) {
+  def launchServerInstance(settings:GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken:ProcessToken) = {
 
 
     log.info("New queue size " + queue.size)
 
     val gameSessionId = gameReservationService.allocateGameSession()
-    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(gameSessionId))
+    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(gameSessionId),processToken)
 
     sendStartGameInstructionsToParty(party, gameSessionId, runningGame)
+    runningGame
   }
 
   def removeConnection(p1: Connection): Boolean = {
@@ -114,13 +126,16 @@ abstract class AbstractLobbyQueueHandler[T] {
 }
 
 
-class TeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[AbstractUser] {
+
+class TeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[AbstractUser](gameAndRulesId) {
 
   import AbstractLobbyQueueHandler._
 
-  def customize(u: AbstractUser) = null
+  def customize(u: AbstractUser) = u
 
-  def evaluateQueue() {}
+  def evaluateQueue() {
+
+  }
 
 }
 
@@ -129,10 +144,8 @@ class TeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRul
 
 
 
-class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[AbstractUser] {
+class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[AbstractUser](gameAndRulesId) {
   import AbstractLobbyQueueHandler._
-
-  var launchQueue = scala.collection.mutable.Queue.empty[List[Connection]]
 
 
   def customize(u: AbstractUser) = null
@@ -149,29 +162,35 @@ class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerR
     party
   }
 
+  def removePartyFromQueue(party:List[(Connection,AbstractUser)])  {
+    queue =  queue.filter( p => party.exists(_ == p))
+  }
+
   def evaluateQueue() {
-    if (queue.size >= numOfPlayers) {
+    //if (queue.size >= numOfPlayers) {
 
-      GameServerRepository.findBy(gameAndRulesId) match {
+      /*GameServerRepository.findBy(gameAndRulesId) match {
         case Some(gameServerSettings) =>
+      */
+    val party = createParty
+    import scala.concurrent.ExecutionContext.Implicits.global
 
-          val party = createParty
-          import scala.concurrent.ExecutionContext.Implicits.global
-          allocate() onComplete {
-            case Success(i) =>
-              // TODO : Send lobby created
-              launchServerInstance(gameServerSettings,party)
-            case Failure(t) =>
-              // TODO : Send lobby destroyed
-              log.error("Allocation went bad - reinserting party " + t)
-              queue = party ++: queue
-          }
-
-
-
-        case None => log.error("Unknown game server setting : " + gameAndRulesId)
-      }
-      ()
+    val launcher = (pt:ProcessToken) => {
+      removePartyFromQueue(party)
+      val runningGame = launchServerInstance(gameServerSettings, party, pt)
+      runningGame.done
     }
+    val allocation = ServerAllocator.serverAllocator.allocate(launcher)
+
+    allocation onComplete {
+      case Success(i) =>
+        // TODO : Send lobby created
+
+        //launchServerInstance(gameServerSettings,party)
+      case Failure(t) =>
+        // TODO : Send lobby destroyed
+        log.error("Allocation went bad - reinserting party " + t)
+    }
+        //case None => log.error("Unknown game server setting : " + gameAndRulesId)
   }
 }

@@ -111,8 +111,8 @@ class IntegrationTest extends Specification with Mockito {
       //gpSettings.jnlpUrl(any) returns new URL("http://www.dn.se")
 
 
-      GameServerPool.pool.spawnServer(any, any) answers {
-        (params,mock) => new RunningGame(params.asInstanceOf[Array[_]](1).asInstanceOf[GameOccassion], null)
+      GameServerPool.pool.spawnServer(any, any, any) answers {
+        (params,mock) => new RunningGame(params.asInstanceOf[Array[_]](1).asInstanceOf[GameOccassion], null, null)
       }
 
       //GameServerPool.pool.spawnServer(any,any) returns new RunningGame(game,gpSettings)
@@ -123,12 +123,12 @@ class IntegrationTest extends Specification with Mockito {
       */
       game.gameSessionIdOpt.isDefined === false
       gameReservationService.playScheduledClosed(game.id,new RegedUser(user1.id))
-      there was one(GameServerPool.pool).spawnServer(any,any)
+      there was one(GameServerPool.pool).spawnServer(any,any,any)
 
       val game_v1 = gameReservationService.findGame(game.id).get
       game_v1.gameSessionIdOpt.isDefined === true
 
-      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
+      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null, null))
       gameReservationService.playScheduledClosed(game.id,new RegedUser(user2.id))
       there was one(GameServerPool.pool).findRunningGame(any)
 
@@ -209,8 +209,8 @@ class IntegrationTest extends Specification with Mockito {
       gpSettings.jnlpUrl(any,any) returns new URL("http://www.dn.se")
 
 
-      GameServerPool.pool.spawnServer(any, any) answers {
-        (p,b) => new RunningGame(p.asInstanceOf[Array[_]](1).asInstanceOf[GameOccassion], null)
+      GameServerPool.pool.spawnServer(any, any, any) answers {
+        (p,b) => new RunningGame(p.asInstanceOf[Array[_]](1).asInstanceOf[GameOccassion], null, null)
       }
 
       //GameServerPool.pool.spawnServer(any,any) returns new RunningGame(game,gpSettings)
@@ -223,12 +223,12 @@ class IntegrationTest extends Specification with Mockito {
 
       game.gameSessionIdOpt.isDefined === false
       var (g1,p1) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user1.id))
-      there was one(GameServerPool.pool).spawnServer(any,any)
+      there was one(GameServerPool.pool).spawnServer(any,any,any)
 
       val game_v1 = gameReservationService.findGame(game.id).get
       game_v1.gameSessionIdOpt.isDefined === true
 
-      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null))
+      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(game_v1, null, null))
 
       var (g2,p2) = gameReservationService.playScheduledClosed(game.id,new RegedUser(user2.id))
       there was one(GameServerPool.pool).findRunningGame(any)
@@ -305,7 +305,7 @@ class IntegrationTest extends Specification with Mockito {
       // TODO : Spawn swerver
       val occassion = NonPersisentGameOccassion(sessionId)
 
-      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(occassion, null))
+      GameServerPool.pool.findRunningGame(any) returns Some(RunningGame(occassion, null, null))
       val (_,gp1) = gameReservationService.playNonScheduledClosed(seat1)
       there was one(GameServerPool.pool).findRunningGame(any)
       val (_,gp2) = gameReservationService.playNonScheduledClosed(seat2)
