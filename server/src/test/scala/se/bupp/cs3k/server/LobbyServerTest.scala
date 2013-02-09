@@ -15,6 +15,7 @@ import collection.immutable.{Queue, ListMap}
 import scala.Some
 import service.resourceallocation.ServerAllocator
 import scala.util.{Failure, Success}
+import scala.concurrent.{promise}
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,11 +38,11 @@ class LobbyServerTest extends Specification with Mockito {
   val ranking = ListMap(
       LEIF -> 2,
       PETER -> 5,
-      SVEN -> 11,
-      ROLF -> 8,
+      SVEN -> 13,
+      ROLF -> 9,
       INGE -> 1,
-      PER -> 7,
-      NILS -> 9
+      PER -> 8,
+      NILS -> 10
     )
 
 
@@ -97,8 +98,9 @@ class LobbyServerTest extends Specification with Mockito {
 
         val launcher = (pt:ProcessToken) => {
           val partyAndCon = removePartyFromQueue(party)
-          val runningGame = launchServerInstance(gameServerSettings, partyAndCon, pt)
-          runningGame.done
+          //val runningGame = launchServerInstance(gameServerSettings, partyAndCon, pt)
+          val p = promise[ProcessToken]
+          p.future
         }
         val allocation = ServerAllocator.serverAllocator.allocate(launcher)
 
@@ -126,9 +128,9 @@ class LobbyServerTest extends Specification with Mockito {
             case ((rr,lr), (u, ranking) ) => {
               val numNeededForGame = ((numOfTeams * numOfPlayers) - 1)
               if(math.abs(firstRank-ranking) <= 2 && rr.size < numNeededForGame)
-                (rr.+: (u,ranking), lr)
+                (rr.:+ (u,ranking), lr)
               else
-                (rr, lr.+: (u,ranking))
+                (rr, lr.:+ (u,ranking))
             }
           }
           val p:List[(AbstractUser, Int)] = ((first,firstRank) :: party )
@@ -159,38 +161,54 @@ class LobbyServerTest extends Specification with Mockito {
 
       matching must haveTheSameElementsAs(List(
         List((AnonUser(LEIF),2), (AnonUser(INGE),1)),
-        List((AnonUser(NILS),9), (AnonUser(PER),7)),
         List((AnonUser(PETER),5)),
-        List((AnonUser(ROLF),8)),
-        List((AnonUser(SVEN),11))))
+        List((AnonUser(SVEN),13)),
+        List((AnonUser(ROLF),9), (AnonUser(PER),8)),
+        List((AnonUser(NILS),10))
+      ))
     }
 
 
     "asdf" in {
+      val list = List((new LobbyJoinRequest(-1, LEIF), getCon(1)),
+        (new LobbyJoinRequest(-1, PETER), getCon(2)),
+        (new LobbyJoinRequest(-1, SVEN), getCon(3)),
+        (new LobbyJoinRequest(-1, ROLF), getCon(4)),
+        (new LobbyJoinRequest(-1, INGE), getCon(5)),
+        (new LobbyJoinRequest(-1, PER), getCon(6)),
+        (new LobbyJoinRequest(-1, NILS), getCon(7)))
+
+      def con(s:String) = {
+        list.find(_._1.getName == s).map(_._2).get
+      }
       /*
       val lobby = new LalLobbyHandler(2,null)
       lobby.playerJoined(new LobbyJoinRequest(1,"tja"))
       lobby.playerJoined(new LobbyJoinRequest(1,"tja"))
          */
 
-      val handler = new TestLobbyQueueHandler(1,1,('A,'B))
+      val handler = new TestLobbyQueueHandler(2,1,('A,'B))
 
       val nullLong= null.asInstanceOf[java.lang.Long]
-      handler.playerJoined(new LobbyJoinRequest(-1, LEIF), getCon(1))
-      handler.playerJoined(new LobbyJoinRequest(-1, PETER), getCon(2))
-      handler.playerJoined(new LobbyJoinRequest(-1, SVEN), getCon(3))
-      handler.playerJoined(new LobbyJoinRequest(-1, ROLF), getCon(4))
-      handler.playerJoined(new LobbyJoinRequest(-1, INGE), getCon(5))
-      handler.playerJoined(new LobbyJoinRequest(-1, PER), getCon(6))
-      handler.playerJoined(new LobbyJoinRequest(-1, NILS), getCon(7))
 
+
+      list.foreach { a => (handler.playerJoined _).tupled(a) }
 
       // test disconnect
+      var theQueue = Queue.empty[(Connection,handler.Info )].enqueue(handler.queue.toList)
+      var (completeParties1, assigned1) = handler.buildLobbies(Nil, theQueue)
+        //[[AnonUser(leffe)], [AnonUser(nils)], [AnonUser(peter)], [AnonUser(per)], [AnonUser(sven)], [AnonUser(inge)], [AnonUser(rolf)]
+      completeParties1 must haveTheSameElementsAs(List(List(AnonUser(LEIF), AnonUser(INGE)), List(AnonUser(ROLF), AnonUser(PER))))
+      assigned1 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(ROLF),1), (AnonUser(PER),1)))
 
-
-      handler.evaluateQueue()
-
+      handler.removeConnection(con(NILS))
       1 === 1
+
+      theQueue = Queue.empty[(Connection,handler.Info )].enqueue(handler.queue.toList)
+      var (completeParties2, assigned2) = handler.buildLobbies(assigned1, theQueue)
+
+      completeParties2 must haveTheSameElementsAs(List(List(AnonUser(LEIF), AnonUser(INGE)), List(AnonUser(NILS), AnonUser(PER))))
+      assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(PER),1)))
 
     }
 

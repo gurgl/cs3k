@@ -93,13 +93,18 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
   def customize(u:AbstractUser) : T
 
   def playerJoined(request: LobbyJoinRequest, connection: Connection) {
+    addPlayer(request, connection)
+
+    evaluateQueue()
+  }
+
+
+  def addPlayer(request: LobbyJoinRequest, connection: Connection) {
     val api = request.userIdOpt.map(new RegedUser(_)).getOrElse {
       if (request.name == "") throw new RuntimeException("YO")
       new AnonUser(request.name)
     }
     queue += Pair(connection, customize(api))
-
-    evaluateQueue()
   }
 
   def launchServerInstance(settings:GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken:ProcessToken) = {

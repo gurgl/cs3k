@@ -38,6 +38,9 @@ class ServerAllocatorTest extends Specification with Mockito {
 
       val al3 = allocator.allocate((x:Int) => future {  lock(t3);x } )
 
+      val t4 = ""
+      val al4 = allocator.allocate((x:Int) => future {  lock(t4);x } )
+
       /*al1.value === Some(Success(0))
       al2.value === Some(Success(1))
       al3.value === None*/
@@ -45,12 +48,14 @@ class ServerAllocatorTest extends Specification with Mockito {
       al1.isCompleted === true
       al2.isCompleted === true
       al3.isCompleted === false
+      al4.isCompleted === false
 
       unlock(t1)
 
       al1.isCompleted === true
       al2.isCompleted === true
       al3.isCompleted === true
+      al4.isCompleted === false
 
     }
   }
