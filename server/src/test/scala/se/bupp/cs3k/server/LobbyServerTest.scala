@@ -71,7 +71,7 @@ class LobbyServerTest extends Specification with Mockito {
 
       val completeParties = matches.filter( p => p.size == numOfPlayers * numOfTeams).map( l => l.map( _._1))
 
-      val completePartiesIndexed = completeParties.zipWithIndex
+      val completePartiesIndexed = (oldQueueMembersWithLobbyAssignmentsRev.groupBy(_._2).values.map(_.map(_._1)).toList ::: completeParties).zipWithIndex
 
       queueMembersWithLobbyAssignments = theQueue.map { case (c,(u,i)) =>
         completePartiesIndexed.find { case (party,_) => party.exists { case (cpu) => u == cpu } } match {
@@ -181,11 +181,6 @@ class LobbyServerTest extends Specification with Mockito {
       def con(s:String) = {
         list.find(_._1.getName == s).map(_._2).get
       }
-      /*
-      val lobby = new LalLobbyHandler(2,null)
-      lobby.playerJoined(new LobbyJoinRequest(1,"tja"))
-      lobby.playerJoined(new LobbyJoinRequest(1,"tja"))
-         */
 
       val handler = new TestLobbyQueueHandler(2,1,('A,'B))
 
@@ -197,18 +192,18 @@ class LobbyServerTest extends Specification with Mockito {
       // test disconnect
       var theQueue = Queue.empty[(Connection,handler.Info )].enqueue(handler.queue.toList)
       var (completeParties1, assigned1) = handler.buildLobbies(Nil, theQueue)
-        //[[AnonUser(leffe)], [AnonUser(nils)], [AnonUser(peter)], [AnonUser(per)], [AnonUser(sven)], [AnonUser(inge)], [AnonUser(rolf)]
+
       completeParties1 must haveTheSameElementsAs(List(List(AnonUser(LEIF), AnonUser(INGE)), List(AnonUser(ROLF), AnonUser(PER))))
       assigned1 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(ROLF),1), (AnonUser(PER),1)))
 
-      handler.removeConnection(con(NILS))
+      handler.removeConnection(con(PER))
       1 === 1
 
       theQueue = Queue.empty[(Connection,handler.Info )].enqueue(handler.queue.toList)
       var (completeParties2, assigned2) = handler.buildLobbies(assigned1, theQueue)
 
-      completeParties2 must haveTheSameElementsAs(List(List(AnonUser(LEIF), AnonUser(INGE)), List(AnonUser(NILS), AnonUser(PER))))
-      assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(PER),1)))
+      completeParties2 must haveTheSameElementsAs(List(List(AnonUser(ROLF), AnonUser(NILS))))
+      assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(ROLF),1)))
 
     }
 
