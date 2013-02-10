@@ -14,7 +14,7 @@ import com.esotericsoftware.kryonet.Connection
 import collection.immutable.{Queue, ListMap}
 import scala.Some
 import service.resourceallocation.ServerAllocator
-import scala.util.{Failure, Success}
+import scala.util.{Random, Failure, Success}
 import concurrent.{Future, promise, Promise}
 
 
@@ -52,9 +52,9 @@ class LobbyServerTest extends Specification with Mockito {
   class TestRankedTeamLobbyQueueHandler(t:Int,p:Int) extends RankedTeamLobbyQueueHandler(t,p,('A,'B)) {
     var launchRequests = List[Promise[ProcessToken]]()
     override def launchServerInstance(settings: GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken: ProcessToken) = {
-      var p = promise[ProcessToken]
-      launchRequests = launchRequests :+ p
-      p.future
+      var serverDone = promise[ProcessToken]
+      launchRequests = launchRequests :+ serverDone
+      serverDone.future
     }
 
     override def customize(u: AbstractUser) = u match {
@@ -203,6 +203,105 @@ class LobbyServerTest extends Specification with Mockito {
 
       //completeParties2 must haveTheSameElementsAs(List(List(AnonUser(ROLF), AnonUser(NILS))))
       //assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(ROLF),1)))
+    }
+
+    "test alot" in {
+
+      import scala.collection.immutable.Queue
+      class FiniteQueue[A](q: Queue[A]) {
+        def enqueueFinite[B >: A](elem: B, maxSize: Int): Queue[B] = {
+          var ret = q.enqueue(elem)
+          while (ret.size > maxSize) { ret = ret.dequeue._2 }
+          ret
+        }
+      }
+      implicit def queue2finitequeue[A](q: Queue[A]) = new FiniteQueue[A](q)
+
+      var players = List.empty[(LobbyJoinRequest,Connection)]
+
+      var left = List[Int]()//List.empty[(LobbyJoinRequest,Connection)]
+
+
+      val serverAllocator = new ServerAllocator(2)
+      val handler = new TestRankedTeamLobbyQueueHandler(2,2) {
+        override def customize(u: AbstractUser) = u match {
+          case AnonUser(name) => if(Random.nextInt(20) > 10) 10 else 5
+          case _ => throw new IllegalArgumentException("na")
+        }
+
+        override def allocateServer(p: (Model.ProcessToken) => Future[Model.ProcessToken]) = {
+          serverAllocator.allocate(p)
+        }
+      }
+
+
+      var joinLoop = new Runnable() {
+        def run() {
+          (0 to 200).foreach {
+            case i =>
+              val (p,c) = (new LobbyJoinRequest(-1,"Player " + i),getCon(i))
+              players = players :+ (p,c)
+
+              Thread.sleep(Random.nextInt(100).toLong)
+              handler.playerJoined(p,c)
+          }
+
+        }
+      }
+
+      var allocationsReleased = 0
+      var allocationReleaser = new Runnable() {
+        def run() {
+
+          var req = Queue.empty[Int]
+          var WINDOW_SIZE = 10
+          while(true && (if(req.size >= WINDOW_SIZE) req.forall(_ == req.head) else true)) {
+            Thread.sleep(Random.nextInt(2000).toLong)
+            req = req.enqueueFinite(handler.launchRequests.size,WINDOW_SIZE)
+            while(allocationsReleased < handler.launchRequests.size ) {
+              handler.launchRequests(allocationsReleased) success allocationsReleased
+              allocationsReleased = allocationsReleased + 1
+            }
+          }
+        }
+      }
+
+      var leaveLoopKeepalive = true
+      var leaveLoop = new Runnable() {
+        def run() {
+          while(leaveLoopKeepalive) {
+            Thread.sleep(Random.nextInt(1000).toLong)
+
+            val toChooseFrom = players.size
+            if(toChooseFrom > 0) {
+              var found = -1
+              while(found == -1) {
+                var pick = Random.nextInt(toChooseFrom - 1)
+                if(!left.exists( _ == pick)) {
+                  found = pick
+                }
+              }
+
+              left = left :+ found
+              println("P Leaving " + found)
+              handler.removeConnection(players(found)._2)
+            } else {
+              println("no players to disconnect")
+            }
+          }
+        }
+      }
+
+      var joinThread = new Thread(joinLoop)
+      joinThread.start()
+      var leaveThread = new Thread(leaveLoop)
+      leaveThread.start
+      var allocRelThread = new Thread(allocationReleaser)
+      allocRelThread.start()
+      joinThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(200))
+      allocRelThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(200))
+      leaveLoopKeepalive = false
+      leaveThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(200))
     }
   }
 }

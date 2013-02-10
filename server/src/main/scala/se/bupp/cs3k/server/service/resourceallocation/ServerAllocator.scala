@@ -4,6 +4,7 @@ import collection.immutable.Queue
 import concurrent.{Future, Promise, future, promise}
 import se.bupp.cs3k.server.Cs3kConfig
 
+
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -36,6 +37,7 @@ class ServerAllocator(val numOfTotalSlots:Int) {
   private def allocation() = {
     val r = numOfSlotsAllocated
     numOfSlotsAllocated = numOfSlotsAllocated + 1
+    println("numOfSlotsAllocated " + numOfSlotsAllocated + "/" + numOfTotalSlots)
     r
   }
   def allocate(done:Int => Future[Int]) : Future[Int] = {
@@ -52,21 +54,26 @@ class ServerAllocator(val numOfTotalSlots:Int) {
   }
   private def handleCompletion(done:Int => Future[Int],token:Int) : Int = {
     done(token) onComplete {
-       case _ => deallocate()
+       case _ => deallocate(token)
     }
     token
   }
 
-  private def deallocate() {
-    if (queue.size > 0) {
-      queue = queue.dequeue match {
-        case ((p, done)  , queueNew) =>
-          val token = allocation()
-          p success handleCompletion(done,token)
-          queueNew
+  private def deallocate(freedToken:Int) {
+    val toSignal = queue.synchronized {
+      if (queue.size > 0) {
+        val ((p, done)  , queueNew) = queue.dequeue
+        queue = queueNew
+        Some((p, done))
+      } else {
+        numOfSlotsAllocated = numOfSlotsAllocated - 1
+        None
       }
-    } else {
-      numOfSlotsAllocated = numOfSlotsAllocated - 1
+    }
+    toSignal.foreach {
+      case (p, done) =>
+        println("Re-allocating free " + freedToken)
+        p success handleCompletion(done,freedToken)
     }
   }
 }
