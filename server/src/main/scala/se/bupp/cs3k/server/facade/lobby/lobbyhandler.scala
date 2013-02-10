@@ -43,18 +43,14 @@ object AbstractLobbyQueueHandler {
   var rankingService:RankingService = _
 
 
-  def sendStartGameInstructionsToParty(party:List[(Connection,AbstractUser)], gameSessionId : GameSessionId, runningGame: RunningGame) {
+  def sendStartGameInstructionsToParty(party:List[(Connection,AbstractUser,GameServerReservationId)], gameSessionId : GameSessionId, runningGame: RunningGame) {
     val scheduler = Executors.newScheduledThreadPool(1);
     log.info("creating delayed game launch announcer task " + party.size)
     val beeper = new Runnable() {
       def  run() {
         log.info("In delayed game launch announcer " + party.size)
-        party.foreach { case (c,pi) =>
-
+        party.foreach { case (c,pi, reservationId) =>
           try {
-            val reservationId = gameReservationService.reserveSeat(gameSessionId, pi, None)
-
-            log.info("Reserving seat and sending sending start game instructions")
             // TODO Associate reservation with either ID or name (depending on pi subclass)
             var jnlpUrl: URL = runningGame.processSettings.jnlpUrl(reservationId, None)
             c.sendTCP(new StartGame(jnlpUrl.toExternalForm))
@@ -83,17 +79,24 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
 
   //def removePartyFromQueue(party:List[(AbstractUser)]) : List[(Connection,AbstractUser)]
 
-  def evaluateQueue() : Unit
+  def numOfPlayers : Int
+
+  //def evaluateQueue() : Unit
 
   def customize(u:AbstractUser) : T
+
+  def createParties() : List[List[AbstractUser]]
 
   def allocateServer(p:ProcessToken => Future[ProcessToken]) = {
     ServerAllocator.serverAllocator.allocate(p)
   }
 
   def removePartyFromQueue(party:List[AbstractUser]) = {
-    val (p, queueNew ) =  queue.partition { case (c,(p,i)) => party.exists(_ == p) }
-    queue = queueNew
+    val p = queue.synchronized {
+      val (p, queueNew ) =  queue.partition { case (c,(p,i)) => party.exists(_ == p) }
+      queue = queueNew
+      p
+    }
     p.map { case (p, (u, i)) => (p,u) } toList
   }
 
@@ -108,73 +111,14 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
       if (request.name == "") throw new RuntimeException("YO")
       new AnonUser(request.name)
     }
-    queue += Pair(connection, (api, customize(api)))
-  }
-
-  def launchServerInstance(settings:GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken:ProcessToken) = {
-
-    log.info("New queue size " + queue.size)
-
-    val gameSessionId = gameReservationService.allocateGameSession()
-    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(gameSessionId),processToken)
-
-    sendStartGameInstructionsToParty(party, gameSessionId, runningGame)
-    runningGame.done
-  }
-
-  def removeConnection(p1: Connection): Boolean = {
-    queue.dequeueFirst(_._1.getID == p1.getID) match {
-      case None => log.info("Removing UNKNOWN disconnect ")
-      false
-      case Some(c) => log.info("Removing disconnect")
-      true
-      //queue = mutable.Queue.empty[Connection].dequeue++ queue.drop(i)
+    queue.synchronized {
+      queue += Pair(connection, (api, customize(api)))
     }
   }
-}
-
-
-class RankedTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[Int](gameAndRulesId) {
-
-  import AbstractLobbyQueueHandler._
-
-
-  def customize(u: AbstractUser) = u match {
-    case RegedUser(id) => rankingService.getRanking(id).getOrElse(0)
-    case _ => throw new IllegalArgumentException("Ranked lobby cant handle anon players")
-  }
-
-  def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,(AbstractUser, Info))]) : (List[List[AbstractUser]],List[(AbstractUser,Int)]) = {
-    val disolvedLobbyIds = oldQueueMembersWithLobbyAssignments.filterNot {
-      case (u, t) => theQueue.exists {
-        case (c, (uu, _)) => u == uu
-      }
-    }.map( _._2)
-    var oldQueueMembersWithLobbyAssignmentsRev = oldQueueMembersWithLobbyAssignments.filterNot { case (u,t) => disolvedLobbyIds.exists ( _ ==  t) }
-    val evaluatableQueue = theQueue.filterNot { case (c,(u,r)) => oldQueueMembersWithLobbyAssignmentsRev.exists(_._1 == u) }.toList
-
-    val matches = matchRanking(evaluatableQueue.map(_._2))
-
-    val completeParties = matches.filter( p => p.size == numOfPlayers * numOfTeams).map( l => l.map( _._1))
-
-    val completePartiesIndexed = (oldQueueMembersWithLobbyAssignmentsRev.groupBy(_._2).values.map(_.map(_._1)).toList ::: completeParties).zipWithIndex
-
-    val queueMembersWithLobbyAssignmentsNew = theQueue.map { case (c,(u,i)) =>
-      completePartiesIndexed.find { case (party,_) => party.exists { case (cpu) => u == cpu } } match {
-        case Some((_,idx)) => (u, Some(idx))
-        case None => (u,None)
-      }
-    }.collect { case (u, Some(t)) => (u,t) }.toList
-
-    (completeParties, queueMembersWithLobbyAssignmentsNew)
-  }
-
-
 
   def evaluateQueue() {
-    val theQueue = Queue.empty[(Connection,UserInfo)].enqueue(queue.toList)
-    var (completeParties, lobbyAssignedPlayerNew) = buildLobbies(queueMembersWithLobbyAssignments, theQueue)
-    queueMembersWithLobbyAssignments = lobbyAssignedPlayerNew
+
+    val completeParties = createParties
 
 
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -198,13 +142,74 @@ class RankedTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, game
     }
   }
 
+
+  def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)]
+
+  def launchServerInstance(settings:GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken:ProcessToken) = {
+
+    log.info("New queue size " + queue.size)
+
+    val gameSessionId = gameReservationService.allocateGameSession()
+    var runningGame: RunningGame = GameServerPool.pool.spawnServer(settings, new NonPersisentGameOccassion(gameSessionId),processToken)
+    val partyWithSeatsReserved = reserveSeats(gameSessionId, party)
+
+    sendStartGameInstructionsToParty(partyWithSeatsReserved, gameSessionId, runningGame)
+    runningGame.done
+  }
+
+  def removeConnection(p1: Connection): Boolean = {
+
+    queue.synchronized { queue.dequeueFirst(_._1.getID == p1.getID) } match {
+      case None => log.info("Removing UNKNOWN disconnect ")
+      false
+      case Some(c) => log.info("Removing disconnect")
+      true
+      //queue = mutable.Queue.empty[Connection].dequeue++ queue.drop(i)
+    }
+  }
+}
+
+trait HasTeamSupport {
+  def numOfTeams : Int
+  def numOfPlayersPerTeam : Int
+  def numOfPlayers = numOfTeams * numOfPlayersPerTeam
+}
+
+
+abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[T](gameAndRulesId)  {
+
+  def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,(AbstractUser, Info))]) : (List[List[AbstractUser]],List[(AbstractUser,Int)]) = {
+    val disolvedLobbyIds = oldQueueMembersWithLobbyAssignments.filterNot {
+      case (u, t) => theQueue.exists {
+        case (c, (uu, _)) => u == uu
+      }
+    }.map( _._2)
+    var oldQueueMembersWithLobbyAssignmentsRev = oldQueueMembersWithLobbyAssignments.filterNot { case (u,t) => disolvedLobbyIds.exists ( _ ==  t) }
+    val evaluatableQueue = theQueue.filterNot { case (c,(u,r)) => oldQueueMembersWithLobbyAssignmentsRev.exists(_._1 == u) }.toList
+
+    val matches = matchRanking(evaluatableQueue.map(_._2))
+
+    val completeParties = matches.filter( p => p.size == numOfPlayers ).map( l => l.map( _._1))
+
+    val completePartiesIndexed = (oldQueueMembersWithLobbyAssignmentsRev.groupBy(_._2).values.map(_.map(_._1)).toList ::: completeParties).zipWithIndex
+
+    val queueMembersWithLobbyAssignmentsNew = theQueue.map { case (c,(u,i)) =>
+      completePartiesIndexed.find { case (party,_) => party.exists { case (cpu) => u == cpu } } match {
+        case Some((_,idx)) => (u, Some(idx))
+        case None => (u,None)
+      }
+    }.collect { case (u, Some(t)) => (u,t) }.toList
+
+    (completeParties, queueMembersWithLobbyAssignmentsNew)
+  }
+
   def matchRanking(queue:List[UserInfo]) : List[(List[UserInfo])] = {
     queue match {
       case (first, firstRank) :: tail =>
         println(first.asInstanceOf[AnonUser].name)
         val (party,left) = tail.foldLeft((List[UserInfo](),List[UserInfo]())) {
           case ((rr,lr), (u, ranking) ) => {
-            val numNeededForGame = ((numOfTeams * numOfPlayers) - 1)
+            val numNeededForGame = ((numOfPlayers) - 1)
             if(isMatchable(firstRank, ranking) && rr.size < numNeededForGame)
               (rr.:+ (u,ranking), lr)
             else
@@ -217,15 +222,45 @@ class RankedTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, game
     }
   }
 
+  def createParties()  = {
+    val theQueue = Queue.empty[(Connection,UserInfo)].enqueue(queue.synchronized { queue.toList })
+    var (completeParties, lobbyAssignedPlayerNew) = buildLobbies(queueMembersWithLobbyAssignments, theQueue)
+    queueMembersWithLobbyAssignments = lobbyAssignedPlayerNew
+    completeParties
+  }
+
+  def isMatchable(firstRank: Info, ranking: Info): Boolean
+
+}
+
+class RankedTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractRankedLobbyQueueHandler[Int](gameAndRulesId) with HasTeamSupport {
+
+  import AbstractLobbyQueueHandler._
+
+
+  def customize(u: AbstractUser) = u match {
+    case RegedUser(id) => rankingService.getRanking(id).getOrElse(0)
+    case _ => throw new IllegalArgumentException("Ranked lobby cant handle anon players")
+  }
+
   def isMatchable(firstRank: Info, ranking: Info): Boolean = {
     math.abs(firstRank - ranking) <= 2
   }
+
+  def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)] = {
+    log.info("Reserving seats")
+
+    val teams = (1 to numOfTeams).map { tid => gameReservationService.createVirtualTeam(Some("Team " + tid.toString))}
+    teams.flatMap( t => (1 to numOfPlayersPerTeam).map( tt => t) ).zip(party).toList.map { case (t,(c,u)) => (c,u,gameReservationService.reserveSeat(gameSessionId, u, Some(t))) }
+  }
+
+
 }
 
 
 
 /*
-class TeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[AbstractUser](gameAndRulesId) {
+class HasTeamSupport(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[AbstractUser](gameAndRulesId) {
 
   import AbstractLobbyQueueHandler._
 
@@ -245,7 +280,7 @@ class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerR
 
   def customize(u: AbstractUser) = None
 
-  def createParty = {
+  def createParties = {
     var party = List[(Connection,AbstractUser)]()
 
     log.info("Removing " + numOfPlayers + " players from a queue of " + queue.size)
@@ -254,20 +289,20 @@ class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerR
       val c = queue.dequeue()
       party = (c._1,c._2._1) :: party
     }
-    party
+    List(party.map(_._2))
   }
 
   /*def removePartyFromQueue(party:List[(Connection,AbstractUser)])  {
     queue =  queue.filter( p => party.exists(_ == p))
   }*/
-
+  /*
   def evaluateQueue() {
     //if (queue.size >= numOfPlayers) {
 
       /*GameServerRepository.findBy(gameAndRulesId) match {
         case Some(gameServerSettings) =>
       */
-    val party = createParty
+    val party = createParties
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val launcher = (pt:ProcessToken) => {
@@ -287,5 +322,13 @@ class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerR
         log.error("Allocation went bad - reinserting party " + t)
     }
         //case None => log.error("Unknown game server setting : " + gameAndRulesId)
+  }*/
+
+  def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)] = {
+    log.info("Reserving seats")
+    party.map { case (c,u) =>
+      val reservationId = gameReservationService.reserveSeat(gameSessionId, u, None)
+      (c, u , reservationId)
+    }
   }
 }

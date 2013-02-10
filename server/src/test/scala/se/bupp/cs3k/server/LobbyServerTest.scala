@@ -178,13 +178,17 @@ class LobbyServerTest extends Specification with Mockito {
       }
       (handler.playerJoined _).tupled(list(4))
       handler.launchRequests.size === 0
+
+      var doneRes = -1
       p.future onComplete {
-        case _ => handler.launchRequests.size === 1
+        case _ =>
+          Thread.sleep(100)
+          doneRes = handler.launchRequests.size
       }
       p success 1
 
 
-
+      doneRes must be_==(1).eventually
       // test disconnect
       /*var theQueue = Queue.empty[(Connection,handler.UserInfo )].enqueue(handler.queue.toList)
       var (completeParties1, assigned1) = handler.buildLobbies(Nil, theQueue)*/
