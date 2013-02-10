@@ -230,6 +230,7 @@ class LobbyServerTest extends Specification with Mockito {
         }
 
         override def allocateServer(p: (Model.ProcessToken) => Future[Model.ProcessToken]) = {
+          println("allocateServer")
           serverAllocator.allocate(p)
         }
       }
@@ -245,7 +246,6 @@ class LobbyServerTest extends Specification with Mockito {
               Thread.sleep(Random.nextInt(100).toLong)
               handler.playerJoined(p,c)
           }
-
         }
       }
 
@@ -253,15 +253,23 @@ class LobbyServerTest extends Specification with Mockito {
       var allocationReleaser = new Runnable() {
         def run() {
 
-          var req = Queue.empty[Int]
-          var WINDOW_SIZE = 10
-          while(true && (if(req.size >= WINDOW_SIZE) req.forall(_ == req.head) else true)) {
-            Thread.sleep(Random.nextInt(2000).toLong)
-            req = req.enqueueFinite(handler.launchRequests.size,WINDOW_SIZE)
-            while(allocationsReleased < handler.launchRequests.size ) {
-              handler.launchRequests(allocationsReleased) success allocationsReleased
-              allocationsReleased = allocationsReleased + 1
+          try {
+            var req = Queue.empty[Int]
+            var WINDOW_SIZE = 10
+
+            var queueIsChanging= true
+            while(true && queueIsChanging) {
+              Thread.sleep(Random.nextInt(2000).toLong)
+              queueIsChanging = if(req.size >= WINDOW_SIZE) !req.forall(_ == req.head) else true
+              println("*** Alloc RELEASE" + handler.queue.size + " " + queueIsChanging)
+              req = req.enqueueFinite(handler.queue.size,WINDOW_SIZE)
+              while(allocationsReleased < handler.launchRequests.size ) {
+                handler.launchRequests(allocationsReleased) success allocationsReleased
+                allocationsReleased = allocationsReleased + 1
+              }
             }
+          } catch {
+            case e:Throwable => e.printStackTrace
           }
         }
       }
@@ -271,22 +279,28 @@ class LobbyServerTest extends Specification with Mockito {
         def run() {
           while(leaveLoopKeepalive) {
             Thread.sleep(Random.nextInt(1000).toLong)
-
-            val toChooseFrom = players.size
-            if(toChooseFrom > 0) {
-              var found = -1
-              while(found == -1) {
-                var pick = Random.nextInt(toChooseFrom - 1)
-                if(!left.exists( _ == pick)) {
-                  found = pick
+            var toChooseFrom = 0
+            try {
+              toChooseFrom = players.size
+              if(toChooseFrom > 0) {
+                var found = -1
+                while(found == -1) {
+                  var pick = Random.nextInt(toChooseFrom - 1)
+                  if(!left.exists( _ == pick)) {
+                    found = pick
+                  }
                 }
-              }
 
-              left = left :+ found
-              println("P Leaving " + found)
-              handler.removeConnection(players(found)._2)
-            } else {
-              println("no players to disconnect")
+                left = left :+ found
+                println("P Leaving " + found)
+                handler.removeConnection(players(found)._2)
+              } else {
+                println("no players to disconnect")
+              }
+            } catch {
+              case e:Throwable =>
+                println(toChooseFrom)
+                e.printStackTrace
             }
           }
         }
@@ -299,9 +313,10 @@ class LobbyServerTest extends Specification with Mockito {
       var allocRelThread = new Thread(allocationReleaser)
       allocRelThread.start()
       joinThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(200))
-      allocRelThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(200))
+      allocRelThread.isAlive must be_==(false).eventually(2000,new org.specs2.time.Duration(2000))
       leaveLoopKeepalive = false
-      leaveThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(200))
+      leaveThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(2000))
+      handler.queue.size must be lessThan(7)
     }
   }
 }

@@ -3,6 +3,7 @@ package se.bupp.cs3k.server.service.resourceallocation
 import collection.immutable.Queue
 import concurrent.{Future, Promise, future, promise}
 import se.bupp.cs3k.server.Cs3kConfig
+import org.slf4j.LoggerFactory
 
 
 /**
@@ -28,6 +29,7 @@ object ServerAllocator {
 }
 
 class ServerAllocator(val numOfTotalSlots:Int) {
+  var log = LoggerFactory.getLogger(classOf[ServerAllocator])
   var queue = Queue.empty[(Promise[Int], Int => Future[Int])]
 
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,7 +39,7 @@ class ServerAllocator(val numOfTotalSlots:Int) {
   private def allocation() = {
     val r = numOfSlotsAllocated
     numOfSlotsAllocated = numOfSlotsAllocated + 1
-    println("numOfSlotsAllocated " + numOfSlotsAllocated + "/" + numOfTotalSlots)
+    log.debug("numOfSlotsAllocated " + numOfSlotsAllocated + "/" + numOfTotalSlots)
     r
   }
   def allocate(done:Int => Future[Int]) : Future[Int] = {
@@ -47,8 +49,10 @@ class ServerAllocator(val numOfTotalSlots:Int) {
         handleCompletion(done, token)
       }
     } else {
+
       val p = promise[Int]
       queue = queue.enqueue((p,done))
+      log.debug("Enquing alloc " + queue.size )
       p.future
     }
   }
@@ -72,7 +76,7 @@ class ServerAllocator(val numOfTotalSlots:Int) {
     }
     toSignal.foreach {
       case (p, done) =>
-        println("Re-allocating free " + freedToken)
+        log.debug("Re-allocating free " + freedToken)
         p success handleCompletion(done,freedToken)
     }
   }
