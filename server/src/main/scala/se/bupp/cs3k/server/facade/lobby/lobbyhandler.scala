@@ -92,7 +92,7 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
   }
 
   def removePartyFromQueue(party:List[AbstractUser]) = {
-    val (p, queueNew ) =  queue.partition( p => party.exists(_ == p))
+    val (p, queueNew ) =  queue.partition { case (c,(p,i)) => party.exists(_ == p) }
     queue = queueNew
     p.map { case (p, (u, i)) => (p,u) } toList
   }

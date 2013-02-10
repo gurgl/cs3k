@@ -109,18 +109,31 @@ class LobbyServerTest extends Specification with Mockito {
       // test disconnect
       var theQueue = Queue.empty[(Connection,handler.UserInfo)].enqueue(handler.queue.toList)
       var (completeParties1, assigned1) = handler.buildLobbies(Nil, theQueue)
+      handler.queueMembersWithLobbyAssignments = assigned1
 
       completeParties1 must haveTheSameElementsAs(List(List(AnonUser(LEIF), AnonUser(INGE)), List(AnonUser(ROLF), AnonUser(PER))))
       assigned1 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(ROLF),1), (AnonUser(PER),1)))
+
 
       handler.removeConnection(con(PER))
 
       theQueue = Queue.empty[(Connection,handler.UserInfo )].enqueue(handler.queue.toList)
       var (completeParties2, assigned2) = handler.buildLobbies(assigned1, theQueue)
+      handler.queueMembersWithLobbyAssignments = assigned2
 
       completeParties2 must haveTheSameElementsAs(List(List(AnonUser(ROLF), AnonUser(NILS))))
       assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(ROLF),1)))
 
+      handler.queue.size === 6
+      handler.removePartyFromQueue(List((AnonUser(LEIF)), (AnonUser(INGE))))
+      handler.queue.size === 4
+
+      theQueue = Queue.empty[(Connection,handler.UserInfo )].enqueue(handler.queue.toList)
+      var (completeParties3, assigned3) = handler.buildLobbies(assigned2, theQueue)
+      handler.queueMembersWithLobbyAssignments = assigned3
+
+      completeParties3 must haveTheSameElementsAs(Nil)
+      assigned3 must haveTheSameElementsAs(List((AnonUser(NILS),0), (AnonUser(ROLF),0)))
     }
 
     "test 2" in {
@@ -156,9 +169,6 @@ class LobbyServerTest extends Specification with Mockito {
 
       completeParties2 must haveTheSameElementsAs(List(List(AnonUser(ROLF), AnonUser(NILS))))
       assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(ROLF),1)))
-
-
-
     }
   }
 }
