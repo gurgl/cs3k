@@ -259,7 +259,7 @@ class LobbyServerTest extends Specification with Mockito {
 
             var queueIsChanging= true
             while(true && queueIsChanging) {
-              Thread.sleep(Random.nextInt(2000).toLong)
+              Thread.sleep(Random.nextInt(1000).toLong)
               queueIsChanging = if(req.size >= WINDOW_SIZE) !req.forall(_ == req.head) else true
               println("*** Alloc RELEASE" + handler.queue.size + " " + queueIsChanging)
               req = req.enqueueFinite(handler.queue.size,WINDOW_SIZE)
@@ -281,19 +281,20 @@ class LobbyServerTest extends Specification with Mockito {
             Thread.sleep(Random.nextInt(1000).toLong)
             var toChooseFrom = 0
             try {
-              toChooseFrom = players.size
+              toChooseFrom = handler.queue.size
               if(toChooseFrom > 0) {
-                var found = -1
-                while(found == -1) {
-                  var pick = Random.nextInt(toChooseFrom - 1)
-                  if(!left.exists( _ == pick)) {
-                    found = pick
-                  }
-                }
+                var pick = Random.nextInt(toChooseFrom - 1)
 
-                left = left :+ found
-                println("P Leaving " + found)
-                handler.removeConnection(players(found)._2)
+                val rmOpt = try {
+                  val c = handler.queue.synchronized { handler.queue.apply(pick)._1 }
+                  Some(c)
+                } catch {
+                  case _ => None
+                }
+                rmOpt.foreach { case c =>
+                  println("P Leaving " + pick)
+                  handler.removeConnection(c)
+                }
               } else {
                 println("no players to disconnect")
               }
