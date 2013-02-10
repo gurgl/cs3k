@@ -282,7 +282,7 @@ class LobbyServerTest extends Specification with Mockito {
             var toChooseFrom = 0
             try {
               toChooseFrom = handler.queue.size
-              if(toChooseFrom > 0) {
+              if(toChooseFrom > 1) {
                 var pick = Random.nextInt(toChooseFrom - 1)
 
                 val rmOpt = try {
