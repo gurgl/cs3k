@@ -57,7 +57,7 @@ public class NonTeamLobbyHandler extends AbstractLobbyServerHandler {
             public void run() {
                 teamLobbyPanel.getProgressBar1().setString("Game Started");
                 teamLobbyPanel.getProgressBar1().setValue(0);
-                lobbyClient.startGame(upd);
+                lobbyClient.startGame(gameJnlpUrl);
             }
         });
     }

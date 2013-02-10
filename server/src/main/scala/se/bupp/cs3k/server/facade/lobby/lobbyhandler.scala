@@ -65,7 +65,12 @@ object AbstractLobbyQueueHandler {
   }
 }
 
-
+/**
+ * In a FIFO maner, assigns players
+ *
+ * @param gameAndRulesId
+ * @tparam T
+ */
 abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository.GameAndRulesId) {
   import AbstractLobbyQueueHandler._
 
@@ -73,7 +78,6 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
   type UserInfo = (AbstractUser,Info)
 
   val gameServerSettings =  GameServerRepository.findBy(gameAndRulesId).getOrElse(throw new RuntimeException("Not found " + gameAndRulesId))
-
   var queue = scala.collection.mutable.Queue.empty[(Connection,(AbstractUser, Info))]
   var queueMembersWithLobbyAssignments = List.empty[(AbstractUser,Int)]
 
@@ -85,7 +89,7 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
 
   def customize(u:AbstractUser) : T
 
-  def createParties() : List[List[AbstractUser]]
+  def createParties() : (List[List[AbstractUser]],List[List[AbstractUser]])
 
   def allocateServer(p:ProcessToken => Future[ProcessToken]) = {
     ServerAllocator.serverAllocator.allocate(p)
@@ -118,8 +122,7 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
 
   def evaluateQueue() {
 
-    val completeParties = createParties
-
+    val (completeParties,nonCompleteParties) = createParties
 
     import scala.concurrent.ExecutionContext.Implicits.global
     completeParties.foreach { party =>
@@ -133,12 +136,17 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
 
       allocation onComplete {
         case Success(i) =>
-        // TODO : Send lobby created
-
+          // TODO : Send lobby created
+          log.error("Allocation success for process token : " + i)
         case Failure(t) =>
           // TODO : Send lobby destroyed
           log.error("Allocation went bad - reinserting party " + t)
       }
+    }
+    nonCompleteParties.foreach { party =>
+      // TODO: Not scalable
+      val completeInfo = party.flatMap( p => queue.find {case (c,(u,i)) => u == p} )
+      completeInfo.foreach { case (c,(u,i)) => c.sendTCP(new ProgressUpdated(party.size)) }
     }
   }
 
@@ -160,16 +168,16 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
   def removeConnection(p1: Connection): Boolean = {
 
     queue.synchronized { queue.dequeueFirst(_._1.getID == p1.getID) } match {
-      case None => log.info("Removing UNKNOWN disconnect ")
+      case None => log.warn("UNKNOWN disconnect")
       false
       case Some(c) => log.info("Removing disconnect")
       true
-      //queue = mutable.Queue.empty[Connection].dequeue++ queue.drop(i)
     }
   }
 }
 
 trait HasTeamSupport {
+
   def numOfTeams : Int
   def numOfPlayersPerTeam : Int
   def numOfPlayers = numOfTeams * numOfPlayersPerTeam
@@ -178,7 +186,7 @@ trait HasTeamSupport {
 
 abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[T](gameAndRulesId)  {
 
-  def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,(AbstractUser, Info))]) : (List[List[AbstractUser]],List[(AbstractUser,Int)]) = {
+  def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,(AbstractUser, Info))]) : (List[List[AbstractUser]],List[List[AbstractUser]], List[(AbstractUser,Int)]) = {
     val disolvedLobbyIds = oldQueueMembersWithLobbyAssignments.filterNot {
       case (u, t) => theQueue.exists {
         case (c, (uu, _)) => u == uu
@@ -189,7 +197,8 @@ abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepo
 
     val matches = matchRanking(evaluatableQueue.map(_._2))
 
-    val completeParties = matches.filter( p => p.size == numOfPlayers ).map( l => l.map( _._1))
+    var (completeParties, nonFullParties) = matches.map( l => l.map( _._1)).partition(p => p.size == numOfPlayers)
+    //val completeParties = bupps
 
     val completePartiesIndexed = (oldQueueMembersWithLobbyAssignmentsRev.groupBy(_._2).values.map(_.map(_._1)).toList ::: completeParties).zipWithIndex
 
@@ -200,7 +209,7 @@ abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepo
       }
     }.collect { case (u, Some(t)) => (u,t) }.toList
 
-    (completeParties, queueMembersWithLobbyAssignmentsNew)
+    (completeParties, nonFullParties, queueMembersWithLobbyAssignmentsNew)
   }
 
   def matchRanking(queue:List[UserInfo]) : List[(List[UserInfo])] = {
@@ -224,9 +233,9 @@ abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepo
 
   def createParties()  = {
     val theQueue = Queue.empty[(Connection,UserInfo)].enqueue(queue.synchronized { queue.toList })
-    var (completeParties, lobbyAssignedPlayerNew) = buildLobbies(queueMembersWithLobbyAssignments, theQueue)
+    var (completeParties, nonCompleteParties, lobbyAssignedPlayerNew) = buildLobbies(queueMembersWithLobbyAssignments, theQueue)
     queueMembersWithLobbyAssignments = lobbyAssignedPlayerNew
-    completeParties
+    (completeParties, nonCompleteParties)
   }
 
   def isMatchable(firstRank: Info, ranking: Info): Boolean
@@ -253,76 +262,14 @@ class RankedTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:In
     val teams = (1 to numOfTeams).map { tid => gameReservationService.createVirtualTeam(Some("Team " + tid.toString))}
     teams.flatMap( t => (1 to numOfPlayersPerTeam).map( tt => t) ).zip(party).toList.map { case (t,(c,u)) => (c,u,gameReservationService.reserveSeat(gameSessionId, u, Some(t))) }
   }
-
-
 }
 
 
-
-/*
-class HasTeamSupport(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[AbstractUser](gameAndRulesId) {
-
+// TODO: Anon Lobby dont need ranking functionallity but keep it like for testing
+class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractRankedLobbyQueueHandler[None.type](gameAndRulesId) {
   import AbstractLobbyQueueHandler._
-
-  def customize(u: AbstractUser) = u
-
-  def evaluateQueue() {
-
-  }
-
-}
-*/
-
-
-class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[None.type](gameAndRulesId) {
-  import AbstractLobbyQueueHandler._
-
 
   def customize(u: AbstractUser) = None
-
-  def createParties = {
-    var party = List[(Connection,AbstractUser)]()
-
-    log.info("Removing " + numOfPlayers + " players from a queue of " + queue.size)
-
-    (0 until numOfPlayers).foreach { s =>
-      val c = queue.dequeue()
-      party = (c._1,c._2._1) :: party
-    }
-    List(party.map(_._2))
-  }
-
-  /*def removePartyFromQueue(party:List[(Connection,AbstractUser)])  {
-    queue =  queue.filter( p => party.exists(_ == p))
-  }*/
-  /*
-  def evaluateQueue() {
-    //if (queue.size >= numOfPlayers) {
-
-      /*GameServerRepository.findBy(gameAndRulesId) match {
-        case Some(gameServerSettings) =>
-      */
-    val party = createParties
-    import scala.concurrent.ExecutionContext.Implicits.global
-
-    val launcher = (pt:ProcessToken) => {
-      val partyWithCon = removePartyFromQueue(party.map(_._2))
-      val f = launchServerInstance(gameServerSettings, partyWithCon, pt)
-      f
-    }
-    val allocation = allocateServer(launcher)
-
-    allocation onComplete {
-      case Success(i) =>
-        // TODO : Send lobby created
-
-        //launchServerInstance(gameServerSettings,party)
-      case Failure(t) =>
-        // TODO : Send lobby destroyed
-        log.error("Allocation went bad - reinserting party " + t)
-    }
-        //case None => log.error("Unknown game server setting : " + gameAndRulesId)
-  }*/
 
   def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)] = {
     log.info("Reserving seats")
@@ -331,4 +278,6 @@ class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerR
       (c, u , reservationId)
     }
   }
+
+  def isMatchable(firstRank: NonTeamLobbyQueueHandler#Info, ranking: NonTeamLobbyQueueHandler#Info) = true
 }

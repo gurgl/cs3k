@@ -62,7 +62,7 @@ public class Communication {
 
                 } else if(object instanceof StartGame) {
                     final StartGame upd  =(StartGame)object;
-                    System.err.println("Start Game Received");
+                    System.err.println("Start Game Received" + upd.getJnlpURL());
                     lobbyHandler.onStartGame(upd);
                 } else {
                     System.err.println("REC + " + object);

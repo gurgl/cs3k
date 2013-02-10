@@ -19,11 +19,6 @@ public class LobbyClient extends JFrame {
     static BasicService basicService = null;
 
 
-
-    URL gameJnlpUrl = null;
-
-
-
     public LobbyClient(String s) {
         super("Lobby Client");
 
@@ -66,17 +61,17 @@ public class LobbyClient extends JFrame {
             System.err.println("Lookup failed: " + e);
         }
 
-        LobbyServerHandler ls =  null;
+        LobbyServerHandler lobbyServerHandler =  null;
 
 
 
         if(givenMode != null && givenMode.equals("team")) {
-            ls = new NonTeamLobbyHandler(this);
+            lobbyServerHandler = new NonTeamLobbyHandler(this);
         }   else {
-            ls = new NonTeamLobbyHandler(this);
+            lobbyServerHandler = new NonTeamLobbyHandler(this);
         }
-        JComponent handlerUi = ls.getUIPanel();
-        final Communication com = new Communication(lobbyPort, lobbyHost,ls);
+        JComponent handlerUi = lobbyServerHandler.getUIPanel();
+        final Communication com = new Communication(lobbyPort, lobbyHost,lobbyServerHandler);
         com.init();
 
         String message = "Not connected";
@@ -94,7 +89,7 @@ public class LobbyClient extends JFrame {
         //teamLobbyPanel.getProgressBar().setString(message);
         System.err.println("bef listener");
 
-        com.client.addListener(new Listener() {
+        /*com.client.addListener(new Listener() {
 
             public void disconnected (Connection connection) {
 
@@ -109,6 +104,7 @@ public class LobbyClient extends JFrame {
                     System.err.println("ProgressUpdated received");
                     final ProgressUpdated upd  =(ProgressUpdated)object;
 
+
                 } else if(object instanceof StartGame) {
                     final StartGame upd  =(StartGame)object;
 
@@ -119,7 +115,7 @@ public class LobbyClient extends JFrame {
                     System.err.println("REC + " + object);
                 }
             }
-        });
+        });*/
 
 
 
@@ -160,7 +156,7 @@ public class LobbyClient extends JFrame {
         });
     }
 
-    public void startGame(StartGame sg) {
+    public void startGame(URL gameJnlpUrl) {
 
         try {
             basicService = (BasicService)

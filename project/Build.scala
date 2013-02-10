@@ -17,7 +17,10 @@ object MyBuild extends Build {
   lazy val root = Project(id = "root",
     base = file("."), settings = defaultSettings) aggregate(serverProject, lobbyProject)
 
-  lazy val defaultSettings = Defaults.defaultSettings ++ Seq(scalaVersion := "2.10.0")
+  lazy val defaultSettings = Defaults.defaultSettings ++ Seq(scalaVersion := "2.10.0"
+    //, publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+  )
+
 
   lazy val serverProject = Project(
     "server",

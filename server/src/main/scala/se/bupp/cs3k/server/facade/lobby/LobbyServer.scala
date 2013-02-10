@@ -103,7 +103,7 @@ class LobbyServer(val portId:Int, var lobbyHandler:NonTeamLobbyQueueHandler) {
 
             lobbyHandler.playerJoined(request, connection)
 
-            server.sendToAllTCP(new ProgressUpdated(lobbyHandler.queue.size))
+            //server.sendToAllTCP(new ProgressUpdated(lobbyHandler.queue.size))
 
           case e => log.info("uknown rec" + e)
         }

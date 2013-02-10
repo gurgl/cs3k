@@ -8,7 +8,7 @@ resolvers +=  Resolver.file("my-test-repo", file(Path.userHome.asFile.toURI.toUR
 
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/public/"
 
-resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+//resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies <++= (scalaVersion, sbtVersion) {
 	case (scalaVersion, sbtVersion @ "0.11.0") => Seq(sbtPluginExtra("com.github.siasia" % "xsbt-web-plugin" % "0.2.11.1", "0.12.1", scalaVersion ))
