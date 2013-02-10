@@ -1,21 +1,22 @@
 package se.bupp.cs3k.server
 
-import facade.lobby.AbstractLobbyQueueHandler
+import facade.lobby.{RankedTeamLobbyQueueHandler, AbstractLobbyQueueHandler}
+import model._
 import model.AnonUser
 import model.Model._
-import model.{AnonUser, AbstractUser, GameOccassion}
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
 import org.specs2.mock.Mockito
 import se.bupp.cs3k.LobbyJoinRequest
-import service.gameserver.GameServerRepository
+import service.gameserver.{GameProcessTemplate, GameServerRepository}
 import com.esotericsoftware.kryonet.Connection
 import collection.immutable.{Queue, ListMap}
 import scala.Some
 import service.resourceallocation.ServerAllocator
 import scala.util.{Failure, Success}
-import scala.concurrent.{promise}
+import scala.concurrent.{promise, Promise}
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -45,104 +46,21 @@ class LobbyServerTest extends Specification with Mockito {
       NILS -> 10
     )
 
-
-  class TestLobbyQueueHandler(val numOfTeams:Int, val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[(AbstractUser,Int)](gameAndRulesId) {
-
-    import AbstractLobbyQueueHandler._
-
-    //val numOfMatchingAParty = 2
-
-
-    def customize(u: AbstractUser) = u match {
-      case AnonUser(name) => (u,ranking.apply(name))
-    }
-
-
-    def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,Info)]) : (List[List[AbstractUser]],List[(AbstractUser,Int)]) = {
-      val disolvedLobbyIds = oldQueueMembersWithLobbyAssignments.filterNot {
-        case (u, t) => theQueue.exists {
-          case (c, (uu, _)) => u == uu
-        }
-      }.map( _._2)
-      var oldQueueMembersWithLobbyAssignmentsRev = oldQueueMembersWithLobbyAssignments.filterNot { case (u,t) => disolvedLobbyIds.exists ( _ ==  t) }
-      val evaluatableQueue = theQueue.filterNot { case (c,(u,r)) => oldQueueMembersWithLobbyAssignmentsRev.exists(_._1 == u) }.toList
-
-      val matches = matchRanking(evaluatableQueue.map(_._2))
-
-      val completeParties = matches.filter( p => p.size == numOfPlayers * numOfTeams).map( l => l.map( _._1))
-
-      val completePartiesIndexed = (oldQueueMembersWithLobbyAssignmentsRev.groupBy(_._2).values.map(_.map(_._1)).toList ::: completeParties).zipWithIndex
-
-      queueMembersWithLobbyAssignments = theQueue.map { case (c,(u,i)) =>
-        completePartiesIndexed.find { case (party,_) => party.exists { case (cpu) => u == cpu } } match {
-          case Some((_,idx)) => (u, Some(idx))
-          case None => (u,None)
-        }
-      }.collect { case (u, Some(t)) => (u,t) }.toList
-
-      (completeParties, queueMembersWithLobbyAssignments)
-    }
-
-    def removePartyFromQueue(party:List[AbstractUser]) = {
-      val (p, queueNew ) =  queue.partition( p => party.exists(_ == p))
-      queue = queueNew
-      p.map { case (p, (u, i)) => (p,u) } toList
-    }
-
-    def evaluateQueue() {
-      val theQueue = Queue.empty[(Connection,Info)].enqueue(queue.toList)
-      var (completeParties, asdf) = buildLobbies(queueMembersWithLobbyAssignments, theQueue)
-
-      import scala.concurrent.ExecutionContext.Implicits.global
-      completeParties.foreach { party =>
-
-        val launcher = (pt:ProcessToken) => {
-          val partyAndCon = removePartyFromQueue(party)
-          //val runningGame = launchServerInstance(gameServerSettings, partyAndCon, pt)
-          val p = promise[ProcessToken]
-          p.future
-        }
-        val allocation = ServerAllocator.serverAllocator.allocate(launcher)
-
-        allocation onComplete {
-          case Success(i) =>
-          // TODO : Send lobby created
-
-          //launchServerInstance(gameServerSettings,party)
-          case Failure(t) =>
-            // TODO : Send lobby destroyed
-            log.error("Allocation went bad - reinserting party " + t)
-        }
-      }
-    }
-
-    def doIt() {
-
-    }
-
-    def matchRanking(queue:List[(AbstractUser,Int)]) : List[(List[(AbstractUser,Int)])] = {
-      queue match {
-        case (first, firstRank) :: tail =>
-          println(first.asInstanceOf[AnonUser].name)
-          val (party,left) = tail.foldLeft((List[Info](),List[Info]())) {
-            case ((rr,lr), (u, ranking) ) => {
-              val numNeededForGame = ((numOfTeams * numOfPlayers) - 1)
-              if(math.abs(firstRank-ranking) <= 2 && rr.size < numNeededForGame)
-                (rr.:+ (u,ranking), lr)
-              else
-                (rr, lr.:+ (u,ranking))
-            }
-          }
-          val p:List[(AbstractUser, Int)] = ((first,firstRank) :: party )
-          p :: matchRanking(left)
-        case Nil => Nil
-      }
-    }
-
-
-  }
-
   GameServerRepository.addProcessTemplate(('A,'B),null)
+
+  class TestRankedTeamLobbyQueueHandler(t:Int,p:Int) extends RankedTeamLobbyQueueHandler(t,p,('A,'B)) {
+    var launchRequests = List[Promise[ProcessToken]]()
+    override def launchServerInstance(settings: GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken: ProcessToken) = {
+      var p = promise[ProcessToken]
+      launchRequests = launchRequests :+ p
+      p.future
+    }
+
+    override def customize(u: AbstractUser) = u match {
+      case AnonUser(name) => ranking.apply(name)
+      case _ => throw new IllegalArgumentException("na")
+    }
+  }
 
   def getCon(id:Int) = {
     val connection1 = mock[Connection]
@@ -152,7 +70,7 @@ class LobbyServerTest extends Specification with Mockito {
 
   "lobby server" should {
     "bupps" in {
-      val handler = new TestLobbyQueueHandler(2,1,('A,'B))
+      val handler = new TestRankedTeamLobbyQueueHandler(2,1) {}
       val queue = ranking.map {
         case (k, v) => (AnonUser(k), v)
       }.toList
@@ -169,7 +87,7 @@ class LobbyServerTest extends Specification with Mockito {
     }
 
 
-    "asdf" in {
+    "custom evaluate" in {
       val list = List((new LobbyJoinRequest(-1, LEIF), getCon(1)),
         (new LobbyJoinRequest(-1, PETER), getCon(2)),
         (new LobbyJoinRequest(-1, SVEN), getCon(3)),
@@ -182,24 +100,22 @@ class LobbyServerTest extends Specification with Mockito {
         list.find(_._1.getName == s).map(_._2).get
       }
 
-      val handler = new TestLobbyQueueHandler(2,1,('A,'B))
 
-      val nullLong= null.asInstanceOf[java.lang.Long]
+      val handler = new TestRankedTeamLobbyQueueHandler(2,1) {}
 
 
-      list.foreach { a => (handler.playerJoined _).tupled(a) }
+      list.foreach { a => (handler.addPlayer _).tupled(a) }
 
       // test disconnect
-      var theQueue = Queue.empty[(Connection,handler.Info )].enqueue(handler.queue.toList)
+      var theQueue = Queue.empty[(Connection,handler.UserInfo)].enqueue(handler.queue.toList)
       var (completeParties1, assigned1) = handler.buildLobbies(Nil, theQueue)
 
       completeParties1 must haveTheSameElementsAs(List(List(AnonUser(LEIF), AnonUser(INGE)), List(AnonUser(ROLF), AnonUser(PER))))
       assigned1 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(ROLF),1), (AnonUser(PER),1)))
 
       handler.removeConnection(con(PER))
-      1 === 1
 
-      theQueue = Queue.empty[(Connection,handler.Info )].enqueue(handler.queue.toList)
+      theQueue = Queue.empty[(Connection,handler.UserInfo )].enqueue(handler.queue.toList)
       var (completeParties2, assigned2) = handler.buildLobbies(assigned1, theQueue)
 
       completeParties2 must haveTheSameElementsAs(List(List(AnonUser(ROLF), AnonUser(NILS))))
@@ -207,5 +123,42 @@ class LobbyServerTest extends Specification with Mockito {
 
     }
 
+    "test 2" in {
+      val list = List((new LobbyJoinRequest(-1, LEIF), getCon(1)),
+        (new LobbyJoinRequest(-1, PETER), getCon(2)),
+        (new LobbyJoinRequest(-1, SVEN), getCon(3)),
+        (new LobbyJoinRequest(-1, ROLF), getCon(4)),
+        (new LobbyJoinRequest(-1, INGE), getCon(5)),
+        (new LobbyJoinRequest(-1, PER), getCon(6)),
+        (new LobbyJoinRequest(-1, NILS), getCon(7)))
+
+      def con(s:String) = {
+        list.find(_._1.getName == s).map(_._2).get
+      }
+
+
+      val handler = new TestRankedTeamLobbyQueueHandler(2,1) {}
+
+
+      list.foreach { a => (handler.playerJoined _).tupled(a) }
+
+      // test disconnect
+      var theQueue = Queue.empty[(Connection,handler.UserInfo )].enqueue(handler.queue.toList)
+      var (completeParties1, assigned1) = handler.buildLobbies(Nil, theQueue)
+
+      completeParties1 must haveTheSameElementsAs(List(List(AnonUser(LEIF), AnonUser(INGE)), List(AnonUser(ROLF), AnonUser(PER))))
+      assigned1 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(ROLF),1), (AnonUser(PER),1)))
+
+      handler.removeConnection(con(PER))
+
+      theQueue = Queue.empty[(Connection,handler.UserInfo )].enqueue(handler.queue.toList)
+      var (completeParties2, assigned2) = handler.buildLobbies(assigned1, theQueue)
+
+      completeParties2 must haveTheSameElementsAs(List(List(AnonUser(ROLF), AnonUser(NILS))))
+      assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(ROLF),1)))
+
+
+
+    }
   }
 }
