@@ -35,14 +35,23 @@ import org.slf4j.{LoggerFactory, Logger}
 
 object LobbyServer {
 
-
-
   var seqId = Cs3kConfig.LOBBY_SERVER_PORT_RANGE.head
+
+  var publicLobbies = List.empty[(String,LobbyServer)]
 
   def createContinousForNonPersistedGameOcassionsInstance(numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) = {
     if (seqId + 1 >= Cs3kConfig.LOBBY_SERVER_PORT_RANGE.last) throw new RuntimeException("Range ended")
     val lobbyServer = new LobbyServer(seqId, new NonTeamLobbyQueueHandler(numOfPlayers, gameAndRulesId))
     seqId = seqId + 1
+    publicLobbies = publicLobbies :+ (("FFA " + numOfPlayers + "p"),lobbyServer)
+    lobbyServer
+  }
+
+  def createContinous2vsNTeamForNonPersistedGameOcassionsInstance(numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) = {
+    if (seqId + 1 >= Cs3kConfig.LOBBY_SERVER_PORT_RANGE.last) throw new RuntimeException("Range ended")
+    val lobbyServer = new LobbyServer(seqId, new AnonTeamLobbyQueueHandler(2,numOfPlayersPerTeam, gameAndRulesId))
+    seqId = seqId + 1
+    publicLobbies = publicLobbies :+ (("TEAM 2vs" + numOfPlayersPerTeam + "p"), lobbyServer)
     lobbyServer
   }
 
@@ -55,19 +64,14 @@ object LobbyServer {
  * Time: 03:38
  * To change this template use File | Settings | File Templates.
  */
-class LobbyServer(val portId:Int, var lobbyHandler:NonTeamLobbyQueueHandler) {
-
-
+class LobbyServer(val portId:Int, var lobbyHandler:AbstractLobbyQueueHandler[_]) {
 
   val log = LoggerFactory.getLogger(classOf[LobbyServer])
-
-
 
   val kryo: Kryo = new Kryo
   kryo.setDefaultSerializer(classOf[BeanSerializer[_]])
   import scala.collection.JavaConversions.asScalaBuffer
   LobbyProtocol.getTypes.toList.foreach( c => kryo.register(c) )
-
 
   val kryoSerialization: KryoSerialization = new KryoSerialization(kryo)
 

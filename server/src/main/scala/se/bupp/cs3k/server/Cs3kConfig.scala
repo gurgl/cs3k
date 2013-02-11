@@ -33,7 +33,8 @@ object Cs3kConfig {
 
   val MAX_NUM_OF_GAME_SERVER_PROCESSES = 10
 
-  lazy val REMOTE_IP = {
+  lazy val REMOTE_IP = "localhost"
+  /*lazy val REMOTE_IP = {
     val stackOverflowURL = "http://www.biranchi.com/ip.php"
     val requestProperties = Map(
       "User-Agent" -> "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0"
@@ -48,5 +49,5 @@ object Cs3kConfig {
     log.info("*" + response + "*")
 
     response
-  }
+  }*/
 }

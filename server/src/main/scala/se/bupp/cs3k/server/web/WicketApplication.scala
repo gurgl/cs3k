@@ -54,8 +54,8 @@ import se.bupp.cs3k.Greeting
 object WicketApplication {
 
   def get = WebApplication.get().asInstanceOf[WicketApplication]
-  val resourceKey = "JNLP_GENERATOR"
-  val resourceKey2 = "JNLP_GENERATOR_lobby"
+  val gameResourceKey = "JNLP_GENERATOR_game"
+  val lobbyResourceKey = "JNLP_GENERATOR_lobby"
 }
 
 
@@ -117,7 +117,7 @@ class WicketApplication extends WebApplication {
       AbstractLobbyQueueHandler.rankingService = rankingService
       lobby2Player = LobbyServer.createContinousForNonPersistedGameOcassionsInstance(2,('TankGame, 'TG2Player))
       lobby2Player.start
-      lobby4Player = LobbyServer.createContinousForNonPersistedGameOcassionsInstance(4,('TankGame, 'TG4Player))
+      lobby4Player = LobbyServer.createContinous2vsNTeamForNonPersistedGameOcassionsInstance(2,('TankGame, 'TG4Player))
       lobby4Player.start
     } catch {
       case e:Exception => e.printStackTrace()
@@ -125,16 +125,15 @@ class WicketApplication extends WebApplication {
 
     gameResource = webStartResourceFactory.createGameJnlpHandler
 
-    getSharedResources().add(resourceKey, gameResource)
-
-    mountResource("/start_game.jnlp", new SharedResourceReference(classOf[Application], resourceKey))
+    getSharedResources().add(gameResourceKey, gameResource)
+      mountResource("/start_game.jnlp", new SharedResourceReference(classOf[Application], gameResourceKey))
 
 
     lobbyResource= webStartResourceFactory.createLobbyJnlpHandler //new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp")
 
-    getSharedResources().add(resourceKey2, lobbyResource)
+    getSharedResources().add(lobbyResourceKey, lobbyResource)
 
-    mountResource("/lobby2.jnlp", new SharedResourceReference(classOf[Application], resourceKey2))
+    mountResource("/lobby2.jnlp", new SharedResourceReference(classOf[Application], lobbyResourceKey))
 
   }
 

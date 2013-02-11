@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server
 
-import facade.lobby.{RankedTeamLobbyQueueHandler, AbstractLobbyQueueHandler}
+import facade.lobby.{AnonTeamLobbyQueueHandler, AbstractLobbyQueueHandler}
 import model._
 import model.AnonUser
 import model.Model._
@@ -49,7 +49,7 @@ class LobbyServerTest extends Specification with Mockito {
   GameServerRepository.addProcessTemplate(('A,'B),null)
 
   val serverAllocator = mock[ServerAllocator]
-  class TestRankedTeamLobbyQueueHandler(t:Int,p:Int) extends RankedTeamLobbyQueueHandler(t,p,('A,'B)) {
+  class TestRankedTeamLobbyQueueHandler(t:Int,p:Int) extends AnonTeamLobbyQueueHandler(t,p,('A,'B)) {
     var launchRequests = List[Promise[ProcessToken]]()
     override def launchServerInstance(settings: GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken: ProcessToken) = {
       var serverDone = promise[ProcessToken]

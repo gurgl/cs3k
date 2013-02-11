@@ -84,6 +84,8 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository
   //def removePartyFromQueue(party:List[(AbstractUser)]) : List[(Connection,AbstractUser)]
 
   def numOfPlayers : Int
+  // TODO : Fixme
+  def clientMode = "normal"
 
   //def evaluateQueue() : Unit
 
@@ -241,15 +243,22 @@ abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepo
   def isMatchable(firstRank: Info, ranking: Info): Boolean
 
 }
+class RankedTeamLobbyQueueHandler(numOfTeams:Int, numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AnonTeamLobbyQueueHandler(numOfTeams,numOfPlayersPerTeam,gameAndRulesId) with HasTeamSupport {
+  import AbstractLobbyQueueHandler._
+  override def customize(u: AbstractUser) = u match {
+    case RegedUser(id) => rankingService.getRanking(id).getOrElse(0)
+    case _ => throw new IllegalArgumentException("Ranked lobby cant handle anon players")
+  }
+}
 
-class RankedTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractRankedLobbyQueueHandler[Int](gameAndRulesId) with HasTeamSupport {
+class AnonTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractRankedLobbyQueueHandler[Int](gameAndRulesId) with HasTeamSupport {
 
   import AbstractLobbyQueueHandler._
 
 
   def customize(u: AbstractUser) = u match {
-    case RegedUser(id) => rankingService.getRanking(id).getOrElse(0)
-    case _ => throw new IllegalArgumentException("Ranked lobby cant handle anon players")
+    case _ => 3
+
   }
 
   def isMatchable(firstRank: Info, ranking: Info): Boolean = {

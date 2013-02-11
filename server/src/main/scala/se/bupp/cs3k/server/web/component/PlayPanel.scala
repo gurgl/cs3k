@@ -34,6 +34,7 @@ import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExCompetitorScor
 import se.bupp.cs3k.example.ExampleScoreScheme
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
 import org.springframework.beans.factory.annotation.Autowired
+import se.bupp.cs3k.server.facade.lobby.LobbyServer
 
 /**
  * Created with IntelliJ IDEA.
@@ -82,6 +83,14 @@ class PlayPanel(id:String) extends Panel(id) {
       //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
       //RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, new PageParameters()))
     }
+
+    val games = LobbyServer.publicLobbies.map(_._1)
+    import scala.collection.JavaConversions.seqAsJavaList
+    var selectionModel = new Model[String](null)
+    var gameSetupSelector = new DropDownChoice[String]("gameSelect", selectionModel, games)
+    gameSetupSelector.setRequired(true)
+    add(gameSetupSelector)
+
 
 
     val fbp = new FeedbackPanel("feedback")
@@ -161,13 +170,14 @@ class PlayPanel(id:String) extends Panel(id) {
 
     button = new Button("launch_button") {
 
-
       override def onSubmit() {
         log.debug("submitting button, player_name = " + nameReference.getObject)
         //override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
         var parameters: PageParameters = new PageParameters()
-
         parameters.add("player_name", nameReference.getObject)
+        parameters.add("lobby_id", selectionModel.getObject)
+
+        log.debug("***  selectionModel.getObject " +  selectionModel.getObject)
         RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.lobbyResource, parameters))
       }
 

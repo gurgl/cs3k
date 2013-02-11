@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.facade
 
+import lobby.LobbyServer
 import org.apache.wicket.request.resource.{ContextRelativeResource, AbstractResource}
 import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
@@ -30,6 +31,7 @@ import org.apache.wicket.request.resource.caching.NoOpResourceCachingStrategy
 import se.bupp.cs3k.server.service.dao.UserDao
 import org.slf4j.LoggerFactory
 import se.bupp.cs3k.server.service.gameserver.{GameServerPool, GameServerRepository}
+import java.net.URLEncoder
 
 
 /**
@@ -52,6 +54,7 @@ object  WebStartResourceFactory {
 
       val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toOptionalString).map(p=> p.asInstanceOf[String])
       val userIdOpt:Option[UserId] = Option.apply(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
+      val lobbyIdOpt:Option[String] = Option.apply(p1.getParameters().get("lobby_id").toOptionalString)
 
       //val playerNameOpt = Option.apply(target.getParameters().get("playerName").toString)
 
@@ -65,6 +68,12 @@ object  WebStartResourceFactory {
       //response.setContentDisposition()
       //response.setCacheScope(null)
 
+      val (port,clientMode, lobbyId) = {
+        val (lobbyId,lobbyServer) = lobbyIdOpt.map( l => LobbyServer.publicLobbies.find( _._1 == l).get).getOrElse(LobbyServer.publicLobbies.head)
+        (lobbyServer.portId, lobbyServer.lobbyHandler.clientMode, lobbyId)
+
+      }
+
       response.setWriteCallback(new WriteCallback {
         def writeData(p2: Attributes) {
           try {
@@ -75,7 +84,8 @@ object  WebStartResourceFactory {
             val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
 
             val resourcesNew = "<resources>" +
-              "<property name=\"javaws.lobbyPort\" value=\"12345\"/>" +
+              "<property name=\"javaws.lobbyPort\" value=\"" + port + "\"/>" +
+              "<property name=\"javaws.lobbyMode\" value=\"" + clientMode + "\"/>" +
               "<property name=\"javaws.lobbyHost\" value=\"" + Cs3kConfig.REMOTE_IP  + "\"/>" +
               userIdOpt.map(a => "<property name=\"javaws.userId\" value=\"" + a + "\"/>").getOrElse(
                 playerNameOpt.map(a => "<property name=\"javaws.playerName\" value=\"" + a + "\"/>").getOrElse("")
@@ -85,13 +95,14 @@ object  WebStartResourceFactory {
             log.debug("Lobby req : ")
             log.debug("userIdOpt " + userIdOpt)
             log.debug("playerNameOpt " + playerNameOpt)
+            log.debug("lobbyId " + lobbyId + " : " + lobbyIdOpt)
 
             val jnlpXMLModified = jnlpXML
               .replace("http://localhost:8080/", "http://" + Cs3kConfig.REMOTE_IP +":8080/")
               .replace("lobbyX.jnlp", "http://" + Cs3kConfig.REMOTE_IP +":8080/lobby2.jnlp?" +
               userIdOpt.map(a => "user_id=" + a ).getOrElse(
                 playerNameOpt.map(a => "player_name=" + a).getOrElse("")
-              )
+              ) + "&lobby_id="+URLEncoder.encode(lobbyId,"ASCII")
             ).replace("<resources>", resourcesNew)
 
             p2.getResponse.write(jnlpXMLModified)
