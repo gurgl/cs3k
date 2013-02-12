@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web;
+package se.bupp.cs3k.server.web.page
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;

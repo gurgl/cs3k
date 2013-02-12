@@ -6,6 +6,10 @@ import org.apache.wicket.authorization.Action;
 import org.apache.wicket.authorization.IAuthorizationStrategy;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import se.bupp.cs3k.server.model.User;
+import se.bupp.cs3k.server.web.auth.AnonymousOnly;
+import se.bupp.cs3k.server.web.auth.LoggedInOnly;
+import se.bupp.cs3k.server.web.page.SessionPage;
+import se.bupp.cs3k.server.web.page.SigninPage;
 
 public final class WiaAuthorizationStrategy implements
     IAuthorizationStrategy,
@@ -33,7 +37,7 @@ public final class WiaAuthorizationStrategy implements
 
   public boolean isInstantiationAuthorized(Class componentClass) {
 
-    if (ProtectedPage.class.isAssignableFrom(componentClass)) {
+    if (Long.class.isAssignableFrom(componentClass)) {
       return WiaSession.get().isAuthenticated();
     }
 

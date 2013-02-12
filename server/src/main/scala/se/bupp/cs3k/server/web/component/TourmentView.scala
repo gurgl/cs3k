@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web
+package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.markup.html.panel.Panel
 import java.io.PrintWriter

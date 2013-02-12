@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web
+package se.bupp.cs3k.server.web.page
 
 import org.apache.wicket.model.{Model, CompoundPropertyModel}
 import org.apache.wicket.markup.html.form.{Form, PasswordTextField, TextField}

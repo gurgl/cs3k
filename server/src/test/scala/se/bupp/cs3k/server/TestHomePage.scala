@@ -6,7 +6,7 @@ package se.bupp.cs3k.server
 import org.apache.wicket.util.tester.WicketTester
 import org.junit.runner.RunWith
 
-import web.{TheHomePage, WicketApplication}
+import web.{WicketApplication}
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.junit.Ignore
@@ -20,8 +20,8 @@ class TestHomePage extends Specification {
     "handle conversions1" in {
 
       val tester = new WicketTester(new WicketApplication)
-      tester.startPage(new TheHomePage)
-      tester.assertRenderedPage(classOf[TheHomePage])
+      tester.startPage(new ApplicationPage)
+      tester.assertRenderedPage(classOf[ApplicationPage])
 
     }
   }*/

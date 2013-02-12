@@ -20,6 +20,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, Link}
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
+import auth.{LoggedInOnly, AnonymousOnly}
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service.{GameLogService, GameResultService, GameReservationService, LadderService}
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}

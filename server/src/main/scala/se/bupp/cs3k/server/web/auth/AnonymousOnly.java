@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web;
+package se.bupp.cs3k.server.web.auth;
 
 import java.lang.annotation.*;
 

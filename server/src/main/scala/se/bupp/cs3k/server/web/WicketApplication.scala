@@ -17,7 +17,8 @@ import org.apache.wicket.util.resource.{IResourceStream, AbstractResourceStreamW
 import java.io.{PrintWriter, IOException, OutputStream}
 import org.apache.wicket.request.resource._
 import java.util.Scanner
-import se.bupp.cs3k.Greeting
+import page.ApplicationPage
+import se.bupp.cs3k.{server, Greeting}
 import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
 import org.apache.wicket.util.time.Time
@@ -79,13 +80,12 @@ class WicketApplication extends WebApplication {
 
   override def newSession(request: Request, response: Response) = new WiaSession(request)
 
-  def getHomePage() = classOf[TheHomePage]
+  def getHomePage() = classOf[ApplicationPage]
 
   //@transient var lobby : LobbyServer = _
-  @transient var lobby2Player:LobbyServer = _
-  @transient var lobby4Player:LobbyServer = _
   var gameResource:AbstractResource = _
   var lobbyResource: AbstractResource = _
+
   override def init() {
     super.init()
 
@@ -98,36 +98,17 @@ class WicketApplication extends WebApplication {
 
     getComponentInstantiationListeners.add(new SpringComponentInjector(this));
 
-
-    /*val appContext = new FileSystemXmlApplicationContext(
-      "/WEB-INF/applicationContext.xml"
-    )*/
-
     var requiredWebApplicationContext: WebApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext)
-    // of course, an ApplicationContext is just a BeanFactory
     val beanFactory = requiredWebApplicationContext.asInstanceOf[BeanFactory]
 
-    var gameReservationService = beanFactory.getBean(classOf[GameReservationService])
-    var rankingService= beanFactory.getBean(classOf[RankingService])
+    Init.setupSpringDeps(beanFactory)
 
-    webStartResourceFactory = beanFactory.getBean(classOf[WebStartResourceFactory])
-    //eventSystem = new EventSystem(this)
-    try {
-      AbstractLobbyQueueHandler.gameReservationService = gameReservationService
-      AbstractLobbyQueueHandler.rankingService = rankingService
-      lobby2Player = LobbyServer.createContinousForNonPersistedGameOcassionsInstance(2,('TankGame, 'TG2Player))
-      lobby2Player.start
-      lobby4Player = LobbyServer.createContinous2vsNTeamForNonPersistedGameOcassionsInstance(2,('TankGame, 'TG4Player))
-      lobby4Player.start
-    } catch {
-      case e:Exception => e.printStackTrace()
-    }
+    val webStartResourceFactory = beanFactory.getBean(classOf[WebStartResourceFactory])
 
     gameResource = webStartResourceFactory.createGameJnlpHandler
 
     getSharedResources().add(gameResourceKey, gameResource)
-      mountResource("/start_game.jnlp", new SharedResourceReference(classOf[Application], gameResourceKey))
-
+    mountResource("/start_game.jnlp", new SharedResourceReference(classOf[Application], gameResourceKey))
 
     lobbyResource= webStartResourceFactory.createLobbyJnlpHandler //new ByteArrayResource("application/x-java-jnlp-file", jnlpXML2.getBytes, "lobby2.jnlp")
 
@@ -139,8 +120,8 @@ class WicketApplication extends WebApplication {
 
   override def onDestroy() {
     //eventSystem.shutdown()
-    lobby2Player.stop();
-    lobby4Player.stop();
+    println("WicketApp onDestroy")
+    Init.cleanup()
     super.onDestroy()
   }
 

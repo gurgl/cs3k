@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web;
+package se.bupp.cs3k.server.web.page;
 
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
@@ -10,6 +10,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import se.bupp.cs3k.server.model.User;
 import se.bupp.cs3k.server.service.dao.UserDao;
+import se.bupp.cs3k.server.web.WiaSession;
+import se.bupp.cs3k.server.web.page.AbstractBasePage;
 
 
 public class SigninPage extends AbstractBasePage {

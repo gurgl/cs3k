@@ -16,10 +16,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package se.bupp.cs3k.server.web;
+package se.bupp.cs3k.server.web.page;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import se.bupp.cs3k.server.web.page.AbstractBasePage;
 
 
 public class SignOutPage extends AbstractBasePage {

@@ -1,7 +1,5 @@
-package se.bupp.cs3k.server.web
+package se.bupp.cs3k.server.web.page
 
-
-import component.{TeamPanel, LadderPanel, PlayPanel}
 import org.apache.wicket.markup.html.{WebMarkupContainer, link}
 import link.BookmarkablePageLink
 import org.apache.wicket.ajax.AjaxRequestTarget
@@ -15,6 +13,10 @@ import org.apache.wicket.behavior.AttributeAppender
 import org.apache.wicket.model.{Model, AbstractReadOnlyModel}
 import org.apache.wicket.model.util.ListModel
 import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter
+import se.bupp.cs3k.server.web._
+import auth.{LoggedInOnly, AnonymousOnly}
+import component.{TeamPanel, LadderPanel, PlayPanel}
+import scala.Some
 
 
 /**
@@ -25,23 +27,7 @@ import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter
  * To change this template use File | Settings | File Templates.
  */
 
-class TheHomePage extends AbstractBasePage {
-
-
-  @LoggedInOnly class LogoutLink extends BookmarkablePageLink("logout", classOf[SignOutPage])
-  @AnonymousOnly class LoginLink extends BookmarkablePageLink("login", classOf[SigninPage])
-  @AnonymousOnly class RegisterLink extends BookmarkablePageLink("register", classOf[RegisterPage])
-  add(new LogoutLink)
-  add(new LoginLink)
-  add(new RegisterLink)
-
-  @LoggedInOnly
-  class AdminOnlyLabel(id: String, text: String) extends BookmarkablePageLink(id, classOf[TheHomePage]) {
-    override def isEnabled = false
-  }
-
-  add(new AdminOnlyLabel("lbl", "Tja"))
-
+class ApplicationPage extends SessionPage {
 
 
   import scala.collection.JavaConversions.seqAsJavaList
