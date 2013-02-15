@@ -12,7 +12,13 @@ import service.gameserver.GameServerRepository
  * Time: 19:33
  * To change this template use File | Settings | File Templates.
  */
+
+object Cs3kConstants {
+  val GAME_SERVER_CMDLINE_GAME_SESSION_ID_PARAM_NAME = "--game-session-id"
+}
 object Cs3kConfig {
+
+
 
   val log = Logger.getLogger(this.getClass)
 

@@ -301,4 +301,181 @@ Caused by: net.sourceforge.nanoxml.XMLParseException: XML Parse Exception during
 18<_florian_> that was silly of me
 18<_florian_> :)
 18<zartura> judkinsstephen, Promise.pure? :)
-18<_florian_> thanks 
+18<_florian_> thanks
+
+
+
+-----------------------
+
+
+Trace from double player 1(?) controllable from both clients
+
+C:\dev\apps\Java\jdk1.6.0_20\bin\java -Didea.launcher.port=7533 "-Didea.launcher.bin.path=C:\Program Files (x86)\JetBrains\IntelliJ IDEA 12.0.3\bin" -Dfile.encoding=UTF-8 -classpath "C:\dev\apps\Java\jdk1.6.0_20\jre\lib\charsets.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\deploy.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\javaws.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\jce.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\jsse.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\management-agent.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\plugin.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\resources.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\rt.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\ext\dnsns.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\ext\localedata.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\ext\sunjce_provider.jar;C:\dev\workspace\opengl-tanks\server\target\scala-2.10\classes;C:\Users\karlw\.sbt\boot\scala-2.10.0\lib\scala-library.jar;C:\Users\karlw\.ivy2\cache\org.scalaz\scalaz-core_2.10\jars\scalaz-core_2.10-6.0.4.jar;C:\Users\karlw\.ivy2\cache\org.objenesis\objenesis\jars\objenesis-1.2.jar;C:\Users\karlw\.ivy2\cache\com.esotericsoftware.kryo\kryo\jars\kryo-2.20.jar;C:\Users\karlw\.ivy2\cache\com.esotericsoftware.reflectasm\reflectasm\jars\reflectasm-1.07-shaded.jar;C:\Users\karlw\.ivy2\cache\org.ow2.asm\asm\jars\asm-4.0.jar;C:\Users\karlw\.ivy2\cache\com.esotericsoftware.minlog\minlog\jars\minlog-1.2.jar;C:\Users\karlw\.ivy2\local\se.paronglans.cs3k\api_2.10\0.3-SNAPSHOT\jars\api_2.10.jar;C:\Users\karlw\.ivy2\cache\com.fasterxml.jackson.core\jackson-core\jars\jackson-core-2.1.0.jar;C:\Users\karlw\.ivy2\cache\com.fasterxml.jackson.core\jackson-annotations\jars\jackson-annotations-2.1.0.jar;C:\Users\karlw\.ivy2\cache\com.fasterxml.jackson.core\jackson-databind\jars\jackson-databind-2.1.0.jar;C:\Users\karlw\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.7.2.jar;C:\Users\karlw\.ivy2\cache\org.slf4j\slf4j-log4j12\jars\slf4j-log4j12-1.7.2.jar;C:\Users\karlw\.ivy2\cache\log4j\log4j\bundles\log4j-1.2.17.jar;C:\Users\karlw\.ivy2\cache\org.slf4j\jul-to-slf4j\jars\jul-to-slf4j-1.7.2.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-desktop\jars\jME3-desktop-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\eventbus\jars\eventbus-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jbullet\jars\jbullet-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-blender\jars\jME3-blender-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-core\jars\jME3-core-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-jbullet\jars\jME3-jbullet-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-plugins\jars\jME3-plugins-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-terrain\jars\jME3-terrain-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-testdata\jars\jME3-testdata-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\stack-alloc\jars\stack-alloc-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\vecmath\jars\vecmath-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\xmlpull-xpp3\jars\xmlpull-xpp3-3.0.0.20120512-SNAPSHOT.jar;C:\dev\workspace\opengl-tanks\common\lib\kryonet-2.18.jar;C:\dev\workspace\opengl-tanks\common\target\scala-2.10\classes;C:\Program Files (x86)\JetBrains\IntelliJ IDEA 12.0.3\lib\idea_rt.jar" com.intellij.rt.execution.application.AppMain se.bupp.lek.server.Server --tcp-port 12345 --udp-port 12355 --game-setup 1vs1
+0    [main] INFO  se.bupp.lek.server.Server  - CommandLine --tcp-port 12345 --udp-port 12355 --game-setup 1vs1
+1128 [main] INFO  se.bupp.lek.server.Server  - Not able to connecto master server - continueing wo
+1130 [main] INFO  se.bupp.lek.server.Server  - 12345 12355, gameOccassionId None
+1630 [main] INFO  com.jme3.system.JmeSystem  - Running on jMonkeyEngine 3.0.0 Beta
+1636 [main] INFO  com.jme3.system.Natives  - Extraction Directory: C:\dev\workspace\opengl-tanks
+1645 [Headless Application Thread] INFO  com.jme3.system.NullContext  - NullContext created.
+1696 [Headless Application Thread] WARN  com.jme3.asset.AssetConfig  - Cannot find loader com.jme3.audio.plugins.OGGLoader
+1772 [Headless Application Thread] INFO  com.jme3.asset.AssetManager  - DesktopAssetManager created.
+1817 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+1831 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+1891 [Headless Application Thread] INFO  com.jme3.material.MaterialDef  - Loaded material definition: Unshaded
+2106 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2372 [Headless Application Thread] INFO  se.bupp.lek.server.Server  - Game Launch Complete
+2374 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Gui Node)
+2399 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2399 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2404 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Statistics View) attached to this node (Gui Node)
+2408 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 1 App Update rate
+5421 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 175 App Update rate
+8431 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 172 App Update rate
+rec se.bupp.lek.common.Model$PlayerJoinRequest
+rec se.bupp.lek.common.Model$PlayerJoinRequest
+10132 [Thread-2] INFO  se.bupp.lek.server.ServerNetworkState  - req.connectMessage none set
+10132 [Thread-1] INFO  se.bupp.lek.server.ServerNetworkState  - req.connectMessage none set
+query game start
+10190 [Thread-1] INFO  se.bupp.lek.server.GameLogicFactory$GameLogicListener  - onGameStart
+roundCount roundCount roundCount roundCount 0
+query game start
+10243 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - Server messages to handle 1
+10248 [Headless Application Thread] INFO  se.bupp.lek.server.Server  - To handle : GameStarted
+10248 [Headless Application Thread] INFO  se.bupp.lek.server.Server  - Game Started
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Statics) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Enemies) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Projectiles) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Effects) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Player) attached to this node (null)
+10748 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Camera
+10748 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+10750 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube
+10750 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10755 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10766 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Materials name: {0}
+10787 [Headless Application Thread] INFO  com.jme3.material.MaterialDef  - Loaded material definition: Phong Lighting
+10806 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube1) attached to this node (Cube)
+10806 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube: (0.0, 1.0, -4.0)--> null
+10806 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube) attached to this node (level.blend)
+10807 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.001
+10807 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10808 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10809 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0011) attached to this node (Cube.001)
+10809 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.001: (0.0, 1.0, -4.0)--> null
+10809 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.001) attached to this node (level.blend)
+10810 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.002
+10810 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10811 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10813 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0021) attached to this node (Cube.002)
+10813 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.002: (4.0, 1.0, 3.0)--> null
+10813 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.002) attached to this node (level.blend)
+10814 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.003
+10814 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10815 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10815 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0031) attached to this node (Cube.003)
+10816 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.003: (-4.0, 1.0, 1.0)--> null
+10816 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.003) attached to this node (level.blend)
+10816 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.004
+10817 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10818 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10818 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Materials name: {0}
+10819 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0041) attached to this node (Cube.004)
+10820 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.004: (0.0, 0.0, -0.0)--> null
+10820 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.004) attached to this node (level.blend)
+10908 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Lamp
+10908 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing lamp.
+11016 [Headless Application Thread] INFO  com.jme3.bullet.PhysicsSpace  - Adding RigidBody com.bulletphysics.dynamics.RigidBody@43ce663c to physics space.
+11016 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (level.blend) attached to this node (Statics)
+11027 [Headless Application Thread] INFO  se.bupp.lek.server.ServerWorld  - Spawn player
+11111 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Camera
+11111 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+11112 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube
+11112 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11113 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11113 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Materials name: {0}
+11114 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0031) attached to this node (Cube)
+11114 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube: (0.085995674, -0.01669532, 0.07029672)--> null
+11114 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube) attached to this node (tank2.blend)
+11114 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.001
+11115 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11117 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11117 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0041) attached to this node (Cube.001)
+11118 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.001: (0.17213798, -0.04540944, 0.07029672)--> null
+11118 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.001) attached to this node (tank2.blend)
+11118 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cylinder
+11118 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11131 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11132 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder.0041) attached to this node (Cylinder)
+11133 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cylinder: (0.17213821, -0.04540962, 0.07029672)--> null
+11133 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder) attached to this node (tank2.blend)
+11134 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cylinder.001
+11134 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11146 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11147 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder.0021) attached to this node (Cylinder.001)
+11148 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cylinder.001: (0.0859952, -0.01669544, 0.07029672)--> null
+11148 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder.001) attached to this node (tank2.blend)
+11149 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Lamp
+11149 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing lamp.
+11151 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (tank2.blend) attached to this node (Tank)
+11167 [Headless Application Thread] INFO  com.jme3.bullet.PhysicsSpace  - Adding character com.bulletphysics.collision.dispatch.PairCachingGhostObject@64c272bc to physics space.
+11173 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Tank) attached to this node (Enemies)
+11176 [Headless Application Thread] DEBUG se.bupp.lek.server.PlayState  - Playstate init done
+11716 [Headless Application Thread] INFO  se.bupp.lek.server.WorldSimulator  - Fixme - should be given by client if server doesnt provide with playerid = 0 representing 1 entered
+11725 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 59 App Update rate
+14740 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 156 App Update rate
+17742 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 136 App Update rate
+20744 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 151 App Update rate
+23757 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 169 App Update rate
+26766 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 169 App Update rate
+27787 [Server] INFO  se.bupp.lek.server.ServerNetworkState  - Player disconnected
+27790 [Server] INFO  se.bupp.lek.server.ServerWorld  - Unspawning player 0
+27790 [Server] INFO  com.jme3.bullet.PhysicsSpace  - Removing character com.bulletphysics.collision.dispatch.PairCachingGhostObject@64c272bc from physics space.
+27791 [Server] INFO  com.jme3.scene.Node  - Enemies (Node): Child removed.
+27819 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+27871 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+27939 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28007 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28075 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28143 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28211 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28279 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28348 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28419 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28576 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28604 [Server] INFO  se.bupp.lek.server.ServerNetworkState  - Player disconnected
+29778 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+32787 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+35796 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+38805 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+41814 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+44822 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+47831 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+
+Process finished with exit code 1
+
+
+

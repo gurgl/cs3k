@@ -13,6 +13,7 @@ import se.bupp.cs3k.server.service.resourceallocation.ResourceAllocator
 
 import se.bupp.cs3k.server.model.Model._
 import concurrent.{Future,Promise, future, promise }
+import se.bupp.cs3k.server.Cs3kConstants
 
 /**
  * Created with IntelliJ IDEA.
@@ -73,7 +74,7 @@ class GameServerPool {
     val resourceAllocations = resourceAllocator.allocate(gpsTemplate.gameSpecification.resourceNeeds).getOrElse(
       throw new RuntimeException("Not enought resources available")
     )
-    val gameProcessSettings = gpsTemplate.specifyInstance(resourceAllocations, " --occassion-id " + game.gameSessionId + " --log " + logName)
+    val gameProcessSettings = gpsTemplate.specifyInstance(resourceAllocations, " " + Cs3kConstants.GAME_SERVER_CMDLINE_GAME_SESSION_ID_PARAM_NAME + " " + game.gameSessionId + " --log " + logName)
 
     val resultHandler = new DefaultExecuteResultHandler {
 
