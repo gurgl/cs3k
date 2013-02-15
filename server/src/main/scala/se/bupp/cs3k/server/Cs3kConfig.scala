@@ -31,7 +31,7 @@ object Cs3kConfig {
   val CS3K_HOST = "localhost"
   val CS3K_PORT = 1199
 
-  val LOBBY_SERVER_PORT_RANGE = Range(12345,12355)
+  val LOBBY_SERVER_PORT_RANGE = Range(51545,51554)
 
   var TEMP_FIX_FOR_STORING_GAME_TYPE: GameServerRepository.GameAndRulesId = ('TankGame, 'TG2Player)
   var LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 2

@@ -25,7 +25,9 @@ object MyBuild extends Build {
   lazy val serverProject = Project(
     "server",
     file("server"),
-    settings = defaultSettings ++ webSettings ++ serverSettings
+    settings = defaultSettings ++ webSettings ++ Seq(
+      unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd) }
+    ) ++ serverSettings
       //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
   ) dependsOn(commonProject, apiProject) aggregate(lobbyProject,commonProject)
 

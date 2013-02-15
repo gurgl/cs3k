@@ -1,6 +1,5 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
 
@@ -12,6 +11,7 @@
 
     <context:component-scan base-package="se.bupp.cs3k.*"/>
 
+    <context:property-placeholder location="classpath:cs3k-server.properties"/>
     <tx:annotation-driven proxy-target-class = "true"/>
 
     <bean class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean" id="entityManagerFactory">
@@ -28,7 +28,7 @@
         <property name="service" ref="gameServerFacade"/>
         <property name="serviceInterface" value="se.bupp.cs3k.api.GameServerFacadeRemote"/>
         <!-- defaults to 1099 -->
-        <property name="registryPort" value="1199"/>
+        <property name="registryPort" value="${cs3k.gameserverfacade.port}"/>
     </bean>
 
     <!--<bean id="defaultObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />-->
