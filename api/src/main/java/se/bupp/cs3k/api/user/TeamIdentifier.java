@@ -1,5 +1,7 @@
 package se.bupp.cs3k.api.user;
 
+import java.io.Serializable;
+
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -7,7 +9,7 @@ package se.bupp.cs3k.api.user;
  * Time: 22:51
  * To change this template use File | Settings | File Templates.
  */
-public class TeamIdentifier {
+public class TeamIdentifier implements Serializable {
 
     Long reportableId;
     String name;

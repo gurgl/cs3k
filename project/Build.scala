@@ -199,7 +199,7 @@ object MyBuild extends Build {
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0"
       //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
     )) ++ Seq(
-      publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
+      //publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
       //name := 'My Project'
       organization := "se.paronglans.cs3k",
       version := "0.3-SNAPSHOT"

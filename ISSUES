@@ -1,0 +1,481 @@
+Server
+00:16 DEBUG: [kryonet] Port 12345/TCP connected to: /192.168.1.1:57790
+00:16 TRACE: [kryonet] Connection listener added: com.esotericsoftware.kryonet.Server$1
+00:16 TRACE: [kryo] Write class 9: com.esotericsoftware.kryonet.FrameworkMessage$RegisterTCP
+00:16 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$RegisterTCP
+00:16 TRACE: [kryo] Write field: connectionID (com.esotericsoftware.kryonet.FrameworkMessage$RegisterTCP)
+00:16 TRACE: [kryo] Write int: 1
+00:16 TRACE: [kryo] Object graph complete.
+00:16 TRACE: [kryonet] Connection 1 sent TCP: RegisterTCP (6)
+00:16  INFO: [kryonet] Connection 1 connected: /192.168.1.1
+00:16 TRACE: [kryo] Read class 15: se.bupp.cs3k.LobbyJoinRequest
+00:16 TRACE: [kryo] Read field: name (se.bupp.cs3k.LobbyJoinRequest)
+00:16 TRACE: [kryo] Read: asdf
+00:16 TRACE: [kryo] Read field: userId (se.bupp.cs3k.LobbyJoinRequest)
+00:16 TRACE: [kryo] Read: -1
+00:16 DEBUG: [kryo] Read: se.bupp.cs3k.LobbyJoinRequest
+00:16 TRACE: [kryo] Object graph complete.
+00:16 DEBUG: [kryonet] Connection 1 received TCP: LobbyJoinRequest
+19712 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - LobbyJoinRequest received
+00:16 TRACE: [kryo] Write class 14: se.bupp.cs3k.LobbyJoinResponse
+00:16 DEBUG: [kryo] Write: se.bupp.cs3k.LobbyJoinResponse
+00:16 TRACE: [kryo] Write field: participantsRequired (se.bupp.cs3k.LobbyJoinResponse)
+00:16 TRACE: [kryo] Write: 2
+00:16 TRACE: [kryo] Object graph complete.
+00:16 DEBUG: [kryonet] Connection 1 sent TCP: LobbyJoinResponse (6)
+00:16 TRACE: [kryo] Write class 16: se.bupp.cs3k.ProgressUpdated
+00:16 DEBUG: [kryo] Write: se.bupp.cs3k.ProgressUpdated
+00:16 TRACE: [kryo] Write field: progress (se.bupp.cs3k.ProgressUpdated)
+00:16 TRACE: [kryo] Write: 1
+00:16 TRACE: [kryo] Object graph complete.
+00:16 DEBUG: [kryonet] Connection 1 sent TCP: ProgressUpdated (6)
+00:24 TRACE: [kryo] Read class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 TRACE: [kryo] Object graph complete.
+00:24 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+27737 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@35886ba1
+00:24 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:24 TRACE: [kryo] Object graph complete.
+00:24 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:32 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:32 TRACE: [kryo] Object graph complete.
+00:32 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+35762 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@f52327c
+00:32 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:32 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:32 TRACE: [kryo] Object graph complete.
+00:32 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:40 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:40 TRACE: [kryo] Object graph complete.
+00:40 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+43787 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@5d7072bf
+00:40 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:40 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:40 TRACE: [kryo] Object graph complete.
+00:40 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:48 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:48 TRACE: [kryo] Object graph complete.
+00:48 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+51815 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@17d8986
+00:48 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:48 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:48 TRACE: [kryo] Object graph complete.
+00:48 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+00:57 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:57 TRACE: [kryo] Object graph complete.
+00:57 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+59838 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@58cfbd2d
+00:57 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:57 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+00:57 TRACE: [kryo] Object graph complete.
+00:57 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:05 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:05 TRACE: [kryo] Object graph complete.
+01:05 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+67863 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@2e8d02e8
+01:05 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:05 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:05 TRACE: [kryo] Object graph complete.
+01:05 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:13 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:13 TRACE: [kryo] Object graph complete.
+01:13 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+75889 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@6a7fe54c
+01:13 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:13 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:13 TRACE: [kryo] Object graph complete.
+01:13 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:21 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:21 TRACE: [kryo] Object graph complete.
+01:21 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+83914 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@72a71733
+01:21 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:21 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:21 TRACE: [kryo] Object graph complete.
+01:21 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:29 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:29 TRACE: [kryo] Object graph complete.
+01:29 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+91940 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@37e45013
+01:29 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:29 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:29 TRACE: [kryo] Object graph complete.
+01:29 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:37 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:37 TRACE: [kryo] Object graph complete.
+01:37 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+99965 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@6e452c0f
+01:37 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:37 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:37 TRACE: [kryo] Object graph complete.
+01:37 TRACE: [kryonet] Connection 1 sent TCP: KeepAlive (5)
+01:45 DEBUG: [kryo] Read: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:45 TRACE: [kryo] Object graph complete.
+01:45 TRACE: [kryonet] Connection 1 received TCP: KeepAlive
+107991 [Server] INFO  se.bupp.cs3k.server.ServerLobby  - uknown reccom.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@7f4fc557
+01:45 TRACE: [kryo] Write class 11: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:45 DEBUG: [kryo] Write: com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive
+01:45 TRACE: [kryo] Object graph complete.
+
+
+
+Client
+
+bef listener
+00:00  INFO: Connecting: /81.235.61.31:12345
+00:00 DEBUG: [kryonet] Port 57790/TCP connected to: /81.235.61.31:12345
+00:00 DEBUG: [kryo] Read: RegisterTCP
+00:00  INFO: [kryonet] Connection 1 connected: /81.235.61.31
+00:00 DEBUG: [kryo] Write: LobbyJoinRequest
+00:00 DEBUG: [kryonet] Connection 1 sent TCP: LobbyJoinRequest (10)
+slut
+00:00 DEBUG: [kryo] Read: LobbyJoinResponse
+00:00 DEBUG: [kryonet] Connection 1 received TCP: LobbyJoinResponse
+LobbyJoinResponse
+00:00 DEBUG: [kryo] Read: ProgressUpdated
+00:00 DEBUG: [kryonet] Connection 1 received TCP: ProgressUpdated
+ProgressUpdated received
+00:08 DEBUG: [kryo] Write: KeepAlive
+00:08 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@192a848
+00:16 DEBUG: [kryo] Write: KeepAlive
+00:16 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@59a34
+00:24 DEBUG: [kryo] Write: KeepAlive
+00:24 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@33f0de
+00:32 DEBUG: [kryo] Write: KeepAlive
+00:32 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@53ab04
+00:40 DEBUG: [kryo] Write: KeepAlive
+00:40 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@f0b7f8
+00:48 DEBUG: [kryo] Write: KeepAlive
+00:48 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@80cac9
+00:56 DEBUG: [kryo] Write: KeepAlive
+00:56 DEBUG: [kryo] Read: KeepAlive
+REC + com.esotericsoftware.kryonet.FrameworkMessage$KeepAlive@13e754f
+01:04 DEBUG: [kryo] Write: KeepAlive
+01:04 DEBUG: [kryo] Read: KeepAlive
+
+
+---------------------------------
+
+
+
+net.sourceforge.jnlp.LaunchException: Fatal: Read Error: Could not read or parse the JNLP file.
+    at net.sourceforge.jnlp.Launcher.fromUrl(Launcher.java:491)
+    at net.sourceforge.jnlp.Launcher.launch(Launcher.java:283)
+    at net.sourceforge.jnlp.runtime.Boot.run(Boot.java:202)
+    at net.sourceforge.jnlp.runtime.Boot.run(Boot.java:51)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at net.sourceforge.jnlp.runtime.Boot.main(Boot.java:168)
+Caused by: net.sourceforge.jnlp.ParseException: Invalid XML document syntax.
+    at net.sourceforge.jnlp.Parser.getRootNode(Parser.java:1305)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:206)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:190)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:175)
+    at net.sourceforge.jnlp.JNLPFile.<init>(JNLPFile.java:161)
+    at net.sourceforge.jnlp.Launcher.fromUrl(Launcher.java:477)
+    ... 5 more
+Caused by: net.sourceforge.nanoxml.XMLParseException: XML Parse Exception during parsing of a jnlp element at line 14: Unknown or invalid entity: &player_name=null">
+                    <information>
+                        <title>Tank Showdown!</title>
+                        <vendor>PäronGlans</vendor>
+                        <description>Multiplayer game</description>
+
+
+                        <offline-allowed></offline-allowed>
+                    </information>
+                    <security>
+                        <all-permissions></all-permissions>
+                    </security>
+                    <resources><property name="playerInfo" value="{&quot;
+    at net.sourceforge.nanoxml.XMLElement.unknownEntity(XMLElement.java:1158)
+    at net.sourceforge.nanoxml.XMLElement.resolveEntity(XMLElement.java:1034)
+    at net.sourceforge.nanoxml.XMLElement.scanString(XMLElement.java:658)
+    at net.sourceforge.nanoxml.XMLElement.scanElement(XMLElement.java:915)
+    at net.sourceforge.nanoxml.XMLElement.parseFromReader(XMLElement.java:512)
+    at net.sourceforge.nanoxml.XMLElement.parseFromReader(XMLElement.java:464)
+    at net.sourceforge.jnlp.Parser.getRootNode(Parser.java:1301)
+    ... 10 more
+
+
+----------------------
+
+
+    $ curl "http://docs.oracle.com/javase/tutorialJWS/uiswing/painting/ex6/SwingPai
+    ntDemo3.jnlp" -i
+    HTTP/1.1 200 OK
+    Server: Apache
+    ETag: "b2f64ff801ed46b37a68e56b32510f33:1327371300"
+    Last-Modified: Tue, 24 Jan 2012 00:23:03 GMT
+    Accept-Ranges: bytes
+    Content-Length: 2363
+    Date: Sat, 03 Nov 2012 15:43:06 GMT
+    Connection: keep-alive
+    Content-Type: application/x-java-jnlp-file
+
+    ------------------
+
+
+
+
+
+21<zartura>21 Squarism, http://docs.scala-lang.org/overviews/core/futures.html
+18<zartura> read upon promises
+31<Isch>30 ok
+21<judkinsstephen>21 Squarism: how long do you plan on keeping a Res "allocated"?
+18<zartura> what I suggest is that you have a fifo queue of promises
+ stefan-_ StefanQn judkinsstephen stevefink stew stnly
+18<zartura> return futures from those promises
+31<Isch>30 judkinsstephen, 5-10 minutes
+18<zartura> and when you get a free resource, just fullfill the promise with Res
+19* 19miclorb (~miclorb@ppp121-44-115-96.lns20.syd6.internode.on.net) gick in i #scala
+18<zartura> and remove it from FIFO queue
+19* 19kppullin (~kppullin@pdpc/supporter/active/kppullin) gick in i #scala
+21<zartura>21 Squarism, does that make any sense?
+23* 23fsvehla har avslutat (23Quit: fsvehla23)
+21<judkinsstephen>21 Squarism: what exactly are these "Res" instances? backend connections? do you code to handle a single unique instance for 5 minutes, or can it borrow it for one operation?
+31<Isch>30 arturaz, it does... it feels like a knot has disolved in my brain
+19* 19mcclellan (42c0ea9e@gateway/web/freenode/ip.66.192.234.158) gick in i #scala
+21<judkinsstephen>21 Squarism: I would really recommend removing "deallocate" entirely
+18<zartura> judkinsstephen, why?
+18<judkinsstephen> instead making allocate(A => Future[B]):Future[B]
+18<judkinsstephen> arturaz: because you'll have to make sure to "deallocate" under all error conditions
+18<judkinsstephen> especially when you're dealing with Futures that can be annoying
+31<Isch>30 judkinsstephen, its more of an "allowance to spawn a process"
+31<Isch>30 ...Res that is
+23* 23Gryffin har avslutat (23Ping timeout: 252 seconds23)
+31<Isch>30 thanks alot guys
+21<zartura>21 Squarism, judkinsstephen has a point
+21<judkinsstephen>21 Squarism: ok, and you can use Futures to tell the pool that you're done with the process
+31<Isch>30 ill read up on promises
+18<zartura> function style allocation is safer than explicit allocation/deallocation :)
+31<Isch>30 ah ok..
+18<qu1j0t3> loan pattern?
+31<Isch>30 ill look into that too
+23* 23jsuereth har avslutat (23Quit: Ex-Chat23)
+18<zartura> qu1j0t3, +1 :)
+18<qu1j0t3> ok, just checking
+23* 23milosn har avslutat (23Ping timeout: 248 seconds23)
+18<judkinsstephen> that way, you can use "ensure" on the future returned by whatever borrows the process
+ stefan-_ StefanQn judkinsstephen stevefink stew stnly
+ stefan-_ StefanQn judkinsstephen stevefink stew stnly
+31<Isch>30 judkinsstephen, i see what u mean
+18<judkinsstephen> qu1j0t3: yeah, I'm recommending using basically the same thing, except with Futures instead of pure functions
+23* 23asrail har avslutat (23Ping timeout: 252 seconds23)
+23* 23jedws har avslutat (23Quit: Computer has gone to sleep.23)
+19* 19_florian_ (~flo@205.233.39.2) gick in i #scala
+18<zartura> judkinsstephen, why A => Future[B] and not just (A => B): Future[B] ?
+18<_florian_> join #scala
+18<zartura> more specifically
+18<_florian_> hi - why does the following not compile: def getQueryParams(uri : URI) : Map[String, Option[String]] = {
+18<_florian_>     uri.getQuery.split("&").map(_.split("=")).map({ x => if (x.length==2) (x(0),x(1)) else (x(0),None)})
+18<_florian_>       .toMap
+18<_florian_>   }
+18<zartura> allocate(Res => B): Future[B]
+18<_florian_> scala thinks that the result is Map[String, Serializable]
+18<judkinsstephen> arturaz: because it's possible you will be doing other async computations with Futures when you borrow the Res
+18<zartura> _florian_, what's the error?
+19* 19Gryffin (~anoop@cpc3-croy15-0-0-cust386.croy.cable.virginmedia.com) gick in i #scala
+18<judkinsstephen> arturaz: and it's trivial to turn A => B to A => Future[B], but impossible to turn A => Future[B] to A => B without blocking a thread
+18<_florian_> scala.collection.immutable.Map[java.lang.String,java.io.Serializable]
+18<zartura> judkinsstephen, B can be Future[Something], why force the flatmap on it? :)
+18<_florian_> found   : scala.collection.immutable.Map[java.lang.String,java.io.Serializable]
+18<_florian_>  required: Map[String,Option[String]]
+23* 23dekroning har avslutat (23Quit: leaving23)
+18<judkinsstephen> arturaz: right, but you're using Futures anyway for this: if you are using any *other* libraries that depend on Futures for IO, if you have A => B you will be forced to block a thread
+23* 23lazyshot har avslutat (23Quit: Leaving...23)
+18<judkinsstephen> and like I said, turning A => B to A => Future[B] is trivial
+18<zartura> _florian_, I'd say else (x(0),None)})
+18<zartura> <_florian_>       .toMap
+23* 23RRSchulz har avslutat (23Ping timeout: 252 seconds23)
+18<zartura> x(0) is a string, None is not
+18<_florian_> sure but None fits into Option[String]
+18<zartura> but pure String does not
+18<_florian_> oh shit
+18<_florian_> you're right - my bad :)
+18<_florian_> that was silly of me
+18<_florian_> :)
+18<zartura> judkinsstephen, Promise.pure? :)
+18<_florian_> thanks
+
+
+
+-----------------------
+
+
+Trace from double player 1(?) controllable from both clients
+
+C:\dev\apps\Java\jdk1.6.0_20\bin\java -Didea.launcher.port=7533 "-Didea.launcher.bin.path=C:\Program Files (x86)\JetBrains\IntelliJ IDEA 12.0.3\bin" -Dfile.encoding=UTF-8 -classpath "C:\dev\apps\Java\jdk1.6.0_20\jre\lib\charsets.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\deploy.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\javaws.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\jce.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\jsse.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\management-agent.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\plugin.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\resources.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\rt.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\ext\dnsns.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\ext\localedata.jar;C:\dev\apps\Java\jdk1.6.0_20\jre\lib\ext\sunjce_provider.jar;C:\dev\workspace\opengl-tanks\server\target\scala-2.10\classes;C:\Users\karlw\.sbt\boot\scala-2.10.0\lib\scala-library.jar;C:\Users\karlw\.ivy2\cache\org.scalaz\scalaz-core_2.10\jars\scalaz-core_2.10-6.0.4.jar;C:\Users\karlw\.ivy2\cache\org.objenesis\objenesis\jars\objenesis-1.2.jar;C:\Users\karlw\.ivy2\cache\com.esotericsoftware.kryo\kryo\jars\kryo-2.20.jar;C:\Users\karlw\.ivy2\cache\com.esotericsoftware.reflectasm\reflectasm\jars\reflectasm-1.07-shaded.jar;C:\Users\karlw\.ivy2\cache\org.ow2.asm\asm\jars\asm-4.0.jar;C:\Users\karlw\.ivy2\cache\com.esotericsoftware.minlog\minlog\jars\minlog-1.2.jar;C:\Users\karlw\.ivy2\local\se.paronglans.cs3k\api_2.10\0.3-SNAPSHOT\jars\api_2.10.jar;C:\Users\karlw\.ivy2\cache\com.fasterxml.jackson.core\jackson-core\jars\jackson-core-2.1.0.jar;C:\Users\karlw\.ivy2\cache\com.fasterxml.jackson.core\jackson-annotations\jars\jackson-annotations-2.1.0.jar;C:\Users\karlw\.ivy2\cache\com.fasterxml.jackson.core\jackson-databind\jars\jackson-databind-2.1.0.jar;C:\Users\karlw\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.7.2.jar;C:\Users\karlw\.ivy2\cache\org.slf4j\slf4j-log4j12\jars\slf4j-log4j12-1.7.2.jar;C:\Users\karlw\.ivy2\cache\log4j\log4j\bundles\log4j-1.2.17.jar;C:\Users\karlw\.ivy2\cache\org.slf4j\jul-to-slf4j\jars\jul-to-slf4j-1.7.2.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-desktop\jars\jME3-desktop-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\eventbus\jars\eventbus-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jbullet\jars\jbullet-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-blender\jars\jME3-blender-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-core\jars\jME3-core-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-jbullet\jars\jME3-jbullet-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-plugins\jars\jME3-plugins-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-terrain\jars\jME3-terrain-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\jME3-testdata\jars\jME3-testdata-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\stack-alloc\jars\stack-alloc-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\vecmath\jars\vecmath-3.0.0.20120512-SNAPSHOT.jar;C:\Users\karlw\.ivy2\cache\com.jme3\xmlpull-xpp3\jars\xmlpull-xpp3-3.0.0.20120512-SNAPSHOT.jar;C:\dev\workspace\opengl-tanks\common\lib\kryonet-2.18.jar;C:\dev\workspace\opengl-tanks\common\target\scala-2.10\classes;C:\Program Files (x86)\JetBrains\IntelliJ IDEA 12.0.3\lib\idea_rt.jar" com.intellij.rt.execution.application.AppMain se.bupp.lek.server.Server --tcp-port 12345 --udp-port 12355 --game-setup 1vs1
+0    [main] INFO  se.bupp.lek.server.Server  - CommandLine --tcp-port 12345 --udp-port 12355 --game-setup 1vs1
+1128 [main] INFO  se.bupp.lek.server.Server  - Not able to connecto master server - continueing wo
+1130 [main] INFO  se.bupp.lek.server.Server  - 12345 12355, gameOccassionId None
+1630 [main] INFO  com.jme3.system.JmeSystem  - Running on jMonkeyEngine 3.0.0 Beta
+1636 [main] INFO  com.jme3.system.Natives  - Extraction Directory: C:\dev\workspace\opengl-tanks
+1645 [Headless Application Thread] INFO  com.jme3.system.NullContext  - NullContext created.
+1696 [Headless Application Thread] WARN  com.jme3.asset.AssetConfig  - Cannot find loader com.jme3.audio.plugins.OGGLoader
+1772 [Headless Application Thread] INFO  com.jme3.asset.AssetManager  - DesktopAssetManager created.
+1817 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+1831 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+1891 [Headless Application Thread] INFO  com.jme3.material.MaterialDef  - Loaded material definition: Unshaded
+2106 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2372 [Headless Application Thread] INFO  se.bupp.lek.server.Server  - Game Launch Complete
+2374 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Gui Node)
+2399 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2399 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2400 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2401 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2402 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (BitmapFont) attached to this node (null)
+2403 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (null) attached to this node (Statistics View)
+2404 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Statistics View) attached to this node (Gui Node)
+2408 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 1 App Update rate
+5421 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 175 App Update rate
+8431 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 172 App Update rate
+rec se.bupp.lek.common.Model$PlayerJoinRequest
+rec se.bupp.lek.common.Model$PlayerJoinRequest
+10132 [Thread-2] INFO  se.bupp.lek.server.ServerNetworkState  - req.connectMessage none set
+10132 [Thread-1] INFO  se.bupp.lek.server.ServerNetworkState  - req.connectMessage none set
+query game start
+10190 [Thread-1] INFO  se.bupp.lek.server.GameLogicFactory$GameLogicListener  - onGameStart
+roundCount roundCount roundCount roundCount 0
+query game start
+10243 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - Server messages to handle 1
+10248 [Headless Application Thread] INFO  se.bupp.lek.server.Server  - To handle : GameStarted
+10248 [Headless Application Thread] INFO  se.bupp.lek.server.Server  - Game Started
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Statics) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Enemies) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Projectiles) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Effects) attached to this node (null)
+10552 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Player) attached to this node (null)
+10748 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Camera
+10748 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+10750 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube
+10750 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10755 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10766 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Materials name: {0}
+10787 [Headless Application Thread] INFO  com.jme3.material.MaterialDef  - Loaded material definition: Phong Lighting
+10806 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube1) attached to this node (Cube)
+10806 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube: (0.0, 1.0, -4.0)--> null
+10806 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube) attached to this node (level.blend)
+10807 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.001
+10807 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10808 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10809 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0011) attached to this node (Cube.001)
+10809 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.001: (0.0, 1.0, -4.0)--> null
+10809 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.001) attached to this node (level.blend)
+10810 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.002
+10810 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10811 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10813 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0021) attached to this node (Cube.002)
+10813 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.002: (4.0, 1.0, 3.0)--> null
+10813 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.002) attached to this node (level.blend)
+10814 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.003
+10814 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10815 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10815 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0031) attached to this node (Cube.003)
+10816 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.003: (-4.0, 1.0, 1.0)--> null
+10816 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.003) attached to this node (level.blend)
+10816 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.004
+10817 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+10818 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+10818 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Materials name: {0}
+10819 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0041) attached to this node (Cube.004)
+10820 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.004: (0.0, 0.0, -0.0)--> null
+10820 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.004) attached to this node (level.blend)
+10908 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Lamp
+10908 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing lamp.
+11016 [Headless Application Thread] INFO  com.jme3.bullet.PhysicsSpace  - Adding RigidBody com.bulletphysics.dynamics.RigidBody@43ce663c to physics space.
+11016 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (level.blend) attached to this node (Statics)
+11027 [Headless Application Thread] INFO  se.bupp.lek.server.ServerWorld  - Spawn player
+11111 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Camera
+11111 [Headless Application Thread] INFO  com.jme3.renderer.Camera  - Camera created (W: 640, H: 480)
+11112 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube
+11112 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11113 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11113 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Materials name: {0}
+11114 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0031) attached to this node (Cube)
+11114 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube: (0.085995674, -0.01669532, 0.07029672)--> null
+11114 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube) attached to this node (tank2.blend)
+11114 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cube.001
+11115 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11117 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11117 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.0041) attached to this node (Cube.001)
+11118 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cube.001: (0.17213798, -0.04540944, 0.07029672)--> null
+11118 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cube.001) attached to this node (tank2.blend)
+11118 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cylinder
+11118 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11131 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11132 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder.0041) attached to this node (Cylinder)
+11133 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cylinder: (0.17213821, -0.04540962, 0.07029672)--> null
+11133 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder) attached to this node (tank2.blend)
+11134 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Cylinder.001
+11134 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing mesh.
+11146 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.materials.MaterialHelper  - Loading material.
+11147 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder.0021) attached to this node (Cylinder.001)
+11148 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.BlenderModelLoader  - Cylinder.001: (0.0859952, -0.01669544, 0.07029672)--> null
+11148 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Cylinder.001) attached to this node (tank2.blend)
+11149 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Loading obejct: Lamp
+11149 [Headless Application Thread] INFO  com.jme3.scene.plugins.blender.objects.ObjectHelper  - Importing lamp.
+11151 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (tank2.blend) attached to this node (Tank)
+11167 [Headless Application Thread] INFO  com.jme3.bullet.PhysicsSpace  - Adding character com.bulletphysics.collision.dispatch.PairCachingGhostObject@64c272bc to physics space.
+11173 [Headless Application Thread] INFO  com.jme3.scene.Node  - Child (Tank) attached to this node (Enemies)
+11176 [Headless Application Thread] DEBUG se.bupp.lek.server.PlayState  - Playstate init done
+11716 [Headless Application Thread] INFO  se.bupp.lek.server.WorldSimulator  - Fixme - should be given by client if server doesnt provide with playerid = 0 representing 1 entered
+11725 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 59 App Update rate
+14740 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 156 App Update rate
+17742 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 136 App Update rate
+20744 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 151 App Update rate
+23757 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 169 App Update rate
+26766 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 169 App Update rate
+27787 [Server] INFO  se.bupp.lek.server.ServerNetworkState  - Player disconnected
+27790 [Server] INFO  se.bupp.lek.server.ServerWorld  - Unspawning player 0
+27790 [Server] INFO  com.jme3.bullet.PhysicsSpace  - Removing character com.bulletphysics.collision.dispatch.PairCachingGhostObject@64c272bc from physics space.
+27791 [Server] INFO  com.jme3.scene.Node  - Enemies (Node): Child removed.
+27819 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+27871 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+27939 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28007 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28075 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28143 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28211 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28279 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28348 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28419 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28576 [Server] WARN  se.bupp.lek.server.WorldSimulator  - Player not connected
+28604 [Server] INFO  se.bupp.lek.server.ServerNetworkState  - Player disconnected
+29778 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+32787 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+35796 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+38805 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+41814 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+44822 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+47831 [Headless Application Thread] DEBUG se.bupp.lek.server.Server  - 177 App Update rate
+
+Process finished with exit code 1
+
+
+

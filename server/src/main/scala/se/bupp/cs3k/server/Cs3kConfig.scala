@@ -4,6 +4,7 @@ import java.net.URL
 import io.Source
 import org.apache.log4j.Logger
 import service.gameserver.GameServerRepository
+import se.bupp.cs3k.server.Cs3kConstants
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,6 +16,7 @@ import service.gameserver.GameServerRepository
 
 object Cs3kConstants {
   val GAME_SERVER_CMDLINE_GAME_SESSION_ID_PARAM_NAME = "--game-session-id"
+  var LAUNCHER_PATH = "deploy-launcher/"
 }
 object Cs3kConfig {
 

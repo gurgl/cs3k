@@ -7,7 +7,7 @@ import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, Resou
 import org.apache.wicket.util.time.{Duration, Time}
 import java.util.Scanner
 import se.bupp.cs3k.server.{Cs3kConfig}
-import java.io.IOException
+import java.io.{File, IOException}
 import org.springframework.stereotype.Component
 import se.bupp.cs3k.api._
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -31,7 +31,7 @@ import org.apache.wicket.request.resource.caching.NoOpResourceCachingStrategy
 import se.bupp.cs3k.server.service.dao.UserDao
 import org.slf4j.LoggerFactory
 import se.bupp.cs3k.server.service.gameserver.{GameServerPool, GameServerRepository}
-import java.net.URLEncoder
+import java.net.{URI, URLEncoder}
 
 
 /**
@@ -50,7 +50,7 @@ object  WebStartResourceFactory {
 
     override def getCachingStrategy = NoOpResourceCachingStrategy.INSTANCE
 
-    override def newResourceResponse(p1: Attributes) = {
+      override def newResourceResponse(p1: Attributes) = {
 
       val playerNameOpt = Option.apply(p1.getParameters().get("player_name").toOptionalString).map(p=> p.asInstanceOf[String])
       val userIdOpt:Option[UserId] = Option.apply(p1.getParameters().get("user_id").toOptionalLong).map(p=> p.asInstanceOf[Long])
@@ -117,7 +117,7 @@ object  WebStartResourceFactory {
     }
   }
 
-  class GameJnlpHandler(val factory:WebStartResourceFactory) extends AbstractResource {
+  class GameJnlpHandler(val factory:WebStartResourceFactory, codeBaseFSRoot:URI) extends AbstractResource {
 
     //override def getCachingStrategy = super.getCachingStrategy.
 
@@ -139,7 +139,7 @@ object  WebStartResourceFactory {
       val serverAndPassOrFail = factory.getServerAndCredentials(userIdOpt, reservationIdOpt, serverIdOpt, gameOccasionIdOpt, playerNameOpt)
 
       serverAndPassOrFail match {
-        case Right((rg, gamePass)) => factory.produceGameJnlp(p1, gamePass, rg)
+        case Right((rg, gamePass)) => factory.produceGameJnlp(p1, gamePass, rg, codeBaseFSRoot)
         case Left(message) =>
           var response = new AbstractResource.ResourceResponse
           factory.log.info("Resorting to fail response : " + message)
@@ -168,7 +168,7 @@ class WebStartResourceFactory {
 
   val log = Logger.getLogger(classOf[WebStartResourceFactory])
 
-  def createGameJnlpHandler = new GameJnlpHandler(this)
+  def createGameJnlpHandler(path:URI) = new GameJnlpHandler(this,path)
 
   def createLobbyJnlpHandler = new LobbyJnlpHandler
 
@@ -181,7 +181,7 @@ class WebStartResourceFactory {
   var userDao:UserDao = _
 
 
-  def produceGameJnlp(attributes: Attributes, gamePass:AbstractGamePass, game: RunningGame): AbstractResource.ResourceResponse = {
+  def produceGameJnlp(attributes: Attributes, gamePass:AbstractGamePass, game: RunningGame, codeBaseFSRoot:URI): AbstractResource.ResourceResponse = {
     var response = new ResourceResponse
     response.setContentType(JNLP_MIME)
     //response.setLastModified(Time.now())
@@ -191,8 +191,11 @@ class WebStartResourceFactory {
       def writeData(p2: Attributes) {
         try {
 
-          val launchGameJnlp = new ContextRelativeResource("/game_deploy_dir_tmp/tanks/Game.jnlp")
-          val jnlpXML: String = new Scanner(launchGameJnlp.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
+          var codeBaseRoot = "/deploy/tanks/"
+          var jnlpCodeBaseMarker = "http://localhost:8080/game_deploy_dir_tmp/tanks"
+
+          val launchGameJnlp = new File(new File(codeBaseFSRoot),"Game.jnlp");
+          val jnlpXML: String = new Scanner(launchGameJnlp).useDelimiter("\\A").next
 
           val pi = objectMapper.writeValueAsString(gamePass)
 
@@ -200,6 +203,7 @@ class WebStartResourceFactory {
           //var gamePass = new Ticket(reservationId)
           val props = game.processSettings.props
           log.debug(attributes.getRequest.getClientUrl.toString)
+
           val jnlpXMLModified = jnlpXML.replace("<resources>", "<resources>" +
             "<property name=\"playerInfo\" value=\"" + Utility.escape(pi) + "\"/>" +
 
@@ -207,7 +211,7 @@ class WebStartResourceFactory {
             "<property name=\"gamePortUDP\" value=\"" + props("gamePortUDP") + "\"/>" +
             "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
             "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
-            .replace("http://localhost:8080/game_deploy_dir_tmp/tanks", "http://" + Cs3kConfig.REMOTE_IP + ":8080/game_deploy_dir_tmp/tanks")
+            .replace(jnlpCodeBaseMarker, "http://" + Cs3kConfig.REMOTE_IP + ":8080" + codeBaseRoot)
             .replace("Game.jnlp", "http://" + Cs3kConfig.REMOTE_IP + ":8080/" + Utility.escape(attributes.getRequest.getUrl.toString))
 
 

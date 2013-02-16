@@ -59,19 +59,23 @@ class Init {
 
   import Init._
 
+  val gameIdentifier = "tanks"
 
   val tankGameServer = new GameServerSpecification("java " +
     "-jar " +
-    "C:/dev/workspace/opengl-tanks/server/target/scala-2.9.2/server_2.9.2-0.1-one-jar.jar" +
+    "C:/dev/workspace/opengl-tanks/server/target/scala-2.10/server_2.10-0.1-one-jar.jar" +
     " ", new ResourceNeeds(1,1))
 
-  val tankGameSettings2  = tankGameServer.create(
-    " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} ", "start_game.jnlp",
-    Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
-  )
+  val tankGameSettings2  = {
+
+    tankGameServer.create(
+      " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} --game-setup ffa2", Cs3kConstants.LAUNCHER_PATH + gameIdentifier + "/"+ "start_game.jnlp",
+      Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
+    )
+  }
 
   val tankGameSettings4  = tankGameServer.create(
-    " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} ", "start_game.jnlp",
+    " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} --game-setup 2vs2", Cs3kConstants.LAUNCHER_PATH + gameIdentifier + "/"+ "start_game.jnlp",
     Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
   )
 
