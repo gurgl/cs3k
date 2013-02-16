@@ -1,11 +1,16 @@
-* appenda anon scores
-
-* selecta första möjliga spel på PlayPanel
+TODO
 
 * Ta bort play länkarna
 
 * Web Sessionen där snabbt - lös
 
-* TeamIdentifier => serializable
 
-* exponera konfigurerbart bibliotek för JWS filer
+DONE
+
+V * appenda anon scores
+
+V * selecta första möjliga spel på PlayPanel
+
+V * TeamIdentifier => serializable
+
+V * exponera konfigurerbart bibliotek för JWS filer

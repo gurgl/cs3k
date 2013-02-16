@@ -15,7 +15,7 @@ import org.apache.wicket.model.util.ListModel
 import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
-import component.{TeamPanel, LadderPanel, PlayPanel}
+import component.{PlayerPanel, TeamPanel, LadderPanel, PlayPanel}
 import scala.Some
 
 
@@ -34,7 +34,16 @@ class ApplicationPage extends SessionPage {
   import scala.collection.JavaConversions.asScalaIterator
   import scala.collection.JavaConversions.asJavaIterator
 
-  val list = List(("Play", (s:String) => new PlayPanel(s)), ("Ladder", (s:String) => new LadderPanel(s)), ("Team", (s:String) => new TeamPanel(s)))
+  val list = List(
+    ("Play", (s:String) => new PlayPanel(s)),
+    ("Ladder", (s:String) => new LadderPanel(s)),
+    ("Team", (s:String) => new TeamPanel(s))
+  ) ++ (
+    if (WiaSession.get().getUser != null) {
+      List(("Me", (s:String) => new PlayerPanel(s)))
+    } else Nil
+  )
+
   var selected = Some(list.head._1)
   var menuPanel = new RefreshingView[(String,Function1[String,Panel])]("menu") {
 

@@ -19,7 +19,7 @@ class GameLogService {
 
     try {
       val scoreLog = new File("score.log")
-      fos = new FileOutputStream(scoreLog)
+      fos = new FileOutputStream(scoreLog,true)
       writer = new PrintWriter(fos)
       writer.write(s)
       writer.write("<br class=\"score-separator\">")

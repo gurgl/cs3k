@@ -87,12 +87,10 @@ class PlayPanel(id:String) extends Panel(id) {
 
     val games = LobbyServer.publicLobbies.map(_._1)
     import scala.collection.JavaConversions.seqAsJavaList
-    var selectionModel = new Model[String](null)
+    var selectionModel = new Model[String](games.head)
     var gameSetupSelector = new DropDownChoice[String]("gameSelect", selectionModel, games)
     gameSetupSelector.setRequired(true)
     add(gameSetupSelector)
-
-
 
     val fbp = new FeedbackPanel("feedback")
     fbp.setFilter( new ContainerFeedbackMessageFilter(AnonLaunchForm.this) );
