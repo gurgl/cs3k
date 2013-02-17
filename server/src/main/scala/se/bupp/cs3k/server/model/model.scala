@@ -304,10 +304,13 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @PrimaryKeyJoinColumn
   var result:GameResult = _
 
-  def game = new GameSetupType(
+  @ManyToOne(targetEntity = classOf[GameSetupType], optional=false)
+  var game:GameSetupType = _
+
+  /*new GameSetupType(
     "tanks",
     "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
-    "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
+    "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")*/
 
   def this(_gameSessionId:Long,_competitorType:String) = { this() ; gameSessionId = _gameSessionId ; competitorType = _competitorType}
 
@@ -318,25 +321,24 @@ class LineUp {
 
 }
 
-//@Entity
-class GameType extends Serializable {
-  @Id var id:String = _
+@Entity
+class GameType(_id:String, var name:String) extends Serializable {
+  @Id var id:String = _id
 
-  var name:String = _
-
+  def this() = this(null,null)
 }
 
-//@Entity
-//@Index(members = Array("gameType","setupId"))
-class GameSetupType(val name:String, val contestScoreClass:String, val scoreSchemeClass:String) extends Serializable with Same[JLLong] {
+@Entity
+@Table(uniqueConstraints=Array(new UniqueConstraint(columnNames=Array("GAMETYPE_ID","setupId"))))
+class GameSetupType(var setupId:String, val name:String, val contestScoreClass:String, val scoreSchemeClass:String) extends Serializable with Same[JLLong] {
 
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   @ManyToOne
   var gameType:GameType = _
 
-  var setupId:String = _
 
+  def this() = this(null,null,null,null)
 }
 
 case class NonPersisentGameOccassion(val gameSessionId:JLLong) extends AbstractGameOccassion {

@@ -12,6 +12,8 @@
         <class>se.bupp.cs3k.server.model.User</class>
         <class>se.bupp.cs3k.server.model.Team</class>
         <class>se.bupp.cs3k.server.model.TeamMember</class>
+        <class>se.bupp.cs3k.server.model.GameType</class>
+        <class>se.bupp.cs3k.server.model.GameSetupType</class>
         <class>se.bupp.cs3k.server.model.GameOccassion</class>
         <class>se.bupp.cs3k.server.model.GameResult</class>
         <class>se.bupp.cs3k.server.model.GameParticipation</class>

@@ -130,8 +130,23 @@ class DbTest extends Specification {
 
 
 
+          val gs = new GameType("super_mario", "Super Mario")
+          val gst = new GameSetupType("1vs1", "Versus Mode",
+            "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
+            "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
+          gst.gameType = gs
+          inTx(txMgr) {
+            userDao.em.persist(gs)
+            userDao.em.persist(gst)
+
+            //gameOccasionDao.insert(gp)
+          }
+
           val user = new User("leffe")
           val gameOcc = new GameOccassion(12, "individual")
+          gameOcc.game = gst
+
+
 
           val gppk = new GameParticipationPk(user,gameOcc)
           val gp = new GameParticipation(gppk)
