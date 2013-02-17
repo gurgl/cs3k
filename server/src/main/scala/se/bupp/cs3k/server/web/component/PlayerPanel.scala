@@ -11,4 +11,7 @@ import org.apache.wicket.markup.html.panel.Panel
  */
 class PlayerPanel(id:String) extends Panel(id) {
 
+
+
+
 }

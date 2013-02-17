@@ -11,7 +11,6 @@
         <class>se.bupp.cs3k.server.model.LadderEnrollmentPk</class>
         <class>se.bupp.cs3k.server.model.User</class>
         <class>se.bupp.cs3k.server.model.Team</class>
-        <!--<class>se.bupp.cs3k.server.model.Ticket</class>-->
         <class>se.bupp.cs3k.server.model.TeamMember</class>
         <class>se.bupp.cs3k.server.model.GameOccassion</class>
         <class>se.bupp.cs3k.server.model.GameResult</class>
@@ -20,13 +19,14 @@
 
 
         <properties>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.hbm2ddl.auto" value="create"/>   <!-- no drop needed as inmemory db is dropped by default -->
+            <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
             <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
-            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:lols"/>
+            <property name="hibernate.connection.url" value="jdbc:hsqldb:mem:lols;shutdown=true"/>
             <property name="hibernate.connection.username" value="sa"/>
             <property name="hibernate.connection.password" value=""/>
+            <!--property name="hibernate.default_schema" value="public"/-->
             <!--
             <property name="hibernate.c3p0.min_size" value="5"/>
             <property name="hibernate.c3p0.max_size" value="20"/>

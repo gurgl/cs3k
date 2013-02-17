@@ -16,6 +16,12 @@ import se.bupp.cs3k.server.Cs3kConfig
 import se.bupp.cs3k.server.service.GameReservationService
 import java.lang
 import concurrent.Future
+import se.bupp.cs3k.server.model.GameParticipationPk
+import se.bupp.cs3k.server.model.LadderEnrollmentPk
+import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.model.TeamMemberPk
+import se.bupp.cs3k.server.model.Ladder
+import javax.jdo.annotations.Index
 
 
 @NamedQueries(Array(
@@ -89,6 +95,26 @@ object CompetitorType extends Enumeration with Enumv with Serializable {
   val Individual = Value("Individual")
 } */
 
+class ReschedulingScheme(
+  var numOfReschedulesPerGame:Int,
+  var numOfReschedulesTotal:Int,
+  var maximumDaysFromCurrent:Int
+                          ) {
+
+}
+
+class Bla(
+  var numOfGamesPerCompetitor:Int,
+  var start:Date,
+  var prelimaryEnd:Date,
+  var definitiveEnd:Date
+
+
+           ) {
+
+
+}
+
 @Entity
 @NamedQueries(Array(
 
@@ -104,6 +130,8 @@ case class Ladder() extends Serializable with Same[JLLong] {
 
   @OneToMany(mappedBy = "id.ladder")
   var participants:JUList[LadderEnrollment] =  new JUArrayList[LadderEnrollment]()
+
+
 
 
   /*
@@ -141,7 +169,6 @@ class LadderEnrollment {
 
   var accumulatedResultSerializedVersion: Int = _
   var accumulatedResultSerialized: String = _
-
 }
 
 @Embeddable
@@ -277,7 +304,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @PrimaryKeyJoinColumn
   var result:GameResult = _
 
-  def game = new GameType(
+  def game = new GameSetupType(
     "tanks",
     "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
     "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
@@ -291,8 +318,24 @@ class LineUp {
 
 }
 
+//@Entity
+class GameType extends Serializable {
+  @Id var id:String = _
 
-class GameType(val name:String, val contestScoreClass:String, val scoreSchemeClass:String) {
+  var name:String = _
+
+}
+
+//@Entity
+//@Index(members = Array("gameType","setupId"))
+class GameSetupType(val name:String, val contestScoreClass:String, val scoreSchemeClass:String) extends Serializable with Same[JLLong] {
+
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @ManyToOne
+  var gameType:GameType = _
+
+  var setupId:String = _
 
 }
 
@@ -309,28 +352,6 @@ case class NonPersisentGameOccassion(val gameSessionId:JLLong) extends AbstractG
  * To change this template use File | Settings | File Templates.
  */
 
-
-/*
-@Entity
-class Ticket() extends ApiTicket with Serializable {
-
-  @ManyToOne
-  var user:User = _
-
-  @ManyToOne
-  var game:GameOccassion = _
-
-  def this(id: Long) {
-    this()
-    this.id = id
-  }
-
-  override def getReportableId: JLLong = {
-    id
-  }
-
-  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id: Long = _
-}*/
 
 
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal

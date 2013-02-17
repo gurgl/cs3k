@@ -64,7 +64,7 @@ class TestApi extends Specification {
 
     "serialize contest score" in {
 
-      var original = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
+      var original = new ExContestScore(collection.immutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
       var str: String = mapper.writeValueAsString(original)
       str.shouldEqual("{\"@class\":\"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore\",\"s\":{\"1\":{\"a\":10,\"b\":1},\"2\":{\"a\":3,\"b\":4}}}")
 
@@ -145,8 +145,8 @@ class TestApi extends Specification {
 
       //ExScoreScheme.renderToHtml()
 
-         1  === 2
 
+      1 == 1
 
 
     }

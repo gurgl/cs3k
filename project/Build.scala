@@ -61,6 +61,7 @@ object MyBuild extends Build {
       "org.springframework" % "spring-orm" % "3.1.2.RELEASE",
       "org.springframework" % "spring-beans" % "3.1.2.RELEASE",
       "org.codehaus.fabric3.api" % "javax-jta" % "1.1.0",
+      "javax.jdo" % "jdo2-api" % "2.3-20090302111651",
       "org.hibernate" % "hibernate-core" % "4.1.7.Final",
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
@@ -70,7 +71,7 @@ object MyBuild extends Build {
       "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
-      "org.hsqldb" % "hsqldb" % "2.2.8"
+      "org.hsqldb" % "hsqldb" % "2.2.9"
     ) ++ Seq(
       "junit" % "junit" % "4.10" % "test",
       "org.mockito" % "mockito-all" % "1.9.0" % "test",
