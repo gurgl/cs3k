@@ -131,6 +131,8 @@ case class Ladder() extends Serializable with Same[JLLong] {
   @OneToMany(mappedBy = "id.ladder")
   var participants:JUList[LadderEnrollment] =  new JUArrayList[LadderEnrollment]()
 
+  @ManyToOne(optional = false)
+  var gameSetup:GameSetupType = _
 
 
 

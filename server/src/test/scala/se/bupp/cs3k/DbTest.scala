@@ -88,8 +88,20 @@ class DbTest extends Specification {
           comp.shouldNotEqual(null)
           comp.id must not be(null)
 
+
+          val gs = new GameType("super_mario2", "Super Mario")
+          val gst = new GameSetupType("2vs2", "Versus Mode",
+            "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
+            "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
+          gst.gameType = gs
+          inTx(txMgr) {
+            compDao.em.persist(gs)
+            compDao.em.persist(gst)
+          }
+
           val ladder = new Ladder()
           ladder.name = "ladder1"
+          ladder.gameSetup = gst
           inTx(txMgr) {
             compDao.em.persist(ladder)
           }
@@ -128,8 +140,6 @@ class DbTest extends Specification {
           var gameOccasionDao = factory.getBean("gameDao").asInstanceOf[GameDao]
           var userDao = factory.getBean("userDao").asInstanceOf[UserDao]
 
-
-
           val gs = new GameType("super_mario", "Super Mario")
           val gst = new GameSetupType("1vs1", "Versus Mode",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
@@ -138,9 +148,8 @@ class DbTest extends Specification {
           inTx(txMgr) {
             userDao.em.persist(gs)
             userDao.em.persist(gst)
-
-            //gameOccasionDao.insert(gp)
           }
+
 
           val user = new User("leffe")
           val gameOcc = new GameOccassion(12, "individual")

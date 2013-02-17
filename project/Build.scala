@@ -21,7 +21,6 @@ object MyBuild extends Build {
     //, publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
   )
 
-
   lazy val serverProject = Project(
     "server",
     file("server"),
@@ -37,21 +36,12 @@ object MyBuild extends Build {
     name := "cs3k Server",
     version := "0.1",
     libraryDependencies ++= Seq(
-      //"org.apache.wicket" % "wicket-native-websocket-jetty" % "0.4",
-
-      //    "org.apache.wicket" % "wicket" % "6.0.0-beta2" exclude("org.eclipse.jetty", "jetty"),
-      //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty"),
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
       "log4j" % "log4j" % "1.2.16",
       "javax.servlet" % "servlet-api" % "2.5" % "provided",
-      //"org.ow2.asm" % "asm" % "4.0",
-      //"com.esotericsoftware.kryo" % "kryo" % "2.20" classifier "shaded" exclude("org.ow2.asm", "asm"), //exclude("com.esotericsoftware.reflectasm", "reflectasm"),
-      //"com.esotericsoftware.reflectasm" % "reflectasm" % "1.07" classifier "shaded" exclude("org.ow2.asm", "asm"),
       "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
       "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
-      //"se.paronglans" %% "cs3k-api" % "0.1-SNAPSHOT",
       "org.apache.commons" % "commons-exec" % "1.1"
-      //"org.snmp4j" % "snmp4j" % "1.10.1"
     ) ++ Seq(
       "org.springframework" % "spring-core" % "3.1.2.RELEASE",
       "org.springframework" % "spring-context" % "3.1.2.RELEASE",
@@ -65,8 +55,6 @@ object MyBuild extends Build {
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
       "org.apache.wicket" % "wicket-spring" % WICKET_VERSION, //exclude("org.apache.wicket","wicket-ioc"),
-      //"org.apache.wicket" % "wicket-ioc" % "6.1.0", //exclude("cglib","cglib"),
-      //"cglib" % "cglib" % "2.2.2" exclude("asm", "asm")
       "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
@@ -76,11 +64,8 @@ object MyBuild extends Build {
       "org.mockito" % "mockito-all" % "1.9.0" % "test",
       "org.specs2" %% "specs2" % "1.12.3" % "test",
       "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.1.0" % "test"
-      //"org.scalatest" %% "scalatest" % "1.8" % "test" exclude("org.eclipse.jetty", "jetty")
   ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
-      //"more eclipse" at "http://www.eclipse.org/downloads/download.php?r=1&nf=1&file=/rt/eclipselink/maven.repo",
-      //resolvers += "blaha" at "http://repo.typesafe.com/typesafe/releases/"
       "sonatype-snap" at "http://oss.sonatype.org/content/repositories/snapshots",
       "more apache" at "http://repository.apache.org/snapshots/"
     ),
@@ -110,14 +95,8 @@ object MyBuild extends Build {
             IO copy copyFiles
             packa
           }
-
-
     }*/
      , webappResources in Compile in Compile <+= (webstartOutputDirectory in lobbyProject)(sd => sd )
-
-
-
-
   )
 
   lazy val lobbyProject = Project(
