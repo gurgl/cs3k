@@ -10,8 +10,8 @@ import org.apache.wicket.model.LoadableDetachableModel
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.WebMarkupContainer
 import org.apache.wicket.extensions.breadcrumb.BreadCrumbBar
-import se.bupp.cs3k.server.web.component.LadderPanel.LadderSelectedEvent
 import org.apache.wicket.event.Broadcast
+import se.bupp.cs3k.server.web.component.Events.LadderSelectedEvent
 
 
 /**
