@@ -82,7 +82,7 @@ class LadderPanel(id:String) extends Panel(id) {
         var modelObject = p1.getModelObject
       if (this.getModelObject.size() == p1.getIndex + 1) {
         var label = new Label("item", p1.getModelObject.name)
-        label.add(new AttributeAppender("class","active"))
+        p1.add(new AttributeAppender("class","active"))
         p1.add(label)
         contentContainer.addOrReplace(modelObject.createComponent("content",modelObject.model))
         println("Rerendering head")
