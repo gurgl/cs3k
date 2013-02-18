@@ -2,11 +2,12 @@ package se.bupp.cs3k.server.web.component
 
 import generic.GenericFormPanel
 import org.apache.wicket.markup.html.form.{DropDownChoice, TextField, Form}
-import se.bupp.cs3k.model.CompetitorType
+import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import se.bupp.cs3k.server.model.{Ladder}
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.service.dao.LadderDao
+import se.bupp.cs3k.server.service.dao.{GameSetupTypeDao, LadderDao}
 import java.util
+import se.bupp.cs3k.server.service.gameserver.GameServerRepository
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +24,18 @@ class LadderFormPanel(id:String, label:String, ladder:Ladder) extends GenericFor
   @SpringBean
   var ladderDao:LadderDao = _
 
-  def createNew() = new Ladder()
+  @SpringBean
+  var gameSetupDao:GameSetupTypeDao = _
+
+
+  def createNew() = {
+    var ladder = new Ladder()
+    var ((gtId,gstId),_) = GameServerRepository.gameServerSetups.head
+    ladder.gameSetup = gameSetupDao.findGameSetupType(gtId,gstId).get
+
+    ladder.state = CompetitionState.ANNOUNCED
+    ladder
+  }
 
   def populateFields(f: Form[Ladder]) {
 

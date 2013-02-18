@@ -15,7 +15,8 @@ import org.apache.wicket.model.util.ListModel
 import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
-import component.{PlayerPanel, TeamPanel, LadderPanel, PlayPanel}
+import component._
+import scala.Some
 import scala.Some
 
 

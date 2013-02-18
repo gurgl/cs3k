@@ -2,9 +2,35 @@ TODO
 
 * Ta bort play länkarna
 
-* Web Sessionen där snabbt - lös
+* Web Sessionen dör snabbt - lös
 
 * findAll funkar inte för gameSetupType
+
+* requesta team medlemskap
+
+    - team -> player
+
+    - player -> team
+
+* ranking team/player per gametype
+
+* spelarsida med
+
+    - ranking per game type
+
+    - stegar o pos
+
+    - teams
+
+    - senaste spelade
+
+* paginerbar listvy (för stegar o teams)
+
+* turneringar
+
+* invite till ladder
+
+* log conf med en bokstavs paketnamn
 
 DONE
 

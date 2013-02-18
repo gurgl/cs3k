@@ -11,7 +11,7 @@ package se.bupp.cs3k.server.web
 
 import org.apache.wicket.protocol.http.WebApplication
 import org.slf4j.LoggerFactory
-import org.apache.wicket.Application
+import org.apache.wicket.{RuntimeConfigurationType, Application}
 
 import org.apache.wicket.util.resource.{FileResourceStream, IResourceStream, AbstractResourceStreamWriter}
 import java.io.{File, PrintWriter, IOException, OutputStream}
@@ -81,10 +81,13 @@ class WicketApplication extends WebApplication {
 
   var isDevMode = {
 
-    var testModeProp: String = System.getProperty("cs3k.prod-mode")
+    var testModeProp: String = "false"//System.getProperty("cs3k.prod-mode")
     logger.info("cs3k.prod-mode = " + String.valueOf(testModeProp))
     Option(testModeProp).map(t => !(t.toBoolean)).getOrElse(true)
   }
+
+
+  override def getConfigurationType = RuntimeConfigurationType.DEPLOYMENT
 
   var webStartResourceFactory:WebStartResourceFactory = _
 
