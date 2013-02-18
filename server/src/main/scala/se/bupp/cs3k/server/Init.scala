@@ -1,7 +1,8 @@
 package se.bupp.cs3k.server
 
-import facade.lobby.{AbstractLobbyQueueHandler, LobbyServer}
+import facade.lobby.{LobbyServer}
 import facade.WebStartResourceFactory
+import service.lobby.AbstractLobbyQueueHandler
 import service.{GameService, RankingService, GameReservationService}
 import service.gameserver.{GameServerRepository, GameServerSpecification}
 import service.resourceallocation.{ServerAllocator, ResourceNeeds}

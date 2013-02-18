@@ -35,9 +35,6 @@ class ResultService {
   @Autowired
   var reservationService:GameReservationService = _
 
-  /*@Autowired
-  var ticketDao:TicketDao = _*/
-
   @Autowired
   var gameResultDao:GameResultDao = _
 

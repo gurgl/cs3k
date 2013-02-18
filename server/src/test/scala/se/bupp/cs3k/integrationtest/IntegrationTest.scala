@@ -13,6 +13,7 @@ import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service._
 import dao.GameSetupTypeDao
+import lobby.{AbstractLobbyQueueHandler, NonTeamLobbyQueueHandler}
 import se.bupp.cs3k.server.{Init, Cs3kConfig}
 import se.bupp.cs3k.LobbyJoinRequest
 import com.esotericsoftware.kryonet.Connection
@@ -32,7 +33,6 @@ import se.bupp.cs3k.server.model.RunningGame
 import se.bupp.cs3k.server.model.RegedUser
 import se.bupp.cs3k.server.model.AnonUser
 import se.bupp.cs3k.server.model.Model._
-import se.bupp.cs3k.server.facade.lobby.{AbstractLobbyQueueHandler, NonTeamLobbyQueueHandler}
 import org.specs2.specification.Scope
 
 /**

@@ -1,6 +1,5 @@
 package se.bupp.cs3k.server
 
-import facade.lobby.{AnonTeamLobbyQueueHandler, AbstractLobbyQueueHandler}
 import model._
 import model.AnonUser
 import model.Model._
@@ -13,6 +12,7 @@ import service.gameserver.{GameProcessTemplate, GameServerRepository}
 import com.esotericsoftware.kryonet.Connection
 import collection.immutable.{Queue, ListMap}
 import scala.Some
+import service.lobby.AnonTeamLobbyQueueHandler
 import service.resourceallocation.ServerAllocator
 import scala.util.{Random, Failure, Success}
 import concurrent.{Future, promise, Promise}

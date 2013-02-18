@@ -29,7 +29,7 @@ import org.springframework.stereotype.{Component, Service}
 import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
 import se.bupp.cs3k.server._
-import facade.lobby.{LobbyServer, AbstractLobbyQueueHandler}
+import facade.lobby.{LobbyServer}
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}

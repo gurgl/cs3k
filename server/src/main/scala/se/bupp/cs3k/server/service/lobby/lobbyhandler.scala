@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.facade.lobby
+package se.bupp.cs3k.server.service.lobby
 
 import org.slf4j.{LoggerFactory, Logger}
 import com.esotericsoftware.kryonet.{Listener, Server, KryoSerialization, Connection}
@@ -6,7 +6,7 @@ import se.bupp.cs3k.server.model._
 import java.util.concurrent.{TimeUnit, Executors}
 import java.net.URL
 import se.bupp.cs3k._
-import se.bupp.cs3k.server.{Cs3kConfig}
+import se.bupp.cs3k.server.Cs3kConfig
 import se.bupp.cs3k.server.model.Model._
 import collection.parallel.mutable
 import se.bupp.cs3k.server.service.gameserver.{GameServerRepository, GameServerPool, GameProcessTemplate}
@@ -24,6 +24,7 @@ import server.model.NonPersisentGameOccassion
 import scala.Some
 import server.model.RegedUser
 import server.model.RunningGame
+import server.service.lobby.HasTeamSupport
 import server.service.{GameReservationService, RankingService}
 import util.{Failure, Success}
 import collection.immutable.Queue
@@ -65,14 +66,121 @@ object AbstractLobbyQueueHandler {
   }
 }
 
-/**
- * In a FIFO maner, assigns players
- *
- * @param gameAndRulesId
- * @tparam T
- */
+import AbstractLobbyQueueHandler._
+
+// TODO: Anon Lobby dont need ranking functionallity but keep it like for testing
+class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameAndRulesId) extends AbstractRankedLobbyQueueHandler[None.type](gameAndRulesId) {
+
+  def customize(u: AbstractUser) = None
+
+  def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)] = {
+    log.info("Reserving seats")
+    party.map { case (c,u) =>
+      val reservationId = gameReservationService.reserveSeat(gameSessionId, u, None)
+      (c, u , reservationId)
+    }
+  }
+
+  def isMatchable(firstRank: NonTeamLobbyQueueHandler#Info, ranking: NonTeamLobbyQueueHandler#Info) = true
+}
+
+
+class RankedTeamLobbyQueueHandler(numOfTeams:Int, numOfPlayersPerTeam:Int, gameAndRulesId: GameAndRulesId) extends AnonTeamLobbyQueueHandler(numOfTeams,numOfPlayersPerTeam,gameAndRulesId) with HasTeamSupport {
+  override def customize(u: AbstractUser) = u match {
+    case RegedUser(id) => rankingService.getRanking(id).getOrElse(0)
+    case _ => throw new IllegalArgumentException("Ranked lobby cant handle anon players")
+  }
+}
+
+trait HasTeamSupport {
+
+  def numOfTeams : Int
+  def numOfPlayersPerTeam : Int
+  def numOfPlayers = numOfTeams * numOfPlayersPerTeam
+}
+
+
+class AnonTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int, gameAndRulesId: GameAndRulesId) extends AbstractRankedLobbyQueueHandler[Int](gameAndRulesId) with HasTeamSupport {
+
+
+  def customize(u: AbstractUser) = u match {
+    case _ => 3
+
+  }
+
+  def isMatchable(firstRank: Info, ranking: Info): Boolean = {
+    math.abs(firstRank - ranking) <= 2
+  }
+
+  def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)] = {
+    log.info("Reserving seats")
+
+    val teams = (1 to numOfTeams).map { tid => gameReservationService.createVirtualTeam(Some("Team " + tid.toString))}
+    teams.flatMap( t => (1 to numOfPlayersPerTeam).map( tt => t) ).zip(party).toList.map { case (t,(c,u)) => (c,u,gameReservationService.reserveSeat(gameSessionId, u, Some(t))) }
+  }
+}
+
+abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) extends AbstractLobbyQueueHandler[T](gameAndRulesId)  {
+
+  def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,(AbstractUser, Info))]) : (List[List[AbstractUser]],List[List[AbstractUser]], List[(AbstractUser,Int)]) = {
+    val disolvedLobbyIds = oldQueueMembersWithLobbyAssignments.filterNot {
+      case (u, t) => theQueue.exists {
+        case (c, (uu, _)) => u == uu
+      }
+    }.map( _._2)
+    var oldQueueMembersWithLobbyAssignmentsRev = oldQueueMembersWithLobbyAssignments.filterNot { case (u,t) => disolvedLobbyIds.exists ( _ ==  t) }
+    val evaluatableQueue = theQueue.filterNot { case (c,(u,r)) => oldQueueMembersWithLobbyAssignmentsRev.exists(_._1 == u) }.toList
+
+    val matches = matchRanking(evaluatableQueue.map(_._2))
+
+    var (completeParties, nonFullParties) = matches.map( l => l.map( _._1)).partition(p => p.size == numOfPlayers)
+    //val completeParties = bupps
+
+    val completePartiesIndexed = (oldQueueMembersWithLobbyAssignmentsRev.groupBy(_._2).values.map(_.map(_._1)).toList ::: completeParties).zipWithIndex
+
+    val queueMembersWithLobbyAssignmentsNew = theQueue.map { case (c,(u,i)) =>
+      completePartiesIndexed.find { case (party,_) => party.exists { case (cpu) => u == cpu } } match {
+        case Some((_,idx)) => (u, Some(idx))
+        case None => (u,None)
+      }
+    }.collect { case (u, Some(t)) => (u,t) }.toList
+
+    (completeParties, nonFullParties, queueMembersWithLobbyAssignmentsNew)
+  }
+
+  def matchRanking(queue:List[UserInfo]) : List[(List[UserInfo])] = {
+    queue match {
+      case (first, firstRank) :: tail =>
+        println(first.asInstanceOf[AnonUser].name)
+        val (party,left) = tail.foldLeft((List[UserInfo](),List[UserInfo]())) {
+          case ((rr,lr), (u, ranking) ) => {
+            val numNeededForGame = ((numOfPlayers) - 1)
+            if(isMatchable(firstRank, ranking) && rr.size < numNeededForGame)
+              (rr.:+ (u,ranking), lr)
+            else
+              (rr, lr.:+ (u,ranking))
+          }
+        }
+        val p:List[UserInfo] = ((first,firstRank) :: party )
+        p :: matchRanking(left)
+      case Nil => Nil
+    }
+  }
+
+  def createParties()  = {
+    val theQueue = Queue.empty[(Connection,UserInfo)].enqueue(queue.synchronized { queue.toList })
+    var (completeParties, nonCompleteParties, lobbyAssignedPlayerNew) = buildLobbies(queueMembersWithLobbyAssignments, theQueue)
+    queueMembersWithLobbyAssignments = lobbyAssignedPlayerNew
+    (completeParties, nonCompleteParties)
+  }
+
+  def isMatchable(firstRank: Info, ranking: Info): Boolean
+
+}
+
+
+
 abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) {
-  import AbstractLobbyQueueHandler._
 
   type Info = T
   type UserInfo = (AbstractUser,Info)
@@ -146,7 +254,7 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) {
       }
     }
     nonCompleteParties.foreach { party =>
-      // TODO: Not scalable
+    // TODO: Not scalable
       val completeInfo = party.flatMap( p => queue.find {case (c,(u,i)) => u == p} )
       completeInfo.foreach { case (c,(u,i)) => c.sendTCP(new ProgressUpdated(party.size)) }
     }
@@ -176,117 +284,4 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) {
       true
     }
   }
-}
-
-trait HasTeamSupport {
-
-  def numOfTeams : Int
-  def numOfPlayersPerTeam : Int
-  def numOfPlayers = numOfTeams * numOfPlayersPerTeam
-}
-
-
-abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) extends AbstractLobbyQueueHandler[T](gameAndRulesId)  {
-
-  def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,(AbstractUser, Info))]) : (List[List[AbstractUser]],List[List[AbstractUser]], List[(AbstractUser,Int)]) = {
-    val disolvedLobbyIds = oldQueueMembersWithLobbyAssignments.filterNot {
-      case (u, t) => theQueue.exists {
-        case (c, (uu, _)) => u == uu
-      }
-    }.map( _._2)
-    var oldQueueMembersWithLobbyAssignmentsRev = oldQueueMembersWithLobbyAssignments.filterNot { case (u,t) => disolvedLobbyIds.exists ( _ ==  t) }
-    val evaluatableQueue = theQueue.filterNot { case (c,(u,r)) => oldQueueMembersWithLobbyAssignmentsRev.exists(_._1 == u) }.toList
-
-    val matches = matchRanking(evaluatableQueue.map(_._2))
-
-    var (completeParties, nonFullParties) = matches.map( l => l.map( _._1)).partition(p => p.size == numOfPlayers)
-    //val completeParties = bupps
-
-    val completePartiesIndexed = (oldQueueMembersWithLobbyAssignmentsRev.groupBy(_._2).values.map(_.map(_._1)).toList ::: completeParties).zipWithIndex
-
-    val queueMembersWithLobbyAssignmentsNew = theQueue.map { case (c,(u,i)) =>
-      completePartiesIndexed.find { case (party,_) => party.exists { case (cpu) => u == cpu } } match {
-        case Some((_,idx)) => (u, Some(idx))
-        case None => (u,None)
-      }
-    }.collect { case (u, Some(t)) => (u,t) }.toList
-
-    (completeParties, nonFullParties, queueMembersWithLobbyAssignmentsNew)
-  }
-
-  def matchRanking(queue:List[UserInfo]) : List[(List[UserInfo])] = {
-    queue match {
-      case (first, firstRank) :: tail =>
-        println(first.asInstanceOf[AnonUser].name)
-        val (party,left) = tail.foldLeft((List[UserInfo](),List[UserInfo]())) {
-          case ((rr,lr), (u, ranking) ) => {
-            val numNeededForGame = ((numOfPlayers) - 1)
-            if(isMatchable(firstRank, ranking) && rr.size < numNeededForGame)
-              (rr.:+ (u,ranking), lr)
-            else
-              (rr, lr.:+ (u,ranking))
-          }
-        }
-        val p:List[UserInfo] = ((first,firstRank) :: party )
-        p :: matchRanking(left)
-      case Nil => Nil
-    }
-  }
-
-  def createParties()  = {
-    val theQueue = Queue.empty[(Connection,UserInfo)].enqueue(queue.synchronized { queue.toList })
-    var (completeParties, nonCompleteParties, lobbyAssignedPlayerNew) = buildLobbies(queueMembersWithLobbyAssignments, theQueue)
-    queueMembersWithLobbyAssignments = lobbyAssignedPlayerNew
-    (completeParties, nonCompleteParties)
-  }
-
-  def isMatchable(firstRank: Info, ranking: Info): Boolean
-
-}
-class RankedTeamLobbyQueueHandler(numOfTeams:Int, numOfPlayersPerTeam:Int, gameAndRulesId: GameAndRulesId) extends AnonTeamLobbyQueueHandler(numOfTeams,numOfPlayersPerTeam,gameAndRulesId) with HasTeamSupport {
-  import AbstractLobbyQueueHandler._
-  override def customize(u: AbstractUser) = u match {
-    case RegedUser(id) => rankingService.getRanking(id).getOrElse(0)
-    case _ => throw new IllegalArgumentException("Ranked lobby cant handle anon players")
-  }
-}
-
-class AnonTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int, gameAndRulesId: GameAndRulesId) extends AbstractRankedLobbyQueueHandler[Int](gameAndRulesId) with HasTeamSupport {
-
-  import AbstractLobbyQueueHandler._
-
-
-  def customize(u: AbstractUser) = u match {
-    case _ => 3
-
-  }
-
-  def isMatchable(firstRank: Info, ranking: Info): Boolean = {
-    math.abs(firstRank - ranking) <= 2
-  }
-
-  def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)] = {
-    log.info("Reserving seats")
-
-    val teams = (1 to numOfTeams).map { tid => gameReservationService.createVirtualTeam(Some("Team " + tid.toString))}
-    teams.flatMap( t => (1 to numOfPlayersPerTeam).map( tt => t) ).zip(party).toList.map { case (t,(c,u)) => (c,u,gameReservationService.reserveSeat(gameSessionId, u, Some(t))) }
-  }
-}
-
-
-// TODO: Anon Lobby dont need ranking functionallity but keep it like for testing
-class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameAndRulesId) extends AbstractRankedLobbyQueueHandler[None.type](gameAndRulesId) {
-  import AbstractLobbyQueueHandler._
-
-  def customize(u: AbstractUser) = None
-
-  def reserveSeats(gameSessionId:GameSessionId, party: List[(Connection, AbstractUser)]) : List[(Connection, AbstractUser, GameServerReservationId)] = {
-    log.info("Reserving seats")
-    party.map { case (c,u) =>
-      val reservationId = gameReservationService.reserveSeat(gameSessionId, u, None)
-      (c, u , reservationId)
-    }
-  }
-
-  def isMatchable(firstRank: NonTeamLobbyQueueHandler#Info, ranking: NonTeamLobbyQueueHandler#Info) = true
 }

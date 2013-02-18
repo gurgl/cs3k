@@ -23,6 +23,7 @@ import concurrent.{Promise, Future, future, promise}
 import collection.immutable.Queue
 import scala.util.{Failure, Success}
 import org.slf4j.{LoggerFactory, Logger}
+import server.service.lobby.{AbstractLobbyQueueHandler, AnonTeamLobbyQueueHandler, NonTeamLobbyQueueHandler}
 
 
 /**
