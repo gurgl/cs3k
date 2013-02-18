@@ -5,6 +5,7 @@ import io.Source
 import org.apache.log4j.Logger
 import service.gameserver.GameServerRepository
 import se.bupp.cs3k.server.Cs3kConstants
+import se.bupp.cs3k.server.model.Model._
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,7 +36,7 @@ object Cs3kConfig {
 
   val LOBBY_SERVER_PORT_RANGE = Range(51545,51554)
 
-  var TEMP_FIX_FOR_STORING_GAME_TYPE: GameServerRepository.GameAndRulesId = ('TankGame, 'TG2Player)
+  var TEMP_FIX_FOR_STORING_GAME_TYPE: GameAndRulesId = ('TankGame, 'TG2Player)
   var LOBBY_GAME_LAUNCH_ANNOUNCEMENT_DELAY = 2
 
 

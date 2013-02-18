@@ -28,7 +28,7 @@ import server.service.{GameReservationService, RankingService}
 import util.{Failure, Success}
 import collection.immutable.Queue
 import concurrent.Future
-
+import se.bupp.cs3k.server.model.Model._
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -71,7 +71,7 @@ object AbstractLobbyQueueHandler {
  * @param gameAndRulesId
  * @tparam T
  */
-abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameServerRepository.GameAndRulesId) {
+abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) {
   import AbstractLobbyQueueHandler._
 
   type Info = T
@@ -186,7 +186,7 @@ trait HasTeamSupport {
 }
 
 
-abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractLobbyQueueHandler[T](gameAndRulesId)  {
+abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) extends AbstractLobbyQueueHandler[T](gameAndRulesId)  {
 
   def buildLobbies(oldQueueMembersWithLobbyAssignments:List[(AbstractUser,Int)], theQueue:Queue[(Connection,(AbstractUser, Info))]) : (List[List[AbstractUser]],List[List[AbstractUser]], List[(AbstractUser,Int)]) = {
     val disolvedLobbyIds = oldQueueMembersWithLobbyAssignments.filterNot {
@@ -243,7 +243,7 @@ abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameServerRepo
   def isMatchable(firstRank: Info, ranking: Info): Boolean
 
 }
-class RankedTeamLobbyQueueHandler(numOfTeams:Int, numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AnonTeamLobbyQueueHandler(numOfTeams,numOfPlayersPerTeam,gameAndRulesId) with HasTeamSupport {
+class RankedTeamLobbyQueueHandler(numOfTeams:Int, numOfPlayersPerTeam:Int, gameAndRulesId: GameAndRulesId) extends AnonTeamLobbyQueueHandler(numOfTeams,numOfPlayersPerTeam,gameAndRulesId) with HasTeamSupport {
   import AbstractLobbyQueueHandler._
   override def customize(u: AbstractUser) = u match {
     case RegedUser(id) => rankingService.getRanking(id).getOrElse(0)
@@ -251,7 +251,7 @@ class RankedTeamLobbyQueueHandler(numOfTeams:Int, numOfPlayersPerTeam:Int, gameA
   }
 }
 
-class AnonTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractRankedLobbyQueueHandler[Int](gameAndRulesId) with HasTeamSupport {
+class AnonTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int, gameAndRulesId: GameAndRulesId) extends AbstractRankedLobbyQueueHandler[Int](gameAndRulesId) with HasTeamSupport {
 
   import AbstractLobbyQueueHandler._
 
@@ -275,7 +275,7 @@ class AnonTeamLobbyQueueHandler(val numOfTeams:Int, val numOfPlayersPerTeam:Int,
 
 
 // TODO: Anon Lobby dont need ranking functionallity but keep it like for testing
-class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) extends AbstractRankedLobbyQueueHandler[None.type](gameAndRulesId) {
+class NonTeamLobbyQueueHandler(val numOfPlayers:Int, gameAndRulesId: GameAndRulesId) extends AbstractRankedLobbyQueueHandler[None.type](gameAndRulesId) {
   import AbstractLobbyQueueHandler._
 
   def customize(u: AbstractUser) = None

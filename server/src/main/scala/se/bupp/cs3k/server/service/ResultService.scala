@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service
 
-import dao.{TeamDao, UserDao, GameDao, GameResultDao}
+import dao.{TeamDao, UserDao, GameOccassionDao, GameResultDao}
 import se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore
 import se.bupp.cs3k.example.ExampleScoreScheme
 import se.bupp.cs3k.server.model._
@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
  * To change this template use File | Settings | File Templates.
  */
 @Service
-class GameResultService {
+class ResultService {
 
   val log = Logger.getLogger(this.getClass)
 
@@ -42,7 +42,7 @@ class GameResultService {
   var gameResultDao:GameResultDao = _
 
   @Autowired
-  var gameDao:GameDao = _
+  var gameDao:GameOccassionDao = _
 
   @Autowired
   var userDao:UserDao = _
@@ -53,7 +53,7 @@ class GameResultService {
 
 
   @Autowired
-  var gameLog:GameLogService = _
+  var gameLog:ResultLogService = _
 
 
 

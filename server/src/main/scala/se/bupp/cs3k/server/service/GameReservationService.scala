@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service
 
-import dao.{CompetitorDao, GameParticipationDao, UserDao, GameDao}
+import dao.{CompetitorDao, GameParticipationDao, UserDao, GameOccassionDao}
 import gameserver.{GameServerPool, GameServerRepository}
 import org.springframework.stereotype.{Service, Component}
 import resourceallocation.ServerAllocator
@@ -104,7 +104,7 @@ class GameReservationService {
   import GameReservationService._
 
   @Autowired
-  var gameDao:GameDao = _
+  var gameDao:GameOccassionDao = _
 
   @Autowired
   var gameParicipationDao:GameParticipationDao = _
@@ -169,7 +169,7 @@ class GameReservationService {
 
 
   @Transactional
-  def challangeCompetitor(challanger:Competitor, challangee:Competitor) : GameOccassion = {
+  def challangeCompetitor(challanger:Competitor, challangee:Competitor, gameSetupType:GameSetupType) : GameOccassion = {
     val go = (challanger, challangee) match {
       case (u1:User, u2:User) =>
 
@@ -188,13 +188,14 @@ class GameReservationService {
         val go = new GameOccassion()
         go.competitorType = "team"
 
+
         val gp1 = new GameParticipation(new GameParticipationPk(t1,go))
         val gp2 = new GameParticipation(new GameParticipationPk(t2,go))
         go.participants.add(gp1)
         go.participants.add(gp2)
         go
     }
-
+    go.game = gameSetupType
     gameDao.insert(go)
 
     import scala.collection.JavaConversions.asScalaBuffer

@@ -22,7 +22,7 @@ import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
 import se.bupp.cs3k.server.model._
-import se.bupp.cs3k.server.service.{GameLogService, GameResultService, GameReservationService, LadderService}
+import se.bupp.cs3k.server.service.{ResultLogService, ResultService, GameReservationService, LadderService}
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.{MarkupContainer, RestartResponseException}
@@ -54,10 +54,10 @@ class PlayPanel(id:String) extends Panel(id) {
   var gameReservationService:GameReservationService = _
 
   @SpringBean
-  var gameResultService:GameResultService = _
+  var gameResultService:ResultService = _
 
   @SpringBean
-  var gameLogService:GameLogService = _
+  var gameLogService:ResultLogService = _
 
   @AnonymousOnly
   class AnonLaunchForm(id: String) extends Form[String](id) {

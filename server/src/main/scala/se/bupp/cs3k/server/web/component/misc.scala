@@ -208,7 +208,8 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
 
       item.add(new AjaxLink("challangeLink") {
         def onClick(p1: AjaxRequestTarget) {
-          gs.challangeCompetitor(WiaSession.get().getUser, comp)
+          // TODO fix me
+          gs.challangeCompetitor(WiaSession.get().getUser, comp, null)
         }
       })
     }

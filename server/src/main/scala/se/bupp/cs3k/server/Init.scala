@@ -2,7 +2,7 @@ package se.bupp.cs3k.server
 
 import facade.lobby.{AbstractLobbyQueueHandler, LobbyServer}
 import facade.WebStartResourceFactory
-import service.{RankingService, GameReservationService}
+import service.{GameService, RankingService, GameReservationService}
 import service.gameserver.{GameServerRepository, GameServerSpecification}
 import service.resourceallocation.{ServerAllocator, ResourceNeeds}
 import org.springframework.web.context.WebApplicationContext
@@ -36,6 +36,7 @@ object Init {
     var gameReservationService = beanFactory.getBean(classOf[GameReservationService])
     var rankingService= beanFactory.getBean(classOf[RankingService])
 
+
     //eventSystem = new EventSystem(this)
     try {
       AbstractLobbyQueueHandler.gameReservationService = gameReservationService
@@ -51,11 +52,20 @@ object Init {
       case e:Exception => e.printStackTrace()
     }
 
+    persistAnyNewRules(beanFactory)
 
+  }
 
-    //GameServerRepository.
+  def persistAnyNewRules(beanFactory :BeanFactory) {
+    var gameService = beanFactory.getBean(classOf[GameService])
+    GameServerRepository.gameServerTypes.foreach { case (gsType,spec) =>
+      val entity = gameService.getOrCreateGameTypeEntity(gsType)
+    }
 
-
+    GameServerRepository.gameServerSetups.foreach { case ((gameTypeId,gameSetupTypeId),spec) =>
+      println("gameTypeId,gameSetupTypeId" + (gameTypeId,gameSetupTypeId))
+      val entity = gameService.getOrCreateGameSetupTypeEntity(gameTypeId,gameSetupTypeId)
+    }
   }
 
 

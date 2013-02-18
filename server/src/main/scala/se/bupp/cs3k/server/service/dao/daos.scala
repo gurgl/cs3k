@@ -15,6 +15,9 @@ import org.slf4j.{LoggerFactory, Logger}
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.server.model.GameOccassion
+import se.bupp.cs3k.server.model.Model._
+import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.model.Ladder
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,12 +45,13 @@ class GenericDaoImpl[T](clz:Class[T]) {
   def update(o:T) = em.merge(o)
 
 
-  def getSingle[T](q:TypedQuery[T]) : Option[T] = {
+  def getSingle(q:TypedQuery[T]) : Option[T] = {
     import scala.collection.JavaConversions.asScalaBuffer
     q.getResultList.headOption
   }
 
   import scala.collection.JavaConversions.asScalaBuffer
+
   def findAll[T] : List[T] = em.createQuery("select p from " + clz.getSimpleName+ " p").getResultList.toList.map(_.asInstanceOf[T])
   def count = em.createQuery("select count(p) from " + clz.getSimpleName+ " p").getSingleResult.asInstanceOf[Long]
 
@@ -88,8 +92,29 @@ class GameParticipationDao extends GenericDaoImpl[GameParticipation](classOf[Gam
 
 }
 
+
+
 @Repository
-class GameDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
+class GameSetupTypeDao extends GenericDaoImpl[GameSetupType](classOf[GameSetupType]) {
+  def findGameSetupType(gtId:GameServerTypeId, gstId:GameProcessTemplateId) = {
+    var q = em.createQuery("select gst from GameSetupType gst join gst.gameType gt where gt.id= :gtId and gst.setupId = :gstId", classOf[GameSetupType])
+    q.setParameter("gtId", gtId)
+    q.setParameter("gstId", gstId)
+    import scala.collection.JavaConversions.asScalaBuffer
+    log.info("gtId " +gtId  +  ", gstId " + gstId+ " " + q.getResultList.toList)
+    getSingle(q)
+  }
+
+  def findGameType(gtId:GameServerTypeId) = {
+
+    Option(em.find(classOf[GameType],gtId))
+  }
+
+}
+
+
+@Repository
+class GameOccassionDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
 
   def findGame(gameSessionId:Long) = {
     var q = em.createQuery("from GameOccassion g where g.gameSessionId = :o", classOf[GameOccassion])

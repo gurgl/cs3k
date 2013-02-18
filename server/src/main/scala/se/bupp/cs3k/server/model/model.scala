@@ -7,7 +7,7 @@ import se.bupp.cs3k.api.{Ticket => ApiTicket}
 import scala.Predef._
 
 import java.util.{List => JUList, ArrayList => JUArrayList, Date}
-import se.bupp.cs3k.model.CompetitorType
+import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import org.hibernate.metamodel.source.binder.Orderable
 import java.lang.{Long => JLLong }
 import se.bupp.cs3k.server.service.gameserver.{GameServerRepository, GameProcessSettings}
@@ -16,12 +16,6 @@ import se.bupp.cs3k.server.Cs3kConfig
 import se.bupp.cs3k.server.service.GameReservationService
 import java.lang
 import concurrent.Future
-import se.bupp.cs3k.server.model.GameParticipationPk
-import se.bupp.cs3k.server.model.LadderEnrollmentPk
-import se.bupp.cs3k.server.model.User
-import se.bupp.cs3k.server.model.TeamMemberPk
-import se.bupp.cs3k.server.model.Ladder
-import javax.jdo.annotations.Index
 
 
 @NamedQueries(Array(
@@ -60,7 +54,10 @@ object Model {
   type Players = Map[GameServerReservationId,ReservationDetails]
   type TeamsDetailsOpt = Option[List[AbstractTeamRef]]
   type Session = (Players, TeamsDetailsOpt)
-  // TODO rename me
+
+  type GameServerTypeId = Symbol
+  type GameProcessTemplateId = Symbol
+  type GameAndRulesId = (GameServerTypeId, GameProcessTemplateId)
 
 
 
@@ -95,7 +92,7 @@ object CompetitorType extends Enumeration with Enumv with Serializable {
   val Individual = Value("Individual")
 } */
 
-class ReschedulingScheme(
+class ReschedulingScheme (
   var numOfReschedulesPerGame:Int,
   var numOfReschedulesTotal:Int,
   var maximumDaysFromCurrent:Int
@@ -103,17 +100,16 @@ class ReschedulingScheme(
 
 }
 
-class Bla(
+class LadderScheme(
   var numOfGamesPerCompetitor:Int,
   var start:Date,
   var prelimaryEnd:Date,
   var definitiveEnd:Date
 
-
            ) {
-
-
 }
+
+
 
 @Entity
 @NamedQueries(Array(
@@ -134,6 +130,9 @@ case class Ladder() extends Serializable with Same[JLLong] {
   @ManyToOne(optional = false)
   var gameSetup:GameSetupType = _
 
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  var state:CompetitionState = _
 
 
   /*
@@ -324,15 +323,15 @@ class LineUp {
 }
 
 @Entity
-class GameType(_id:String, var name:String) extends Serializable {
-  @Id var id:String = _id
+class GameType(_id:GameServerTypeId, var name:String) extends Serializable {
+  @Id var id:GameServerTypeId = _id
 
   def this() = this(null,null)
 }
 
 @Entity
 @Table(uniqueConstraints=Array(new UniqueConstraint(columnNames=Array("GAMETYPE_ID","setupId"))))
-class GameSetupType(var setupId:String, val name:String, val contestScoreClass:String, val scoreSchemeClass:String) extends Serializable with Same[JLLong] {
+class GameSetupType(var setupId:GameProcessTemplateId, val name:String, val contestScoreClass:String, val scoreSchemeClass:String) extends Serializable with Same[JLLong] {
 
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 

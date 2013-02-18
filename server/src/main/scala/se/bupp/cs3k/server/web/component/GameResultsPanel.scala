@@ -5,7 +5,7 @@ import org.apache.wicket.markup.html.panel.Panel
 import se.bupp.cs3k.server.model.{GameResult, GameOccassion, Ladder}
 import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider}
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.service.dao.{GameResultDao, GameDao, LadderDao}
+import se.bupp.cs3k.server.service.dao.{GameResultDao, GameOccassionDao, LadderDao}
 import org.apache.wicket.model.LoadableDetachableModel
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.WebMarkupContainer

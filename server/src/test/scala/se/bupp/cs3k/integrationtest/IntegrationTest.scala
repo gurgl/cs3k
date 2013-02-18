@@ -12,7 +12,8 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service._
-import se.bupp.cs3k.server.{Cs3kConfig}
+import dao.GameSetupTypeDao
+import se.bupp.cs3k.server.{Init, Cs3kConfig}
 import se.bupp.cs3k.LobbyJoinRequest
 import com.esotericsoftware.kryonet.Connection
 
@@ -30,7 +31,9 @@ import scala.Some
 import se.bupp.cs3k.server.model.RunningGame
 import se.bupp.cs3k.server.model.RegedUser
 import se.bupp.cs3k.server.model.AnonUser
+import se.bupp.cs3k.server.model.Model._
 import se.bupp.cs3k.server.facade.lobby.{AbstractLobbyQueueHandler, NonTeamLobbyQueueHandler}
+import org.specs2.specification.Scope
 
 /**
  * Created with IntelliJ IDEA.
@@ -67,11 +70,29 @@ class IntegrationTest extends Specification with Mockito {
   }
   var mapper = new ObjectMapper()
 
+
+  trait NeedsGameSetup extends Scope {
+
+    var gameAndSettingsId: GameAndRulesId = ('Asdf, 'QWer)
+
+    var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
+    GameServerRepository.reset
+    GameServerRepository.add(gameAndSettingsId._1,null)
+    GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
+
+    val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
+    val factory =  appContext.asInstanceOf[BeanFactory];
+    var setupDao = factory.getBean(classOf[GameSetupTypeDao])
+
+    Init.persistAnyNewRules(factory)
+
+    var gameSetupType = setupDao.findGameSetupType(gameAndSettingsId._1,gameAndSettingsId._2).get
+
+  }
+
   "scheduled game setup" should {
-    "handle 1vs1 " in {
+    "handle 1vs1 " in new NeedsGameSetup {
       //GameServerPool.pool = new GameServerPool()
-      val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
-      val factory =  appContext.asInstanceOf[BeanFactory];
       var competitorService = factory.getBean("competitorService", classOf[CompetitorService])
       var gameReservationService = factory.getBean(classOf[GameReservationService])
       var gameServerFacade = factory.getBean(classOf[GameServerFacade])
@@ -79,7 +100,7 @@ class IntegrationTest extends Specification with Mockito {
       val user1 = competitorService.createUser("leffe")
       val user2 = competitorService.createUser("janne")
 
-      val game = gameReservationService.challangeCompetitor(user1,user2)
+      val game = gameReservationService.challangeCompetitor(user1,user2,gameSetupType)
 
 
 
@@ -88,10 +109,7 @@ class IntegrationTest extends Specification with Mockito {
       game.gameSessionIdOpt.isDefined === false
       //gameReservationService.findByGameSessionId(game.gameSessionId).isDefined === true
 
-      var gameAndSettingsId: GameServerRepository.GameAndRulesId = ('Asdf, 'QWer)
 
-      var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
-      GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
       val lobbyHandler = new NonTeamLobbyQueueHandler(2,gameAndSettingsId)
 
       Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE = gameAndSettingsId
@@ -153,10 +171,8 @@ class IntegrationTest extends Specification with Mockito {
       1 === 1
     }
 
-    "handle 2vs2 scheduled" in {
+    "handle 2vs2 scheduled" in new NeedsGameSetup {
       //GameServerPool.pool = new GameServerPool()
-      val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
-      val factory =  appContext.asInstanceOf[BeanFactory];
       var competitorService = factory.getBean("competitorService", classOf[CompetitorService])
       var gameReservationService = factory.getBean(classOf[GameReservationService])
       var gameServerFacade = factory.getBean(classOf[GameServerFacade])
@@ -180,16 +196,14 @@ class IntegrationTest extends Specification with Mockito {
       teamService.storeTeamMember(user3,team2)
       teamService.storeTeamMember(user4,team2)
 
-      val game = gameReservationService.challangeCompetitor(team1,team2)
+      val game = gameReservationService.challangeCompetitor(team1,team2, gameSetupType)
       game !== null
       game.participants.size === 2
       game.gameSessionIdOpt.isDefined === false
       //gameReservationService.findByGameSessionId(game.gameSessionId).isDefined === true
 
-      var gameAndSettingsId: GameServerRepository.GameAndRulesId = ('Asdf, 'QWer)
 
-      var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
-      GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
+
       val lobbyHandler = new NonTeamLobbyQueueHandler(2,gameAndSettingsId)
 
       Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE = gameAndSettingsId
@@ -279,7 +293,7 @@ class IntegrationTest extends Specification with Mockito {
       var competitorService = factory.getBean("competitorService", classOf[CompetitorService])
       var gameReservationService = factory.getBean(classOf[GameReservationService])
       var gameServerFacade = factory.getBean(classOf[GameServerFacade])
-      var gameResultService = factory.getBean(classOf[GameResultService])
+      var gameResultService = factory.getBean(classOf[ResultService])
 
       GameReservationService.openGameSessions = Map.empty
 
@@ -320,7 +334,7 @@ class IntegrationTest extends Specification with Mockito {
       val p4 = gameServerFacade.evaluateGamePass(mapper.writeValueAsString(gp4), occassion.gameSessionId)
 
 
-      gameResultService.gameLog = mock[GameLogService]
+      gameResultService.gameLog = mock[ResultLogService]
       //val gameResultService = mock[GameResultService]
 
 

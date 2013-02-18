@@ -39,7 +39,7 @@ object LobbyServer {
 
   var publicLobbies = List.empty[(String,LobbyServer)]
 
-  def createContinousForNonPersistedGameOcassionsInstance(numOfPlayers:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) = {
+  def createContinousForNonPersistedGameOcassionsInstance(numOfPlayers:Int, gameAndRulesId: GameAndRulesId) = {
     if (seqId + 1 >= Cs3kConfig.LOBBY_SERVER_PORT_RANGE.last) throw new RuntimeException("Range ended")
     val lobbyServer = new LobbyServer(seqId, new NonTeamLobbyQueueHandler(numOfPlayers, gameAndRulesId))
     seqId = seqId + 1
@@ -47,7 +47,7 @@ object LobbyServer {
     lobbyServer
   }
 
-  def createContinous2vsNTeamForNonPersistedGameOcassionsInstance(numOfPlayersPerTeam:Int, gameAndRulesId: GameServerRepository.GameAndRulesId) = {
+  def createContinous2vsNTeamForNonPersistedGameOcassionsInstance(numOfPlayersPerTeam:Int, gameAndRulesId: GameAndRulesId) = {
     if (seqId + 1 >= Cs3kConfig.LOBBY_SERVER_PORT_RANGE.last) throw new RuntimeException("Range ended")
     val lobbyServer = new LobbyServer(seqId, new AnonTeamLobbyQueueHandler(2,numOfPlayersPerTeam, gameAndRulesId))
     seqId = seqId + 1

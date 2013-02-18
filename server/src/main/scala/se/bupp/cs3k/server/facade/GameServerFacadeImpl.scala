@@ -10,7 +10,7 @@ import org.apache.log4j.Logger
 import java.rmi.RemoteException
 import org.springframework.beans.factory.annotation.Autowired
 import user._
-import se.bupp.cs3k.server.service.{GameResultService, GameReservationService}
+import se.bupp.cs3k.server.service.{ResultService, GameReservationService}
 import se.bupp.cs3k.server.service.GameReservationService._
 import java.lang
 import se.bupp.cs3k.server.service.dao._
@@ -54,7 +54,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   var gameResultDao:GameResultDao = _
 
   @Autowired
-  var gameDao:GameDao = _
+  var gameDao:GameOccassionDao = _
 
   @Autowired
   var userDao:UserDao = _
@@ -63,7 +63,7 @@ class GameServerFacadeImpl() extends GameServerFacadeRemote with GameServerFacad
   var teamDao:TeamDao = _
 
   @Autowired
-  var gameResultService:GameResultService = _
+  var gameResultService:ResultService = _
 
 
   /**

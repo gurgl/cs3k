@@ -11,7 +11,7 @@ import java.io._
  * To change this template use File | Settings | File Templates.
  */
 @Service
-class GameLogService {
+class ResultLogService {
 
   def write(s:String) {
     var fos:FileOutputStream = null

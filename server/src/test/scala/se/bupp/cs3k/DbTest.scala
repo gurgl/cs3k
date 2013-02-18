@@ -1,5 +1,6 @@
 package se.bupp.cs3k
 
+import model.CompetitionState
 import org.specs2.mutable.Specification
 import com.fasterxml.jackson.databind.ObjectMapper
 
@@ -10,13 +11,14 @@ import server.model._
 import server.model.Ladder
 import server.model.LadderEnrollmentPk
 import server.model.User
-import server.service.dao.{GameDao, CompetitorDao, UserDao}
+import server.service.dao.{GameSetupTypeDao, GameOccassionDao, CompetitorDao, UserDao}
 import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.support.{TransactionCallbackWithoutResult, TransactionTemplate, DefaultTransactionDefinition}
 import org.springframework.transaction.{PlatformTransactionManager, TransactionStatus}
 import javax.persistence.TypedQuery
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
+import se.bupp.cs3k.server.model.Model._
 
 /**
  * Created with IntelliJ IDEA.
@@ -89,8 +91,9 @@ class DbTest extends Specification {
           comp.id must not be(null)
 
 
-          val gs = new GameType("super_mario2", "Super Mario")
-          val gst = new GameSetupType("2vs2", "Versus Mode",
+
+          val gs = new GameType('super_mario2, "Super Mario")
+          val gst = new GameSetupType(Symbol("2vs2"), "Versus Mode",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
           gst.gameType = gs
@@ -102,6 +105,8 @@ class DbTest extends Specification {
           val ladder = new Ladder()
           ladder.name = "ladder1"
           ladder.gameSetup = gst
+          ladder.state = CompetitionState.SIGNUP
+
           inTx(txMgr) {
             compDao.em.persist(ladder)
           }
@@ -129,6 +134,10 @@ class DbTest extends Specification {
           q.getSingleResult must not be(null)
 
           1.shouldEqual(1)
+
+
+          var readLadder = compDao.em.find(classOf[Ladder], ladder.id)
+          readLadder.state === CompetitionState.SIGNUP
         }
       }
       2.shouldEqual(2)
@@ -137,11 +146,12 @@ class DbTest extends Specification {
 
       withTx {
         case (txMgr, factory) => {
-          var gameOccasionDao = factory.getBean("gameDao").asInstanceOf[GameDao]
+          var gameOccasionDao = factory.getBean("gameOccassionDao").asInstanceOf[GameOccassionDao]
           var userDao = factory.getBean("userDao").asInstanceOf[UserDao]
+          var gameSetupDao = factory.getBean(classOf[GameSetupTypeDao])
 
-          val gs = new GameType("super_mario", "Super Mario")
-          val gst = new GameSetupType("1vs1", "Versus Mode",
+          val gs = new GameType('super_mario, "Super Mario")
+          val gst = new GameSetupType(Symbol("1vs1"), "Versus Mode",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
           gst.gameType = gs
@@ -149,6 +159,12 @@ class DbTest extends Specification {
             userDao.em.persist(gs)
             userDao.em.persist(gst)
           }
+
+          var gameType = gameSetupDao.findGameType('super_mario)
+          gameType must beAnInstanceOf[Some[GameType]]
+
+          var gameSetupType = gameSetupDao.findGameSetupType('super_mario, Symbol("1vs1"))
+          gameSetupType must beAnInstanceOf[Some[GameSetupType]]
 
 
           val user = new User("leffe")

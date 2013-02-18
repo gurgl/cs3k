@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.service.gameserver
 
 import collection.immutable.HashMap
-
+import se.bupp.cs3k.server.model.Model._
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -12,13 +12,14 @@ import collection.immutable.HashMap
 
 object GameServerRepository  {
 
-  type GameServerTypeId = Symbol
-  type GameProcessTemplateId = Symbol
-  type GameAndRulesId = (GameServerTypeId, GameProcessTemplateId)
 
   var gameServerTypes = new HashMap[GameServerTypeId,GameServerSpecification]()
   var gameServerSetups = new HashMap[(GameServerTypeId,GameProcessTemplateId),GameProcessTemplate]()
 
+  def reset {
+    gameServerTypes = gameServerTypes.empty
+    gameServerSetups = gameServerSetups.empty
+  }
 
   /*def findByProcessTemplate(ss:GameProcessTemplateId) : Option[GameProcessTemplate] = {
     gameServerSetups.find( _._1._2 == ss).map(_._2)

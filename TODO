@@ -4,8 +4,11 @@ TODO
 
 * Web Sessionen där snabbt - lös
 
+* findAll funkar inte för gameSetupType
 
 DONE
+
+V * persistera game types
 
 V * appenda anon scores
 

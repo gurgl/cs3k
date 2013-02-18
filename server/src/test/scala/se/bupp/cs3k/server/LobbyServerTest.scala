@@ -28,6 +28,8 @@ import concurrent.{Future, promise, Promise}
 @RunWith(classOf[JUnitRunner])
 class LobbyServerTest extends Specification with Mockito {
 
+  sequential
+
   val LEIF = "leffe"
   val PETER = "peter"
   val SVEN = "sven"
@@ -46,6 +48,8 @@ class LobbyServerTest extends Specification with Mockito {
       NILS -> 10
     )
 
+  GameServerRepository.reset
+  GameServerRepository.add('A, null)
   GameServerRepository.addProcessTemplate(('A,'B),null)
 
   val serverAllocator = mock[ServerAllocator]
