@@ -30,6 +30,8 @@ object Events {
 
   class LadderSelectedEvent(var ladder:Ladder, target:AjaxRequestTarget ) extends AbstractEvent(target)
   class TeamSelectedEvent(var team:Team, target:AjaxRequestTarget ) extends AbstractEvent(target)
+  class CreateTeamEvent(target:AjaxRequestTarget ) extends AbstractEvent(target)
+
 
 
 }

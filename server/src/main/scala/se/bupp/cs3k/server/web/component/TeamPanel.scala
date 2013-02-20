@@ -7,7 +7,9 @@ import org.apache.wicket.model.Model
 import se.bupp.cs3k.server.model.{Team, Ladder}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
-import se.bupp.cs3k.server.web.component.Events.TeamSelectedEvent
+import se.bupp.cs3k.server.web.component.Events.{CreateTeamEvent, TeamSelectedEvent}
+import org.apache.wicket.ajax.markup.html.AjaxLink
+import org.apache.wicket.event.Broadcast
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,6 +41,24 @@ class TeamPanel(id:String) extends Panel(id) {
           }
         }
         (newItem,lse.target,1)
+
+      case lse:CreateTeamEvent =>
+        println("Receiving event spec")
+        val newItem = new BreadCrumbModel() {
+          val name = "Create Team"
+          val model = new Model[String]("")
+          val createComponent = (id:String, m:Model[_]) => {
+
+            new TeamFormPanel(id, "Create Team")
+          }
+        }
+        (newItem,lse.target,1)
+    }
+  })
+
+  add(new AjaxLink("createTeamLink") {
+    def onClick(target: AjaxRequestTarget) {
+      send(getPage(), Broadcast.BREADTH, new CreateTeamEvent( target));
     }
   })
 
