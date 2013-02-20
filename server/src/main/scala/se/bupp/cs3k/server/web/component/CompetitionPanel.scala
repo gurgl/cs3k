@@ -33,36 +33,11 @@ object Events {
 
 
 }
-class LadderPanel(id:String) extends Panel(id) {
+class CompetitionPanel(id:String) extends Panel(id) {
 
-
-  /*
-  override def onEvent(event: IEvent[_]) {
-    super.onEvent(event)
-    println("Receiving event")
-    event.getPayload match {
-      case lse:LadderSelectedEvent =>
-        println("Receiving event spec")
-        var list = itemsModel.getObject.take(1)
-        list = list :+ new BreadCrumbModel() {
-          val name = lse.ladder.name
-          val model = new Model[Ladder](lse.ladder)
-          val createComponent = (id:String, m:Model[_]) => {
-            var ladMod = m.asInstanceOf[Model[Ladder]]
-            new Label(id, ladMod.getObject.name)
-          }
-         }
-        itemsModel.setObject(new java.util.ArrayList(list.toList))
-        lse.target.add(breadCrumbContainer)
-        lse.target.add(contentContainer)
-
-      case _ =>
-    }
-  }
-  */
 
   add(new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
-    val name = "Ladder"
+    val name = "Competitors"
     val model = new Model[Ladder](null)
     val createComponent = (id:String, m:Model[_]) => {
       new LadderListPanel(id)

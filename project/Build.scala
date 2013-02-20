@@ -54,6 +54,7 @@ object MyBuild extends Build {
       "org.hibernate" % "hibernate-core" % "4.1.7.Final",
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
+      "org.apache.wicket" % "wicket-bootstrap" % "0.7",
       "org.apache.wicket" % "wicket-spring" % WICKET_VERSION, //exclude("org.apache.wicket","wicket-ioc"),
       "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",

@@ -42,7 +42,7 @@ class LadderListPanel(id:String) extends Panel(id) {
   }
 
   var selector:WebMarkupContainer = _
-  selector = new ListSelector[java.lang.Long,Ladder]("listSelector", provider) {
+  selector = new ListSelector[java.lang.Long, Ladder]("listSelector", provider) {
     override def onClick(target: AjaxRequestTarget, modelObject: Ladder) {
 
       println("Sending event")

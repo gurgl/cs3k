@@ -1,12 +1,13 @@
 package se.bupp.cs3k.server.web.component
 
-import generic.ListSelector
+import generic.table.NiceDataTable
+import generic.{AjaxLinkLabel, ListSelector}
 import org.apache.wicket.markup.html.panel.Panel
 import se.bupp.cs3k.server.model.Team
-import org.apache.wicket.markup.repeater.data.IDataProvider
+import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.TeamDao
-import org.apache.wicket.model.LoadableDetachableModel
+import org.apache.wicket.model._
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.WebMarkupContainer
 import se.bupp.cs3k.server.web.WiaSession
@@ -15,6 +16,16 @@ import se.bupp.cs3k.server.Util
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.event.Broadcast
 import se.bupp.cs3k.server.web.component.Events.{TeamSelectedEvent, LadderSelectedEvent}
+import org.apache.wicket.markup.repeater.Item
+import org.apache.wicket.markup.html.basic.Label
+import org.apache.wicket.behavior.AttributeAppender
+import org.apache.wicket.ajax.markup.html.AjaxLink
+import org.apache.wicket.extensions.markup.html.repeater.data.table._
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
+import java.lang.String
+import scala.Predef.String
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 
 
 /**
@@ -33,7 +44,7 @@ class TeamListPanel(id:String) extends Panel(id) {
   var ts:TeamService = _
   //var tm:PlatformTransactionManager = _
 
-  val provider = new IDataProvider[Team]() {
+  val provider = new SortableDataProvider[Team,String]() {
     import scala.collection.JavaConversions.asJavaIterator
     def iterator(p1: Long, p2: Long) = teamDao.selectRange(p1.toInt,p2.toInt).toIterator
 
@@ -43,18 +54,48 @@ class TeamListPanel(id:String) extends Panel(id) {
       def load() = teamDao.find(p1.id).get
 
     }
+    //def detach() {}
 
-    def detach() {}
+
   }
 
 
-  var selector:WebMarkupContainer = _
+  val columns = List[IColumn[Team,String]] (
+    new AbstractColumn[Team,String](new Model("Actions"))
+    {
+      def populateItem(cellItem:Item[ICellPopulator[Team]], componentId:String, model:IModel[Team])
+      {
+        cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"name")) {
+          def onClick(target: AjaxRequestTarget) {
+            send(getPage(), Broadcast.BREADTH, new TeamSelectedEvent(model.getObject, target));
+          }
+        });
+      }
+    },
+    new PropertyColumn(new Model("Tja"),"name")
+  )
+
+  add(new NiceDataTable("table", columns, provider, 8))
+
+
+
+  /*def renderItem(t: Team) : String = {
+      val me = WiaSession.get().getUser
+
+      val res:String = t.name + (if(me != null && ts.isUserMemberOfTeam(me,t)) " [member]" else "")
+      res
+
+
+    }*/
+
+
+  /*var selector:WebMarkupContainer = _
     selector = new ListSelector[java.lang.Long,Team]("listSelector", provider) {
     override def onClick(target: AjaxRequestTarget, modelObject: Team) {
 
 
-      send(getPage(), Broadcast.BREADTH, new TeamSelectedEvent(modelObject, target));
-        contentContainer.addOrReplace(new JoinTeamPanel("content",modelObject) {
+
+      contentContainer.addOrReplace(new JoinTeamPanel("content",modelObject) {
           def onUpdate(t: AjaxRequestTarget) {
 
             t.add(selector)
@@ -63,24 +104,15 @@ class TeamListPanel(id:String) extends Panel(id) {
         target.add(contentContainer)
 
     }
+  }*/
 
-    def renderItem(t: Team) : String = {
-      val me = WiaSession.get().getUser
-
-      val res:String = t.name + (if(me != null && ts.isUserMemberOfTeam(me,t)) " [member]" else "")
-      res
-
-
-    }
-  }
-
-  selector.setOutputMarkupId(true)
-  add(selector)
+  //selector.setOutputMarkupId(true)
+  //add(selector)
 
 
 
-  var contentContainer= new WebMarkupContainer("contentContainer")
+  /*var contentContainer= new WebMarkupContainer("contentContainer")
   contentContainer.setOutputMarkupId(true)
   add(contentContainer)
-  contentContainer.add(new TeamFormPanel("content", "Create team") )
+  contentContainer.add(new TeamFormPanel("content", "Create team") )*/
 }

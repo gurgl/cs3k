@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<wicket:panel>
+    <div class="pagination">
+        <ul>
+
+            <li><a wicket:id="first">&laquo;</a></li>
+            <li><a wicket:id="prev">&lt;</a></li>
+	<wicket:container wicket:id="navigation" class="goto">
+		<li><a wicket:id="pageLink" href="#"><span wicket:id="pageNumber">5</span></a></li>
+	</wicket:container>
+            <li><a wicket:id="next">&gt;</a></li>
+            <li><a wicket:id="last">&raquo;</a></li>
+        </ul>
+        </div>
+</wicket:panel>
+</body>
+</html>
