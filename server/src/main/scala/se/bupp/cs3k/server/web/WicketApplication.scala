@@ -87,7 +87,12 @@ class WicketApplication extends WebApplication {
   }
 
 
-  override def getConfigurationType = RuntimeConfigurationType.DEPLOYMENT
+  var mode = true
+  def switchMode = {
+    mode = !mode
+
+  }
+  override def getConfigurationType = RuntimeConfigurationType.DEVELOPMENT
 
   var webStartResourceFactory:WebStartResourceFactory = _
 

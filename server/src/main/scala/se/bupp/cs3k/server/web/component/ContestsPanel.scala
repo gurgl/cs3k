@@ -15,7 +15,8 @@ import se.bupp.cs3k.server.model.{Team, Ladder}
 import org.apache.wicket.Component
 import org.apache.wicket.behavior.AttributeAppender
 import org.apache.wicket.markup.ComponentTag
-import se.bupp.cs3k.server.web.component.Events.LadderSelectedEvent
+import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, LadderSelectedEvent}
+import se.bupp.cs3k.server.web.component.LadderFormPanel
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,15 +32,16 @@ object Events {
   class LadderSelectedEvent(var ladder:Ladder, target:AjaxRequestTarget ) extends AbstractEvent(target)
   class TeamSelectedEvent(var team:Team, target:AjaxRequestTarget ) extends AbstractEvent(target)
   class CreateTeamEvent(target:AjaxRequestTarget ) extends AbstractEvent(target)
+  class CreateLadderEvent(target:AjaxRequestTarget ) extends AbstractEvent(target)
 
 
 
 }
-class CompetitionPanel(id:String) extends Panel(id) {
+class ContestsPanel(id:String) extends Panel(id) {
 
 
   add(new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
-    val name = "Competitors"
+    val name = "Contests"
     val model = new Model[Ladder](null)
     val createComponent = (id:String, m:Model[_]) => {
       new LadderListPanel(id)
@@ -53,10 +55,20 @@ class CompetitionPanel(id:String) extends Panel(id) {
            val model = new Model[Ladder](lse.ladder)
            val createComponent = (id:String, m:Model[_]) => {
              var ladMod = m.asInstanceOf[Model[Ladder]]
-             new Label(id, ladMod.getObject.name)
+             new LadderPanel(id, ladMod)
            }
          }
-       (newItem,lse.target,1)
+         (newItem,lse.target,1)
+       case cle:CreateLadderEvent =>
+         val newItem = new BreadCrumbModel() {
+           val name = "Create Ladder"
+           val model = new Model[Ladder](null)
+           val createComponent = (id:String, m:Model[_]) => {
+              new LadderFormPanel(id, "Create ladder")
+           }
+         }
+         (newItem,cle.target,1)
+
      }
   })
 

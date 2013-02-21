@@ -37,8 +37,8 @@ class ApplicationPage extends SessionPage {
 
   val list = List(
     ("Play", (s:String) => new PlayPanel(s)),
-    ("Competitions", (s:String) => new CompetitionPanel(s)),
-    ("Competitors", (s:String) => new TeamPanel(s))
+    ("Contests", (s:String) => new ContestsPanel(s)),
+    ("Competitors", (s:String) => new CompetitorPanel(s))
   ) ++ (
     if (WiaSession.get().getUser != null) {
       List(("Me", (s:String) => new PlayerPanel(s)))

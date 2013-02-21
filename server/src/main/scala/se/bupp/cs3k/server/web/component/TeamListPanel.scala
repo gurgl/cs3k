@@ -15,7 +15,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import se.bupp.cs3k.server.Util
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{TeamSelectedEvent, LadderSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{CreateTeamEvent, TeamSelectedEvent, LadderSelectedEvent}
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.behavior.AttributeAppender
@@ -61,7 +61,7 @@ class TeamListPanel(id:String) extends Panel(id) {
 
 
   val columns = List[IColumn[Team,String]] (
-    new AbstractColumn[Team,String](new Model("Actions"))
+    new AbstractColumn[Team,String](new Model("Name"))
     {
       def populateItem(cellItem:Item[ICellPopulator[Team]], componentId:String, model:IModel[Team])
       {
@@ -72,12 +72,21 @@ class TeamListPanel(id:String) extends Panel(id) {
         });
       }
     },
-    new PropertyColumn(new Model("Tja"),"name")
+    new PropertyColumn(new Model("Members"),"name"),
+    new PropertyColumn(new Model("Last Game"),"name"),
+    new PropertyColumn(new Model("Ranking"),"name"),
+    new PropertyColumn(new Model("Active Competitions"),"name")
   )
 
   add(new NiceDataTable("table", columns, provider, 8))
 
 
+
+  add(new AjaxLink("createTeamLink") {
+    def onClick(target: AjaxRequestTarget) {
+      send(getPage(), Broadcast.BREADTH, new CreateTeamEvent(target));
+    }
+  })
 
   /*def renderItem(t: Team) : String = {
       val me = WiaSession.get().getUser

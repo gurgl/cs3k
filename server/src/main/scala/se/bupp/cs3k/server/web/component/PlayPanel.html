@@ -30,13 +30,13 @@
             </ul>
         </div>
 
-        <div class="alert alert-success">
+        <!--div class="alert alert-success">
             <h5>Ladders</h5>
-        </div>
+        </div-->
 
-        <div class="alert alert-error">
+        <!--div class="alert alert-error">
             <h5>Tournaments</h5>
-        </div>
+        </div-->
 
         <div class="alert alert-warning"  wicket:id="challangePanel">
             <table>
@@ -55,8 +55,20 @@
             </table>
         </div>
         <div>
-            <div wicket:id="latestAnonScores">tja</div>
-
+            <div class="row">
+                <div class="span12">
+                    <div class="row">
+                        <div class="span4"><h5>Latest 1vs1</h5></div>
+                        <div class="span4"><h5>Latest Tournaments</h5></div>
+                        <div class="span4"><h5>Latest Ladder</h5></div>
+                    </div>
+                    <div class="row">
+                        <div class="span4"><div wicket:id="latestAnonScores"></div></div>
+                        <div class="span4">...</div>
+                        <div class="span4">...</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </wicket:panel>

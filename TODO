@@ -1,5 +1,11 @@
 TODO
 
+* Fixa lobby antal updatering
+
+* Gör om ladder list
+
+* System.exit lobby och server när man trycker close
+
 * Ta bort play länkarna
 
 * Web Sessionen dör snabbt - lös

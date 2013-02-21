@@ -8,6 +8,9 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.UserDao
 import se.bupp.cs3k.server.model.User
+import org.apache.wicket.ajax.markup.html.AjaxLink
+import se.bupp.cs3k.server.web.WicketApplication
+import org.apache.wicket.ajax.AjaxRequestTarget
 
 /**
  * Created with IntelliJ IDEA.
@@ -40,6 +43,8 @@ class RegisterPage extends AbstractBasePage {
     add(new PasswordTextField("password"))
     add(new PasswordTextField("wiaPasswordConfirm"))
 
+
+
     override def onSubmit() {
       super.onSubmit()
       //println("confirm " + confirm  + " user.password " + user.password + ", " + user.wiaPasswordConfirm)
@@ -50,5 +55,15 @@ class RegisterPage extends AbstractBasePage {
       }
     }
   }
+
+  add(new AjaxLink("switchAppMode") {
+
+    def onClick(p1: AjaxRequestTarget) {
+      var application = WicketApplication.get.switchMode
+    }
+
+
+
+  })
 
 }
