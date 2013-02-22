@@ -23,7 +23,7 @@ import org.apache.wicket.event.Broadcast
 class CompetitorPanel(id:String) extends Panel(id) {
 
   add(new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
-    val name = "Team"
+    val name = "Competitors"
     val model = new Model[Team](null)
     val createComponent = (id:String, m:Model[_]) => {
       new TeamListPanel(id)

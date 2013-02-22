@@ -22,7 +22,4 @@ class PlayerPanel(id:String) extends Panel(id) {
       ("Settings", (cId:String) => new Label(cId, "Settings"))
     )
   ))
-
-
-
 }
