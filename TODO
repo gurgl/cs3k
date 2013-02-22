@@ -1,8 +1,5 @@
 TODO
 
-* Fixa lobby antal updatering
-
-* Gör om ladder list
 
 * System.exit lobby och server när man trycker close
 
@@ -30,7 +27,6 @@ TODO
 
     - senaste spelade
 
-* paginerbar listvy (för stegar o teams)
 
 * turneringar
 
@@ -39,6 +35,12 @@ TODO
 * log conf med en bokstavs paketnamn
 
 DONE
+
+V * Gör om ladder list
+
+V * paginerbar listvy (för stegar o teams)
+
+V * Fixa lobby antal updatering
 
 V * persistera game types
 

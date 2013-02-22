@@ -23,7 +23,7 @@ import concurrent.{Promise, Future, future, promise}
 import collection.immutable.Queue
 import scala.util.{Failure, Success}
 import org.slf4j.{LoggerFactory, Logger}
-import server.service.lobby.{AbstractLobbyQueueHandler, AnonTeamLobbyQueueHandler, NonTeamLobbyQueueHandler}
+import server.service.lobby.{LobbyHandler, AbstractLobbyQueueHandler, AnonTeamLobbyQueueHandler, NonTeamLobbyQueueHandler}
 
 
 /**
@@ -65,7 +65,7 @@ object LobbyServer {
  * Time: 03:38
  * To change this template use File | Settings | File Templates.
  */
-class LobbyServer(val portId:Int, var lobbyHandler:AbstractLobbyQueueHandler[_]) {
+class LobbyServer(val portId:Int, var lobbyHandler:LobbyHandler) {
 
   val log = LoggerFactory.getLogger(classOf[LobbyServer])
 
@@ -95,9 +95,9 @@ class LobbyServer(val portId:Int, var lobbyHandler:AbstractLobbyQueueHandler[_])
 
       override def disconnected(p1: Connection) {
         super.disconnected(p1)
-        if (lobbyHandler.removeConnection(p1)) {
-          server.sendToAllTCP(new ProgressUpdated(lobbyHandler.queue.size))
-        }
+        lobbyHandler.removeConnection(p1)
+          //server.sendToAllTCP(new ProgressUpdated(lobbyHandler.queue.size))
+
       }
 
       override def received (connection:Connection , ob:Object) {

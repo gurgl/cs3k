@@ -1,8 +1,11 @@
 package se.bupp.cs3k.server.web.component
 
-import org.apache.wicket.markup.html.panel.Panel
+import generic.VertTabbedPanel
+import org.apache.wicket.markup.html.panel.{EmptyPanel, Panel}
 import org.apache.wicket.model.IModel
 import se.bupp.cs3k.server.model.Ladder
+import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel
+import org.apache.wicket.markup.html.basic.Label
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +17,13 @@ import se.bupp.cs3k.server.model.Ladder
 class LadderPanel(id:String, model:IModel[Ladder]) extends Panel(id) {
 
 
-  add(new TeamListPanel("teamList"))
+  add(new VertTabbedPanel("tab-panel",
+    List(
+      ("Overview", (cId:String) => new Label(cId,"signup etc")),
+      ("Challangers", (cId:String) => new TeamListPanel(cId)),
+      ("Results", (cId:String) => new Label(cId, "results"))
+    )
+  ))
 
 
 }

@@ -180,7 +180,16 @@ abstract class AbstractRankedLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId
 
 
 
-abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) {
+trait LobbyHandler {
+  def removeConnection(p1: Connection) : Boolean
+  def playerJoined(request: LobbyJoinRequest, connection: Connection)
+
+  def numOfPlayers:Int
+  def clientMode:String
+}
+
+
+abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) extends LobbyHandler {
 
   type Info = T
   type UserInfo = (AbstractUser,Info)
@@ -236,6 +245,11 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) {
 
     import scala.concurrent.ExecutionContext.Implicits.global
     completeParties.foreach { party =>
+
+      scala.concurrent.future {
+        val completeInfo = party.flatMap( p => queue.find {case (c,(u,i)) => u == p} )
+        completeInfo.foreach { case (c,(u,i)) => c.sendTCP(new ProgressUpdated(party.size)) }
+      }
 
       val launcher = (pt:ProcessToken) => {
         val partyAndCon = removePartyFromQueue(party)
