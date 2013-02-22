@@ -6,6 +6,7 @@ import org.apache.wicket.model.IModel
 import se.bupp.cs3k.server.model.Ladder
 import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel
 import org.apache.wicket.markup.html.basic.Label
+import org.apache.wicket.ajax.AjaxRequestTarget
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,7 +20,11 @@ class LadderPanel(id:String, model:IModel[Ladder]) extends Panel(id) {
 
   add(new VertTabbedPanel("tab-panel",
     List(
-      ("Overview", (cId:String) => new Label(cId,"signup etc")),
+      ("Overview", (cId:String) => new JoinLadderPanel(cId,model) {
+        def onUpdate(t: AjaxRequestTarget) {
+
+        }
+      }),
       ("Challangers", (cId:String) => new TeamListPanel(cId)),
       ("Results", (cId:String) => new Label(cId, "results"))
     )

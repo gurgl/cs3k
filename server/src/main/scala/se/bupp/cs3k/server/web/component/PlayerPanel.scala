@@ -1,6 +1,9 @@
 package se.bupp.cs3k.server.web.component
 
+import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
+import org.apache.wicket.ajax.AjaxRequestTarget
+import org.apache.wicket.markup.html.basic.Label
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,6 +14,14 @@ import org.apache.wicket.markup.html.panel.Panel
  */
 class PlayerPanel(id:String) extends Panel(id) {
 
+  add(new VertTabbedPanel("tab-panel",
+    List(
+      ("Overview", (cId:String) => new Label(cId, "Overview")),
+      ("Shedule", (cId:String) => new Label(cId, "Scheudle")),
+      ("Results", (cId:String) => new Label(cId, "Results")),
+      ("Settings", (cId:String) => new Label(cId, "Settings"))
+    )
+  ))
 
 
 

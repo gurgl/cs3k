@@ -13,7 +13,7 @@ import se.bupp.cs3k.server.web.{WiaSession, WicketApplication}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.ajax.markup.html
 import org.apache.wicket.markup.html.basic.Label
-import org.apache.wicket.model.{LoadableDetachableModel, AbstractReadOnlyModel}
+import org.apache.wicket.model.{IModel, LoadableDetachableModel, AbstractReadOnlyModel}
 import se.bupp.cs3k.server.model.Ladder
 import org.apache.wicket.markup.html.list.ListView
 import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider, ListDataProvider}
@@ -73,7 +73,7 @@ abstract class JoinTeamPanel(id:String, t:Team) extends Panel(id) {
 
 
 //@LoggedInOnly
-abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
+abstract class JoinLadderPanel(id:String, m:IModel[Ladder]) extends Panel(id) {
 
   @SpringBean
   var gs:GameReservationService = _
@@ -105,9 +105,13 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
     def detach() {}
     def iterator(p1: Long, p2: Long) = {
       log.info("ich vägra logga")
+      val t = m.getObject
       ts.findApplicableCompetitors(WiaSession.get().getUser,t).take(p2.toInt).toIterator
     }
-    def size() = ts.findApplicableCompetitors(WiaSession.get().getUser,t).size
+    def size() = {
+      val t = m.getObject
+      ts.findApplicableCompetitors(WiaSession.get().getUser,t).size
+    }
     def model(p1: Competitor) = new LoadableDetachableModel[Competitor](p1) {
       def load() =  userDao.findCompetitor(p1.id).get
     }
@@ -127,6 +131,7 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
             case c:Team => "Team(" + c.name + ")"
             case c:User => "User(" + c.username + ")"
           }
+          val t = m.getObject
           (if(ts.isCompetitorMemberOfLadder(comp, t)) "leave " else "join") + " as " + name
         }
       })
@@ -134,6 +139,7 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
       val link = new AjaxLink[Ladder]("link") {
 
         def onClick(target: AjaxRequestTarget) {
+          val t = m.getObject
           val a =
             if(!ts.isCompetitorMemberOfLadder(comp, t)) {
               ts.storeLadderMember(comp, t)
@@ -158,9 +164,13 @@ abstract class JoinLadderPanel(id:String, t:Ladder) extends Panel(id) {
     def detach() {}
     def iterator(p1: Long, p2: Long) = {
       log.info("ich vägra logga")
+      val t = m.getObject
       competitorDao.findLadderParticipants(t, p1 ,p2).toIterator
     }
-    def size() =       competitorDao.findLadderParticipantsCount(t)
+    def size() =  {
+      val t = m.getObject
+      competitorDao.findLadderParticipantsCount(t)
+    }
     def model(p1: Competitor) = new LoadableDetachableModel[Competitor](p1) {
       def load() =  userDao.findCompetitor(p1.id).get
     }
