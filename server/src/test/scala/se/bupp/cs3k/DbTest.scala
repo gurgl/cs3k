@@ -249,7 +249,6 @@ class DbTest extends Specification {
           var t = tournamentDao.find(tournament.id).get
 
 
-
           inTx(txMgr) {
 
             val t2 = tournamentDao.em.merge(t)
