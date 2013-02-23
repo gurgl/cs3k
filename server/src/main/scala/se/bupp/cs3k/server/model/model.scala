@@ -14,7 +14,7 @@ import se.bupp.cs3k.server.service.gameserver.{GameServerRepository, GameProcess
 import java.util.Date
 import se.bupp.cs3k.server.Cs3kConfig
 import se.bupp.cs3k.server.service.GameReservationService
-import java.lang
+import java.{util, lang}
 import concurrent.Future
 
 
@@ -305,6 +305,10 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @PrimaryKeyJoinColumn
   var result:GameResult = _
 
+  //@PrimaryKeyJoinColumn
+  @OneToOne(mappedBy = "gameOccassion", optional = true)
+  var qualifier:QualifierPersistance = _
+
   @ManyToOne(targetEntity = classOf[GameSetupType], optional=false)
   var game:GameSetupType = _
 
@@ -372,3 +376,40 @@ case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameP
 
   def requiresTicket = game != null && game.isInstanceOf[GameOccassion]
 }
+
+@Entity
+class Tournament {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @OneToMany(mappedBy = "tournament",cascade = Array(CascadeType.ALL))
+  var structure:util.List[QualifierPersistance] = new util.ArrayList[QualifierPersistance]()
+}
+
+
+@Entity
+class QualifierPersistance(_nodeId:Int, _tournament:Tournament, _childNodeIds:List[Int]) {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  var nodeId:Int = _nodeId
+
+  //var childNodeIdsSerialized:String = _
+
+  import scala.collection.JavaConversions.seqAsJavaList
+  import scala.collection.JavaConversions.asScalaBuffer
+  @ElementCollection
+  private var childNodeIdsJava:util.List[Integer] = _childNodeIds.map( i => new Integer(i))
+
+  def childNodeIds:List[Int] = childNodeIdsJava.map( i => i.toInt).toList
+
+  @ManyToOne(optional = false)
+  var tournament:Tournament = _tournament
+
+  //@MapsId
+  //@JoinColumn(referencedColumnName = "id")
+  @OneToOne(optional = true)
+  @JoinColumn(name = "GAME_OCCASSION_ID", referencedColumnName = "ID", nullable = true)
+  var gameOccassion:GameOccassion = _
+
+  def this() = this(-1,null,Nil)
+}
+

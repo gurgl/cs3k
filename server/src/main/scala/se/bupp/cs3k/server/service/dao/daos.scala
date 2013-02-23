@@ -112,6 +112,10 @@ class GameSetupTypeDao extends GenericDaoImpl[GameSetupType](classOf[GameSetupTy
 
 }
 
+@Repository
+class TournamentDao extends GenericDaoImpl[Tournament](classOf[Tournament]) {
+
+}
 
 @Repository
 class GameOccassionDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
