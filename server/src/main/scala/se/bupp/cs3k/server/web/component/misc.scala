@@ -13,7 +13,7 @@ import se.bupp.cs3k.server.web.{WiaSession, WicketApplication}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.ajax.markup.html
 import org.apache.wicket.markup.html.basic.Label
-import org.apache.wicket.model.{IModel, LoadableDetachableModel, AbstractReadOnlyModel}
+import org.apache.wicket.model.{Model, IModel, LoadableDetachableModel, AbstractReadOnlyModel}
 import se.bupp.cs3k.server.model.Ladder
 import org.apache.wicket.markup.html.list.ListView
 import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider, ListDataProvider}
@@ -30,7 +30,7 @@ import se.bupp.cs3k.server.web.auth.LoggedInOnly
  */
 
 @LoggedInOnly
-abstract class JoinTeamPanel(id:String, t:Team) extends Panel(id) {
+abstract class JoinTeamPanel(id:String, m:IModel[Team]) extends Panel(id) {
 
   @SpringBean
   var ts:TeamService = _
@@ -38,6 +38,7 @@ abstract class JoinTeamPanel(id:String, t:Team) extends Panel(id) {
   val fb = new FeedbackPanel("feedback")
   val label = new Label("label", new AbstractReadOnlyModel[String] {
     def getObject = {
+      val t = m.getObject
       val u = WiaSession.get().getUser ;
       if(u != null && ts.isUserMemberOfTeam(u, t)) "leave" else "join"
     }
@@ -51,6 +52,7 @@ abstract class JoinTeamPanel(id:String, t:Team) extends Panel(id) {
   val link = new AjaxLink[Team]("link") {
 
     def onClick(target: AjaxRequestTarget) {
+      val t = m.getObject
       val a =
         if(!ts.isUserMemberOfTeam(WiaSession.get().getUser, t)) {
           ts.storeTeamMember(WiaSession.get().getUser, t)

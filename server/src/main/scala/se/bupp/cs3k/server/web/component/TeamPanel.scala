@@ -1,8 +1,11 @@
 package se.bupp.cs3k.server.web.component
 
+import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.IModel
 import se.bupp.cs3k.server.model.Team
+import org.apache.wicket.ajax.AjaxRequestTarget
+import org.apache.wicket.markup.html.basic.Label
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,4 +16,17 @@ import se.bupp.cs3k.server.model.Team
  */
 class TeamPanel(id:String, model:IModel[Team]) extends Panel(id) {
 
+  add(new VertTabbedPanel("tab-panel",
+    List(
+      ("Overview", (cId:String) => new JoinTeamPanel(cId,model) {
+        def onUpdate(t: AjaxRequestTarget) {
+
+        }
+      }),
+      ("Members", (cId:String) => new TeamListPanel(cId)),
+      ("Results", (cId:String) => new Label(cId, "results")),
+      ("Admin", (cId:String) => new Label(cId, "results"))
+      )
+    )
+  )
 }
