@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.server.model.User
-import se.bupp.cs3k.model.CompetitorType
+import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import org.slf4j.LoggerFactory
 import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, ExCompetitorScore}
 
@@ -118,8 +118,27 @@ class LadderService {
       }
 
     }
-
-
   }
 
+  @Transactional
+  def startLadder(l:Ladder) = {
+    if (l.state == CompetitionState.SIGNUP) {
+      import scala.collection.JavaConversions.asScalaBuffer
+      import scala.collection.JavaConversions.seqAsJavaList
+      val participants = l.participants.map( p => p.id.competitor)
+      val range = 0 until participants.size
+      val combinations = for(a <- range ; b <- range if b > a) yield (a,b)
+      val matches = combinations.map {
+        case (i, j) => (participants(i), participants(j))
+      }
+      matches.foreach {
+        case (i, j) =>
+          val go = new GameOccassion()
+          go.participants = List(i,j).map(p => new GameParticipation(new GameParticipationPk(p,go)))
+          go.game == l.gameSetup
+          go.competitionGame = new LadderGame(l)
+          gameDao.insert(go)
+      }
+    }
+  }
 }

@@ -9,10 +9,14 @@ import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.support.{FileSystemXmlApplicationContext, ClassPathXmlApplicationContext}
 import server.model._
 import server.model.GameParticipationPk
+import server.model.GameParticipationPk
+import server.model.Ladder
 import server.model.Ladder
 import server.model.Ladder
 import server.model.LadderEnrollmentPk
 import server.model.LadderEnrollmentPk
+import server.model.LadderEnrollmentPk
+import server.model.User
 import server.model.User
 import server.model.User
 import server.service.dao._
@@ -24,6 +28,8 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model.Model._
 import scala.Some
+import scala.Some
+import server.service.LadderService
 
 /**
  * Created with IntelliJ IDEA.
@@ -88,7 +94,9 @@ class DbTest extends Specification {
 
       withTx {
         case (txMgr, factory) => {
-          var compDao = factory.getBean("competitorDao").asInstanceOf[CompetitorDao]
+          val compDao = factory.getBean(classOf[CompetitorDao])
+          val ladderService= factory.getBean(classOf[LadderService])
+
 
           var comp = new Competitor()
 
@@ -143,11 +151,14 @@ class DbTest extends Specification {
           q.setParameter("c", comp)
           q.getSingleResult must not be(null)
 
-          1.shouldEqual(1)
 
 
           var readLadder = compDao.em.find(classOf[Ladder], ladder.id)
           readLadder.state === CompetitionState.SIGNUP
+
+
+
+
         }
       }
       2.shouldEqual(2)

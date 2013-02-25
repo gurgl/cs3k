@@ -81,10 +81,18 @@ class LadderStandingsPanel(id:String, ladderModel:IModel[Ladder]) extends Panel(
       }
     },
     new PropertyColumn(new Model("Setup"), "_1.id"),
-    new FodelPropertyColumn(new Model("Setup"),
+    new FodelPropertyColumn(new Model("Ein"),
       ((a:RowType) => a._2.map(_.getRenderer.render()(0)).orNull,
         (a:RowType,v:String) => ()
-        ))
+        )),
+  new FodelPropertyColumn(new Model("Zwei"),
+    ((a:RowType) => a._2.map(_.getRenderer.render()(1)).orNull,
+      (a:RowType,v:String) => ()
+      )),
+  new FodelPropertyColumn(new Model("Drei"),
+    ((a:RowType) => a._2.map(_.getRenderer.render()(2)).orNull,
+      (a:RowType,v:String) => ()
+      ))
 
 
   )
