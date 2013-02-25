@@ -135,6 +135,9 @@ case class Ladder() extends Serializable with Same[JLLong] {
   var state:CompetitionState = _
 
 
+  @OneToMany(mappedBy = "ladder")
+  var games:JUList[LadderGame] =  new JUArrayList[LadderGame]()
+
   /*
   override def hashCode(): Int = Util._hashCode(Ladder.this);
 
@@ -210,7 +213,19 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
 @Entity
 @NamedQueries(Array(
   new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2"),
-  new NamedQuery(name = "Competitor.findLadderParticipants", query = "select c from Ladder l inner join l.participants p inner join p.id.competitor c where l = :ladder")
+  new NamedQuery(name = "Competitor.findLadderParticipants",
+    query = "select c from Ladder l inner join l.participants p inner join p.id.competitor c where l = :ladder"),
+  new NamedQuery(name = "Competitor.findLadderResults",
+    query =
+      """select new scala.Tuple2(c,r) from Ladder l
+        inner join l.games lg
+        inner join lg.gameOccassion go
+        inner join go.result r
+        inner join l.participants p
+        inner join p.id.competitor c
+        where l = :ladder""")
+
+
 ))
 @Inheritance(strategy=InheritanceType.JOINED)
 class Competitor extends Serializable {
@@ -282,12 +297,26 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @OneToMany(mappedBy = "id.game")
   var participants:JUList[GameParticipation] =  new JUArrayList[GameParticipation]()
 
+
   //TODO : Make me private
   //@Column("game_session_id")
   var gameSessionId:JLLong = _
 
-
   var gameServerStartedAt:Date = _
+
+  var competitorType:String = _
+
+  @OneToOne(cascade = Array(CascadeType.ALL))
+  @PrimaryKeyJoinColumn
+  var result:GameResult = _
+
+  @OneToOne(mappedBy = "gameOccassion", optional = true)
+  var competitionGame:CompetitionGame = _
+
+  @ManyToOne(targetEntity = classOf[GameSetupType], optional=false)
+  var game:GameSetupType = _
+
+
   def gameSessionIdOpt = Option(gameSessionId)
   def gameSessionIdOpt_=(v:Option[GameSessionId]):Unit = { gameSessionId = v.map(new lang.Long(_)).getOrElse(null.asInstanceOf[lang.Long])}
 
@@ -299,18 +328,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   def gameAndRulesId = Cs3kConfig.TEMP_FIX_FOR_STORING_GAME_TYPE
 
-  var competitorType:String = _
 
-  @OneToOne(cascade = Array(CascadeType.ALL))
-  @PrimaryKeyJoinColumn
-  var result:GameResult = _
-
-  //@PrimaryKeyJoinColumn
-  @OneToOne(mappedBy = "gameOccassion", optional = true)
-  var qualifier:QualifierPersistance = _
-
-  @ManyToOne(targetEntity = classOf[GameSetupType], optional=false)
-  var game:GameSetupType = _
 
   /*new GameSetupType(
     "tanks",
@@ -387,8 +405,21 @@ class Tournament {
 
 
 @Entity
-class QualifierPersistance(_nodeId:Int, _tournament:Tournament, _childNodeIds:List[Int]) {
+@Inheritance(strategy=InheritanceType.JOINED)
+abstract class CompetitionGame {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @OneToOne(optional = true)
+  @JoinColumn(name = "GAME_OCCASSION_ID", referencedColumnName = "ID", nullable = true)
+  var gameOccassion:GameOccassion = _
+}
+
+
+
+
+@Entity
+class QualifierPersistance(_nodeId:Int, _tournament:Tournament, _childNodeIds:List[Int]) extends CompetitionGame {
+  //@Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   var nodeId:Int = _nodeId
 
@@ -396,20 +427,28 @@ class QualifierPersistance(_nodeId:Int, _tournament:Tournament, _childNodeIds:Li
 
   import scala.collection.JavaConversions.seqAsJavaList
   import scala.collection.JavaConversions.asScalaBuffer
+
   @ElementCollection
   private var childNodeIdsJava:util.List[Integer] = _childNodeIds.map( i => new Integer(i))
 
   def childNodeIds:List[Int] = childNodeIdsJava.map( i => i.toInt).toList
 
   @ManyToOne(optional = false)
-  var tournament:Tournament = _tournament
-
-  //@MapsId
-  //@JoinColumn(referencedColumnName = "id")
-  @OneToOne(optional = true)
-  @JoinColumn(name = "GAME_OCCASSION_ID", referencedColumnName = "ID", nullable = true)
-  var gameOccassion:GameOccassion = _
+  var tournament:Tournament= _tournament
 
   def this() = this(-1,null,Nil)
 }
+
+
+@Entity
+class LadderGame(_ladder:Ladder) extends CompetitionGame {
+
+
+  @ManyToOne(optional = false)
+  var ladder:Ladder = _ladder
+
+
+  def this() = this(null)
+}
+
 

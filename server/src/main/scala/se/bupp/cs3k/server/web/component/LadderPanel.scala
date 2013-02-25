@@ -26,7 +26,7 @@ class LadderPanel(id:String, model:IModel[Ladder]) extends Panel(id) {
         }
       }),
       ("Challangers", (cId:String) => new TeamListPanel(cId)),
-      ("Results", (cId:String) => new Label(cId, "results"))
+      ("Results", (cId:String) => new LadderStandingsPanel(cId, model))
     )
   ))
 

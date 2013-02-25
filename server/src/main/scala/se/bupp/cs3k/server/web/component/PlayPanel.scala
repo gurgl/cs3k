@@ -203,6 +203,7 @@ class PlayPanel(id:String) extends Panel(id) {
   var competitorDao:CompetitorDao = _
 
 
+
   @LoggedInOnly
   class LoggedInOnlyForm(id:String) extends Form[String](id) {
 
@@ -340,28 +341,21 @@ class PlayPanel(id:String) extends Panel(id) {
         override def onComponentTagBody(markupStream: MarkupStream, openTag: ComponentTag) {
           super.onComponentTagBody(markupStream, openTag)
           var gs: GameResult = item.getModelObject
-          val competitorsByName = gameResultService.getCompetitorsByName(gs)
 
-          var value: ExContestScore = om.readValue(gs.resultSerialized, classOf[ExContestScore])
-          val markup = "<table class=\"table table-striped\"><tbody>" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</tbody></table>"
-
+          val markup = gameResultService.renderResult(gs)
           val response = getRequestCycle().getResponse();
           response.write(markup)
         }
       })
-
     }
   })
-
 
   add(new WebMarkupContainer("latestAnonScores") {
     override def onComponentTagBody(markupStream: MarkupStream, openTag: ComponentTag) {
       super.onComponentTagBody(markupStream, openTag)
       val response = getRequestCycle().getResponse();
       val read = gameLogService.read()
-
-      import scala.collection.JavaConversions.asScalaBuffer
-      val res = read.split("<br class=\"score-separator\">").map( i => """<table class="table">""" + i +  "</table>").mkString("<br>")
+      val res = read.split("<br class=\"score-separator\">").map( i => """<table class="table table-striped">""" + i +  "</table>").mkString("<br>")
       response.write(res)
     }
   })

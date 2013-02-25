@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.service
 
 import dao.{TeamDao, UserDao, GameOccassionDao, GameResultDao}
-import se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore
+import se.bupp.cs3k.example.ExampleScoreScheme.{ExScoreScheme, ExContestScore}
 import se.bupp.cs3k.example.ExampleScoreScheme
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.model.Model._
@@ -175,6 +175,27 @@ class ResultService {
         }
       }
     }
-
   }
+
+  def renderResult(gs:GameResult) = {
+    import scala.collection.JavaConversions.asScalaBuffer
+    import scala.collection.JavaConversions.mapAsJavaMap
+    val competitorsByName = getCompetitorsByName(gs)
+    var value: ExContestScore = om.readValue(gs.resultSerialized, classOf[ExContestScore])
+    val markup = "<table class=\"table table-striped\"><tbody>" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</tbody></table>"
+    markup
+  }
+
+
+  def getParticipantResult(p:Competitor, l:List[GameResult]) = {
+    import scala.collection.JavaConversions.seqAsJavaList
+
+    val competitorScores = l.map { case (gr) =>
+      val contestScore: ExContestScore = om.readValue(gr.resultSerialized, classOf[ExContestScore])
+      contestScore.competitorScore(p.id)
+    }
+    var total = ExScoreScheme.calculateTotal(competitorScores)
+    total
+  }
+
 }

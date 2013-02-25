@@ -11,6 +11,8 @@
         <class>se.bupp.cs3k.server.model.LadderEnrollmentPk</class>
         <class>se.bupp.cs3k.server.model.Tournament</class>
         <class>se.bupp.cs3k.server.model.QualifierPersistance</class>
+        <class>se.bupp.cs3k.server.model.LadderGame</class>
+        <class>se.bupp.cs3k.server.model.CompetitionGame</class>
 
         <class>se.bupp.cs3k.server.model.User</class>
         <class>se.bupp.cs3k.server.model.Team</class>

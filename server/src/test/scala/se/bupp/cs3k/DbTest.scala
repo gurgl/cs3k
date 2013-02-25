@@ -264,5 +264,9 @@ class DbTest extends Specification {
       }
       2.shouldEqual(2)
     }
+
+    "handle ladders" in {
+
+    }
   }
 }

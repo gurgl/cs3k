@@ -9,6 +9,7 @@ import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.model.CompetitorType
 import org.slf4j.LoggerFactory
+import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, ExCompetitorScore}
 
 
 /**
@@ -100,6 +101,25 @@ class LadderService {
 
     ladderDao.em.remove(tm)
   }
+  @Autowired
+  var resultService:ResultService = _
 
+  def decoratePariticpantResults(participants:List[Competitor], ladder:Ladder) = {
+    //val participants = competitorDao.findLadderParticipants(ladder, start, stop)
+    val results = ladderDao.findLadderResults(ladder)
+    var resultMap = results.groupBy(_._1).map { case (k,v) => (k, v.map(_._2))}
+
+    participants.map { p =>
+      resultMap.get(p) match {
+        case Some(l) =>
+          val total = resultService.getParticipantResult(p,l)
+        Pair(p,Some(total))
+        case None => (p,None)
+      }
+
+    }
+
+
+  }
 
 }

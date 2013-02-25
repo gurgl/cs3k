@@ -186,12 +186,19 @@ class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
 
 
 }
+import scala.collection.JavaConversions.asScalaBuffer
 
 @Repository
 @Transactional
 class LadderDao extends GenericDaoImpl[Ladder](classOf[Ladder]) {
 
 
+  def findLadderResults(u:Ladder) : List[(Competitor, GameResult)] =  {
+
+    val q = em.createNamedQuery("Competitor.findLadderResults")
+    q.setParameter("ladder",u)
+    q.getResultList.toList.toList.map(_.asInstanceOf[(Competitor, GameResult)])
+  }
 }
 
 @Repository
