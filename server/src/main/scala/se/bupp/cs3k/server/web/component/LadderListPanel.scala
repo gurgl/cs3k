@@ -66,7 +66,7 @@ class LadderListPanel(id:String) extends Panel(id) {
   add(new NiceDataTable("table", columns, provider, 8))
 
 
-  add(new AjaxLink("createTeamLink") {
+  add(new AjaxLink("createLadderLink") {
     def onClick(target: AjaxRequestTarget) {
       send(getPage(), Broadcast.BREADTH, new CreateLadderEvent(target));
     }

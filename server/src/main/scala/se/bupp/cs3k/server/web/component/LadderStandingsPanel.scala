@@ -93,9 +93,16 @@ class LadderStandingsPanel(id:String, ladderModel:IModel[Ladder]) extends Panel(
     ((a:RowType) => a._2.map(_.getRenderer.render()(2)).orNull,
       (a:RowType,v:String) => ()
       ))
-
-
   )
 
   add(new NiceDataTable("table", columns, provider, 8))
+
+  add(new AjaxLink("debugTrans") {
+
+    def onClick(p1: AjaxRequestTarget) {
+      var ladder = ladderModel.getObject
+
+      ladderService.startLadder(ladder)
+    }
+  })
 }

@@ -415,7 +415,9 @@ abstract class CompetitionGame {
 }
 
 
+class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qualifier]]) {
 
+}
 
 @Entity
 class QualifierPersistance(_nodeId:Int, _tournament:Tournament, _childNodeIds:List[Int]) extends CompetitionGame {
@@ -439,16 +441,15 @@ class QualifierPersistance(_nodeId:Int, _tournament:Tournament, _childNodeIds:Li
   def this() = this(-1,null,Nil)
 }
 
-
 @Entity
 class LadderGame(_ladder:Ladder) extends CompetitionGame {
-
 
   @ManyToOne(optional = false)
   var ladder:Ladder = _ladder
 
-
   def this() = this(null)
 }
+
+
 
 

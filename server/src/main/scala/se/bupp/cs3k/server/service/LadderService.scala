@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory
 import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, ExCompetitorScore}
 
 
+
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -19,6 +20,41 @@ import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, E
  * Time: 22:11
  * To change this template use File | Settings | File Templates.
  */
+
+object Blabb {
+  case class XY(x:Float,y:Int)
+
+  def yeah = new Yo[XY]( (offsetY, subTreeMaxHeight,stepsToBottom) => XY(offsetY.toFloat - 0.5f + subTreeMaxHeight.toFloat/2f ,stepsToBottom) )
+  class Yo[T]( create:(Float,Int,Int) => T) {
+
+
+    def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
+      val (nodes,cntTot) = q.childrenOpt match {
+        case Some(children) =>
+          val (nodes,cntTot) = children.foldLeft((List[T](),0)) {
+            case ((l,cnt),c) => {
+              val (ll,cntC)= build(c, offsetY + cnt, stepsToBottom - 1)
+              (l ++ ll, math.max(cnt,cntC))
+            }
+          }
+          (nodes,cntTot * 2)
+        case None => (Nil, 0)
+      }
+      var service = new LadderService()
+
+
+      // center about subtree - leaf nodes center about a tree their own size
+      var subTreeMaxHeight = if (cntTot == 0) 1 else cntTot
+      //val thisTreeMaxHeight = service.nearest2Pot(cntTot + 1)
+      //val b = service.log2(subTreeMaxHeight)
+      val n = create(offsetY,subTreeMaxHeight,stepsToBottom)
+
+      println(s"offsetY $offsetY , $n , $stepsToBottom : $subTreeMaxHeight + $cntTot")
+      (nodes :+ n, subTreeMaxHeight )
+    }
+  }
+}
+
 @Service
 class LadderService {
 
@@ -141,4 +177,85 @@ class LadderService {
       }
     }
   }
+
+  def appendLevel(q:Qualifier) {
+    q.childrenOpt match {
+      case Some(children) =>
+        children.foreach( c =>
+          appendLevel(c)
+        )
+        //*var childrenNew = children.map(c => appendLevel(c))
+        //new Qualifier(q.parentOpt, Some(childrenNew))
+      case None =>
+        var children = (0 until 2).map(v => new Qualifier(Some(q),None))
+        q.childrenOpt = Some(children.toList)
+        //new Qualifier(q.parentOpt, children)
+    }
+  }
+
+
+  def addOne(q:Qualifier, levelsLeft:Int) : Boolean = {
+    def doIt = {
+      if (levelsLeft == 0) {
+        val childs= q.childrenOpt.getOrElse(List[Qualifier]())
+        q.childrenOpt = Some(childs :+ new Qualifier(Some(q),None))
+        true
+      } else false
+    }
+
+    q.childrenOpt match {
+      case Some(children @ List(aa,bb)) => children.find( qq => addOne(qq, levelsLeft-1)).isDefined
+      case Some(children @ List(aa)) => doIt
+      case None => doIt
+    }
+  }
+  def nearest2Pot(vv:Int) = {
+    var v = vv - 1 ;
+    v = v | v >> 1;
+    v = v | v >> 2;
+    v = v | v >> 4;
+    v = v | v >> 8;
+    v = v | v >> 16;
+    v + 1
+  }
+  def log2(vv:Int) = {
+    var i = 0 ; var j = vv ; while(j>1) { println(j); j = j >> 1 ; i = i + 1 ; i} ; i
+  }
+  def count(q:Qualifier,cnt:Int = 0) :Int = {
+    q.childrenOpt.map( _.foldLeft(0) { case (t,q) => (t + count(q,cnt)) }).getOrElse(0) + 1
+  }
+
+  def buildATournament(numOfPlayers:Int) = {
+    val numOfCompleteLevels:Int = log2(numOfPlayers)
+    val numOfPlayersMoreThanCompleteLevels:Int = numOfPlayers % (1 << numOfCompleteLevels)
+
+     var allComplete = (1 until numOfCompleteLevels).foldLeft(new Qualifier(None,None)) {
+      case (q, _) => appendLevel(q) ; q
+    }
+    val a = count(allComplete)
+
+    (0 until numOfPlayersMoreThanCompleteLevels).foreach( b => addOne(allComplete,numOfCompleteLevels -1 ))
+    allComplete
+  }
+
+  /*def startTournament(l:Tournament) = {
+    if (l.state == CompetitionState.SIGNUP) {
+      import scala.collection.JavaConversions.asScalaBuffer
+      import scala.collection.JavaConversions.seqAsJavaList
+      val participants = l.participants.map( p => p.id.competitor)
+      val range = 0 until participants.size
+      val combinations = for(a <- range ; b <- range if b > a) yield (a,b)
+      val matches = combinations.map {
+        case (i, j) => (participants(i), participants(j))
+      }
+      matches.foreach {
+        case (i, j) =>
+          val go = new GameOccassion()
+          go.participants = List(i,j).map(p => new GameParticipation(new GameParticipationPk(p,go)))
+          go.game == l.gameSetup
+          go.competitionGame = new LadderGame(l)
+          gameDao.insert(go)
+      }
+    }
+  }*/
 }

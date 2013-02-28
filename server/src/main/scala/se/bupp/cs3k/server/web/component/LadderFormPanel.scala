@@ -33,7 +33,7 @@ class LadderFormPanel(id:String, label:String, ladder:Ladder) extends GenericFor
     var ((gtId,gstId),_) = GameServerRepository.gameServerSetups.head
     ladder.gameSetup = gameSetupDao.findGameSetupType(gtId,gstId).get
 
-    ladder.state = CompetitionState.ANNOUNCED
+    ladder.state = CompetitionState.SIGNUP_CLOSED
     ladder
   }
 

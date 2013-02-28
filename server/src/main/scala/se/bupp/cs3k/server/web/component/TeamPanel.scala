@@ -24,7 +24,7 @@ class TeamPanel(id:String, model:IModel[Team]) extends Panel(id) {
         }
       }),
       ("Members", (cId:String) => new TeamListPanel(cId)),
-      ("Results", (cId:String) => new Label(cId, "results")),
+      ("Results", (cId:String) => new TournamentView(cId)),
       ("Admin", (cId:String) => new Label(cId, "results"))
       )
     )
