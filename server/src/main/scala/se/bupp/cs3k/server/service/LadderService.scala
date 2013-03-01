@@ -23,24 +23,54 @@ import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, E
 
 object Blabb {
   case class XY(x:Float,y:Int)
+  class Yo2[T]( create:(Float,List[Int], Int,Int) => T) {
+
+
+    def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
+      val (nodes,cnts,cntTot) = q.childrenOpt match {
+        case Some(children) =>
+          val (nodes,cntTot) = children.foldLeft((List[T](),List[Int]())) {
+            case ((l,cnts),c) => {
+              val (ll,cntC)= build(c, offsetY + cnts.foldLeft(0)((a,b) => a + b), stepsToBottom - 1)
+              (l ++ ll, cnts :+ cntC)
+            }
+          }
+          (nodes,cntTot, cntTot.foldLeft(0)((a,b) => math.max(a,b)) * 2)
+        case None => (Nil, Nil, 0)
+      }
+      var service = new LadderService()
+
+      //println("cnts" + cnts)
+
+      // center about subtree - leaf nodes center about a tree their own size
+      var subTreeMaxHeight = if (cntTot == 0) 1 else cntTot
+      //val thisTreeMaxHeight = service.nearest2Pot(cntTot + 1)
+      //val b = service.log2(subTreeMaxHeight)
+      val n = create(offsetY,cnts,subTreeMaxHeight, stepsToBottom)
+
+      println(s"offsetY $offsetY , $n , $stepsToBottom : $subTreeMaxHeight + $cntTot")
+      (nodes :+ n, subTreeMaxHeight )
+    }
+  }
 
   def yeah = new Yo[XY]( (offsetY, subTreeMaxHeight,stepsToBottom) => XY(offsetY.toFloat - 0.5f + subTreeMaxHeight.toFloat/2f ,stepsToBottom) )
   class Yo[T]( create:(Float,Int,Int) => T) {
 
 
     def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
-      val (nodes,cntTot) = q.childrenOpt match {
+      val (nodes,cnts,cntTot) = q.childrenOpt match {
         case Some(children) =>
-          val (nodes,cntTot) = children.foldLeft((List[T](),0)) {
-            case ((l,cnt),c) => {
-              val (ll,cntC)= build(c, offsetY + cnt, stepsToBottom - 1)
-              (l ++ ll, math.max(cnt,cntC))
+          val (nodes,cntTot) = children.foldLeft((List[T](),List[Int]())) {
+            case ((l,cnts),c) => {
+              val (ll,cntC)= build(c, offsetY + cnts.foldLeft(0)((a,b) => a + b), stepsToBottom - 1)
+              (l ++ ll, cnts :+ cntC)
             }
           }
-          (nodes,cntTot * 2)
-        case None => (Nil, 0)
+          (nodes,cntTot, cntTot.foldLeft(0)((a,b) => math.max(a,b)) * 2)
+        case None => (Nil, Nil, 0)
       }
       var service = new LadderService()
+
 
 
       // center about subtree - leaf nodes center about a tree their own size

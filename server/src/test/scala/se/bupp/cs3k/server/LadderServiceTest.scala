@@ -7,6 +7,11 @@ import java.net.URL
 import service.Blabb.XY
 import service.{Blabb, LadderService}
 import web.component.TournamentQualifier.Alles
+import org.apache.wicket.util.tester.WicketTester
+
+import java.io.PrintWriter
+import org.apache.wicket.model.Model
+import web.component.TournamentView
 
 /**
  * Created with IntelliJ IDEA.
@@ -53,6 +58,18 @@ class LadderServiceTest extends Specification {
 
     }
 
+    "bupps1" in {
+      var ls = new LadderService()
+
+      val qa = ls.buildATournament(8)
+
+      var res = Blabb.yeah.build(qa, 0, 3)
+      res._1 must haveTheSameElementsAs(List(XY(0.0f,0), XY(1.0f,0), XY(0.5f,1), XY(2.0f,1), XY(1.5f,2), XY(4.0f,1), XY(5.0f,1), XY(4.5f,2), XY(3.5f,3)))
+
+
+
+    }
+
     "bupps2" in {
       var ls = new LadderService()
 
@@ -67,6 +84,22 @@ class LadderServiceTest extends Specification {
       )
       yo.build(qa,10f,3)
       1 === 2
+    }
+  }
+
+  "asdfasdfasdf" should {
+    "asdfasdf" in {
+      val wt = new WicketTester()
+      wt.getApplication.getMarkupSettings.setStripWicketTags(true)
+      (3 until 50 by 3).foreach { case i =>
+        var view = new TournamentView("bupp", new Model(i))
+        view.ladderService = new LadderService
+        wt.startComponentInPage(view)
+        Some(new PrintWriter(s"/tmp/example$i.html")).foreach{p => p.write(wt.getLastResponseAsString); p.close}
+        //import sys.process._
+        //() #> new java.io.File("/tmp/example.html") !
+      }
+      1 === 1
     }
   }
 

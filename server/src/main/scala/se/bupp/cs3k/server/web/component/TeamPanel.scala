@@ -2,7 +2,7 @@ package se.bupp.cs3k.server.web.component
 
 import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
-import org.apache.wicket.model.IModel
+import org.apache.wicket.model.{Model, IModel}
 import se.bupp.cs3k.server.model.Team
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
@@ -24,7 +24,7 @@ class TeamPanel(id:String, model:IModel[Team]) extends Panel(id) {
         }
       }),
       ("Members", (cId:String) => new TeamListPanel(cId)),
-      ("Results", (cId:String) => new TournamentView(cId)),
+      ("Results", (cId:String) => new TournamentView(cId, new Model(new Integer(10)))),
       ("Admin", (cId:String) => new Label(cId, "results"))
       )
     )

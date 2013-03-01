@@ -31,10 +31,10 @@ class TournamentQualifier(id:String, model:IModel[TournamentQualifier.Alles]) ex
   val textId2 = "text2_" + id
   val pathId= "path_" + id
 
-  val topBox = m.top + topTextAreaHeight + lineToTextMargin
-  val heightBox = m.height - topTextAreaHeight - lineToTextMargin
-  val text2y = m.top + (m.height - lineToTextMargin)
+  val topBox = m.top //+ topTextAreaHeight + lineToTextMargin
+  val heightBox = m.height // - topTextAreaHeight - lineToTextMargin
   val text1y = m.top + topTextAreaHeight
+  val text2y = m.top + (m.height - lineToTextMargin)
   override def onComponentTagBody(markupStream: MarkupStream, openTag: ComponentTag) {
     //super.onComponentTagBody(markupStream, openTag)
     var stream = getResponse()//.getOutputStream()
