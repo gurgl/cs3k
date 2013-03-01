@@ -91,14 +91,15 @@ class LadderServiceTest extends Specification {
     "asdfasdf" in {
       val wt = new WicketTester()
       wt.getApplication.getMarkupSettings.setStripWicketTags(true)
-      (3 until 50 by 3).foreach { case i =>
-        var view = new TournamentView("bupp", new Model(i))
+      //(1 until 50 by 1).foreach { case i =>
+      val i = 31
+      var view = new TournamentView("bupp", new Model(i))
         view.ladderService = new LadderService
         wt.startComponentInPage(view)
         Some(new PrintWriter(s"/tmp/example$i.html")).foreach{p => p.write(wt.getLastResponseAsString); p.close}
         //import sys.process._
         //() #> new java.io.File("/tmp/example.html") !
-      }
+      //}
       1 === 1
     }
   }

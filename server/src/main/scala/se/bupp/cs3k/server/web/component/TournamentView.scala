@@ -23,37 +23,16 @@ class TournamentView(id:String, mod:IModel[Integer]) extends Panel(id) {
   @SpringBean
   var ladderService:LadderService = _
 
-
-
-  /*def build(q:Qualifier, stepsToBottom:Int) : List[Alles] = {
-    q.childrenOpt match {
-      case Some(children) =>
-      case None =>
-    }
-    */
-
-
-  /*def createTournament() : List = {
-    var tournament = ladderService.buildATournament(10)
-
-
-    tournament
-  }*/
-
   var buffa:ListModel[Alles] = new ListModel[Alles]()
 
   override def onBeforeRender() {
+    var numOfPlayers = mod.getObject
+    val yMod = 70
+    val screenOffsetY  = 20
+    var i = 0
 
-    {
-      var numOfPlayers = mod.getObject
-    val yMod = 50
-    val screenOffset  = 100
-      var i = 0
     val yo = new Blabb.Yo2[Alles](
-
-
       (offsetY, subTreesHeights,subTreeHeight,  stepsToBottom) => {
-
         def bupp(height:Float) = {
           yMod * (offsetY.toFloat  + (subTreeHeight.toFloat /2f + height /2f) )
         }
@@ -65,25 +44,22 @@ class TournamentView(id:String, mod:IModel[Integer]) extends Panel(id) {
           case x :: Nil => (bupp(-x),bupp(0.5f))
           case Nil => (bupp(-0.5f),bupp(0.5f))
         }
-        i = i +1
-        println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
-        new Alles(subTreesHeights.lift(0).toString,subTreesHeights.lift(1).toString, 1234, stepsToBottom * 100 ,screenOffset +  top, 100, math.abs(top-bot))
+        //i = i +1
+        //println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
+        new Alles(subTreesHeights.lift(0).toString,subTreesHeights.lift(1).toString, 1234, stepsToBottom * 100 ,screenOffsetY +  top, 100, math.abs(top-bot))
       }
     )
 
-      val numOfCompleteLevels:Int = ladderService.log2(numOfPlayers)
-      val numOfPlayersMoreThanCompleteLevels:Int = numOfPlayers % (1 << numOfCompleteLevels)
-      val numOfLevels = numOfCompleteLevels + (if(numOfPlayersMoreThanCompleteLevels > 0) 1 else 0)
+    val numOfCompleteLevels:Int = ladderService.log2(numOfPlayers)
+    val numOfPlayersMoreThanCompleteLevels:Int = numOfPlayers % (1 << numOfCompleteLevels)
+    val numOfLevels = numOfCompleteLevels + (if(numOfPlayersMoreThanCompleteLevels > 0) 1 else 0) -1
 
     val qa = ladderService.buildATournament(numOfPlayers)
     var listn = yo.build(qa, 0.0f, numOfLevels)._1
     import scala.collection.JavaConversions.seqAsJavaList
 
 
-      buffa.setObject(listn)
-  }
-
-
+    buffa.setObject(listn)
     super.onBeforeRender()
   }
 
