@@ -142,14 +142,14 @@ class LadderService {
   @Transactional
   def storeLadderMember(u:Competitor, t:Ladder) = {
 
-    val pk = new LadderEnrollmentPk
+    val pk = new CompetitionParticipantPk
 
 
 
     pk.competitor = ladderDao.em.merge(u)
-    pk.ladder = ladderDao.em.merge(t)
+    pk.competition = ladderDao.em.merge(t)
 
-    val tm = new LadderEnrollment
+    val tm = new CompetitionParticipant
 
     tm.id = pk
 
@@ -159,11 +159,11 @@ class LadderService {
   @Transactional
   def leaveLadder(u:Competitor, t:Ladder) = {
 
-    val pk = new LadderEnrollmentPk
+    val pk = new CompetitionParticipantPk
     pk.competitor = ladderDao.em.merge(u)
-    pk.ladder = ladderDao.em.merge(t)
+    pk.competition = ladderDao.em.merge(t)
 
-    val tm = ladderDao.em.find(classOf[LadderEnrollment],pk)
+    val tm = ladderDao.em.find(classOf[CompetitionParticipant],pk)
 
     ladderDao.em.remove(tm)
   }

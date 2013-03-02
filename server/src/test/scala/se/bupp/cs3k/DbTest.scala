@@ -1,6 +1,6 @@
 package se.bupp.cs3k
 
-import model.CompetitionState
+import model.{CompetitorType, CompetitionState}
 import org.specs2.mutable.Specification
 import com.fasterxml.jackson.databind.ObjectMapper
 
@@ -13,9 +13,9 @@ import server.model.GameParticipationPk
 import server.model.Ladder
 import server.model.Ladder
 import server.model.Ladder
-import server.model.LadderEnrollmentPk
-import server.model.LadderEnrollmentPk
-import server.model.LadderEnrollmentPk
+import server.model.CompetitionParticipantPk
+import server.model.CompetitionParticipantPk
+import server.model.CompetitionParticipantPk
 import server.model.User
 import server.model.User
 import server.model.User
@@ -120,10 +120,7 @@ class DbTest extends Specification {
             compDao.em.persist(gst)
           }
 
-          val ladder = new Ladder()
-          ladder.name = "ladder1"
-          ladder.gameSetup = gst
-          ladder.state = CompetitionState.SIGNUP
+          val ladder = new Ladder("ladder1",CompetitorType.TEAM,gst,CompetitionState.SIGNUP)
 
           inTx(txMgr) {
             compDao.em.persist(ladder)
@@ -134,11 +131,11 @@ class DbTest extends Specification {
           ladder.id must not be(null)
 
 
-          var pk: LadderEnrollmentPk = new LadderEnrollmentPk()
-          pk.ladder = ladder
+          val pk: CompetitionParticipantPk = new CompetitionParticipantPk()
+          pk.competition = ladder
           pk.competitor = comp
 
-          var enrollment: LadderEnrollment = new LadderEnrollment()
+          val enrollment: CompetitionParticipant = new CompetitionParticipant()
           enrollment.id = pk
           inTx(txMgr) {
             compDao.em.persist(enrollment)
@@ -146,7 +143,7 @@ class DbTest extends Specification {
           //txMgr.commit(txMgr.getTransaction(new DefaultTransactionDefinition()))
           enrollment.id must not be(null)
 
-          var q: TypedQuery[LadderEnrollment] = compDao.em.createQuery("select le from LadderEnrollment le where le.id.ladder = :l and le.id.competitor = :c", classOf[LadderEnrollment])
+          var q: TypedQuery[CompetitionParticipant] = compDao.em.createQuery("select le from CompetitionParticipant le where le.id.competition = :l and le.id.competitor = :c", classOf[CompetitionParticipant])
           q.setParameter("l", ladder)
           q.setParameter("c", comp)
           q.getSingleResult must not be(null)
@@ -167,11 +164,11 @@ class DbTest extends Specification {
 
       withTx {
         case (txMgr, factory) => {
-          var gameOccasionDao = factory.getBean("gameOccassionDao").asInstanceOf[GameOccassionDao]
-          var userDao = factory.getBean("userDao").asInstanceOf[UserDao]
+          var gameOccasionDao = factory.getBean(classOf[GameOccassionDao])
+          var userDao = factory.getBean(classOf[UserDao])
           var gameSetupDao = factory.getBean(classOf[GameSetupTypeDao])
 
-          val gs = new GameType('super_mario, "Super Mario")
+          val gs = new GameType('super_mario3, "Super Mario")
           val gst = new GameSetupType(Symbol("1vs1"), "Versus Mode",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
@@ -234,15 +231,25 @@ class DbTest extends Specification {
       withTx {
         case (txMgr, factory) => {
           var tournamentDao = factory.getBean(classOf[TournamentDao])
+          var gameSetupDao = factory.getBean(classOf[GameSetupTypeDao])
 
+          val gs = new GameType('super_mario, "Super Mario")
+          val gst = new GameSetupType(Symbol("1vs1"), "Versus Mode",
+            "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
+            "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
+          gst.gameType = gs
+          inTx(txMgr) {
+            gameSetupDao.em.persist(gs)
+            gameSetupDao.em.persist(gst)
+          }
 
-          var tournament = new Tournament()
+          val tournament = new Tournament("ladder1",CompetitorType.TEAM,gst,CompetitionState.SIGNUP)
 
           import scala.collection.JavaConversions.seqAsJavaList
           import scala.collection.JavaConversions.asScalaBuffer
-          val q1 = new QualifierPersistance(1,tournament,List(2,3))
-          val q2 = new QualifierPersistance(2,tournament,List())
-          val q3 = new QualifierPersistance(3,tournament,List())
+          val q1 = new TournamentStageQualifier(1,tournament,List(2,3))
+          val q2 = new TournamentStageQualifier(2,tournament,List())
+          val q3 = new TournamentStageQualifier(3,tournament,List())
 
           tournament.structure = List(q1,q2,q3)
 

@@ -115,29 +115,12 @@ class LadderScheme(
 @NamedQueries(Array(
 
 ))
-case class Ladder() extends Serializable with Same[JLLong] {
-  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
-
-  var name:String = _
-
-  //@Type(`type` = "se.bupp.cs3k.server.model.CompetitorType")
-  @Enumerated(EnumType.ORDINAL)
-  var competitorType:CompetitorType= _
-
-  @OneToMany(mappedBy = "id.ladder")
-  var participants:JUList[LadderEnrollment] =  new JUArrayList[LadderEnrollment]()
-
-  @ManyToOne(optional = false)
-  var gameSetup:GameSetupType = _
-
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  var state:CompetitionState = _
-
+class Ladder(_name:String,_competitorType:CompetitorType, _gameSetup:GameSetupType, _state:CompetitionState) extends Competition(_name,_competitorType, _gameSetup, _state) with Serializable with Same[JLLong] {
 
   @OneToMany(mappedBy = "ladder")
   var games:JUList[LadderGame] =  new JUArrayList[LadderGame]()
 
+  def this() = this(null,null,null,null)
   /*
   override def hashCode(): Int = Util._hashCode(Ladder.this);
 
@@ -155,21 +138,21 @@ case class TeamRef(val id:TeamId) extends AbstractTeamRef
 case class VirtualTeamRef(val virtaulTeamId:Long, val name:Option[String]) extends AbstractTeamRef
 
 @Embeddable
-case class LadderEnrollmentPk() extends Serializable{
+case class CompetitionParticipantPk() extends Serializable{
 
   @ManyToOne
   var competitor:Competitor = _
 
   @ManyToOne
-  var ladder:Ladder = _
+  var competition:Competition = _
 
 }
 
 @Entity
-class LadderEnrollment {
+class CompetitionParticipant {
 
   @Id
-  var id:LadderEnrollmentPk = _
+  var id:CompetitionParticipantPk = _
 
   var accumulatedResultSerializedVersion: Int = _
   var accumulatedResultSerialized: String = _
@@ -199,14 +182,9 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
   //@Id @GeneratedValue(strategy=GenerationType.AUTO) var id:java.lang.Long = _
   def this() = this(null)
 
-
-
   @OneToMany(mappedBy = "id.team")
   var members:JUList[TeamMember] =  new JUArrayList[TeamMember]()
 
-  /*@OneToOne
-  @JoinColumn(name = "COMPETITOR_ID", referencedColumnName = "ID")
-  var competitor:Competitor = _*/
 }
 
 
@@ -396,11 +374,36 @@ case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameP
 }
 
 @Entity
-class Tournament {
+@Inheritance(strategy=InheritanceType.JOINED)
+class Competition(_name:String,_competitorType:CompetitorType, _gameSetup:GameSetupType, _state:CompetitionState) extends Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
+  var name:String = _name
+
+  //@Type(`type` = "se.bupp.cs3k.server.model.CompetitorType")
+  @Enumerated(EnumType.ORDINAL)
+  val competitorType:CompetitorType= _competitorType
+
+  @OneToMany(mappedBy = "id.competition")
+  var participants:JUList[CompetitionParticipant] =  new JUArrayList[CompetitionParticipant]()
+
+  @ManyToOne(optional = false)
+  val gameSetup:GameSetupType = _gameSetup
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  var state:CompetitionState = _state
+
+  def this() = this(null,null,null,null)
+}
+
+@Entity
+class Tournament(_name:String,_competitorType:CompetitorType, _gameSetup:GameSetupType, _state:CompetitionState) extends Competition(_name,_competitorType, _gameSetup, _state) {
+
   @OneToMany(mappedBy = "tournament",cascade = Array(CascadeType.ALL))
-  var structure:util.List[QualifierPersistance] = new util.ArrayList[QualifierPersistance]()
+  var structure:util.List[TournamentStageQualifier] = new util.ArrayList[TournamentStageQualifier]()
+
+  def this() = this(null,null,null,null)
 }
 
 
@@ -420,7 +423,7 @@ class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qua
 }
 
 @Entity
-class QualifierPersistance(_nodeId:Int, _tournament:Tournament, _childNodeIds:List[Int]) extends CompetitionGame {
+class TournamentStageQualifier(_nodeId:Int, _tournament:Tournament, _childNodeIds:List[Int]) extends CompetitionGame {
   //@Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   var nodeId:Int = _nodeId

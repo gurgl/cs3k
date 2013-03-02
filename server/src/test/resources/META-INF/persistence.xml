@@ -6,14 +6,17 @@
     <persistence-unit name="MyPersistenceUnit" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         <class>se.bupp.cs3k.server.model.Competitor</class>
+        <class>se.bupp.cs3k.server.model.CompetitionParticipant</class>
+        <class>se.bupp.cs3k.server.model.CompetitionParticipantPk</class>
+
+        <class>se.bupp.cs3k.server.model.Competition</class>
         <class>se.bupp.cs3k.server.model.Ladder</class>
-        <class>se.bupp.cs3k.server.model.LadderEnrollment</class>
-        <class>se.bupp.cs3k.server.model.LadderEnrollmentPk</class>
         <class>se.bupp.cs3k.server.model.Tournament</class>
-        <class>se.bupp.cs3k.server.model.QualifierPersistance</class>
+
+
+        <class>se.bupp.cs3k.server.model.TournamentStageQualifier</class>
         <class>se.bupp.cs3k.server.model.LadderGame</class>
         <class>se.bupp.cs3k.server.model.CompetitionGame</class>
-
         <class>se.bupp.cs3k.server.model.User</class>
         <class>se.bupp.cs3k.server.model.Team</class>
         <class>se.bupp.cs3k.server.model.TeamMember</class>

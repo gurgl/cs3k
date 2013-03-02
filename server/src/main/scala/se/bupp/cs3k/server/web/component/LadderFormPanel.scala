@@ -29,18 +29,20 @@ class LadderFormPanel(id:String, label:String, ladder:Ladder) extends GenericFor
 
 
   def createNew() = {
-    var ladder = new Ladder()
-    var ((gtId,gstId),_) = GameServerRepository.gameServerSetups.head
-    ladder.gameSetup = gameSetupDao.findGameSetupType(gtId,gstId).get
 
-    ladder.state = CompetitionState.SIGNUP_CLOSED
+    val ((gtId,gstId),_) = GameServerRepository.gameServerSetups.head
+    val setupType = gameSetupDao.findGameSetupType(gtId, gstId).get
+
+    val ladder = new Ladder("",CompetitorType.TEAM, setupType,CompetitionState.SIGNUP_CLOSED)
+
+
     ladder
   }
 
   def populateFields(f: Form[Ladder]) {
 
     import scala.collection.JavaConversions.seqAsJavaList
-    var choice: DropDownChoice[CompetitorType] = new DropDownChoice[CompetitorType]("competitorType", util.Arrays.asList(CompetitorType.values():_*))
+    val choice: DropDownChoice[CompetitorType] = new DropDownChoice[CompetitorType]("competitorType", util.Arrays.asList(CompetitorType.values():_*))
     f.add(choice.setRequired(true))
     f.add(new TextField("name"))
   }
