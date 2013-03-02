@@ -27,7 +27,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
  * Time: 21:18
  * To change this template use File | Settings | File Templates.
  */
-class LadderListPanel(id:String) extends Panel(id) {
+class CompetitionListPanel(id:String) extends Panel(id) {
 
   @SpringBean
   var ladderDao:LadderDao = _
@@ -58,6 +58,7 @@ class LadderListPanel(id:String) extends Panel(id) {
       }
     },
     new PropertyColumn(new Model("Setup"),"gameSetup.name"),
+    new PropertyColumn(new Model("State"),"state"),
     new PropertyColumn(new Model("State"),"state"),
     new PropertyColumn(new Model("Participants"),"name"),
     new PropertyColumn(new Model("Left"),"name")

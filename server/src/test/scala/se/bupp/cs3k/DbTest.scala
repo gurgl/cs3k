@@ -41,6 +41,7 @@ import server.service.LadderService
 @RunWith(classOf[JUnitRunner])
 class DbTest extends Specification {
 
+  sequential
 
   def inTx[G](txMgr:PlatformTransactionManager)(body : => G) = {
     new TransactionTemplate(txMgr).execute(new TransactionCallbackWithoutResult {
@@ -54,7 +55,7 @@ class DbTest extends Specification {
     val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
     val factory =  appContext.asInstanceOf[BeanFactory];
 
-    //val emf = factory.getBean(classOf[EntityManagerFactory])
+    val emf = factory.getBean(classOf[EntityManagerFactory])
     //var em = emf.createEntityManager()
     var txMgr = factory.getBean("transactionManager", classOf[JpaTransactionManager])
     //val tdef = new DefaultTransactionDefinition();
@@ -62,8 +63,11 @@ class DbTest extends Specification {
 
     val res = body(txMgr, factory)
     //em.close()
-    //emf.close()
+    emf.close()
+
     appContext.close()
+    appContext.destroy()
+
     res
   }
 
@@ -168,15 +172,20 @@ class DbTest extends Specification {
           var userDao = factory.getBean(classOf[UserDao])
           var gameSetupDao = factory.getBean(classOf[GameSetupTypeDao])
 
-          val gs = new GameType('super_mario3, "Super Mario")
+
+          val gs = new GameType('super_mario, "Super Mario")
           val gst = new GameSetupType(Symbol("1vs1"), "Versus Mode",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
             "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")
           gst.gameType = gs
+
+          gameSetupDao.findAll.size === 0
           inTx(txMgr) {
             userDao.em.persist(gs)
             userDao.em.persist(gst)
           }
+          gameSetupDao.findAll.size === 1
+
 
           var gameType = gameSetupDao.findGameType('super_mario)
           gameType must beAnInstanceOf[Some[GameType]]

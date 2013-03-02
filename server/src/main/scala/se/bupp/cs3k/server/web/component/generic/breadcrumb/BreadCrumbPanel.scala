@@ -9,7 +9,7 @@ import org.apache.wicket.Component
 import org.apache.wicket.markup.html.WebMarkupContainer
 import org.apache.wicket.event.IEvent
 import se.bupp.cs3k.server.model.Ladder
-import se.bupp.cs3k.server.web.component.LadderListPanel
+import se.bupp.cs3k.server.web.component.CompetitionListPanel
 import org.apache.wicket.markup.html.panel.Panel
 
 /**

@@ -10,6 +10,8 @@ import org.apache.wicket.markup.html.panel.{Panel, FeedbackPanel}
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
 import org.slf4j.LoggerFactory
 import org.apache.wicket.markup.html.basic.Label
+import org.apache.wicket.application.IComponentInstantiationListener
+import org.apache.wicket.Component
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,6 +36,15 @@ abstract class GenericFormPanel[T](id:String, label:String, var ladder:T) extend
   def populateFields(f:Form[T])
   def save(s:T)
 
+  def subClassBeforeRender() {
+
+  }
+
+  override def onBeforeRender() {
+    subClassBeforeRender
+    super.onBeforeRender()
+  }
+
   class GenericForm extends Form[T]("theform") {
 
     @SpringBean
@@ -46,11 +57,10 @@ abstract class GenericFormPanel[T](id:String, label:String, var ladder:T) extend
       ladder = createNew
     }
 
+
     setDefaultModel(new CompoundPropertyModel(ladder))
 
     populateFields(GenericForm.this)
-
-
 
     val link = new AjaxSubmitLink("submit") {
       override def onSubmit(target: AjaxRequestTarget, form: Form[_]) {
@@ -66,9 +76,9 @@ abstract class GenericFormPanel[T](id:String, label:String, var ladder:T) extend
 
         info("Saved" )
 
-        log.debug(ladderDao.findAll.mkString(","))
+        //log.debug(ladderDao.findAll.mkString(","))
 
-        log.debug(ladderDao.count.toString)
+        //log.debug(ladderDao.count.toString)
         target.add(GenericForm.this)
       }
     }

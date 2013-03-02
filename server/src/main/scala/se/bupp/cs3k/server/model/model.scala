@@ -340,6 +340,7 @@ class GameSetupType(var setupId:GameProcessTemplateId, val name:String, val cont
 
 
   def this() = this(null,null,null,null)
+
 }
 
 case class NonPersisentGameOccassion(val gameSessionId:JLLong) extends AbstractGameOccassion {
