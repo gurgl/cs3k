@@ -54,7 +54,7 @@ object TournamentQualifier {
     val numOfPlayersMoreThanCompleteLevels: Int = numOfPlayers % (1 << numOfCompleteLevels)
     val numOfLevels = numOfCompleteLevels + (if (numOfPlayersMoreThanCompleteLevels > 0) 1 else 0) - 1
 
-    val qa = TournamentHelper.createTournamentStructure(numOfPlayers)
+    val qa = TournamentHelper.indexedToSimple(TournamentHelper.index(TournamentHelper.createTournamentStructure(numOfPlayers)))
     var listn = yo.build(qa, 0.0f, numOfLevels)._1
     listn
   }

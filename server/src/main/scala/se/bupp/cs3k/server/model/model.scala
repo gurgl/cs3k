@@ -424,29 +424,27 @@ trait CanHaveChildren {
 }
 case class IndexedQualifier(var parentOpt:Option[IndexedQualifier], var childrenOpt:Option[List[IndexedQualifier]], var idx:Int)
 
-case class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qualifier]]) extends CanHaveChildren {}
+case class QualifierWithParentReference(var parentOpt:Option[QualifierWithParentReference], var childrenOpt:Option[List[QualifierWithParentReference]]) extends CanHaveChildren {}
 
-case class QualifierSimple(val nodeId:Int, var childrenOpt:Option[List[QualifierSimple]], var parentOpt:Option[Int]) extends CanHaveChildren {
-  /*
-  def childrenOpt:Option[List[CanHaveChildren]] = children match  {
+case class Qualifier(val nodeId:Int, var children:List[Qualifier], var parentOpt:Option[Int]) {
+/*
+  override def childrenOpt:Option[List[CanHaveChildren]] = children match  {
     case Nil => None
     case list => Some(list)
-  }
+  }*/
+}
 
-}
-   */
-}
 /*
 
 trait CanHaveChildren {
-  def childrenOpt:Option[List[Qualifier]]
+  def childrenOpt:Option[List[QualifierWithParentReference]]
 }
 
-case class QualifierSimple(var childrenOpt:Option[List[Qualifier]]) extends CanHaveChildren {
+case class Qualifier(var childrenOpt:Option[List[QualifierWithParentReference]]) extends CanHaveChildren {
 
 }
 
-case class QualifierWithIdx(val nodeId:Int, var childrenOpt:Option[List[Qualifier]], parentOpt:Option[Int]) extends CanHaveChildren {
+case class QualifierWithIdx(val nodeId:Int, var childrenOpt:Option[List[QualifierWithParentReference]], parentOpt:Option[Int]) extends CanHaveChildren {
 
 }*/
 

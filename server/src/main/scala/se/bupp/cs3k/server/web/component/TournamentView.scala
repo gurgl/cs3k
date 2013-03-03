@@ -7,7 +7,7 @@ import org.apache.wicket.model.{IModel, Model}
 import se.bupp.cs3k.server.web.component.TournamentQualifier.TwoGameQualifierPositionAndSize
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{TournamentHelper, CompetitionService}
-import se.bupp.cs3k.server.model.Qualifier
+import se.bupp.cs3k.server.model.QualifierWithParentReference
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.model.util.ListModel
 

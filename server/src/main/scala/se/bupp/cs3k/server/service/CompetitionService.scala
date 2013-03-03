@@ -31,9 +31,10 @@ object TournamentHelper {
   class ArmHeightVisualizer[T]( create:(Float,List[Int], Int,Int) => T) {
 
 
-    def build(q:CanHaveChildren,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
-      val (nodes,cnts,cntTot) = q.childrenOpt match {
-        case Some(children) =>
+    def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
+      val (nodes,cnts,cntTot) = q.children match {
+        case Nil => (Nil, Nil, 0)
+        case children =>
           val (nodes,cntTot) = children.foldLeft((List[T](),List[Int]())) {
             case ((l,cnts),c) => {
               val (ll,cntC)= build(c, offsetY + cnts.foldLeft(0)((a,b) => a + b), stepsToBottom - 1)
@@ -41,11 +42,11 @@ object TournamentHelper {
             }
           }
           (nodes,cntTot, cntTot.foldLeft(0)((a,b) => math.max(a,b)) * 2)
-        case None => (Nil, Nil, 0)
+
       }
 
       // center about subtree - leaf nodes center about a tree their own size
-      var subTreeMaxHeight = if (cntTot == 0) 1 else cntTot
+      val subTreeMaxHeight = if (cntTot == 0) 1 else cntTot
       val n = create(offsetY,cnts,subTreeMaxHeight, stepsToBottom)
 
       println(s"offsetY $offsetY , $n , $stepsToBottom : $subTreeMaxHeight + $cntTot")
@@ -54,27 +55,27 @@ object TournamentHelper {
   }
 
 
-  def appendLevel(q:Qualifier) {
+  def appendLevel(q:QualifierWithParentReference) {
     q.childrenOpt match {
       case Some(children) =>
         children.foreach( c =>
           appendLevel(c)
         )
       //*var childrenNew = children.map(c => appendLevel(c))
-      //new Qualifier(q.parentOpt, Some(childrenNew))
+      //new QualifierWithParentReference(q.parentOpt, Some(childrenNew))
       case None =>
-        var children = (0 until 2).map(v => new Qualifier(Some(q),None))
+        var children = (0 until 2).map(v => new QualifierWithParentReference(Some(q),None))
         q.childrenOpt = Some(children.toList)
-      //new Qualifier(q.parentOpt, children)
+      //new QualifierWithParentReference(q.parentOpt, children)
     }
   }
 
 
-  def addOne(q:Qualifier, levelsLeft:Int) : Boolean = {
+  def addOne(q:QualifierWithParentReference, levelsLeft:Int) : Boolean = {
     def doIt = {
       if (levelsLeft == 0) {
-        val childs= q.childrenOpt.getOrElse(List[Qualifier]())
-        q.childrenOpt = Some(childs :+ new Qualifier(Some(q),None))
+        val childs= q.childrenOpt.getOrElse(List[QualifierWithParentReference]())
+        q.childrenOpt = Some(childs :+ new QualifierWithParentReference(Some(q),None))
         true
       } else false
     }
@@ -97,11 +98,11 @@ object TournamentHelper {
   def log2(vv:Int) = {
     var i = 0 ; var j = vv ; while(j>1) { println(j); j = j >> 1 ; i = i + 1 ; i} ; i
   }
-  def count(q:Qualifier,cnt:Int = 0) :Int = {
+  def count(q:QualifierWithParentReference,cnt:Int = 0) :Int = {
     q.childrenOpt.map( _.foldLeft(0) { case (t,q) => (t + count(q,cnt)) }).getOrElse(0) + 1
   }
 
-  def index(q:Qualifier,idxSeq:Int = 0) : IndexedQualifier = {
+  def index(q:QualifierWithParentReference,idxSeq:Int = 0) : IndexedQualifier = {
 
     var curIdx = idxSeq
     val newC = q.childrenOpt match {
@@ -121,24 +122,24 @@ object TournamentHelper {
     n
   }
 
-  def indexedToSimple(i:IndexedQualifier,parentId:Option[Int] = None) : QualifierSimple = {
+  def indexedToSimple(i:IndexedQualifier,parentId:Option[Int] = None) : Qualifier = {
     val newC = i.childrenOpt match {
       case Some(cs) =>
         val ncs = cs.map { c =>
           val n = indexedToSimple(c,Some(i.idx))
           n
         }
-        Some(ncs)
-      case None => None
+        ncs
+      case None => Nil
     }
-    QualifierSimple(i.idx, newC, parentId)
+    Qualifier(i.idx, newC, parentId)
   }
 
   def createTournamentStructure(numOfPlayers:Int) = {
     val numOfCompleteLevels:Int = log2(numOfPlayers)
     val numOfPlayersMoreThanCompleteLevels:Int = numOfPlayers % (1 << numOfCompleteLevels)
 
-    var allComplete = (1 until numOfCompleteLevels).foldLeft(new Qualifier(None,None)) {
+    var allComplete = (1 until numOfCompleteLevels).foldLeft(new QualifierWithParentReference(None,None)) {
       case (q, _) => appendLevel(q) ; q
     }
     val a = count(allComplete)
@@ -168,22 +169,22 @@ object TournamentHelper {
     }
   }
 
-  def fromPersistedToQualifierTree(l:List[TournamentStageQualifier]) : QualifierSimple = {
-    var mapped = l.map(i => (i.nodeId, new QualifierSimple(i.nodeId,None,None))).toMap
+  def fromPersistedToQualifierTree(l:List[TournamentStageQualifier]) : Qualifier = {
+    var mapped = l.map(i => (i.nodeId, new Qualifier(i.nodeId,Nil,None))).toMap
 
     l.foreach { case n:TournamentStageQualifier =>
       n.childNodeIds match {
         case Nil =>
         case list =>
-          var q = mapped(n.nodeId)
-          var chls = list.map {
+          val q = mapped(n.nodeId)
+          val chls = list.map {
             x =>
               val m = mapped(x)
               m.parentOpt = Some(n.nodeId)
               m
           }
 
-          q.childrenOpt = Some(chls)
+          q.children = chls
 
       }
     }
@@ -198,7 +199,7 @@ object TournamentHelper {
   class PositionOnlyVisualizer[T]( create:(Float,Int,Int) => T) {
 
 
-    def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
+    def build(q:QualifierWithParentReference,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
       val (nodes,cnts,cntTot) = q.childrenOpt match {
         case Some(children) =>
           val (nodes,cntTot) = children.foldLeft((List[T](),List[Int]())) {
@@ -257,7 +258,7 @@ class CompetitionService {
   }
 
   @Transactional
-  def getTournamentQualifierStructure(t:Tournament) : QualifierSimple = {
+  def getTournamentQualifierStructure(t:Tournament) : Qualifier = {
     var tournament = ladderDao.em.merge(t)
     import scala.collection.JavaConversions.asScalaBuffer
     val tree = TournamentHelper.fromPersistedToQualifierTree(tournament.structure.toList)

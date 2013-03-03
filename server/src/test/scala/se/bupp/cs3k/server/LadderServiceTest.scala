@@ -37,7 +37,7 @@ class LadderServiceTest extends Specification {
   sequential
 
 
-  trait PreSt {
+  trait TestDataGameSetup {
     self:InApplicationContext =>
 
     val gs = new GameType('super_mario2, "Super Mario")
@@ -174,7 +174,7 @@ class LadderServiceTest extends Specification {
   }
 
   "build qualfiier structure" should {
-    "asdf" in new InApplicationContext with PreSt {
+    "serialize and deserialize tournament structure in a readable format into database" in new InApplicationContext with TestDataGameSetup {
 
       var competitionDao = factory.getBean(classOf[CompetitionDao])
       var competitionService = factory.getBean(classOf[CompetitionService])
@@ -225,7 +225,19 @@ class LadderServiceTest extends Specification {
       /*doInTx {
         tree = TournamentHelper.fromPersistedToQualifierTree(persistedStructure.toList)
       }*/
-      tree === QualifierSimple(9,Some(List(QualifierSimple(5,Some(List(QualifierSimple(3,Some(List(QualifierSimple(1,None,Some(3)), QualifierSimple(2,None,Some(3)))),Some(5)), QualifierSimple(4,None,Some(5)))),Some(9)), QualifierSimple(8,Some(List(QualifierSimple(6,None,Some(8)), QualifierSimple(7,None,Some(8)))),Some(9)))),None)
+      tree === Qualifier(9,List(
+        Qualifier(5,List(
+          Qualifier(3,List(
+            Qualifier(1,Nil,Some(3)),
+            Qualifier(2,Nil,Some(3))
+          ),Some(5)),
+          Qualifier(4,Nil,Some(5))
+        ),Some(9)),
+        Qualifier(8,List(
+          Qualifier(6,Nil,Some(8)),
+          Qualifier(7,Nil,Some(8))
+        ),Some(9))
+      ),None)
       TournamentHelper.indexedToSimple(indexed) === tree
 
       println(tree)
