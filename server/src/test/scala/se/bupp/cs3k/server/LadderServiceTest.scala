@@ -225,6 +225,7 @@ class LadderServiceTest extends Specification {
       /*doInTx {
         tree = TournamentHelper.fromPersistedToQualifierTree(persistedStructure.toList)
       }*/
+      tree === QualifierSimple(9,Some(List(QualifierSimple(5,Some(List(QualifierSimple(3,Some(List(QualifierSimple(1,None,Some(3)), QualifierSimple(2,None,Some(3)))),Some(5)), QualifierSimple(4,None,Some(5)))),Some(9)), QualifierSimple(8,Some(List(QualifierSimple(6,None,Some(8)), QualifierSimple(7,None,Some(8)))),Some(9)))),None)
       TournamentHelper.indexedToSimple(indexed) === tree
 
       println(tree)

@@ -31,7 +31,7 @@ object TournamentHelper {
   class ArmHeightVisualizer[T]( create:(Float,List[Int], Int,Int) => T) {
 
 
-    def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
+    def build(q:CanHaveChildren,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
       val (nodes,cnts,cntTot) = q.childrenOpt match {
         case Some(children) =>
           val (nodes,cntTot) = children.foldLeft((List[T](),List[Int]())) {

@@ -426,7 +426,16 @@ case class IndexedQualifier(var parentOpt:Option[IndexedQualifier], var children
 
 case class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qualifier]]) extends CanHaveChildren {}
 
-case class QualifierSimple(val nodeId:Int, var childrenOpt:Option[List[QualifierSimple]], var parentOpt:Option[Int]) extends CanHaveChildren
+case class QualifierSimple(val nodeId:Int, var childrenOpt:Option[List[QualifierSimple]], var parentOpt:Option[Int]) extends CanHaveChildren {
+  /*
+  def childrenOpt:Option[List[CanHaveChildren]] = children match  {
+    case Nil => None
+    case list => Some(list)
+  }
+
+}
+   */
+}
 /*
 
 trait CanHaveChildren {
