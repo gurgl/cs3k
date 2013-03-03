@@ -137,6 +137,7 @@ object TournamentHelper {
   def buildPersistableTournament(t:IndexedQualifier,to:Tournament) : List[TournamentStageQualifier]= {
     var chlds = t.childrenOpt match {
       case Some(cs) => cs.flatMap(c => buildPersistableTournament(c, to))
+      case None => Nil
     }
 
     var chldIdx = t.childrenOpt.toList.flatMap( x => x.map(_.idx))
@@ -213,9 +214,31 @@ class CompetitionService {
 
     gameSetupDao.find(c.gameSetup.id).ensuring(_ != null)
     ladderDao.em.merge(c.gameSetup)
+   /* if (c.id != null)
+      ladderDao.em.merge(c)*/
     ladderDao.em.persist(c)
 
   }
+
+  @Transactional
+  def generateTournamentStructure(tournament:Tournament, indexed:IndexedQualifier) = {
+    val tournamentPrim = ladderDao.em.merge(tournament)
+    var persistableStructure = TournamentHelper.buildPersistableTournament(indexed, tournamentPrim )
+    import scala.collection.JavaConversions.seqAsJavaList
+    tournamentPrim.structure = persistableStructure
+    storeCompetition(tournamentPrim)
+    tournamentPrim
+  }
+
+  def storeCompetitiondd(c:Competition) {
+    gameSetupDao.find(c.gameSetup.id).ensuring(_ != null)
+    ladderDao.em.merge(c.gameSetup)
+    if (c.id != null)
+      ladderDao.em.merge(c)
+    ladderDao.em.persist(c)
+
+  }
+
   @Transactional
   def isUserMemberOfLadder(t:Competitor, l:Ladder) = {
     import scala.collection.JavaConversions.asScalaBuffer

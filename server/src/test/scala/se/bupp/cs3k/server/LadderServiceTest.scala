@@ -197,15 +197,24 @@ class LadderServiceTest extends Specification {
       }
 
       var numOfPlayers:Int = -1
+      var tournamentPrim:Tournament = null
       doInTx {
-        var tournamentBis = competitionDao.find(tournament.id).get
+        tournamentPrim = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
 
-        numOfPlayers = tournamentBis.participants.size
+        numOfPlayers = tournamentPrim.participants.size
       }
       numOfPlayers === 10
       var structure = TournamentHelper.createTournamentStructure(numOfPlayers)
       var indexed = TournamentHelper.index(structure)
       indexed === IndexedQualifier(None,Some(List(IndexedQualifier(None,Some(List(IndexedQualifier(None,Some(List(IndexedQualifier(None,None,1), IndexedQualifier(None,None,2))),3), IndexedQualifier(None,None,4))),5), IndexedQualifier(None,Some(List(IndexedQualifier(None,None,6), IndexedQualifier(None,None,7))),8))),9)
+
+      competitionService.generateTournamentStructure(tournamentPrim,indexed)
+
+      var tournamentBis:Tournament = null
+      doInTx {
+        tournamentBis = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
+        tournamentBis.structure.size === 9
+      }
 
 
 
