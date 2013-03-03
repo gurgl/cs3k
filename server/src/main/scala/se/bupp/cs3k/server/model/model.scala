@@ -419,11 +419,28 @@ abstract class CompetitionGame {
 }
 
 
+trait CanHaveChildren {
+  def childrenOpt:Option[List[CanHaveChildren]]
+}
 case class IndexedQualifier(var parentOpt:Option[IndexedQualifier], var childrenOpt:Option[List[IndexedQualifier]], var idx:Int)
 
-case class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qualifier]]) {
+case class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qualifier]]) extends CanHaveChildren {}
+
+case class QualifierSimple(val nodeId:Int, var childrenOpt:Option[List[QualifierSimple]], var parentOpt:Option[Int]) extends CanHaveChildren
+/*
+
+trait CanHaveChildren {
+  def childrenOpt:Option[List[Qualifier]]
+}
+
+case class QualifierSimple(var childrenOpt:Option[List[Qualifier]]) extends CanHaveChildren {
 
 }
+
+case class QualifierWithIdx(val nodeId:Int, var childrenOpt:Option[List[Qualifier]], parentOpt:Option[Int]) extends CanHaveChildren {
+
+}*/
+
 
 @Entity
 class TournamentStageQualifier(_nodeId:Int, _tournament:Tournament, _childNodeIds:List[Int]) extends CompetitionGame {

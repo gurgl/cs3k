@@ -214,7 +214,22 @@ class LadderServiceTest extends Specification {
       doInTx {
         tournamentBis = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
         tournamentBis.structure.size === 9
+
       }
+      //var persistedStructure = tournamentBis.structure
+
+      import scala.collection.JavaConversions.asScalaBuffer
+
+
+      var tree = competitionService.getTournamentQualifierStructure(tournamentBis)
+      /*doInTx {
+        tree = TournamentHelper.fromPersistedToQualifierTree(persistedStructure.toList)
+      }*/
+      TournamentHelper.indexedToSimple(indexed) === tree
+
+      println(tree)
+
+
 
 
 

@@ -121,6 +121,19 @@ object TournamentHelper {
     n
   }
 
+  def indexedToSimple(i:IndexedQualifier,parentId:Option[Int] = None) : QualifierSimple = {
+    val newC = i.childrenOpt match {
+      case Some(cs) =>
+        val ncs = cs.map { c =>
+          val n = indexedToSimple(c,Some(i.idx))
+          n
+        }
+        Some(ncs)
+      case None => None
+    }
+    QualifierSimple(i.idx, newC, parentId)
+  }
+
   def createTournamentStructure(numOfPlayers:Int) = {
     val numOfCompleteLevels:Int = log2(numOfPlayers)
     val numOfPlayersMoreThanCompleteLevels:Int = numOfPlayers % (1 << numOfCompleteLevels)
@@ -153,6 +166,29 @@ object TournamentHelper {
       // assign
 
     }
+  }
+
+  def fromPersistedToQualifierTree(l:List[TournamentStageQualifier]) : QualifierSimple = {
+    var mapped = l.map(i => (i.nodeId, new QualifierSimple(i.nodeId,None,None))).toMap
+
+    l.foreach { case n:TournamentStageQualifier =>
+      n.childNodeIds match {
+        case Nil =>
+        case list =>
+          var q = mapped(n.nodeId)
+          var chls = list.map {
+            x =>
+              val m = mapped(x)
+              m.parentOpt = Some(n.nodeId)
+              m
+          }
+
+          q.childrenOpt = Some(chls)
+
+      }
+    }
+
+    mapped.find { case (k,v) => v.parentOpt.isEmpty}.get._2
   }
 
 
@@ -218,6 +254,14 @@ class CompetitionService {
       ladderDao.em.merge(c)*/
     ladderDao.em.persist(c)
 
+  }
+
+  @Transactional
+  def getTournamentQualifierStructure(t:Tournament) : QualifierSimple = {
+    var tournament = ladderDao.em.merge(t)
+    import scala.collection.JavaConversions.asScalaBuffer
+    val tree = TournamentHelper.fromPersistedToQualifierTree(tournament.structure.toList)
+    tree
   }
 
   @Transactional
