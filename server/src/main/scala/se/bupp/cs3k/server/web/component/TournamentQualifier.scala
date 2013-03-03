@@ -7,6 +7,7 @@ import org.apache.wicket.Component
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
 import org.apache.wicket.markup.html.WebComponent
 import org.apache.wicket.markup.head.IHeaderResponse
+import se.bupp.cs3k.server.service.TournamentHelper
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,14 +18,49 @@ import org.apache.wicket.markup.head.IHeaderResponse
  */
 
 object TournamentQualifier {
-  case class Alles(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
+  case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
 
   }
   val topTextAreaHeight = 10
   val lineToTextMargin = 5
   val textLeftMargin = 5
+
+
+  def createLayout(numOfPlayers:Int ): List[TournamentQualifier.TwoGameQualifierPositionAndSize] = {
+    val yMod = 70
+    val screenOffsetY = 20
+    var i = 0
+
+    val yo = new TournamentHelper.ArmHeightVisualizer[TwoGameQualifierPositionAndSize](
+      (offsetY, subTreesHeights, subTreeHeight, stepsToBottom) => {
+        def bupp(height: Float) = {
+          yMod * (offsetY.toFloat + (subTreeHeight.toFloat / 2f + height / 2f))
+        }
+
+        val (top, bot) = subTreesHeights match {
+          case x :: y :: Nil =>
+            println(x + " " + y)
+            (bupp(-x), bupp(y))
+          case x :: Nil => (bupp(-x), bupp(0.5f))
+          case Nil => (bupp(-0.5f), bupp(0.5f))
+        }
+        //i = i +1
+        //println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
+        new TwoGameQualifierPositionAndSize(subTreesHeights.lift(0).toString, subTreesHeights.lift(1).toString, 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot))
+      }
+    )
+
+    val numOfCompleteLevels: Int = TournamentHelper.log2(numOfPlayers)
+    val numOfPlayersMoreThanCompleteLevels: Int = numOfPlayers % (1 << numOfCompleteLevels)
+    val numOfLevels = numOfCompleteLevels + (if (numOfPlayersMoreThanCompleteLevels > 0) 1 else 0) - 1
+
+    val qa = TournamentHelper.createTournamentStructure(numOfPlayers)
+    var listn = yo.build(qa, 0.0f, numOfLevels)._1
+    listn
+  }
+
 }
-class TournamentQualifier(id:String, model:IModel[TournamentQualifier.Alles]) extends WebComponent(id) {
+class TournamentQualifier(id:String, model:IModel[TournamentQualifier.TwoGameQualifierPositionAndSize]) extends WebComponent(id) {
   import TournamentQualifier._
 
   var m = model.getObject

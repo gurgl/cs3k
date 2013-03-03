@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service
 
-import dao.{GameOccassionDao, CompetitorDao, LadderDao}
+import dao.{GameSetupTypeDao, GameOccassionDao, CompetitorDao, LadderDao}
 import org.springframework.stereotype.Service
 import se.bupp.cs3k.server.model._
 import org.springframework.transaction.annotation.Transactional
@@ -21,9 +21,14 @@ import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, E
  * To change this template use File | Settings | File Templates.
  */
 
-object Blabb {
-  case class XY(x:Float,y:Int)
-  class Yo2[T]( create:(Float,List[Int], Int,Int) => T) {
+object TournamentHelper {
+
+  case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
+
+  }
+
+
+  class ArmHeightVisualizer[T]( create:(Float,List[Int], Int,Int) => T) {
 
 
     def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
@@ -38,14 +43,9 @@ object Blabb {
           (nodes,cntTot, cntTot.foldLeft(0)((a,b) => math.max(a,b)) * 2)
         case None => (Nil, Nil, 0)
       }
-      var service = new CompetitionService()
-
-      //println("cnts" + cnts)
 
       // center about subtree - leaf nodes center about a tree their own size
       var subTreeMaxHeight = if (cntTot == 0) 1 else cntTot
-      //val thisTreeMaxHeight = service.nearest2Pot(cntTot + 1)
-      //val b = service.log2(subTreeMaxHeight)
       val n = create(offsetY,cnts,subTreeMaxHeight, stepsToBottom)
 
       println(s"offsetY $offsetY , $n , $stepsToBottom : $subTreeMaxHeight + $cntTot")
@@ -53,8 +53,112 @@ object Blabb {
     }
   }
 
-  def yeah = new Yo[XY]( (offsetY, subTreeMaxHeight,stepsToBottom) => XY(offsetY.toFloat - 0.5f + subTreeMaxHeight.toFloat/2f ,stepsToBottom) )
-  class Yo[T]( create:(Float,Int,Int) => T) {
+
+  def appendLevel(q:Qualifier) {
+    q.childrenOpt match {
+      case Some(children) =>
+        children.foreach( c =>
+          appendLevel(c)
+        )
+      //*var childrenNew = children.map(c => appendLevel(c))
+      //new Qualifier(q.parentOpt, Some(childrenNew))
+      case None =>
+        var children = (0 until 2).map(v => new Qualifier(Some(q),None))
+        q.childrenOpt = Some(children.toList)
+      //new Qualifier(q.parentOpt, children)
+    }
+  }
+
+
+  def addOne(q:Qualifier, levelsLeft:Int) : Boolean = {
+    def doIt = {
+      if (levelsLeft == 0) {
+        val childs= q.childrenOpt.getOrElse(List[Qualifier]())
+        q.childrenOpt = Some(childs :+ new Qualifier(Some(q),None))
+        true
+      } else false
+    }
+
+    q.childrenOpt match {
+      case Some(children @ List(aa,bb)) => children.find( qq => addOne(qq, levelsLeft-1)).isDefined
+      case Some(children @ List(aa)) => doIt
+      case None => doIt
+    }
+  }
+  def nearest2Pot(vv:Int) = {
+    var v = vv - 1 ;
+    v = v | v >> 1;
+    v = v | v >> 2;
+    v = v | v >> 4;
+    v = v | v >> 8;
+    v = v | v >> 16;
+    v + 1
+  }
+  def log2(vv:Int) = {
+    var i = 0 ; var j = vv ; while(j>1) { println(j); j = j >> 1 ; i = i + 1 ; i} ; i
+  }
+  def count(q:Qualifier,cnt:Int = 0) :Int = {
+    q.childrenOpt.map( _.foldLeft(0) { case (t,q) => (t + count(q,cnt)) }).getOrElse(0) + 1
+  }
+
+  def index(q:Qualifier,idxSeq:Int = 0) : IndexedQualifier = {
+
+    var curIdx = idxSeq
+    val newC = q.childrenOpt match {
+      case Some(cs) =>
+        val ncs = cs.map { c =>
+          val n = index(c,curIdx)
+          curIdx = n.idx
+          n
+        }
+        Some(ncs)
+      case None => None
+    }
+
+    val n = IndexedQualifier(None, newC, curIdx + 1)
+    //newC.foreach(cs => cs.foreach(c => c.parentOpt=Some(n)))
+    //n.ensuring { _ match { case IndexedQualifier(a,b,c) => a != null && b != null && c != null } }
+    n
+  }
+
+  def createTournamentStructure(numOfPlayers:Int) = {
+    val numOfCompleteLevels:Int = log2(numOfPlayers)
+    val numOfPlayersMoreThanCompleteLevels:Int = numOfPlayers % (1 << numOfCompleteLevels)
+
+    var allComplete = (1 until numOfCompleteLevels).foldLeft(new Qualifier(None,None)) {
+      case (q, _) => appendLevel(q) ; q
+    }
+    val a = count(allComplete)
+
+    (0 until numOfPlayersMoreThanCompleteLevels).foreach( b => addOne(allComplete,numOfCompleteLevels -1 ))
+    allComplete
+  }
+
+  def buildPersistableTournament(t:IndexedQualifier,to:Tournament) : List[TournamentStageQualifier]= {
+    var chlds = t.childrenOpt match {
+      case Some(cs) => cs.flatMap(c => buildPersistableTournament(c, to))
+    }
+
+    var chldIdx = t.childrenOpt.toList.flatMap( x => x.map(_.idx))
+    chlds ++ List(new TournamentStageQualifier(t.idx,to, chldIdx.toList))
+  }
+
+  def buildTournament(tournament:Tournament) = {
+    var numOfPlayers = tournament.participants.size
+    if (numOfPlayers > 2) {
+      val structure = createTournamentStructure(numOfPlayers)
+      var indexed = index(structure)
+
+      // assign
+
+    }
+  }
+
+
+  case class XY(x:Float,y:Int)
+  def dummyVisualizer = new PositionOnlyVisualizer[XY]( (offsetY, subTreeMaxHeight,stepsToBottom) => XY(offsetY.toFloat - 0.5f + subTreeMaxHeight.toFloat/2f ,stepsToBottom) )
+
+  class PositionOnlyVisualizer[T]( create:(Float,Int,Int) => T) {
 
 
     def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
@@ -97,6 +201,8 @@ class CompetitionService {
 
   @Autowired
   var gameDao:GameOccassionDao = _
+  @Autowired
+  var gameSetupDao:GameSetupTypeDao = _
 
 
   @Autowired
@@ -104,6 +210,9 @@ class CompetitionService {
 
   @Transactional
   def storeCompetition(c:Competition) {
+
+    gameSetupDao.find(c.gameSetup.id).ensuring(_ != null)
+    ladderDao.em.merge(c.gameSetup)
     ladderDao.em.persist(c)
 
   }
@@ -144,7 +253,7 @@ class CompetitionService {
   }
 
   @Transactional
-  def storeCompetitionMember(u:Competitor, t:Competition) = {
+  def addCompetitorToCompetition(u:Competitor, t:Competition) = {
 
     val pk = new CompetitionParticipantPk
 
@@ -212,65 +321,6 @@ class CompetitionService {
     }
   }
 
-  def appendLevel(q:Qualifier) {
-    q.childrenOpt match {
-      case Some(children) =>
-        children.foreach( c =>
-          appendLevel(c)
-        )
-        //*var childrenNew = children.map(c => appendLevel(c))
-        //new Qualifier(q.parentOpt, Some(childrenNew))
-      case None =>
-        var children = (0 until 2).map(v => new Qualifier(Some(q),None))
-        q.childrenOpt = Some(children.toList)
-        //new Qualifier(q.parentOpt, children)
-    }
-  }
-
-
-  def addOne(q:Qualifier, levelsLeft:Int) : Boolean = {
-    def doIt = {
-      if (levelsLeft == 0) {
-        val childs= q.childrenOpt.getOrElse(List[Qualifier]())
-        q.childrenOpt = Some(childs :+ new Qualifier(Some(q),None))
-        true
-      } else false
-    }
-
-    q.childrenOpt match {
-      case Some(children @ List(aa,bb)) => children.find( qq => addOne(qq, levelsLeft-1)).isDefined
-      case Some(children @ List(aa)) => doIt
-      case None => doIt
-    }
-  }
-  def nearest2Pot(vv:Int) = {
-    var v = vv - 1 ;
-    v = v | v >> 1;
-    v = v | v >> 2;
-    v = v | v >> 4;
-    v = v | v >> 8;
-    v = v | v >> 16;
-    v + 1
-  }
-  def log2(vv:Int) = {
-    var i = 0 ; var j = vv ; while(j>1) { println(j); j = j >> 1 ; i = i + 1 ; i} ; i
-  }
-  def count(q:Qualifier,cnt:Int = 0) :Int = {
-    q.childrenOpt.map( _.foldLeft(0) { case (t,q) => (t + count(q,cnt)) }).getOrElse(0) + 1
-  }
-
-  def buildATournament(numOfPlayers:Int) = {
-    val numOfCompleteLevels:Int = log2(numOfPlayers)
-    val numOfPlayersMoreThanCompleteLevels:Int = numOfPlayers % (1 << numOfCompleteLevels)
-
-     var allComplete = (1 until numOfCompleteLevels).foldLeft(new Qualifier(None,None)) {
-      case (q, _) => appendLevel(q) ; q
-    }
-    val a = count(allComplete)
-
-    (0 until numOfPlayersMoreThanCompleteLevels).foreach( b => addOne(allComplete,numOfCompleteLevels -1 ))
-    allComplete
-  }
 
   /*def startTournament(l:Tournament) = {
     if (l.state == CompetitionState.SIGNUP) {

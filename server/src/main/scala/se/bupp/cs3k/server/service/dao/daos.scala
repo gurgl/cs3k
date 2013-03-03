@@ -52,7 +52,7 @@ class GenericDaoImpl[T](clz:Class[T]) {
 
   import scala.collection.JavaConversions.asScalaBuffer
 
-  def findAll[T] : List[T] = em.createQuery("select p from " + clz.getSimpleName+ " p").getResultList.toList.map(_.asInstanceOf[T])
+  def findAll : List[T] = em.createQuery("select p from " + clz.getSimpleName+ " p").getResultList.toList.map(_.asInstanceOf[T])
   def count = em.createQuery("select count(p) from " + clz.getSimpleName+ " p").getSingleResult.asInstanceOf[Long]
 
   def selectRangeCount = {

@@ -419,7 +419,9 @@ abstract class CompetitionGame {
 }
 
 
-class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qualifier]]) {
+case class IndexedQualifier(var parentOpt:Option[IndexedQualifier], var childrenOpt:Option[List[IndexedQualifier]], var idx:Int)
+
+case class Qualifier(var parentOpt:Option[Qualifier], var childrenOpt:Option[List[Qualifier]]) {
 
 }
 

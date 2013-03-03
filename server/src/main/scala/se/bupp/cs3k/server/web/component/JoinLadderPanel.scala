@@ -91,7 +91,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
           val t = m.getObject
           val a =
             if(!ts.isCompetitorInCompetition(comp, t)) {
-              ts.storeCompetitionMember(comp, t)
+              ts.addCompetitorToCompetition(comp, t)
               info("Joined ladder")
             } else {
               ts.leaveCompetition(comp, t)
@@ -145,7 +145,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
         def onClick(target: AjaxRequestTarget) {
           val a =
             if(!ts.isCompetitorInCompetition(comp, t)) {
-              ts.storeCompetitionMember(comp, t)
+              ts.addCompetitorToCompetition(comp, t)
               info("Joined ladder")
             } else {
               ts.leaveCompetition(comp, t)

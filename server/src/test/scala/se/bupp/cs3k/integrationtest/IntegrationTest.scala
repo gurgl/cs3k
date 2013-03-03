@@ -7,7 +7,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext
 import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.support.{TransactionCallbackWithoutResult, TransactionTemplate}
 import org.springframework.transaction.{PlatformTransactionManager, TransactionStatus}
-import javax.persistence.TypedQuery
+import javax.persistence.{EntityManagerFactory, TypedQuery}
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model._
@@ -60,12 +60,15 @@ class IntegrationTest extends Specification with Mockito {
   def withTx[T](body:(PlatformTransactionManager, BeanFactory) => T) : T = {
     val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
     val factory =  appContext.asInstanceOf[BeanFactory];
+    val emf = factory.getBean(classOf[EntityManagerFactory])
     var txMgr = factory.getBean("transactionManager", classOf[JpaTransactionManager])
     //val tdef = new DefaultTransactionDefinition();
     var tx = null//txMgr.getTransaction(tdef)
 
     val res = body(txMgr, factory)
+    emf.close()
     appContext.close()
+    appContext.destroy()
     res
   }
   var mapper = new ObjectMapper()
