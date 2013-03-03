@@ -29,7 +29,7 @@ import org.specs2.runner.JUnitRunner
 import se.bupp.cs3k.server.model.Model._
 import scala.Some
 import scala.Some
-import server.service.LadderService
+import server.service.CompetitionService
 
 /**
  * Created with IntelliJ IDEA.
@@ -99,7 +99,7 @@ class DbTest extends Specification {
       withTx {
         case (txMgr, factory) => {
           val compDao = factory.getBean(classOf[CompetitorDao])
-          val ladderService= factory.getBean(classOf[LadderService])
+          val ladderService= factory.getBean(classOf[CompetitionService])
 
 
           var comp = new Competitor()

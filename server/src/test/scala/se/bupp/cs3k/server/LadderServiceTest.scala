@@ -5,7 +5,7 @@ import org.specs2.mutable.Specification
 import io.Source
 import java.net.URL
 import service.Blabb.XY
-import service.{Blabb, LadderService}
+import service.{Blabb, CompetitionService}
 import web.component.TournamentQualifier.Alles
 import org.apache.wicket.util.tester.WicketTester
 
@@ -27,7 +27,7 @@ class LadderServiceTest extends Specification {
 
     "create a correct tournament from num of player" in {
 
-      var ls = new LadderService()
+      var ls = new CompetitionService()
 
       val qa = ls.buildATournament(10)
 
@@ -47,7 +47,7 @@ class LadderServiceTest extends Specification {
     }
 
     "bupps" in {
-      var ls = new LadderService()
+      var ls = new CompetitionService()
 
       val qa = ls.buildATournament(10)
 
@@ -59,7 +59,7 @@ class LadderServiceTest extends Specification {
     }
 
     "bupps1" in {
-      var ls = new LadderService()
+      var ls = new CompetitionService()
 
       val qa = ls.buildATournament(8)
 
@@ -71,7 +71,7 @@ class LadderServiceTest extends Specification {
     }
 
     "bupps2" in {
-      var ls = new LadderService()
+      var ls = new CompetitionService()
 
       val qa = ls.buildATournament(10)
 
@@ -94,7 +94,7 @@ class LadderServiceTest extends Specification {
       //(1 until 50 by 1).foreach { case i =>
       val i = 31
       var view = new TournamentView("bupp", new Model(i))
-        view.ladderService = new LadderService
+        view.ladderService = new CompetitionService
         wt.startComponentInPage(view)
         Some(new PrintWriter(s"/tmp/example$i.html")).foreach{p => p.write(wt.getLastResponseAsString); p.close}
         //import sys.process._

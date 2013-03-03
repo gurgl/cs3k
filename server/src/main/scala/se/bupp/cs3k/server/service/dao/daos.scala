@@ -82,6 +82,12 @@ class GenericDaoImpl[T](clz:Class[T]) {
   }
 }
 
+
+@Repository
+class CompetitionDao extends GenericDaoImpl[Competition](classOf[Competition]) {
+
+}
+
 @Repository
 class GameResultDao extends GenericDaoImpl[GameResult](classOf[GameResult]) {
 
@@ -170,17 +176,17 @@ class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
   }
 
 
-  def findLadderParticipants(u:Ladder) : Query  =  {
+  def findLadderParticipants(u:Competition) : Query  =  {
 
-    val q = em.createNamedQuery("Competitor.findLadderParticipants")
-    q.setParameter("ladder",u)
+    val q = em.createNamedQuery("Competitor.findCompetitionParticipants")
+    q.setParameter("competition",u)
     q
   }
-  def findLadderParticipantsCount(u:Ladder) = {
+  def findCompetitionParticipantsCount(u:Competition) = {
     findLadderParticipants(u).getResultList.size()
   }
 
-  def findLadderParticipants(u:Ladder,p1: Long, p2: Long) : List[Competitor]=  {
+  def findCompetitionParticipants(u:Competition,p1: Long, p2: Long) : List[Competitor]=  {
     findLadderParticipants(u).setMaxResults(p2.toInt).setFirstResult(p1.toInt).getResultList.toList.map(_.asInstanceOf[Competitor])
   }
 

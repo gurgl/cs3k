@@ -14,9 +14,9 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.{PropertyCol
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, LadderSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, CompetitionSelectedEvent}
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import se.bupp.cs3k.server.service.{ResultService, LadderService}
+import se.bupp.cs3k.server.service.{ResultService, CompetitionService}
 import se.bupp.cs3k.example.ExampleScoreScheme.ExCompetitorTotal
 import se.bupp.cs3k.api.score.ScoreScheme.CompetitorTotal
 
@@ -43,7 +43,7 @@ class LadderStandingsPanel(id:String, ladderModel:IModel[Ladder]) extends Panel(
   var competitorDao:CompetitorDao = _
 
   @SpringBean
-  var ladderService:LadderService = _
+  var ladderService:CompetitionService = _
 
   @SpringBean
   var resultService:ResultService = _
@@ -52,7 +52,7 @@ class LadderStandingsPanel(id:String, ladderModel:IModel[Ladder]) extends Panel(
     import scala.collection.JavaConversions.asJavaIterator
     def iterator(p1: Long, p2: Long) = {
       val ladder = ladderModel.getObject
-      val participants = competitorDao.findLadderParticipants(ladder, p1.toInt,p2.toInt)
+      val participants = competitorDao.findCompetitionParticipants(ladder, p1.toInt,p2.toInt)
       val results = ladderService.decoratePariticpantResults(participants, ladder)
       results.toIterator
     }
@@ -75,7 +75,7 @@ class LadderStandingsPanel(id:String, ladderModel:IModel[Ladder]) extends Panel(
       {
         cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"_1.nameAccessor")) {
           def onClick(target: AjaxRequestTarget) {
-            //send(getPage(), Broadcast.BREADTH, new LadderSelectedEvent(model.getObject, target));
+            //send(getPage(), Broadcast.BREADTH, new CompetitionSelectedEvent(model.getObject, target));
           }
         });
       }

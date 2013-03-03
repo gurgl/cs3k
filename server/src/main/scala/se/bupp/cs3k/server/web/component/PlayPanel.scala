@@ -22,7 +22,7 @@ import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
 import se.bupp.cs3k.server.model._
-import se.bupp.cs3k.server.service.{ResultLogService, ResultService, GameReservationService, LadderService}
+import se.bupp.cs3k.server.service.{ResultLogService, ResultService, GameReservationService, CompetitionService}
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.{MarkupContainer, RestartResponseException}

@@ -83,7 +83,7 @@ abstract class BreadCrumbPanel(id:String, rootBreadCrumbModel:BreadCrumbModel) e
             setModelObject(items)
             var modelObject2 = p1.getModelObject
             contentContainer.addOrReplace(modelObject2.createComponent("content",modelObject2.model))
-            //send(getPage(), Broadcast.BREADTH, new LadderSelectedEvent(target));
+            //send(getPage(), Broadcast.BREADTH, new CompetitionSelectedEvent(target));
             target.add(breadCrumbContainer)
             target.add(contentContainer)
           }

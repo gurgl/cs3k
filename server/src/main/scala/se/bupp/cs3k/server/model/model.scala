@@ -191,8 +191,8 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
 @Entity
 @NamedQueries(Array(
   new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2"),
-  new NamedQuery(name = "Competitor.findLadderParticipants",
-    query = "select c from Ladder l inner join l.participants p inner join p.id.competitor c where l = :ladder"),
+  new NamedQuery(name = "Competitor.findCompetitionParticipants",
+    query = "select c from Competition l inner join l.participants p inner join p.id.competitor c where l = :competition"),
   new NamedQuery(name = "Competitor.findLadderResults",
     query =
       """select new scala.Tuple2(c,r) from Ladder l

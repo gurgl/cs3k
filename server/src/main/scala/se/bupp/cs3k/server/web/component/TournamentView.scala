@@ -6,7 +6,7 @@ import org.apache.wicket.markup.MarkupStream
 import org.apache.wicket.model.{IModel, Model}
 import se.bupp.cs3k.server.web.component.TournamentQualifier.Alles
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.service.{Blabb, LadderService}
+import se.bupp.cs3k.server.service.{Blabb, CompetitionService}
 import se.bupp.cs3k.server.model.Qualifier
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.model.util.ListModel
@@ -21,7 +21,7 @@ import org.apache.wicket.model.util.ListModel
 class TournamentView(id:String, mod:IModel[Integer]) extends Panel(id) {
 
   @SpringBean
-  var ladderService:LadderService = _
+  var ladderService:CompetitionService = _
 
   var buffa:ListModel[Alles] = new ListModel[Alles]()
 

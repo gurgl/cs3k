@@ -11,6 +11,7 @@ import org.apache.wicket.model.util.{MapModel, ListModel}
 import org.apache.wicket.validation.{IValidatable, IValidator}
 import org.apache.wicket.validation.validator.StringValidator
 import org.apache.wicket.model.Model
+import se.bupp.cs3k.server.service.CompetitionService
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +26,8 @@ class LadderFormPanel(id:String, label:String, ladder:java.util.Map[String,AnyRe
   def this(id:String, label:String) = this(id, label, null)
 
 
+  @SpringBean
+  var competitionService:CompetitionService = _
 
 
   @SpringBean
@@ -118,7 +121,6 @@ class LadderFormPanel(id:String, label:String, ladder:java.util.Map[String,AnyRe
       case "Tournament" => new Tournament(a,b,c,d)
       case "Ladder" => new Ladder(a,b,c,d)
     }
-    ladderSer
-    ladderDao.em.persist(comp)
+    competitionService.storeCompetition(comp)
   }
 }

@@ -38,7 +38,7 @@ object Blabb {
           (nodes,cntTot, cntTot.foldLeft(0)((a,b) => math.max(a,b)) * 2)
         case None => (Nil, Nil, 0)
       }
-      var service = new LadderService()
+      var service = new CompetitionService()
 
       //println("cnts" + cnts)
 
@@ -69,7 +69,7 @@ object Blabb {
           (nodes,cntTot, cntTot.foldLeft(0)((a,b) => math.max(a,b)) * 2)
         case None => (Nil, Nil, 0)
       }
-      var service = new LadderService()
+      var service = new CompetitionService()
 
 
 
@@ -86,7 +86,7 @@ object Blabb {
 }
 
 @Service
-class LadderService {
+class CompetitionService {
 
   val log = LoggerFactory.getLogger(this.getClass)
 
@@ -102,7 +102,11 @@ class LadderService {
   @Autowired
   var gameReservationService:GameReservationService = _
 
+  @Transactional
+  def storeCompetition(c:Competition) {
+    ladderDao.em.persist(c)
 
+  }
   @Transactional
   def isUserMemberOfLadder(t:Competitor, l:Ladder) = {
     import scala.collection.JavaConversions.asScalaBuffer
@@ -113,7 +117,7 @@ class LadderService {
     ll.participants.exists( p => p.id.competitor.id == t.id)
   }
 
-  def findApplicableCompetitors(t:User, l:Ladder) = {
+  def findApplicableCompetitors(t:User, l:Competition) = {
     val allCompetitorsByUser = competitorDao.findByUser(t)
 
     import scala.collection.JavaConversions.asScalaBuffer
@@ -125,13 +129,13 @@ class LadderService {
   }
 
   def findParticipants(ladder:Ladder, p1: Long, p2: Long) = {
-     competitorDao.findLadderParticipants(ladder,p1,p2)
+     competitorDao.findCompetitionParticipants(ladder,p1,p2)
   }
 
   @Transactional
-  def isCompetitorMemberOfLadder(t:Competitor, l:Ladder) = {
+  def isCompetitorInCompetition(t:Competitor, l:Competition) = {
     import scala.collection.JavaConversions.asScalaBuffer
-    log.debug("isCompetitorMemberOfLadder")
+    log.debug("isCompetitorInCompetition")
 
     val ll = ladderDao.em.merge(l)
 
@@ -140,7 +144,7 @@ class LadderService {
   }
 
   @Transactional
-  def storeLadderMember(u:Competitor, t:Ladder) = {
+  def storeCompetitionMember(u:Competitor, t:Competition) = {
 
     val pk = new CompetitionParticipantPk
 
@@ -157,7 +161,7 @@ class LadderService {
   }
 
   @Transactional
-  def leaveLadder(u:Competitor, t:Ladder) = {
+  def leaveCompetition(u:Competitor, t:Competition) = {
 
     val pk = new CompetitionParticipantPk
     pk.competitor = ladderDao.em.merge(u)
@@ -171,7 +175,7 @@ class LadderService {
   var resultService:ResultService = _
 
   def decoratePariticpantResults(participants:List[Competitor], ladder:Ladder) = {
-    //val participants = competitorDao.findLadderParticipants(ladder, start, stop)
+    //val participants = competitorDao.findCompetitionParticipants(ladder, start, stop)
     val results = ladderDao.findLadderResults(ladder)
     var resultMap = results.groupBy(_._1).map { case (k,v) => (k, v.map(_._2))}
 

@@ -3,12 +3,48 @@
     <div class="action_form">
     <h6 wicket:id="title"></h6>
     <form wicket:id="theform" class="form-horizontal" >
-        Name <input type="text" wicket:id="name"/>
-        Form <select wicket:id="formOfCompetition"></select>
-        Type <select wicket:id="competitorType"></select>
-        Setup <select wicket:id="gameSetupType"></select>
 
-        <button type="button" wicket:id="submit" class="btn" value="Save">Save</button>
+
+            <div class="control-group">
+                <label class="control-label" for="name">Name</label>
+
+                <div class="controls">
+
+                    <input id="name" type="text" wicket:id="name"/>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="formOfCompetition">Form</label>
+
+                <div class="controls">
+                    <select id="formOfCompetition" wicket:id="formOfCompetition"></select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="competitorType">Type</label>
+
+                <div class="controls">
+                     <select id="competitorType" wicket:id="competitorType"></select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="gameSetupType">Setup</label>
+
+                <div class="controls">
+                     <select id="gameSetupType" wicket:id="gameSetupType"></select>
+
+                </div>
+            </div>
+        <div class="control-group">
+
+            <div class="controls">
+                <button type="button" wicket:id="submit" class="btn" value="Save">Save</button>
+            </div>
+        </div>
+
         <div wicket:id="feedback"></div>
     </form>
     </div>

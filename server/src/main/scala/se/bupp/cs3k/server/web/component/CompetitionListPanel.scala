@@ -1,18 +1,18 @@
 package se.bupp.cs3k.server.web.component
 
 import generic.table.NiceDataTable
-import generic.{AjaxLinkLabel, ListSelector}
+import generic.{FodelPropertyColumn, AjaxLinkLabel, ListSelector}
 import org.apache.wicket.markup.html.panel.{EmptyPanel, Panel}
-import se.bupp.cs3k.server.model.{Team, Ladder}
+import se.bupp.cs3k.server.model.{Competition, Team, Ladder}
 import org.apache.wicket.markup.repeater.data.IDataProvider
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.service.dao.LadderDao
+import se.bupp.cs3k.server.service.dao.{CompetitionDao, LadderDao}
 import org.apache.wicket.model.{PropertyModel, IModel, Model, LoadableDetachableModel}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.WebMarkupContainer
 import org.apache.wicket.extensions.breadcrumb.BreadCrumbBar
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{TeamSelectedEvent, CreateLadderEvent, CreateTeamEvent, LadderSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{TeamSelectedEvent, CreateLadderEvent, CreateTeamEvent, CompetitionSelectedEvent}
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.extensions.markup.html.repeater.data.table.{PropertyColumn, AbstractColumn, IColumn}
 import org.apache.wicket.markup.repeater.Item
@@ -30,37 +30,41 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 class CompetitionListPanel(id:String) extends Panel(id) {
 
   @SpringBean
-  var ladderDao:LadderDao = _
+  var competitionDao:CompetitionDao = _
 
 
-  val provider = new SortableDataProvider[Ladder,String]() {
+  val provider = new SortableDataProvider[Competition,String]() {
     import scala.collection.JavaConversions.asJavaIterator
-    def iterator(p1: Long, p2: Long) = ladderDao.selectRange(p1.toInt,p2.toInt).toIterator
+    def iterator(p1: Long, p2: Long) = competitionDao.selectRange(p1.toInt,p2.toInt).toIterator
 
-    def size() = ladderDao.selectRangeCount
+    def size() = competitionDao.selectRangeCount
 
-    def model(p1: Ladder) = new LoadableDetachableModel[Ladder](p1) {
-      def load() = ladderDao.find(p1.id).get
+    def model(p1: Competition) = new LoadableDetachableModel[Competition](p1) {
+      def load() = competitionDao.find(p1.id).get
 
     }
   }
 
-  val columns = List[IColumn[Ladder,String]] (
-    new AbstractColumn[Ladder,String](new Model("Competition"))
+  val columns = List[IColumn[Competition,String]] (
+    new AbstractColumn[Competition,String](new Model("Competition"))
     {
-      def populateItem(cellItem:Item[ICellPopulator[Ladder]], componentId:String, model:IModel[Ladder])
+      def populateItem(cellItem:Item[ICellPopulator[Competition]], componentId:String, model:IModel[Competition])
       {
         cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"name")) {
           def onClick(target: AjaxRequestTarget) {
-            send(getPage(), Broadcast.BREADTH, new LadderSelectedEvent(model.getObject, target));
+            send(getPage(), Broadcast.BREADTH, new CompetitionSelectedEvent(model.getObject, target));
           }
         });
       }
     },
     new PropertyColumn(new Model("Setup"),"gameSetup.name"),
+    new FodelPropertyColumn(new Model("Form"),
+      ((a:Competition) => a.getClass.getSimpleName,
+        (a:Competition,v:String) => ()
+        )),
+    new PropertyColumn(new Model("Competitor Type"),"competitorType"),
     new PropertyColumn(new Model("State"),"state"),
-    new PropertyColumn(new Model("State"),"state"),
-    new PropertyColumn(new Model("Participants"),"name"),
+
     new PropertyColumn(new Model("Left"),"name")
   )
 

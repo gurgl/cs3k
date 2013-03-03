@@ -11,11 +11,11 @@ import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.ajax.markup.html.AjaxLink
 
 import org.apache.wicket.event.IEvent
-import se.bupp.cs3k.server.model.{Team, Ladder}
+import se.bupp.cs3k.server.model.{Competition, Team, Ladder}
 import org.apache.wicket.Component
 import org.apache.wicket.behavior.AttributeAppender
 import org.apache.wicket.markup.ComponentTag
-import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, LadderSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, CompetitionSelectedEvent}
 import se.bupp.cs3k.server.web.component.LadderFormPanel
 
 /**
@@ -29,7 +29,7 @@ import se.bupp.cs3k.server.web.component.LadderFormPanel
 object Events {
   abstract class AbstractEvent(var target:AjaxRequestTarget )
 
-  class LadderSelectedEvent(var ladder:Ladder, target:AjaxRequestTarget ) extends AbstractEvent(target)
+  class CompetitionSelectedEvent(var ladder:Competition, target:AjaxRequestTarget ) extends AbstractEvent(target)
   class TeamSelectedEvent(var team:Team, target:AjaxRequestTarget ) extends AbstractEvent(target)
   class CreateTeamEvent(target:AjaxRequestTarget ) extends AbstractEvent(target)
   class CreateLadderEvent(target:AjaxRequestTarget ) extends AbstractEvent(target)
@@ -48,13 +48,16 @@ class ContestsPanel(id:String) extends Panel(id) {
     }
   }) {
      override def pa:PartialFunction[Any,(BreadCrumbModel,AjaxRequestTarget,Int)] = {
-       case lse:LadderSelectedEvent =>
+       case lse:CompetitionSelectedEvent =>
          println("Receiving event spec")
+
+
+
          val newItem = new BreadCrumbModel() {
            val name = lse.ladder.name
-           val model = new Model[Ladder](lse.ladder)
+           val model = new Model(lse.ladder)
            val createComponent = (id:String, m:Model[_]) => {
-             var ladMod = m.asInstanceOf[Model[Ladder]]
+             var ladMod = m.asInstanceOf[Model[Competition]]
              new LadderPanel(id, ladMod)
            }
          }
