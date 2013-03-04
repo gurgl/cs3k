@@ -28,6 +28,21 @@ object TournamentHelper {
   }
   type SlotDistributor[T] = (List[T]) => Map[Int,T]
 
+  def deterministic:TournamentHelper.SlotDistributor[Competitor] = (competitorIds:List[Competitor]) => {
+    var slots = (0 until competitorIds.size).map( i => (i,Option.empty[Competitor])).toMap
+
+    var ptr = 5
+    competitorIds.foreach { cid =>
+
+      while(slots(ptr).isDefined) {
+        ptr = ptr + 3
+        ptr = ptr % 10
+      }
+      slots = slots + (ptr -> Some(cid))
+    }
+    slots.map { case (k,v) => k -> v.get }
+  }
+
   class ArmHeightVisualizer[T]( create:(Float,List[Int], Int,Int) => T) {
 
 
@@ -356,7 +371,7 @@ class CompetitionService {
   @Transactional
   def distrubtutePlayersInTournament(tournamentDet:Tournament, distributor:TournamentHelper.SlotDistributor[Competitor]) {
     import scala.collection.JavaConversions.asScalaBuffer
-    var tournament = ladderDao.em.merge(tournamentDet)
+    val tournament = ladderDao.em.find(classOf[Tournament],tournamentDet.id)
     val competitors = tournament.participants.map(_.id.competitor).toList
     val firstChallanges = tournament.structure.filter(_.childNodeIds.size < 2)
     firstChallanges.foreach(x => println("b" + x.nodeId + " " + x.childNodeIds.toList))
@@ -417,14 +432,19 @@ class CompetitionService {
     }
   }
 
+  @Transactional
+  def startTournament(tournamentDet:Tournament) = {
+    val tournament = ladderDao.em.find(classOf[Tournament], tournamentDet.id)
 
-  def startTournament(tournament:Tournament) = {
-    if (tournament.state == CompetitionState.SIGNUP) {
+    if (List(CompetitionState.SIGNUP,CompetitionState.SIGNUP_CLOSED).contains(tournament.state)) {
       val numOfPlayers = tournament.participants.size
+
       val structure = TournamentHelper.createTournamentStructure(numOfPlayers)
       val indexed = TournamentHelper.index(structure)
 
-      var tourPrep1 = generateTournamentStructure(tournament, indexed)
+      val tourPrep1 = generateTournamentStructure(tournament, indexed)
+
+      distrubtutePlayersInTournament(tourPrep1,TournamentHelper.deterministic)
 
     }
   }

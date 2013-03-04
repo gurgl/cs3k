@@ -87,13 +87,13 @@ class LadderFormPanel(id:String, label:String, ladder:java.util.Map[String,AnyRe
 
     setupsModel = new ListModel[GameSetupType]()
 
-    val gameSetupChoice: DropDownChoice[GameSetupType] = new DropDownChoice[GameSetupType]("gameSetupType",setupsModel)
-
-    val competitionForm: DropDownChoice[String] = new DropDownChoice[String]("formOfCompetition", java.util.Arrays.asList(List("Tournament", "Ladder"):_*), new ChoiceRenderer[GameSetupType]() {
+    val gameSetupChoice: DropDownChoice[GameSetupType] = new DropDownChoice[GameSetupType]("gameSetupType",setupsModel, new ChoiceRenderer[GameSetupType]() {
       override def getDisplayValue(obj: GameSetupType) = obj.name + " (" + obj.gameType.name + ")"
 
       override def getIdValue(obj: GameSetupType, index: Int) = obj.id.toString
     })
+
+    val competitionForm: DropDownChoice[String] = new DropDownChoice[String]("formOfCompetition", java.util.Arrays.asList(List("Tournament", "Ladder"):_*))
     val competitorTypeChoice: DropDownChoice[CompetitorType] = new DropDownChoice[CompetitorType]("competitorType", java.util.Arrays.asList(CompetitorType.values():_*))
 
     f.add(competitionForm.setRequired(true))
