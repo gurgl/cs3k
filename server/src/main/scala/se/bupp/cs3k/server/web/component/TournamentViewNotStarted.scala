@@ -18,7 +18,7 @@ import org.apache.wicket.model.util.ListModel
  * Time: 21:41
  * To change this template use File | Settings | File Templates.
  */
-class TournamentView(id:String, mod:IModel[Integer]) extends Panel(id) {
+class TournamentViewNotStarted(id:String, mod:IModel[Integer]) extends Panel(id) {
 
   @SpringBean
   var ladderService:CompetitionService = _

@@ -285,7 +285,7 @@ class CompetitionService {
   }
 
   @Transactional
-  def generateTournamentStructure(tournament:Tournament, indexed:IndexedQualifier) = {
+  def storeTournamentStructure(tournament:Tournament, indexed:IndexedQualifier) = {
     val tournamentPrim = ladderDao.em.merge(tournament)
     var persistableStructure = TournamentHelper.buildPersistableTournament(indexed, tournamentPrim )
     import scala.collection.JavaConversions.seqAsJavaList
@@ -442,7 +442,7 @@ class CompetitionService {
       val structure = TournamentHelper.createTournamentStructure(numOfPlayers)
       val indexed = TournamentHelper.index(structure)
 
-      val tourPrep1 = generateTournamentStructure(tournament, indexed)
+      val tourPrep1 = storeTournamentStructure(tournament, indexed)
 
       distrubtutePlayersInTournament(tourPrep1,TournamentHelper.deterministic)
 

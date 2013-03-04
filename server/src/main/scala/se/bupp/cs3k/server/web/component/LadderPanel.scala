@@ -35,7 +35,7 @@ class LadderPanel(id:String, model:IModel[Competition]) extends Panel(id) {
               ("Results", (cId:String) => new LadderStandingsPanel(cId, ladMod))
             )
           case t:Tournament =>
-            List(("Results", (cId:String) => new TournamentView(cId, new Model(new Integer(10)))))
+            List(("Results", (cId:String) => new TournamentViewNotStarted(cId, new Model(new Integer(10)))))
         }
       }
   ))

@@ -49,9 +49,6 @@ class ContestsPanel(id:String) extends Panel(id) {
   }) {
      override def pa:PartialFunction[Any,(BreadCrumbModel,AjaxRequestTarget,Int)] = {
        case lse:CompetitionSelectedEvent =>
-         println("Receiving event spec")
-
-
 
          val newItem = new BreadCrumbModel() {
            val name = lse.ladder.name
@@ -64,10 +61,10 @@ class ContestsPanel(id:String) extends Panel(id) {
          (newItem,lse.target,1)
        case cle:CreateLadderEvent =>
          val newItem = new BreadCrumbModel() {
-           val name = "Create Ladder"
+           val name = "Propose a competition"
            val model = new Model[Ladder](null)
            val createComponent = (id:String, m:Model[_]) => {
-              new LadderFormPanel(id, "Create ladder")
+              new LadderFormPanel(id, "Propose competition")
            }
          }
          (newItem,cle.target,1)

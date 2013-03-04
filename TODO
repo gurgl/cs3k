@@ -11,6 +11,11 @@ TODO
         - lägg till länkar för turneringsmatcher o ev skriv ut hur många som är inloggade på websida
 
 
+* Lägg till public / invite-only på competition
+
+* Se till att ha fungerande 1vs1 (individual), 1vs1 och 2vs2 team fungerande
+
+* Gör så att gameSetupType syns
 
 * System.exit lobby och server när man trycker close
 

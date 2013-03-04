@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.apache.wicket.util.tester.WicketTester
-import se.bupp.cs3k.server.web.component.{TournamentNodeView, TournamentView, LadderFormPanel}
+import se.bupp.cs3k.server.web.component.{TournamentNodeView, TournamentViewNotStarted, LadderFormPanel}
 import se.bupp.cs3k.server.service.dao.GameSetupTypeDao
 import org.specs2.mock.Mockito
 import se.bupp.cs3k.server.model.GameSetupType

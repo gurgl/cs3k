@@ -14,7 +14,7 @@ import org.apache.wicket.util.tester.WicketTester
 import java.io.PrintWriter
 import org.apache.wicket.model.Model
 import web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
-import web.component.TournamentView
+import web.component.TournamentViewNotStarted
 import org.springframework.context.support.FileSystemXmlApplicationContext
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.transaction.{TransactionStatus, PlatformTransactionManager}
@@ -162,7 +162,7 @@ class LadderServiceTest extends Specification {
       wt.getApplication.getMarkupSettings.setStripWicketTags(true)
       //(1 until 50 by 1).foreach { case i =>
       val i = 31
-      var view = new TournamentView("bupp", new Model(i))
+      var view = new TournamentViewNotStarted("bupp", new Model(i))
         view.ladderService = new CompetitionService
         wt.startComponentInPage(view)
         Some(new PrintWriter(s"/tmp/example$i.html")).foreach{p => p.write(wt.getLastResponseAsString); p.close}
@@ -208,7 +208,7 @@ class LadderServiceTest extends Specification {
       var indexed = TournamentHelper.index(structure)
       indexed === IndexedQualifier(None,Some(List(IndexedQualifier(None,Some(List(IndexedQualifier(None,Some(List(IndexedQualifier(None,None,1), IndexedQualifier(None,None,2))),3), IndexedQualifier(None,None,4))),5), IndexedQualifier(None,Some(List(IndexedQualifier(None,None,6), IndexedQualifier(None,None,7))),8))),9)
 
-      competitionService.generateTournamentStructure(tournamentPrim,indexed)
+      competitionService.storeTournamentStructure(tournamentPrim,indexed)
 
       var tournamentBis:Tournament = null
       doInTx {
