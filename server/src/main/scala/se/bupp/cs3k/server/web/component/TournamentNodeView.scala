@@ -8,6 +8,7 @@ import org.apache.wicket.markup.{ComponentTag, MarkupStream}
 import org.apache.wicket.markup.html.WebComponent
 import org.apache.wicket.markup.head.IHeaderResponse
 import se.bupp.cs3k.server.service.TournamentHelper
+import se.bupp.cs3k.server.model.HasQualifierDetails
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,8 +19,14 @@ import se.bupp.cs3k.server.service.TournamentHelper
  */
 
 object TournamentNodeView {
-  case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
+  case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float,state:QualifierState.QualifierState = QualifierState.Undetermined) extends Serializable {
 
+  }
+
+
+  object QualifierState extends Enumeration {
+    type QualifierState = Value
+    val Played,Determined,Undetermined = Value
   }
   val topTextAreaHeight = 10
   val lineToTextMargin = 5
@@ -32,7 +39,7 @@ object TournamentNodeView {
     var i = 0
 
     val yo = new TournamentHelper.ArmHeightVisualizer[TwoGameQualifierPositionAndSize](
-      (offsetY, subTreesHeights, subTreeHeight, stepsToBottom) => {
+      (offsetY, subTreesHeights, subTreeHeight, stepsToBottom, nodeId) => {
         def bupp(height: Float) = {
           yMod * (offsetY.toFloat + (subTreeHeight.toFloat / 2f + height / 2f))
         }
@@ -59,13 +66,17 @@ object TournamentNodeView {
     listn
   }
 
+
 }
-class TournamentNodeView(id:String, model:IModel[TournamentNodeView.TwoGameQualifierPositionAndSize]) extends WebComponent(id) {
+class TournamentNodeView(id:String, model:IModel[_ <: TournamentNodeView.TwoGameQualifierPositionAndSize]) extends WebComponent(id) {
   import TournamentNodeView._
 
   var m = model.getObject
+
   val textId1 = "text1_" + id
   val textId2 = "text2_" + id
+
+
   val pathId= "path_" + id
 
   val topBox = m.top //+ topTextAreaHeight + lineToTextMargin

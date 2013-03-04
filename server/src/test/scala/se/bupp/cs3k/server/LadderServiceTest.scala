@@ -8,12 +8,11 @@ import service.TournamentHelper.XY
 import service.TournamentHelper.XY
 import service.dao.{CompetitionDao, GameSetupTypeDao, TeamDao}
 import service.{CompetitorService, TournamentHelper, CompetitionService}
-import web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
+import web.component.TournamentNodeView.{QualifierState, TwoGameQualifierPositionAndSize}
 import org.apache.wicket.util.tester.WicketTester
 
 import java.io.PrintWriter
 import org.apache.wicket.model.Model
-import web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
 import web.component.TournamentViewNotStarted
 import org.springframework.context.support.FileSystemXmlApplicationContext
 import org.springframework.beans.factory.BeanFactory
@@ -277,6 +276,9 @@ class LadderServiceTest extends Specification {
       numOfPlayers === 10
 
       competitionService.startTournament(tournamentPrim)
+
+      var layout = competitionService.createLayout2(tournamentPrim)
+      layout must haveTheSameElementsAs(List(TwoGameQualifierPositionAndSize("5","2",1234,0.0f,37.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("9","6",1234,0.0f,107.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,100.0f,55.0f,100.0f,70.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("3","0",1234,100.0f,177.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("7","4",1234,100.0f,317.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("1","8",1234,100.0f,387.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,200.0f,335.0f,100.0f,70.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,300.0f,160.0f,100.0f,210.0f,QualifierState.Undetermined)))
 
     }
 

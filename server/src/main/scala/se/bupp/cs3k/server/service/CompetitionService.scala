@@ -10,7 +10,7 @@ import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import org.slf4j.LoggerFactory
 import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, ExCompetitorScore}
-
+import se.bupp.cs3k.server.web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
 
 
 /**
@@ -23,9 +23,9 @@ import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, E
 
 object TournamentHelper {
 
-  case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
+  /*case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
 
-  }
+  }*/
   type SlotDistributor[T] = (List[T]) => Map[Int,T]
 
   def deterministic:TournamentHelper.SlotDistributor[Competitor] = (competitorIds:List[Competitor]) => {
@@ -43,7 +43,7 @@ object TournamentHelper {
     slots.map { case (k,v) => k -> v.get }
   }
 
-  class ArmHeightVisualizer[T]( create:(Float,List[Int], Int,Int) => T) {
+  class ArmHeightVisualizer[T]( create:(Float,List[Int], Int, Int, Int) => T) {
 
 
     def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
@@ -62,7 +62,7 @@ object TournamentHelper {
 
       // center about subtree - leaf nodes center about a tree their own size
       val subTreeMaxHeight = if (cntTot == 0) 1 else cntTot
-      val n = create(offsetY,cnts,subTreeMaxHeight, stepsToBottom)
+      val n = create(offsetY,cnts,subTreeMaxHeight, stepsToBottom,q.nodeId)
 
       println(s"offsetY $offsetY , $n , $stepsToBottom : $subTreeMaxHeight + $cntTot")
       (nodes :+ n, subTreeMaxHeight )
@@ -376,7 +376,6 @@ class CompetitionService {
     val firstChallanges = tournament.structure.filter(_.childNodeIds.size < 2)
     firstChallanges.foreach(x => println("b" + x.nodeId + " " + x.childNodeIds.toList))
 
-
     val matchupLottery = distributor(competitors)
     println(matchupLottery.size)
     var matchupPtr = 0
@@ -389,8 +388,10 @@ class CompetitionService {
         matchupPtr = matchupPtr + 1
         comp
       }.toList
-      val go2 = gameReservationService.addCompitorToGameWoSaving(go,gameCompetitors)
-      ladderDao.em.persist(go2)
+      val go2 = gameReservationService.addCompitorsAndStore(go,gameCompetitors)
+      //ladderDao.em.persist(go2)
+      t.gameOccassion = go2
+      ladderDao.em.persist(t)
     }
   }
 
@@ -447,5 +448,68 @@ class CompetitionService {
       distrubtutePlayersInTournament(tourPrep1,TournamentHelper.deterministic)
 
     }
+  }
+
+  @Transactional
+  def createLayout2(tournamentDet:Tournament): List[TwoGameQualifierPositionAndSize] = {
+    val tournament = ladderDao.em.find(classOf[Tournament],tournamentDet.id)
+    import scala.collection.JavaConversions.asScalaBuffer
+    val participants = tournament.participants.map(_.id.competitor)
+    val compIdToName = participants.map(p => (p.id, p.nameAccessor)).toMap
+
+    val nodeIdsByGame = tournament.structure.map(s => (s.nodeId, Option(s.gameOccassion))).toMap
+    val nodeIdsByCompetitors = nodeIdsByGame.map {
+      case (k, v) => (k, v.toList.flatMap(_.participants.map(_.id.competitor.id)))
+    }
+
+
+
+
+    val numOfPlayers = participants.size
+
+    val yMod = 70
+    val screenOffsetY = 20
+
+    val yo = new TournamentHelper.ArmHeightVisualizer[TwoGameQualifierPositionAndSize](
+      (offsetY, subTreesHeights, subTreeHeight, stepsToBottom, nodeId) => {
+        def bupp(height: Float) = {
+          yMod * (offsetY.toFloat + (subTreeHeight.toFloat / 2f + height / 2f))
+        }
+
+        val (top, bot) = subTreesHeights match {
+          case x :: y :: Nil =>
+            println(x + " " + y)
+            (bupp(-x), bupp(y))
+          case x :: Nil => (bupp(-x), bupp(0.5f))
+          case Nil => (bupp(-0.5f), bupp(0.5f))
+        }
+        //i = i +1
+        //println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
+        var game = nodeIdsByGame(nodeId)
+        val competitors = nodeIdsByCompetitors(nodeId)
+        val list = (0 until 2).map {
+          i =>
+            val name = competitors.lift(i).flatMap(ii => compIdToName.get(ii)).getOrElse("Undecided")
+            (i, name)
+        }.toMap
+
+
+        new TwoGameQualifierPositionAndSize(list(0), list(1), 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot)) {
+
+        }
+      }
+    )
+
+    val structure = getTournamentQualifierStructure(tournament)
+
+
+
+    val numOfCompleteLevels: Int = TournamentHelper.log2(numOfPlayers)
+    val numOfPlayersMoreThanCompleteLevels: Int = numOfPlayers % (1 << numOfCompleteLevels)
+    val numOfLevels = numOfCompleteLevels + (if (numOfPlayersMoreThanCompleteLevels > 0) 1 else 0) - 1
+
+    //val qa = TournamentHelper.indexedToSimple(TournamentHelper.index(TournamentHelper.createTournamentStructure(numOfPlayers)))
+    var listn = yo.build(structure, 0.0f, numOfLevels)._1
+    listn
   }
 }

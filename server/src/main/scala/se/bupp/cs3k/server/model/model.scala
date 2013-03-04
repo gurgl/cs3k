@@ -16,6 +16,9 @@ import se.bupp.cs3k.server.Cs3kConfig
 import se.bupp.cs3k.server.service.GameReservationService
 import java.{util, lang}
 import concurrent.Future
+import se.bupp.cs3k.server.web.component.TournamentNodeView.{TwoGameQualifierPositionAndSize, QualifierState}
+import se.bupp.cs3k.server.web.component.TournamentNodeView
+
 
 
 @NamedQueries(Array(
@@ -439,6 +442,14 @@ case class Qualifier(val nodeId:Int, var children:List[Qualifier], var parentOpt
   def flatten : List[Qualifier]= {
     List(this) ++ this.children.flatMap(_.flatten)
   }
+}
+
+trait HasQualifierDetails {
+  self:TwoGameQualifierPositionAndSize =>
+
+  def getCompetitorIdToName(i:Int) :(Long,String)
+  def state:TournamentNodeView.QualifierState.QualifierState
+  def persitedId:Long
 }
 /*
   override def childrenOpt:Option[List[CanHaveChildren]] = children match  {

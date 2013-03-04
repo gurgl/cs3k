@@ -205,11 +205,14 @@ class GameReservationService {
     go
  }
 
-  def addCompitorToGameWoSaving(go:GameOccassion, t1:List[Competitor]) = {
+  def addCompitorsAndStore(go:GameOccassion, t1:List[Competitor]) = {
+    gameDao.em.persist(go)
     t1.foreach { t =>
       val gp1 = new GameParticipation(new GameParticipationPk(t,go))
+      gameDao.em.persist(gp1)
       go.participants.add(gp1)
     }
+
     go
   }
 

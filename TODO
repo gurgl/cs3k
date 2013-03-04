@@ -23,7 +23,7 @@ TODO
 
 * Web Sessionen dör snabbt - lös
 
-* findAll funkar inte för gameSetupType
+
 
 * requesta team medlemskap
 
@@ -44,15 +44,21 @@ TODO
     - senaste spelade
 
 
-* turneringar
 
-V * rendera turnering
+
+
 
 * invite till ladder
 
 * log conf med en bokstavs paketnamn
 
 DONE
+
+V * starta turneringar
+
+V * rendera turnering
+
+V * findAll funkar inte för gameSetupType
 
 V * Gör om ladder list
 
