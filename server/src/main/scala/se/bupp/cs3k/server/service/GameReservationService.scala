@@ -25,6 +25,7 @@ import se.bupp.cs3k.server.model.RegedUser
 import se.bupp.cs3k.server.model.RunningGame
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.AnonUser
+import se.bupp.cs3k.model.CompetitorType
 
 /**
  * Created with IntelliJ IDEA.
@@ -175,7 +176,7 @@ class GameReservationService {
 
         //val occasionId = allocateGameSession()
         val go = new GameOccassion()
-        go.competitorType = "individual"
+        go.competitorType = CompetitorType.INDIVIDUAL
 
         val gp1 = new GameParticipation(new GameParticipationPk(u1,go))
         val gp2 = new GameParticipation(new GameParticipationPk(u2,go))
@@ -186,7 +187,7 @@ class GameReservationService {
 
       case (t1:Team, t2:Team) =>
         val go = new GameOccassion()
-        go.competitorType = "team"
+        go.competitorType = CompetitorType.TEAM
 
 
         val gp1 = new GameParticipation(new GameParticipationPk(t1,go))
@@ -203,6 +204,14 @@ class GameReservationService {
 
     go
  }
+
+  def addCompitorToGameWoSaving(go:GameOccassion, t1:List[Competitor]) = {
+    t1.foreach { t =>
+      val gp1 = new GameParticipation(new GameParticipationPk(t,go))
+      go.participants.add(gp1)
+    }
+    go
+  }
 
   def addTeamToSession(gameSessionId:GameSessionId, at:AbstractTeamRef)  {
 
@@ -394,8 +403,8 @@ class GameReservationService {
     log.info("Who is player competing for")
 
     game.competitorType match {
-      case "individual" => game.participants.map(_.id.competitor).find { case u:User => u.id == playerId.id }
-      case "team" =>
+      case CompetitorType.INDIVIDUAL => game.participants.map(_.id.competitor).find { case u:User => u.id == playerId.id }
+      case CompetitorType.TEAM =>
           competitorDao.findPlayerTeams(playerId.id).find(
             pt => game.participants.exists {
               gp => gp.id.competitor match {

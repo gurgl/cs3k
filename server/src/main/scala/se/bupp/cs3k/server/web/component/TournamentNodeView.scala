@@ -17,7 +17,7 @@ import se.bupp.cs3k.server.service.TournamentHelper
  * To change this template use File | Settings | File Templates.
  */
 
-object TournamentQualifier {
+object TournamentNodeView {
   case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
 
   }
@@ -26,7 +26,7 @@ object TournamentQualifier {
   val textLeftMargin = 5
 
 
-  def createLayout(numOfPlayers:Int ): List[TournamentQualifier.TwoGameQualifierPositionAndSize] = {
+  def createLayout(numOfPlayers:Int ): List[TournamentNodeView.TwoGameQualifierPositionAndSize] = {
     val yMod = 70
     val screenOffsetY = 20
     var i = 0
@@ -60,8 +60,8 @@ object TournamentQualifier {
   }
 
 }
-class TournamentQualifier(id:String, model:IModel[TournamentQualifier.TwoGameQualifierPositionAndSize]) extends WebComponent(id) {
-  import TournamentQualifier._
+class TournamentNodeView(id:String, model:IModel[TournamentNodeView.TwoGameQualifierPositionAndSize]) extends WebComponent(id) {
+  import TournamentNodeView._
 
   var m = model.getObject
   val textId1 = "text1_" + id

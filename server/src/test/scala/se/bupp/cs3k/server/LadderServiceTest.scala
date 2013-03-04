@@ -8,12 +8,12 @@ import service.TournamentHelper.XY
 import service.TournamentHelper.XY
 import service.dao.{CompetitionDao, GameSetupTypeDao, TeamDao}
 import service.{CompetitorService, TournamentHelper, CompetitionService}
-import web.component.TournamentQualifier.TwoGameQualifierPositionAndSize
+import web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
 import org.apache.wicket.util.tester.WicketTester
 
 import java.io.PrintWriter
 import org.apache.wicket.model.Model
-import web.component.TournamentQualifier.TwoGameQualifierPositionAndSize
+import web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
 import web.component.TournamentView
 import org.springframework.context.support.FileSystemXmlApplicationContext
 import org.springframework.beans.factory.BeanFactory
@@ -240,16 +240,41 @@ class LadderServiceTest extends Specification {
       ),None)
       TournamentHelper.indexedToSimple(indexed) === tree
 
-      println(tree)
 
-
-
-
-
-
+      competitionService.distrubtutePlayersInTournament(tournamentBis,lawl)
 
       1 === 1
     }
+
+    "distribute " in {
+
+
+      lal((0L until 10L).toList).toList must haveTheSameElementsAs(List((0L,5), (5L,0), (1L,2), (6L,7), (9L,8), (2L,9), (7L,4), (3L,6), (8L,1), (4L,3)))
+
+    }
+
+
+  }
+
+  val lawl = Lal.lol[Competitor]
+
+  val lal = Lal.lol[Long]
+}
+
+object Lal {
+  def lol[G]:TournamentHelper.SlotDistributor[G] = (competitorIds:List[G]) => {
+    var slots = (0 until competitorIds.size).map( i => (i,Option.empty[G])).toMap
+
+    var ptr = 5
+    competitorIds.foreach { cid =>
+
+      while(slots(ptr).isDefined) {
+        ptr = ptr + 3
+        ptr = ptr % 10
+      }
+      slots = slots + (ptr -> Some(cid))
+    }
+    slots.map { case (k,v) => k -> v.get }
   }
 
 }

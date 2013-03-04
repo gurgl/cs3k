@@ -282,7 +282,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   var gameServerStartedAt:Date = _
 
-  var competitorType:String = _
+  var competitorType:CompetitorType = _
 
   @OneToOne(cascade = Array(CascadeType.ALL))
   @PrimaryKeyJoinColumn
@@ -313,7 +313,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
     "se.bupp.cs3k.example.ExampleScoreScheme.ExContestScore",
     "se.bupp.cs3k.example.ExampleScoreScheme.ExScoreScheme")*/
 
-  def this(_gameSessionId:Long,_competitorType:String) = { this() ; gameSessionId = _gameSessionId ; competitorType = _competitorType}
+  def this(_gameSessionId:Long,_competitorType:CompetitorType) = { this() ; gameSessionId = _gameSessionId ; competitorType = _competitorType}
 
    override def toString = "(id = " + id + ", gameSessionId = " + gameSessionId + ")"
 }
@@ -404,6 +404,14 @@ class Tournament(_name:String,_competitorType:CompetitorType, _gameSetup:GameSet
   @OneToMany(mappedBy = "tournament",cascade = Array(CascadeType.ALL))
   var structure:util.List[TournamentStageQualifier] = new util.ArrayList[TournamentStageQualifier]()
 
+  def createGameFromTournament(comp:TournamentStageQualifier) = {
+    var occassion = new GameOccassion()
+    occassion.game = gameSetup
+    occassion.competitorType = competitorType
+    occassion.competitionGame = comp
+    occassion
+  }
+
   def this() = this(null,null,null,null)
 }
 
@@ -427,12 +435,17 @@ case class IndexedQualifier(var parentOpt:Option[IndexedQualifier], var children
 case class QualifierWithParentReference(var parentOpt:Option[QualifierWithParentReference], var childrenOpt:Option[List[QualifierWithParentReference]]) extends CanHaveChildren {}
 
 case class Qualifier(val nodeId:Int, var children:List[Qualifier], var parentOpt:Option[Int]) {
+
+  def flatten : List[Qualifier]= {
+    List(this) ++ this.children.flatMap(_.flatten)
+  }
+}
 /*
   override def childrenOpt:Option[List[CanHaveChildren]] = children match  {
     case Nil => None
     case list => Some(list)
   }*/
-}
+
 
 /*
 

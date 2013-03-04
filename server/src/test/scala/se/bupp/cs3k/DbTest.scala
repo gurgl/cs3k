@@ -195,7 +195,7 @@ class DbTest extends Specification {
 
 
           val user = new User("leffe")
-          val gameOcc = new GameOccassion(12, "individual")
+          val gameOcc = new GameOccassion(12, CompetitorType.INDIVIDUAL)
           gameOcc.game = gst
 
 

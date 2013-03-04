@@ -26,7 +26,7 @@ object TournamentHelper {
   case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float) extends Serializable {
 
   }
-
+  type SlotDistributor[T] = (List[T]) => Map[Int,T]
 
   class ArmHeightVisualizer[T]( create:(Float,List[Int], Int,Int) => T) {
 
@@ -246,6 +246,10 @@ class CompetitionService {
   @Autowired
   var gameReservationService:GameReservationService = _
 
+  @Autowired
+  var resultService:ResultService = _
+
+
   @Transactional
   def storeCompetition(c:Competition) {
 
@@ -348,8 +352,32 @@ class CompetitionService {
 
     ladderDao.em.remove(tm)
   }
-  @Autowired
-  var resultService:ResultService = _
+
+  @Transactional
+  def distrubtutePlayersInTournament(tournamentDet:Tournament, distributor:TournamentHelper.SlotDistributor[Competitor]) {
+    import scala.collection.JavaConversions.asScalaBuffer
+    var tournament = ladderDao.em.merge(tournamentDet)
+    val competitors = tournament.participants.map(_.id.competitor).toList
+    val firstChallanges = tournament.structure.filter(_.childNodeIds.size < 2)
+    firstChallanges.foreach(x => println("b" + x.nodeId + " " + x.childNodeIds.toList))
+
+
+    val matchupLottery = distributor(competitors)
+    println(matchupLottery.size)
+    var matchupPtr = 0
+    firstChallanges.foreach { t =>
+      val s = "tour_" + tournament.id + "_" + t.nodeId
+      val go = tournament.createGameFromTournament(t)
+      val gameCompetitors:List[Competitor] = (0 until (2 - t.childNodeIds.size)).map {
+        i =>
+        val comp = matchupLottery(matchupPtr)
+        matchupPtr = matchupPtr + 1
+        comp
+      }.toList
+      val go2 = gameReservationService.addCompitorToGameWoSaving(go,gameCompetitors)
+      ladderDao.em.persist(go2)
+    }
+  }
 
   def decoratePariticpantResults(participants:List[Competitor], ladder:Ladder) = {
     //val participants = competitorDao.findCompetitionParticipants(ladder, start, stop)
@@ -390,24 +418,14 @@ class CompetitionService {
   }
 
 
-  /*def startTournament(l:Tournament) = {
-    if (l.state == CompetitionState.SIGNUP) {
-      import scala.collection.JavaConversions.asScalaBuffer
-      import scala.collection.JavaConversions.seqAsJavaList
-      val participants = l.participants.map( p => p.id.competitor)
-      val range = 0 until participants.size
-      val combinations = for(a <- range ; b <- range if b > a) yield (a,b)
-      val matches = combinations.map {
-        case (i, j) => (participants(i), participants(j))
-      }
-      matches.foreach {
-        case (i, j) =>
-          val go = new GameOccassion()
-          go.participants = List(i,j).map(p => new GameParticipation(new GameParticipationPk(p,go)))
-          go.game == l.gameSetup
-          go.competitionGame = new LadderGame(l)
-          gameDao.insert(go)
-      }
+  def startTournament(tournament:Tournament) = {
+    if (tournament.state == CompetitionState.SIGNUP) {
+      val numOfPlayers = tournament.participants.size
+      val structure = TournamentHelper.createTournamentStructure(numOfPlayers)
+      val indexed = TournamentHelper.index(structure)
+
+      var tourPrep1 = generateTournamentStructure(tournament, indexed)
+
     }
-  }*/
+  }
 }

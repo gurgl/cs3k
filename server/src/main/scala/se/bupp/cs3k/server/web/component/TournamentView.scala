@@ -4,7 +4,7 @@ import org.apache.wicket.markup.html.panel.Panel
 import java.io.PrintWriter
 import org.apache.wicket.markup.MarkupStream
 import org.apache.wicket.model.{IModel, Model}
-import se.bupp.cs3k.server.web.component.TournamentQualifier.TwoGameQualifierPositionAndSize
+import se.bupp.cs3k.server.web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{TournamentHelper, CompetitionService}
 import se.bupp.cs3k.server.model.QualifierWithParentReference
@@ -26,7 +26,7 @@ class TournamentView(id:String, mod:IModel[Integer]) extends Panel(id) {
   var buffa:ListModel[TwoGameQualifierPositionAndSize] = new ListModel[TwoGameQualifierPositionAndSize]()
 
   override def onBeforeRender() {
-    var listn: List[TournamentQualifier.TwoGameQualifierPositionAndSize] = TournamentQualifier.createLayout(mod.getObject)
+    var listn: List[TournamentNodeView.TwoGameQualifierPositionAndSize] = TournamentNodeView.createLayout(mod.getObject)
     import scala.collection.JavaConversions.seqAsJavaList
 
 
@@ -40,7 +40,7 @@ class TournamentView(id:String, mod:IModel[Integer]) extends Panel(id) {
   var view = new ListView[TwoGameQualifierPositionAndSize]("it", buffa) {
     def populateItem(p1: ListItem[TwoGameQualifierPositionAndSize]) {
       println("Rend " + p1.getIndex)
-      p1.add(new TournamentQualifier("item", p1.getModel))
+      p1.add(new TournamentNodeView("item", p1.getModel))
 
     }
   }
