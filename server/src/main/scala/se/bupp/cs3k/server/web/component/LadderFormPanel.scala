@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.web.component
 
 import generic.GenericFormPanel
-import org.apache.wicket.markup.html.form.{RadioGroup, DropDownChoice, TextField, Form}
+import org.apache.wicket.markup.html.form._
 import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import se.bupp.cs3k.server.model.{Tournament, Competition, GameSetupType, Ladder}
 import org.apache.wicket.spring.injection.annot.SpringBean
@@ -81,21 +81,6 @@ class LadderFormPanel(id:String, label:String, ladder:java.util.Map[String,AnyRe
   }
 
 
- /*override def subClassBeforeRender() {
-    val all: List[GameSetupType] = gameSetupDao.findAll
-    //import scala.collection.JavaConversions.seqAsJavaList
-    //setupsModel.setObject(all)
-  }*/
-
-  def onConfiguress() {
-    val all: List[GameSetupType] = gameSetupDao.findAll
-    all.ensuring(_ != null)
-    import scala.collection.JavaConversions.seqAsJavaList
-    setupsModel.setObject(all)
-
-    super.onConfigure()
-  }
-
   def populateFields(f: Form[java.util.Map[String,AnyRef]]) {
 
     import scala.collection.JavaConversions.seqAsJavaList
@@ -104,7 +89,11 @@ class LadderFormPanel(id:String, label:String, ladder:java.util.Map[String,AnyRe
 
     val gameSetupChoice: DropDownChoice[GameSetupType] = new DropDownChoice[GameSetupType]("gameSetupType",setupsModel)
 
-    val competitionForm: DropDownChoice[String] = new DropDownChoice[String]("formOfCompetition", java.util.Arrays.asList(List("Tournament", "Ladder"):_*))
+    val competitionForm: DropDownChoice[String] = new DropDownChoice[String]("formOfCompetition", java.util.Arrays.asList(List("Tournament", "Ladder"):_*), new ChoiceRenderer[GameSetupType]() {
+      override def getDisplayValue(obj: GameSetupType) = obj.name + " (" + obj.gameType.name + ")"
+
+      override def getIdValue(obj: GameSetupType, index: Int) = obj.id.toString
+    })
     val competitorTypeChoice: DropDownChoice[CompetitorType] = new DropDownChoice[CompetitorType]("competitorType", java.util.Arrays.asList(CompetitorType.values():_*))
 
     f.add(competitionForm.setRequired(true))

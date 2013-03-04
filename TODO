@@ -1,5 +1,16 @@
 TODO
 
+* Testa turneringa
+
+    * Lägg till rendering av spelarnamn
+
+        * testa en turnering
+
+    * Fixa så team vs team lobby fungerar på reserverade spel.
+
+        - lägg till länkar för turneringsmatcher o ev skriv ut hur många som är inloggade på websida
+
+
 
 * System.exit lobby och server när man trycker close
 
