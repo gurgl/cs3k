@@ -3,8 +3,6 @@ package se.bupp.cs3k.server
 import java.net.URL
 import io.Source
 import org.apache.log4j.Logger
-import service.gameserver.GameServerRepository
-import se.bupp.cs3k.server.Cs3kConstants
 import se.bupp.cs3k.server.model.Model._
 
 /**

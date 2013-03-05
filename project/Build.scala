@@ -24,16 +24,80 @@ object MyBuild extends Build {
   lazy val serverProject = Project(
     "server",
     file("server"),
-    settings = defaultSettings ++ webSettings ++ Seq(
+    settings = defaultSettings ++ Seq(
       unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd) }
     ) ++ serverSettings
       //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
   ) dependsOn(commonProject, apiProject) aggregate(lobbyProject,commonProject)
 
+
+
   //val Start = config()
 
   lazy val serverSettings = Seq(
     name := "cs3k Server",
+    version := "0.1",
+    libraryDependencies ++= Seq(
+      "org.slf4j" % "slf4j-log4j12" % "1.6.4",
+      "log4j" % "log4j" % "1.2.16",
+      "javax.servlet" % "servlet-api" % "2.5" % "provided",
+      "org.apache.commons" % "commons-exec" % "1.1"
+    ) ++ Seq(
+      "org.springframework" % "spring-core" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-context" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-web" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-tx" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-asm" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-orm" % "3.1.2.RELEASE",
+      "org.springframework" % "spring-beans" % "3.1.2.RELEASE",
+      "org.codehaus.fabric3.api" % "javax-jta" % "1.1.0",
+      "org.hibernate" % "hibernate-core" % "4.1.7.Final",
+      "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
+      "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
+      "org.apache.wicket" % "wicket-bootstrap" % "0.7",
+      "org.apache.wicket" % "wicket-spring" % WICKET_VERSION, //exclude("org.apache.wicket","wicket-ioc"),
+      "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
+      "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
+      "org.hsqldb" % "hsqldb" % "2.2.9"
+    ) ++ Seq(
+      "junit" % "junit" % "4.10" % "test",
+      "org.mockito" % "mockito-all" % "1.9.0" % "test",
+      "org.specs2" %% "specs2" % "1.12.3" % "test",
+      "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.1.0" % "test"
+  ),
+    resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
+      "sonatype-snap" at "http://oss.sonatype.org/content/repositories/snapshots",
+      "more apache" at "http://repository.apache.org/snapshots/"
+    ),
+    scalacOptions += "-deprecation"
+    /*,
+    packageWar in Compile <<= (packageWar in Compile, target, webstartBuild.in(lobbyProject)).map {
+        (packa, target, webstartBuild) => {
+            System.err.println("Tjaba")
+
+            System.err.println("Tja")
+            val newFiles: PathFinder = (webstartBuild * "*")
+            val webapp: File = target / "webapp"
+            val copyFiles: Seq[(File, File)] = newFiles x (Path rebase(webstartBuild, webapp))
+            IO copy copyFiles
+            packa
+          }
+    }*/
+
+  )
+
+  lazy val webProject = Project(
+    "web",
+    file("web"),
+    settings = defaultSettings ++ webSettings ++ Seq(
+      unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd) }
+    ) ++ webModSettings
+    //++ net.virtualvoid.sbt.graph.Plugin.graphSettings
+  ) dependsOn(serverProject, apiProject) aggregate(serverProject)
+
+  lazy val webModSettings = Seq(
+    name := "cs3k Web",
     version := "0.1",
     libraryDependencies ++= Seq(
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
@@ -65,7 +129,7 @@ object MyBuild extends Build {
       "org.mockito" % "mockito-all" % "1.9.0" % "test",
       "org.specs2" %% "specs2" % "1.12.3" % "test",
       "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.1.0" % "test"
-  ),
+    ),
     resolvers ++= Seq("eclipse" at "http://mirror.csclub.uwaterloo.ca/eclipse/rt/eclipselink/maven.repo/",
       "sonatype-snap" at "http://oss.sonatype.org/content/repositories/snapshots",
       "more apache" at "http://repository.apache.org/snapshots/"
@@ -83,22 +147,12 @@ object MyBuild extends Build {
       (res, target, webstartBuild) => {
         res
       }
-    }
-    /*,
-    packageWar in Compile <<= (packageWar in Compile, target, webstartBuild.in(lobbyProject)).map {
-        (packa, target, webstartBuild) => {
-            System.err.println("Tjaba")
-
-            System.err.println("Tja")
-            val newFiles: PathFinder = (webstartBuild * "*")
-            val webapp: File = target / "webapp"
-            val copyFiles: Seq[(File, File)] = newFiles x (Path rebase(webstartBuild, webapp))
-            IO copy copyFiles
-            packa
-          }
-    }*/
-     , webappResources in Compile in Compile <+= (webstartOutputDirectory in lobbyProject)(sd => sd )
+    },
+    webappResources in Compile in Compile <+= (webstartOutputDirectory in lobbyProject)(sd => sd )
   )
+
+
+
 
   lazy val lobbyProject = Project(
     id = "lobby",

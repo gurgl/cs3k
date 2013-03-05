@@ -1,12 +1,11 @@
 /**
  * @author kjozsa
  */
-package se.bupp.cs3k.server
+package se.bupp.cs3k.server.web
 
 import org.apache.wicket.util.tester.WicketTester
 import org.junit.runner.RunWith
 
-import web.{WicketApplication}
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.junit.Ignore

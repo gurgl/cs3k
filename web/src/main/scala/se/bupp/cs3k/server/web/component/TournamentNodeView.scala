@@ -1,14 +1,10 @@
 package se.bupp.cs3k.server.web.component
 
-import org.apache.wicket.markup.html.panel.Panel
-import java.io.PrintWriter
 import org.apache.wicket.model.IModel
-import org.apache.wicket.Component
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
 import org.apache.wicket.markup.html.WebComponent
-import org.apache.wicket.markup.head.IHeaderResponse
+import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
 import se.bupp.cs3k.server.service.TournamentHelper
-import se.bupp.cs3k.server.model.HasQualifierDetails
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,59 +14,10 @@ import se.bupp.cs3k.server.model.HasQualifierDetails
  * To change this template use File | Settings | File Templates.
  */
 
-object TournamentNodeView {
-  case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float,state:QualifierState.QualifierState = QualifierState.Undetermined) extends Serializable {
 
-  }
+class TournamentNodeView(id:String, model:IModel[_ <: TwoGameQualifierPositionAndSize]) extends WebComponent(id) {
 
-
-  object QualifierState extends Enumeration {
-    type QualifierState = Value
-    val Played,Determined,Undetermined = Value
-  }
-  val topTextAreaHeight = 10
-  val lineToTextMargin = 5
-  val textLeftMargin = 5
-
-
-  def createLayout(numOfPlayers:Int ): List[TournamentNodeView.TwoGameQualifierPositionAndSize] = {
-    val yMod = 70
-    val screenOffsetY = 20
-    var i = 0
-
-    val yo = new TournamentHelper.ArmHeightVisualizer[TwoGameQualifierPositionAndSize](
-      (offsetY, subTreesHeights, subTreeHeight, stepsToBottom, nodeId) => {
-        def bupp(height: Float) = {
-          yMod * (offsetY.toFloat + (subTreeHeight.toFloat / 2f + height / 2f))
-        }
-
-        val (top, bot) = subTreesHeights match {
-          case x :: y :: Nil =>
-            println(x + " " + y)
-            (bupp(-x), bupp(y))
-          case x :: Nil => (bupp(-x), bupp(0.5f))
-          case Nil => (bupp(-0.5f), bupp(0.5f))
-        }
-        //i = i +1
-        //println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
-        new TwoGameQualifierPositionAndSize(subTreesHeights.lift(0).toString, subTreesHeights.lift(1).toString, 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot))
-      }
-    )
-
-    val numOfCompleteLevels: Int = TournamentHelper.log2(numOfPlayers)
-    val numOfPlayersMoreThanCompleteLevels: Int = numOfPlayers % (1 << numOfCompleteLevels)
-    val numOfLevels = numOfCompleteLevels + (if (numOfPlayersMoreThanCompleteLevels > 0) 1 else 0) - 1
-
-    val qa = TournamentHelper.indexedToSimple(TournamentHelper.index(TournamentHelper.createTournamentStructure(numOfPlayers)))
-    var listn = yo.build(qa, 0.0f, numOfLevels)._1
-    listn
-  }
-
-
-}
-class TournamentNodeView(id:String, model:IModel[_ <: TournamentNodeView.TwoGameQualifierPositionAndSize]) extends WebComponent(id) {
-  import TournamentNodeView._
-
+  import TournamentHelper._
   var m = model.getObject
 
   val textId1 = "text1_" + id

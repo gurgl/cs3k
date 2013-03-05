@@ -4,16 +4,15 @@ import model._
 import org.specs2.mutable.Specification
 import io.Source
 import java.net.URL
-import service.TournamentHelper.XY
-import service.TournamentHelper.XY
+import service.TournamentHelper.{QualifierState, TwoGameQualifierPositionAndSize, XY}
 import service.dao.{CompetitionDao, GameSetupTypeDao, TeamDao}
 import service.{CompetitorService, TournamentHelper, CompetitionService}
-import web.component.TournamentNodeView.{QualifierState, TwoGameQualifierPositionAndSize}
+
 import org.apache.wicket.util.tester.WicketTester
 
 import java.io.PrintWriter
 import org.apache.wicket.model.Model
-import web.component.TournamentViewNotStarted
+
 import org.springframework.context.support.FileSystemXmlApplicationContext
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.transaction.{TransactionStatus, PlatformTransactionManager}
@@ -155,22 +154,7 @@ class LadderServiceTest extends Specification {
     }*/
   }
 
-  "asdfasdfasdf" should {
-    "asdfasdf" in {
-      val wt = new WicketTester()
-      wt.getApplication.getMarkupSettings.setStripWicketTags(true)
-      //(1 until 50 by 1).foreach { case i =>
-      val i = 31
-      var view = new TournamentViewNotStarted("bupp", new Model(i))
-        view.ladderService = new CompetitionService
-        wt.startComponentInPage(view)
-        Some(new PrintWriter(s"/tmp/example$i.html")).foreach{p => p.write(wt.getLastResponseAsString); p.close}
-        //import sys.process._
-        //() #> new java.io.File("/tmp/example.html") !
-      //}
-      1 === 1
-    }
-  }
+
 
   "build qualfiier structure" should {
     "serialize and deserialize tournament structure in a readable format into database" in new InApplicationContext with TestDataGameSetup {

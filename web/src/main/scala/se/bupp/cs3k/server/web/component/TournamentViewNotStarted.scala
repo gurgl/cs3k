@@ -1,15 +1,13 @@
 package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.markup.html.panel.Panel
-import java.io.PrintWriter
-import org.apache.wicket.markup.MarkupStream
-import org.apache.wicket.model.{IModel, Model}
-import se.bupp.cs3k.server.web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
+import org.apache.wicket.model.IModel
+
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{TournamentHelper, CompetitionService}
-import se.bupp.cs3k.server.model.QualifierWithParentReference
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.model.util.ListModel
+import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,7 +24,7 @@ class TournamentViewNotStarted(id:String, mod:IModel[Integer]) extends Panel(id)
   var buffa:ListModel[TwoGameQualifierPositionAndSize] = new ListModel[TwoGameQualifierPositionAndSize]()
 
   override def onBeforeRender() {
-    var listn: List[TournamentNodeView.TwoGameQualifierPositionAndSize] = TournamentNodeView.createLayout(mod.getObject)
+    val listn: List[TwoGameQualifierPositionAndSize] = TournamentHelper.createLayout(mod.getObject)
     import scala.collection.JavaConversions.seqAsJavaList
 
 

@@ -2,12 +2,13 @@ package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.IModel
-import se.bupp.cs3k.server.web.component.TournamentNodeView.TwoGameQualifierPositionAndSize
+
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.CompetitionService
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.model.util.ListModel
-import se.bupp.cs3k.server.model.{HasQualifierDetails, Tournament}
+import se.bupp.cs3k.server.model.{ Tournament}
+import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,7 +25,7 @@ class TournamentView(id:String, mod:IModel[Tournament]) extends Panel(id) {
   var buffa:ListModel[TwoGameQualifierPositionAndSize] = new ListModel[TwoGameQualifierPositionAndSize]()
 
   override def onBeforeRender() {
-    var listn: List[TournamentNodeView.TwoGameQualifierPositionAndSize] =
+    var listn: List[TwoGameQualifierPositionAndSize] =
       ladderService.createLayout2(mod.getObject)
     import scala.collection.JavaConversions.seqAsJavaList
 

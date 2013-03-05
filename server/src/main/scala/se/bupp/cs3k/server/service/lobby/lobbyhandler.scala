@@ -24,7 +24,6 @@ import server.model.NonPersisentGameOccassion
 import scala.Some
 import server.model.RegedUser
 import server.model.RunningGame
-import server.service.lobby.HasTeamSupport
 import server.service.{GameReservationService, RankingService}
 import util.{Failure, Success}
 import collection.immutable.Queue
