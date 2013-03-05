@@ -119,7 +119,10 @@ class WebTest extends Specification with Mockito {
 
       val gameSetupDao = mock[GameSetupTypeDao]
       //import scala.collection.JavaConversions.seqAsJavaList
-      gameSetupDao.findAll returns List(new GameSetupType('bla,"tjo","",""),new GameSetupType('bla2,"tjo2","",""))
+      var gt = new GameType('Bla, "ubpp")
+      gameSetupDao.findAll returns List(
+      { val a = new GameSetupType('bla,"tjo","","") ; a.gameType = gt ; a.id = 1; a},
+      { val a = new GameSetupType('bla2,"tjo2","",""); a.gameType = gt; a.id = 2 ; a})
 
       var panel = new LadderFormPanel("asdf", "Blha", null)
 
