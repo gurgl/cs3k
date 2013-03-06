@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.service
 
-import dao.{TeamDao, UserDao, GameOccassionDao, GameResultDao}
+import dao._
 import se.bupp.cs3k.example.ExampleScoreScheme.{ExScoreScheme, ExContestScore}
 import se.bupp.cs3k.example.ExampleScoreScheme
 import se.bupp.cs3k.server.model._
@@ -16,6 +16,12 @@ import java.lang.Long
 import se.bupp.cs3k.server.model.TeamRef
 import scala.Some
 import com.fasterxml.jackson.databind.ObjectMapper
+import se.bupp.cs3k.server.model.VirtualTeamRef
+import scala.Some
+import se.bupp.cs3k.server.model.RegedUser
+import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.model.TeamRef
+import se.bupp.cs3k.server.model.AnonUser
 
 /**
  * Created with IntelliJ IDEA.
@@ -45,6 +51,9 @@ class ResultService {
   var userDao:UserDao = _
 
   @Autowired
+  var competitorDao:CompetitorDao = _
+
+  @Autowired
   var teamDao:TeamDao = _
 
 
@@ -65,6 +74,11 @@ class ResultService {
     val competitorsByName = gs.game.participants.map( p => (p.id.competitor.id -> p.id.competitor.nameAccessor)).toMap //.toSet[java.lang.Long]
     log.info("competitorsByName " + competitorsByName)
     competitorsByName
+  }
+
+  @Transactional
+  def findResultsByUser(u:User) = {
+    competitorDao.findResultsByUser(u)
   }
 
 

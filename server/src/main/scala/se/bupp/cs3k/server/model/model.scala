@@ -191,6 +191,11 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
 
 @Entity
 @NamedQueries(Array(
+
+
+  new NamedQuery(name = "Competitor.findResultsByUser",
+    query = "select r from Competitor c left join c.members t, GameOccassion go inner join go.participants p inner join go.result r where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id"),
+
   new NamedQuery(name = "Competitor.findGamesByUser",
     query = "select go from Competitor c left join c.members t, GameOccassion go inner join go.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id"),
   new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2"),

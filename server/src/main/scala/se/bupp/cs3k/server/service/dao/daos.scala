@@ -200,7 +200,14 @@ class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
     q.getResultList.toList.map(_.asInstanceOf[GameOccassion])
   }
 
+  def findResultsByUser(u:User) : List[GameResult] =  {
 
+    val q = em.createNamedQuery("Competitor.findResultsByUser")
+    q.setParameter("user1",u)
+    q.setParameter("user2",u)
+    //q.setParameter("state",CompetitionState.RUNNING)
+    q.getResultList.toList.map(_.asInstanceOf[GameResult])
+  }
 }
 import scala.collection.JavaConversions.asScalaBuffer
 
