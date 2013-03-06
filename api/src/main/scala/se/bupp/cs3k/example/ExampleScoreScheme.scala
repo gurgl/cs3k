@@ -74,7 +74,7 @@ object ExampleScoreScheme {
 
     def getContestStoreClass = classOf[ExContestScore]
 
-    def competitorTotalColHeaders() = Array("Kills", "Diff Kills", "Trophys")
+    def competitorTotalColHeaders = Array("Kills", "Diff Kills", "Trophys")
 
     def calculateTotal(contestScores: util.List[CompetitorScore]) = {
       import scala.collection.JavaConversions.asScalaBuffer
@@ -96,11 +96,11 @@ object ExampleScoreScheme {
       import scala.collection.JavaConversions.mapAsScalaMap
       val res = scores.toList.map {
         case (competitorId, compS:ExCompetitorScore) => {
-          "<tr><td>" + competitors(competitorId) + "</td><td>" + competitorId + "</td><td>" + compS.kills + "</td><td>" + compS.diffKills + "</td><td>" + compS.trophys + "</td></tr>"
+          "<tr><td>" + competitors(competitorId) + "</td><td>" + compS.kills + "</td><td>" + compS.diffKills + "</td><td>" + compS.trophys + "</td></tr>"
         }
         case _ => "BLA"
       }
-      "<tr><th>Competitor</th><th>A</th><th>B</th><th>C</th><th>D</th></tr>" + res.mkString("")
+      s"<tr><th></th><th>${competitorTotalColHeaders()(0)}</th><th>${competitorTotalColHeaders()(1)}</th><th>${competitorTotalColHeaders()(2)}</th></tr>" + res.mkString("")
     }
   }
 
