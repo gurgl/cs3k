@@ -292,8 +292,8 @@ class GameReservationService {
     }
   }
 
-  def findUnplayedGamesForCompetitor(c:Competitor) = {
-    gameDao.findAll
+  def findUnplayedGamesForCompetitor(c:User) = {
+    competitorDao.findUserGames(c)
   }
 
   @Transactional

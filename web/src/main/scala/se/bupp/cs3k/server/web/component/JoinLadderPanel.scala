@@ -28,7 +28,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
   var gs:GameReservationService = _
 
   @SpringBean
-  var ts:CompetitionService = _
+  var competitionService:CompetitionService = _
 
   @SpringBean
   var userDao:UserDao = _
@@ -55,11 +55,11 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
     def iterator(p1: Long, p2: Long) = {
       log.info("ich vägra logga")
       val t = m.getObject
-      ts.findApplicableCompetitors(WiaSession.get().getUser,t).take(p2.toInt).toIterator
+      competitionService.findApplicableCompetitors(WiaSession.get().getUser,t).take(p2.toInt).toIterator
     }
     def size() = {
       val t = m.getObject
-      ts.findApplicableCompetitors(WiaSession.get().getUser,t).size
+      competitionService.findApplicableCompetitors(WiaSession.get().getUser,t).size
     }
     def model(p1: Competitor) = new LoadableDetachableModel[Competitor](p1) {
       def load() =  userDao.findCompetitor(p1.id).get
@@ -81,7 +81,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
             case c:User => "User(" + c.username + ")"
           }
           val t = m.getObject
-          (if(ts.isCompetitorInCompetition(comp, t)) "leave " else "join") + " as " + name
+          (if(competitionService.isCompetitorInCompetition(comp, t)) "leave " else "join") + " as " + name
         }
       })
 
@@ -90,11 +90,11 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
         def onClick(target: AjaxRequestTarget) {
           val t = m.getObject
           val a =
-            if(!ts.isCompetitorInCompetition(comp, t)) {
-              ts.addCompetitorToCompetition(comp, t)
+            if(!competitionService.isCompetitorInCompetition(comp, t)) {
+              competitionService.addCompetitorToCompetition(comp, t)
               info("Joined ladder")
             } else {
-              ts.leaveCompetition(comp, t)
+              competitionService.leaveCompetition(comp, t)
               info("Left ladder")
             }
 
@@ -174,7 +174,14 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
     }
   })
 
+  add(new AjaxLink("debugTrans") {
 
+    def onClick(p1: AjaxRequestTarget) {
+      var ladder = m.getObject
+
+      competitionService.startCompetition(ladder)
+    }
+  })
   add(new LadderRankingView("g"))
 
 

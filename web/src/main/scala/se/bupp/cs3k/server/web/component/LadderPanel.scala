@@ -7,6 +7,9 @@ import se.bupp.cs3k.server.model.{Tournament, Competition, Ladder}
 import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.ajax.AjaxRequestTarget
+import se.bupp.cs3k.model.CompetitionState
+import org.apache.wicket.spring.injection.annot.SpringBean
+import se.bupp.cs3k.server.service.{CompetitionService, CompetitorService}
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,6 +20,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget
  */
 class LadderPanel(id:String, model:IModel[Competition]) extends Panel(id) {
 
+  @SpringBean
+  var competitionService:CompetitionService = _
 
   add(new VertTabbedPanel("tab-panel",
     List(
@@ -35,10 +40,20 @@ class LadderPanel(id:String, model:IModel[Competition]) extends Panel(id) {
               ("Results", (cId:String) => new LadderStandingsPanel(cId, ladMod))
             )
           case t:Tournament =>
-            List(("Results", (cId:String) => new TournamentViewNotStarted(cId, new Model(new Integer(10)))))
+            if (List(CompetitionState.RUNNING, CompetitionState.FINISHED).contains(t.state)) {
+              List(("Results", (cId:String) => new TournamentView(cId, model.asInstanceOf[IModel[Tournament]])))
+            } else {
+
+              List(("Results", (cId:String) => {
+                val numOfPlayers = competitionService.getNumberOfParticipants(model.getObject)
+                new TournamentViewNotStarted(cId, new Model(new Integer(numOfPlayers)))
+
+                  }
+                )
+              )
+            }
         }
       }
-  ))
-
-
+    )
+  )
 }

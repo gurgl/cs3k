@@ -18,6 +18,7 @@ import se.bupp.cs3k.server.model.GameOccassion
 import se.bupp.cs3k.server.model.Model._
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.Ladder
+import se.bupp.cs3k.model.CompetitionState
 
 /**
  * Created with IntelliJ IDEA.
@@ -188,6 +189,15 @@ class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
 
   def findCompetitionParticipants(u:Competition,p1: Long, p2: Long) : List[Competitor]=  {
     findLadderParticipants(u).setMaxResults(p2.toInt).setFirstResult(p1.toInt).getResultList.toList.map(_.asInstanceOf[Competitor])
+  }
+
+  def findUserGames(u:User) : List[GameOccassion] =  {
+
+    val q = em.createNamedQuery("Competitor.findGamesByUser")
+    q.setParameter("user1",u)
+    q.setParameter("user2",u)
+    //q.setParameter("state",CompetitionState.RUNNING)
+    q.getResultList.toList.map(_.asInstanceOf[GameOccassion])
   }
 
 

@@ -177,6 +177,7 @@ class ResultService {
     }
   }
 
+  @Transactional
   def renderResult(gs:GameResult) = {
     import scala.collection.JavaConversions.asScalaBuffer
     import scala.collection.JavaConversions.mapAsJavaMap

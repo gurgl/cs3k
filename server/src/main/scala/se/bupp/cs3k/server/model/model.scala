@@ -191,6 +191,8 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
 
 @Entity
 @NamedQueries(Array(
+  new NamedQuery(name = "Competitor.findGamesByUser",
+    query = "select go from Competitor c left join c.members t, GameOccassion go inner join go.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id"),
   new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2"),
   new NamedQuery(name = "Competitor.findCompetitionParticipants",
     query = "select c from Competition l inner join l.participants p inner join p.id.competitor c where l = :competition"),
@@ -209,6 +211,9 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
 @Inheritance(strategy=InheritanceType.JOINED)
 class Competitor extends Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  /*@OneToMany(mappedBy = "id.competitor")
+  var engagements:java.List[]*/
 
   def nameAccessor = this match {
     case t:Team => t.name
@@ -294,6 +299,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
   @ManyToOne(targetEntity = classOf[GameSetupType], optional=false)
   var game:GameSetupType = _
+
 
 
   def gameSessionIdOpt = Option(gameSessionId)

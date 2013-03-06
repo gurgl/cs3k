@@ -16,7 +16,7 @@ class PlayerPanel(id:String) extends Panel(id) {
 
   add(new VertTabbedPanel("tab-panel",
     List(
-      ("Overview", (cId:String) => new Label(cId, "Overview")),
+      ("Overview", (cId:String) => new PlayerOverview(cId)),
       ("Shedule", (cId:String) => new Label(cId, "Scheudle")),
       ("Results", (cId:String) => new Label(cId, "Results")),
       ("Settings", (cId:String) => new Label(cId, "Settings"))

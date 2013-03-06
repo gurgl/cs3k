@@ -79,12 +79,15 @@ object TournamentHelper {
   def deterministic:TournamentHelper.SlotDistributor[Competitor] = (competitorIds:List[Competitor]) => {
     var slots = (0 until competitorIds.size).map( i => (i,Option.empty[Competitor])).toMap
 
+
+    val numOfSlots = competitorIds.size
     var ptr = 5
     competitorIds.foreach { cid =>
 
+      ptr = numOfSlots % numOfSlots
       while(slots(ptr).isDefined) {
         ptr = ptr + 3
-        ptr = ptr % 10
+        ptr = ptr % numOfSlots
       }
       slots = slots + (ptr -> Some(cid))
     }
@@ -325,6 +328,12 @@ class CompetitionService {
   }
 
   @Transactional
+  def getNumberOfParticipants(cDet:Competition) = {
+    val cc = ladderDao.em.find(classOf[Competition], cDet.id)
+    cc.participants.size
+  }
+
+  @Transactional
   def getTournamentQualifierStructure(t:Tournament) : Qualifier = {
     var tournament = ladderDao.em.merge(t)
     import scala.collection.JavaConversions.asScalaBuffer
@@ -480,6 +489,13 @@ class CompetitionService {
       }
     }
   }
+  @Transactional
+  def startCompetition(competition:Competition) {
+    competition match {
+      case t:Tournament => startTournament(t)
+      case t:Ladder => startLadder(t)
+    }
+  }
 
   @Transactional
   def startTournament(tournamentDet:Tournament) = {
@@ -491,9 +507,11 @@ class CompetitionService {
       val structure = TournamentHelper.createTournamentStructure(numOfPlayers)
       val indexed = TournamentHelper.index(structure)
 
+      tournament.state = CompetitionState.RUNNING
       val tourPrep1 = storeTournamentStructure(tournament, indexed)
 
       distrubtutePlayersInTournament(tourPrep1,TournamentHelper.deterministic)
+
 
     }
   }
