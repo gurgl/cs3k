@@ -9,8 +9,10 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.ajax.AjaxRequestTarget
 import se.bupp.cs3k.server.web.WiaSession
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.service.dao.UserDao
+import se.bupp.cs3k.server.service.dao.{CompetitorDao, UserDao}
 import se.bupp.cs3k.server.service.GameReservationService
+import org.apache.wicket.markup.html.panel.Panel
+import org.slf4j.LoggerFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,13 +21,19 @@ import se.bupp.cs3k.server.service.GameReservationService
  * Time: 01:25
  * To change this template use File | Settings | File Templates.
  */
-class ChallangePanel(id:String,m:IModel[Competition]) extends PlayPanel(id) {
+class ChallangePanel(id:String,m:IModel[Competition]) extends Panel(id) {
 
   @SpringBean
   var gameReservationService:GameReservationService = _
 
   @SpringBean
   var userDao:UserDao = _
+
+  @SpringBean
+  var competitorDao:CompetitorDao = _
+
+  val log = LoggerFactory.getLogger(this.getClass)
+
 
   import scala.collection.JavaConversions.asJavaIterator
   val participantsProvider = new IDataProvider[Competitor]() {

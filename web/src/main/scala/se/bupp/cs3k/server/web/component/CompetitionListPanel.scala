@@ -18,6 +18,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.{PropertyCol
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
+import se.bupp.cs3k.model.CompetitionState
 
 
 /**
@@ -27,7 +28,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
  * Time: 21:18
  * To change this template use File | Settings | File Templates.
  */
-class CompetitionListPanel(id:String) extends Panel(id) {
+class CompetitionListPanel(id:String, option:Option[CompetitionState]) extends Panel(id) {
 
   @SpringBean
   var competitionDao:CompetitionDao = _

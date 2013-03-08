@@ -111,14 +111,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
 
 
 
-  add(new AjaxLink("debugTrans") {
 
-    def onClick(p1: AjaxRequestTarget) {
-      var ladder = m.getObject
-
-      competitionService.startCompetition(ladder)
-    }
-  })
   //add(new LadderRankingView("g"))
 
 
