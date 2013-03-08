@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.server.model.User
 import org.springframework.transaction.annotation.Transactional
-import javax.persistence.criteria.{CriteriaBuilder, Root, CriteriaQuery}
+import criteria._
 
 import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.server.model.GameOccassion
@@ -19,6 +19,10 @@ import se.bupp.cs3k.server.model.Model._
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.Ladder
 import se.bupp.cs3k.model.CompetitionState
+import scala.Option
+import se.bupp.cs3k.server.model.User
+import org.hibernate.ejb.criteria.predicate.CompoundPredicate
+import se.bupp.cs3k.server.model.User
 
 /**
  * Created with IntelliJ IDEA.
@@ -73,19 +77,64 @@ class GenericDaoImpl[T](clz:Class[T]) {
     (select, from, criteriaBuilder)
   }
 
-  import scala.collection.JavaConversions.asScalaBuffer
 
   def selectRange(off:Int,max:Int) : List[T] = {
 
     val resultList = selectRange().setMaxResults(max).setFirstResult(off).getResultList();
     resultList.toList
-
   }
+  import scala.collection.JavaConversions.asScalaBuffer
+
+
+  def selectRangeCount2(t:TypedQuery[T]) = {
+    t.getResultList.size
+  }
+
+
+  def selectRange2Base(bodyOpt:Option[(CriteriaBuilder,Root[T])=> Expression[java.lang.Boolean]])  = {
+    val (select , from , builder , critQry) = selectCriteria2
+    bodyOpt.foreach { body =>
+      val condition:Expression[java.lang.Boolean] = body(builder,from)
+      critQry.where(condition)
+    }
+    val typedQuery:TypedQuery[T] = em.createQuery(select);
+    typedQuery
+  }
+
+  def selectCriteria2: (CriteriaQuery[T], Root[T], CriteriaBuilder, CriteriaQuery[T]) = {
+    val criteriaBuilder: CriteriaBuilder = em.getCriteriaBuilder();
+    val criteriaQuery: CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
+    val from: Root[T] = criteriaQuery.from(clz);
+    val select: CriteriaQuery[T] = criteriaQuery.select(from);
+
+
+    (select, from, criteriaBuilder, criteriaQuery)
+  }
+
+
+  def selectRange2(tq:TypedQuery[T],off:Int,max:Int) : List[T] = {
+
+    val resultList = tq.setMaxResults(max).setFirstResult(off).getResultList();
+    resultList.toList
+  }
+
 }
 
 
 @Repository
 class CompetitionDao extends GenericDaoImpl[Competition](classOf[Competition]) {
+
+  private def stateCrit(m:Option[CompetitionState]) = {
+    m.map( mo => { (b:CriteriaBuilder,r:Root[Competition]) => b.equal(r.get("state"),mo) })
+  }
+
+  def withStateCnt(m:Option[CompetitionState]) = {
+    selectRangeCount2(selectRange2Base(stateCrit(m)))
+  }
+  def withState(m:Option[CompetitionState], off: Int, max: Int) = {
+    selectRange2(selectRange2Base(stateCrit(m)),off,max)
+  }
+
 
 }
 

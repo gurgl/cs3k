@@ -22,7 +22,7 @@
     </bean>
 
 
-    <!--<bean id="defaultObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />-->
+    <bean id="defaultObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />
 
 
 </beans>

@@ -44,7 +44,7 @@ class ContestsPanel(id:String) extends Panel(id) {
     val name = "Contests"
     val model = new Model[Ladder](null)
     val createComponent = (id:String, m:Model[_]) => {
-      new CompetitionListPanel(id)
+      new CompetitionMainListPanel(id)
     }
   }) {
      override def pa:PartialFunction[Any,(BreadCrumbModel,AjaxRequestTarget,Int)] = {

@@ -19,6 +19,7 @@ import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.model.CompetitionState
+import javax.persistence.criteria.{Root, CriteriaBuilder}
 
 
 /**
@@ -28,7 +29,7 @@ import se.bupp.cs3k.model.CompetitionState
  * Time: 21:18
  * To change this template use File | Settings | File Templates.
  */
-class CompetitionListPanel(id:String, option:Option[CompetitionState]) extends Panel(id) {
+class CompetitionListPanel(id:String, m:IModel[Option[CompetitionState]] = new Model(None)) extends Panel(id) {
 
   @SpringBean
   var competitionDao:CompetitionDao = _
@@ -36,9 +37,10 @@ class CompetitionListPanel(id:String, option:Option[CompetitionState]) extends P
 
   val provider = new SortableDataProvider[Competition,String]() {
     import scala.collection.JavaConversions.asJavaIterator
-    def iterator(p1: Long, p2: Long) = competitionDao.selectRange(p1.toInt,p2.toInt).toIterator
 
-    def size() = competitionDao.selectRangeCount
+    def iterator(p1: Long, p2: Long) = competitionDao.withState(m.getObject,p1.toInt,p2.toInt).toIterator
+
+    def size() = competitionDao.withStateCnt(m.getObject)
 
     def model(p1: Competition) = new LoadableDetachableModel[Competition](p1) {
       def load() = competitionDao.find(p1.id).get
@@ -72,9 +74,5 @@ class CompetitionListPanel(id:String, option:Option[CompetitionState]) extends P
   add(new NiceDataTable("table", columns, provider, 8))
 
 
-  add(new AjaxLink("createLadderLink") {
-    def onClick(target: AjaxRequestTarget) {
-      send(getPage(), Broadcast.BREADTH, new CreateLadderEvent(target));
-    }
-  })
+
 }

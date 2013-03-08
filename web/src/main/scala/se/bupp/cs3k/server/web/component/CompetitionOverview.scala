@@ -9,7 +9,7 @@ import se.bupp.cs3k.server.web.WiaSession
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
-import se.bupp.cs3k.server.service.ResultService
+import se.bupp.cs3k.server.service.{CompetitionService, ResultService}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.ajax.markup.html.AjaxLink
 
@@ -24,6 +24,10 @@ class CompetitionOverview(cId:String ,model:IModel[Competition]) extends Panel(c
 
   @SpringBean
   var resultService:ResultService = _
+
+  @SpringBean
+  var competitionService:CompetitionService = _
+
 
   add(new JoinLadderPanel("joinPanel",model) {
     def onUpdate(t: AjaxRequestTarget) {
@@ -53,7 +57,7 @@ class CompetitionOverview(cId:String ,model:IModel[Competition]) extends Panel(c
   add(new AjaxLink("startGameDebug") {
 
     def onClick(p1: AjaxRequestTarget) {
-      var ladder = m.getObject
+      var ladder = model.getObject
 
       competitionService.startCompetition(ladder)
     }
