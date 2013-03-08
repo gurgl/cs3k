@@ -10,7 +10,7 @@ import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import org.slf4j.LoggerFactory
 import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, ExCompetitorScore}
-import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
+import se.bupp.cs3k.server.service.TournamentHelper.{QualifierState, TwoGameQualifierPositionAndSize}
 
 
 /**
@@ -27,7 +27,7 @@ object TournamentHelper {
 
   }*/
 
-  case class TwoGameQualifierPositionAndSize(var p1:String, var p2:String, var id:Int, var left:Float,var top:Float,var width:Float,var height:Float,state:QualifierState.QualifierState = QualifierState.Undetermined) extends Serializable {
+  case class TwoGameQualifierPositionAndSize(var p1:Option[String], var p2:Option[String], var id:Int, var left:Float,var top:Float,var width:Float,var height:Float,state:QualifierState.QualifierState = QualifierState.Undetermined) extends Serializable {
 
   }
 
@@ -61,7 +61,7 @@ object TournamentHelper {
         }
         //i = i +1
         //println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
-        new TwoGameQualifierPositionAndSize(subTreesHeights.lift(0).toString, subTreesHeights.lift(1).toString, 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot))
+        new TwoGameQualifierPositionAndSize(subTreesHeights.lift(0).map(_.toString), subTreesHeights.lift(1).map(_.toString), 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot),QualifierState.Undetermined)
       }
     )
 
@@ -74,7 +74,12 @@ object TournamentHelper {
     listn
   }
 
+  /**
+   * Distributes elements list:List[T] into the seq of (0 .. list.size -1)
+   * @return
+   */
   type SlotDistributor[T] = (List[T]) => Map[Int,T]
+
 
   def deterministic:TournamentHelper.SlotDistributor[Competitor] = (competitorIds:List[Competitor]) => {
     var slots = (0 until competitorIds.size).map( i => (i,Option.empty[Competitor])).toMap
@@ -425,27 +430,36 @@ class CompetitionService {
     ladderDao.em.remove(tm)
   }
 
+  /**
+   * Distribute players in leafs ordered from top top bottom. 0 representing top and numOPlayers-1 at the bottom.
+   *
+   * @param tournamentDet
+   * @param numOfPlayersPerStage
+   * @param distributor
+   */
   @Transactional
-  def distrubtutePlayersInTournament(tournamentDet:Tournament, distributor:TournamentHelper.SlotDistributor[Competitor]) {
+  def distributePlayersInTournament(tournamentDet:Tournament, numOfPlayersPerStage:Int, distributor:TournamentHelper.SlotDistributor[Competitor]) {
     import scala.collection.JavaConversions.asScalaBuffer
     val tournament = ladderDao.em.find(classOf[Tournament],tournamentDet.id)
     val competitors = tournament.participants.map(_.id.competitor).toList
-    val firstChallanges = tournament.structure.filter(_.childNodeIds.size < 2)
+    val firstChallanges = tournament.structure.filter(_.childNodeIds.size < numOfPlayersPerStage)
     firstChallanges.foreach(x => println("b" + x.nodeId + " " + x.childNodeIds.toList))
 
     val matchupLottery = distributor(competitors)
     println(matchupLottery.size)
-    var matchupPtr = 0
+    var leafIndex = 0
     firstChallanges.foreach { t =>
       val s = "tour_" + tournament.id + "_" + t.nodeId
       val go = tournament.createGameFromTournament(t)
-      val gameCompetitors:List[Competitor] = (0 until (2 - t.childNodeIds.size)).map {
+      val gameCompetitors:Map[Int,Competitor] = (t.childNodeIds.size until numOfPlayersPerStage).map {
         i =>
-        val comp = matchupLottery(matchupPtr)
-        matchupPtr = matchupPtr + 1
-        comp
-      }.toList
-      val go2 = gameReservationService.addCompitorsAndStore(go,gameCompetitors)
+        val comp = matchupLottery(leafIndex)
+        leafIndex = leafIndex + 1
+        (i -> comp)
+      }.toMap
+
+      val orderedCompetitors = gameCompetitors.toList.sortBy(_._1)
+      val go2 = gameReservationService.addCompitorsAndStore(go,orderedCompetitors)
       //ladderDao.em.persist(go2)
       t.gameOccassion = go2
       ladderDao.em.persist(t)
@@ -510,22 +524,22 @@ class CompetitionService {
       tournament.state = CompetitionState.RUNNING
       val tourPrep1 = storeTournamentStructure(tournament, indexed)
 
-      distrubtutePlayersInTournament(tourPrep1,TournamentHelper.deterministic)
+      distributePlayersInTournament(tourPrep1,2,TournamentHelper.deterministic)
 
 
     }
   }
 
   @Transactional
-  def createLayout2(tournamentDet:Tournament): List[TwoGameQualifierPositionAndSize] = {
+  def createLayout2(tournamentDet:Tournament, screenOffsetY:Int = 20): List[TwoGameQualifierPositionAndSize] = {
     val tournament = ladderDao.em.find(classOf[Tournament],tournamentDet.id)
     import scala.collection.JavaConversions.asScalaBuffer
     val participants = tournament.participants.map(_.id.competitor)
     val compIdToName = participants.map(p => (p.id, p.nameAccessor)).toMap
 
     val nodeIdsByGame = tournament.structure.map(s => (s.nodeId, Option(s.gameOccassion))).toMap
-    val nodeIdsByCompetitors = nodeIdsByGame.map {
-      case (k, v) => (k, v.toList.flatMap(_.participants.map(_.id.competitor.id)))
+    val nodeIdsByCompetitorsSortedBySequenceId = nodeIdsByGame.map {
+      case (k, v) => (k, v.toList.flatMap(_.participants.sortBy(_.seqId.ensuring(_ != null)).map(_.id.competitor.id)))
     }
 
 
@@ -534,7 +548,7 @@ class CompetitionService {
     val numOfPlayers = participants.size
 
     val yMod = 70
-    val screenOffsetY = 20
+
 
     val yo = new TournamentHelper.ArmHeightVisualizer[TwoGameQualifierPositionAndSize](
       (offsetY, subTreesHeights, subTreeHeight, stepsToBottom, nodeId) => {
@@ -552,15 +566,25 @@ class CompetitionService {
         //i = i +1
         //println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
         var game = nodeIdsByGame(nodeId)
-        val competitors = nodeIdsByCompetitors(nodeId)
+        val competitorsInSequenceOrder = nodeIdsByCompetitorsSortedBySequenceId(nodeId)
+
+        // Competitors are assigned slot in competitorsInSequenceOrder.last = bottom position
         val list = (0 until 2).map {
           i =>
-            val name = competitors.lift(i).flatMap(ii => compIdToName.get(ii)).getOrElse("Undecided")
-            (i, name)
+            val name = competitorsInSequenceOrder.lift(i).flatMap(ii => compIdToName.get(ii))
+            (2 - i, name)
         }.toMap
 
-
-        new TwoGameQualifierPositionAndSize(list(0), list(1), 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot)) {
+        val state = game match {
+          case None => QualifierState.Undetermined
+          case Some(g) => //Option(g.result).map(QualifierState.Played).getOrElse(QualifierState.Determined)
+            if (g.result == null) {
+              if(g.participants.size < 2) QualifierState.Undetermined else QualifierState.Determined
+            } else {
+              QualifierState.Played
+            }
+        }
+        new TwoGameQualifierPositionAndSize(list(1), list(2), 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot), state) {
 
         }
       }

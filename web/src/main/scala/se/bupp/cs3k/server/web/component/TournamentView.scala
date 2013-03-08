@@ -26,7 +26,7 @@ class TournamentView(id:String, mod:IModel[Tournament]) extends Panel(id) {
 
   override def onBeforeRender() {
     var listn: List[TwoGameQualifierPositionAndSize] =
-      ladderService.createLayout2(mod.getObject)
+      ladderService.createLayout2(mod.getObject,30)
     import scala.collection.JavaConversions.seqAsJavaList
 
 

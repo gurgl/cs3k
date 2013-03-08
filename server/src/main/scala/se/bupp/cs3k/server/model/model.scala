@@ -244,7 +244,13 @@ class GameParticipation() {
   @Id
   var id:GameParticipationPk = _
 
-  def this(_id:GameParticipationPk) = { this() ; this.id = _id}
+
+  @Basic(optional = true)
+  @Column(nullable = true)
+  var seqId:Integer = _
+
+
+  def this(_id:GameParticipationPk, _seqId:Integer = null) = { this() ; this.id = _id ; seqId = _seqId }
 }
 
 
@@ -260,8 +266,11 @@ class GameParticipation() {
 
 /*@OneToOne(mappedBy = "result")
 @PrimaryKeyJoinColumn*/
+@NamedQueries(Array(
+  new NamedQuery(name = "Competitor.findResultsByCompetition",
 
-
+    query = "select gr from GameResult gr inner join gr.game g inner join g.competitionGame cg left join cg.tournament t left join cg.ladder l where (l.id = :comp1 and t is null) or (t.id = :comp2 and l is null) ")
+))
 @Entity
 class GameResult extends Serializable {
 

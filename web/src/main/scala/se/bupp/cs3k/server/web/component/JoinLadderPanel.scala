@@ -25,7 +25,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(id) {
 
   @SpringBean
-  var gs:GameReservationService = _
+  var gameReservationService:GameReservationService = _
 
   @SpringBean
   var competitionService:CompetitionService = _
@@ -109,70 +109,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
   })
 
 
-  val participantsProvider = new IDataProvider[Competitor]() {
-    def detach() {}
-    def iterator(p1: Long, p2: Long) = {
-      log.info("ich vägra logga")
-      val t = m.getObject
-      competitorDao.findCompetitionParticipants(t, p1 ,p2).toIterator
-    }
-    def size() =  {
-      val t = m.getObject
-      competitorDao.findCompetitionParticipantsCount(t)
-    }
-    def model(p1: Competitor) = new LoadableDetachableModel[Competitor](p1) {
-      def load() =  userDao.findCompetitor(p1.id).get
-    }
-  }
 
-  add(new DataView[Competitor]("participants",participantsProvider) {
-    def populateItem(item: Item[Competitor]) {
-
-      val comp = item.getModelObject
-      /*val label = new Label("label", new AbstractReadOnlyModel[String] {
-        def getObject = {
-          val name = comp match {
-            case c:Team => "Team(" + c.name + ")"
-            case c:User => "User(" + c.username + ")"
-          }
-          (if(ts.isCompetitorInCompetition(comp, t)) "leave " else "join") + " as " + name
-        }
-      })
-      */
-
-      /*val link = new AjaxLink[Ladder]("link") {
-
-        def onClick(target: AjaxRequestTarget) {
-          val a =
-            if(!ts.isCompetitorInCompetition(comp, t)) {
-              ts.addCompetitorToCompetition(comp, t)
-              info("Joined ladder")
-            } else {
-              ts.leaveCompetition(comp, t)
-              info("Left ladder")
-            }
-
-          JoinLadderPanel.this.onUpdate(target)
-
-          target.add(JoinLadderPanel.this)
-        }
-      }*/
-      //link.add(label)
-      item.add(new Label("label",new AbstractReadOnlyModel[String] {
-        def getObject = comp match {
-          case c:Team => c.name
-          case c:User => c.username
-        }
-      }))
-
-      item.add(new AjaxLink("challangeLink") {
-        def onClick(p1: AjaxRequestTarget) {
-          // TODO fix me
-          gs.challangeCompetitor(WiaSession.get().getUser, comp, null)
-        }
-      })
-    }
-  })
 
   add(new AjaxLink("debugTrans") {
 
@@ -182,7 +119,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
       competitionService.startCompetition(ladder)
     }
   })
-  add(new LadderRankingView("g"))
+  //add(new LadderRankingView("g"))
 
 
 }

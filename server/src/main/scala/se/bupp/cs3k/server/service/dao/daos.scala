@@ -91,7 +91,14 @@ class CompetitionDao extends GenericDaoImpl[Competition](classOf[Competition]) {
 
 @Repository
 class GameResultDao extends GenericDaoImpl[GameResult](classOf[GameResult]) {
+   def findByCompetition(u:Competition) : List[GameResult] = {
 
+     var q: TypedQuery[GameResult] = em.createNamedQuery[GameResult]("Competitor.findResultsByCompetition", classOf[GameResult])
+     q.setParameter("comp1",u.id)
+     q.setParameter("comp2",u.id)
+     import scala.collection.JavaConversions.asScalaBuffer
+     q.getResultList.toList.map(_.asInstanceOf[GameResult])
+   }
 }
 
 @Repository

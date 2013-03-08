@@ -25,7 +25,11 @@ class TournamentNodeView(id:String, model:IModel[_ <: TwoGameQualifierPositionAn
 
 
   val pathId= "path_" + id
-
+  val cssClass = m.state match {
+    case QualifierState.Determined => "determined"
+    case QualifierState.Played => "determined"
+    case QualifierState.Undetermined => "undetermined"
+  }
   val topBox = m.top //+ topTextAreaHeight + lineToTextMargin
   val heightBox = m.height // - topTextAreaHeight - lineToTextMargin
   val text1y = m.top - lineToTextMargin
@@ -38,16 +42,16 @@ class TournamentNodeView(id:String, model:IModel[_ <: TwoGameQualifierPositionAn
     stream.write(
       s"""
         <text x="${m.left + textLeftMargin}" y="${text1y}" id="$textId1" xml:space="preserve" class="svg-tour-text-css">
-          <tspan  x="${m.left + textLeftMargin}" y="${text1y}" id="tspan2826" style="svg-tour-tspan-css">
-            ${m.p1}
+          <tspan  x="${m.left + textLeftMargin}" y="${text1y}" id="tspan2826" class="svg-tour-tspan-css ${m.p1.map(x => "").getOrElse("Undecided")}">
+            ${m.p1.getOrElse("Undecided")}
           </tspan>
         </text>
         <text x="${m.left + textLeftMargin}" y="${text2y}" id="$textId2" xml:space="preserve" class="svg-tour-text-css">
-          <tspan  x="${m.left + textLeftMargin}" y="${text2y}" id="tspan2830" style="svg-tour-tspan-css">
-            ${m.p2}
+          <tspan  x="${m.left + textLeftMargin}" y="${text2y}" id="tspan2830" class="svg-tour-tspan-css ${m.p2.map(x => "").getOrElse("Undecided")}">
+            ${m.p2.getOrElse("Undecided")}
           </tspan>
         </text>
-        <path d="$path" id="path2842" class="svg-tour-path-css"/>
+        <path d="$path" id="path2842" class="svg-tour-path-css $cssClass"/>
       """//.stripMargin
     )
     //writer.close()

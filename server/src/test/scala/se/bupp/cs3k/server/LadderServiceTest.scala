@@ -22,6 +22,8 @@ import org.specs2.specification.{After, Scope}
 import org.springframework.transaction.support.{TransactionCallbackWithoutResult, TransactionTemplate}
 import scala.Some
 import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,6 +33,7 @@ import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
  * To change this template use File | Settings | File Templates.
  */
 
+@RunWith(classOf[JUnitRunner])
 class LadderServiceTest extends Specification {
   sequential
 
@@ -224,7 +227,7 @@ class LadderServiceTest extends Specification {
       TournamentHelper.indexedToSimple(indexed) === tree
 
 
-      competitionService.distrubtutePlayersInTournament(tournamentBis,lawl)
+      competitionService.distributePlayersInTournament(tournamentBis,2,lawl)
 
       1 === 1
     }
@@ -262,7 +265,18 @@ class LadderServiceTest extends Specification {
       competitionService.startTournament(tournamentPrim)
 
       var layout = competitionService.createLayout2(tournamentPrim)
-      layout must haveTheSameElementsAs(List(TwoGameQualifierPositionAndSize("5","2",1234,0.0f,37.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("9","6",1234,0.0f,107.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,100.0f,55.0f,100.0f,70.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("3","0",1234,100.0f,177.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("7","4",1234,100.0f,317.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("1","8",1234,100.0f,387.5f,100.0f,35.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,200.0f,335.0f,100.0f,70.0f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize("Undecided","Undecided",1234,300.0f,160.0f,100.0f,210.0f,QualifierState.Undetermined)))
+      layout must haveTheSameElementsAs(
+        List(
+          TwoGameQualifierPositionAndSize(Some("7"),Some("0"),1234,0.0f,37.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(Some("1"),Some("4"),1234,0.0f,107.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(None,None,1234,100.0f,55.0f,100.0f,70.0f,QualifierState.Undetermined),
+           TwoGameQualifierPositionAndSize(Some("5"),Some("8"),1234,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(None,None,1234,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined),
+           TwoGameQualifierPositionAndSize(Some("9"),Some("2"),1234,100.0f,317.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(Some("3"),Some("6"),1234,100.0f,387.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(None,None,1234,200.0f,335.0f,100.0f,70.0f,QualifierState.Undetermined),
+           TwoGameQualifierPositionAndSize(None,None,1234,300.0f,160.0f,100.0f,210.0f,QualifierState.Undetermined))
+        )
 
     }
 

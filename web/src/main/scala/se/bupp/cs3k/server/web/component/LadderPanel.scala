@@ -25,11 +25,7 @@ class LadderPanel(id:String, model:IModel[Competition]) extends Panel(id) {
 
   add(new VertTabbedPanel("tab-panel",
     List(
-      ("Overview", (cId:String) => new JoinLadderPanel(cId,model) {
-      def onUpdate(t: AjaxRequestTarget) {
-
-      }
-      }),
+      ("Overview", (cId:String) => new CompetitionOverview(cId,model)),
       ("Challangers", (cId:String) => new TeamListPanel(cId))
     ) ++
       {

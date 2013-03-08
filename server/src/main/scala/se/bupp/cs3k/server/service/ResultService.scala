@@ -81,6 +81,12 @@ class ResultService {
     competitorDao.findResultsByUser(u)
   }
 
+  @Transactional
+  def findByCompetition(u:Competition) = {
+    gameResultDao.findByCompetition(u)
+  }
+
+
 
   def transformToRenderableTeamGame(gameSessionId: GameSessionId, serializedResult: String, teams:List[AbstractTeamRef]) = {
     val resIdToLabelList = teams.map {
