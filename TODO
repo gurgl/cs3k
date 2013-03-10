@@ -13,7 +13,7 @@
 
 * Lägg till audit på join team
 
-* Skapa ladder/turneringar öppna för signup
+
 
 * Skapa component av Resultatlista
 
@@ -67,6 +67,8 @@
 * log conf med en bokstavs paketnamn
 
 DONE
+
+V * Skapa ladder/turneringar öppna för signup
 
 V * starta turneringar
 
