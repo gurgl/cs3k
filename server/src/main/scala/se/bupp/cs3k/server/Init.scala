@@ -82,7 +82,7 @@ class Init {
 
   val tankGameServer = new GameServerSpecification("java " +
     "-jar " +
-    "C:/dev/workspace/opengl-tanks/server/target/scala-2.10/server_2.10-0.1-one-jar.jar" +
+    Cs3kConfig.TankGame.SERVER_JAR_PATH +
     " ", new ResourceNeeds(1,1))
 
   val tankGameSettings2  = {

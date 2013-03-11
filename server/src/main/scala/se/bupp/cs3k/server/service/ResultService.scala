@@ -77,8 +77,12 @@ class ResultService {
   }
 
   @Transactional
-  def findResultsByUser(u:User) = {
-    competitorDao.findResultsByUser(u)
+  def findResultsByCompetitor(u:Competitor) = {
+    u match {
+      case u:Team => competitorDao.findResultsByTeam(u)
+      case u:User => competitorDao.findResultsByUser(u)
+    }
+
   }
 
   @Transactional

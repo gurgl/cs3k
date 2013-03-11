@@ -19,6 +19,10 @@ object Cs3kConstants {
 }
 object Cs3kConfig {
 
+  object TankGame {
+    val CLIENT_PATH="file:///c:/Users/karlw/Documents/src/opengl-tanks/client/target/scala-2.10/webstart/"
+    val SERVER_JAR_PATH = "C:/Users/karlw/Documents/src/opengl-tanks/server/target/scala-2.10/server_2.10-0.1-one-jar.jar"
+  }
 
 
   val log = Logger.getLogger(this.getClass)

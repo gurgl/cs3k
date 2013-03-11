@@ -121,6 +121,8 @@ class Ladder(_name:String,_competitorType:CompetitorType, _gameSetup:GameSetupTy
   @OneToMany(mappedBy = "ladder")
   var games:JUList[LadderGame] =  new JUArrayList[LadderGame]()
 
+
+
   def this() = this(null,null,null,null)
   /*
   override def hashCode(): Int = Util._hashCode(Ladder.this);
@@ -195,6 +197,8 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
 
   new NamedQuery(name = "Competitor.findResultsByUser",
     query = "select r from Competitor c left join c.members t, GameOccassion go inner join go.participants p inner join go.result r where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id"),
+  new NamedQuery(name = "Competitor.findResultsByTeam",
+    query = "select r from GameOccassion go inner join go.participants p inner join go.result r where p.id.competitor = :team"),
 
   new NamedQuery(name = "Competitor.findGamesByUser",
     query = "select go from Competitor c left join c.members t, GameOccassion go inner join go.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id"),
@@ -311,6 +315,7 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   @OneToOne(mappedBy = "gameOccassion", optional = true)
   var competitionGame:CompetitionGame = _
 
+  //TODO: REname me
   @ManyToOne(targetEntity = classOf[GameSetupType], optional=false)
   var game:GameSetupType = _
 
@@ -445,6 +450,8 @@ abstract class CompetitionGame {
   @OneToOne(optional = true)
   @JoinColumn(name = "GAME_OCCASSION_ID", referencedColumnName = "ID", nullable = true)
   var gameOccassion:GameOccassion = _
+
+  def competition:Competition
 }
 
 
@@ -503,6 +510,8 @@ class TournamentStageQualifier(_nodeId:Int, _tournament:Tournament, _childNodeId
   @ManyToOne(optional = false)
   var tournament:Tournament= _tournament
 
+  def competition:Competition = tournament
+
   def this() = this(-1,null,Nil)
 }
 
@@ -511,6 +520,8 @@ class LadderGame(_ladder:Ladder) extends CompetitionGame {
 
   @ManyToOne(optional = false)
   var ladder:Ladder = _ladder
+
+  def competition:Competition = ladder
 
   def this() = this(null)
 }

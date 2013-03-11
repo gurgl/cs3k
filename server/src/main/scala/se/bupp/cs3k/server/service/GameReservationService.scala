@@ -293,7 +293,9 @@ class GameReservationService {
   }
 
   def findUnplayedGamesForCompetitor(c:User) = {
-    competitorDao.findUserGames(c)
+    var games = competitorDao.findUserGames(c)
+    games.foreach( g => {val cg = g.competitionGame.competition ; g.game ;})
+    games
   }
 
   @Transactional

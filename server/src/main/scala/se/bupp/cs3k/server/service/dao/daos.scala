@@ -216,6 +216,15 @@ class TicketDao extends GenericDaoImpl[Ticket](classOf[Ticket]) {
 @Repository
 class CompetitorDao extends GenericDaoImpl[Competitor](classOf[Competitor]) {
   import scala.collection.JavaConversions.asScalaBuffer
+  def findResultsByTeam(team: Team) : List[GameResult] =  {
+
+      val q = em.createNamedQuery("Competitor.findResultsByTeam")
+      q.setParameter("team",team)
+      //q.setParameter("state",CompetitionState.RUNNING)
+      q.getResultList.toList.map(_.asInstanceOf[GameResult])
+  }
+
+
 
   def findPlayerTeams(id:Long) = {
       var q: TypedQuery[Team] = em.createNamedQuery[Team]("User.findUserTeams", classOf[Team])

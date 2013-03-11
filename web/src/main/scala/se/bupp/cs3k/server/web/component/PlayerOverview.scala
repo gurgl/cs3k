@@ -31,9 +31,9 @@ class PlayerOverview(id:String) extends Panel(id) {
   var resultService:ResultService = _
 
   import scala.collection.JavaConversions.seqAsJavaList
-  var all  = new ListModel(resultService.findResultsByUser(WiaSession.get().getUser))
+  var all  = new ListModel(resultService.findResultsByCompetitor(WiaSession.get().getUser))
 
-  add(new ListView("lastGames", all) {
+  /*add(new ListView("lastGames", all) {
     def populateItem(item: ListItem[GameResult]) {
       item.add(new MarkupContainer("item") {
 
@@ -47,45 +47,12 @@ class PlayerOverview(id:String) extends Panel(id) {
         }
       })
     }
-  })
+  })*/
+
+  add(new GameResultList("lastGames", all))
 
 
-  add(new ChallangePanel("challangePanel"))
+  add(new PlayerOpenLobbiesPanel("openLobbies"))
 
-  class ChallangePanel(id:String) extends WebMarkupContainer(id) {
-    var user: User = WiaSession.get().getUser
-
-    var challanges = new ListModel(gameReservationService.findUnplayedGamesForCompetitor(user))
-
-
-    add(new ListView[GameOccassion]("challanges",challanges) {
-      def populateItem(listItem: ListItem[GameOccassion]) {
-        var go = listItem.getModelObject
-        var parameters: PageParameters = new PageParameters()
-        //parameters.add("competitor_id", selectionModel.getObject.id)
-        parameters.add("user_id", user.id)
-        parameters.add("game_occassion_id", go.id)
-
-
-        val ref = new ResourceReference("bupp") {
-          def getResource = WicketApplication.get.gameResource
-        }
-        listItem.add(new ResourceLink[String]("play", ref, parameters) {
-          /*
-                    def onClick() {
-                      var parameters: PageParameters = new PageParameters()
-                      //parameters.add("competitor_id", selectionModel.getObject.id)
-                      parameters.add("user_id", user.id)
-                      parameters.add("game_occassion_id", go.gameSessionId)
-
-                      new RestartResponseException()
-                      RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.gameResource, parameters))
-                    }
-            */
-        })
-
-      }
-    })
-  }
 
 }

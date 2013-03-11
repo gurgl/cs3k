@@ -1,7 +1,7 @@
 import com.github.siasia.{PluginKeys, Deployment, Container, WebPlugin}
 import com.github.siasia.PluginKeys._
 import sbt._
-import Keys._
+import sbt.Keys._
 import com.github.siasia.WebPlugin._
 import com.github.siasia.WebappPlugin._
 
@@ -205,7 +205,7 @@ object MyBuild extends Build {
       splashName = None,
       offlineAllowed = true,
       allPermissions = false,
-      j2seVersion = "1.6",
+      j2seVersion = "1.7",
       maxHeapSize = 192
 
     ))
@@ -222,12 +222,14 @@ object MyBuild extends Build {
       "com.sun" % "javaws" % "1.6.0" from (Path.fileProperty("java.home").asFile / "lib" / "javaws.jar").asURL.toString
   //"com.typesafe.akka" % "akka-actor" % "2.0.2" exclude("org.eclipse.jetty", "jetty")
     ))
-  )
+  ) dependsOn(apiProject)
 
   lazy val apiProject = Project(
     "api",
     file("api"),
-    settings = defaultSettings ++ Seq(libraryDependencies ++= Seq(
+    settings = defaultSettings ++ Seq(
+      compileOrder := CompileOrder.JavaThenScala,
+      libraryDependencies ++= Seq(
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-annotations" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0"

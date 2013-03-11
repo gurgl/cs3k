@@ -132,7 +132,7 @@ class WicketApplication extends WebApplication {
 
     mountResource("/lobby2.jnlp", new SharedResourceReference(classOf[Application], lobbyResourceKey))
 
-    var gameRoot = new URI("file:///c:/dev/workspace/opengl-tanks/client/target/scala-2.10/webstart/")
+    var gameRoot = new URI(Cs3kConfig.TankGame.CLIENT_PATH)
     gameResource = webStartResourceFactory.createGameJnlpHandler(gameRoot)
 
     getSharedResources().add(gameResourceKey, gameResource)

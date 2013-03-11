@@ -9,24 +9,27 @@
 </head>
 <body>
 <wicket:panel>
-
-
     <h4>Overview</h4>
     <br>
-    <br>
-    <h5>Open Games</h5>
     <hr>
-    <div class="alert alert-warning"  wicket:id="challangePanel">
-        <table>
-            <tr wicket:id="challanges">
-                <td><a wicket:id="play">play</a></td>
-            </tr>
-        </table>
+    <div class="row">
+        <div class="span4">
+            <h5>Open Games</h5>
+            <div wicket:id="openLobbies"></div>
+        </div>
+        <div class="span4">
+            <h5>Latest results</h5>
+            <div wicket:id="lastGames"></div>
+        </div>
     </div>
-    <h5>Last results</h5>
-    <hr>
-    <div wicket:id="lastGames">
-        <div wicket:id="item"></div>
+    <div class="row">
+        <div class="span4">
+            <h5>Contests participation</h5>
+
+        </div>
+        <div class="span4">
+            <h5>Team memberships</h5>
+        </div>
     </div>
 
 </wicket:panel>

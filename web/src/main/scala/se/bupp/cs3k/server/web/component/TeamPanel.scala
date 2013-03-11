@@ -18,11 +18,7 @@ class TeamPanel(id:String, model:IModel[Team]) extends Panel(id) {
 
   add(new VertTabbedPanel("tab-panel",
     List(
-      ("Overview", (cId:String) => new JoinTeamPanel(cId,model) {
-        def onUpdate(t: AjaxRequestTarget) {
-
-        }
-      }),
+      ("Overview", (cId:String) => new CompetitorOverview(cId,model)),
       ("Members", (cId:String) => new TeamListPanel(cId)),
       ("Admin", (cId:String) => new Label(cId, "results"))
       )
