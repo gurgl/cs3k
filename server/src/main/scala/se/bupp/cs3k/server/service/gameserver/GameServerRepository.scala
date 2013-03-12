@@ -2,6 +2,9 @@ package se.bupp.cs3k.server.service.gameserver
 
 import collection.immutable.HashMap
 import se.bupp.cs3k.server.model.Model._
+import org.springframework.stereotype.Service
+import se.bupp.cs3k.server.model.{RunningGame, GameOccassion}
+
 /**
  * Created with IntelliJ IDEA.
  * User: karlw
@@ -41,4 +44,13 @@ object GameServerRepository  {
   /*" --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp",
   Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> LobbyServer.remoteIp)
   */
+}
+
+@Service
+class GameServerRepository {
+  def spawnServer(template: GameProcessTemplate, occassion: GameOccassion, processToken: Int): RunningGame  = GameServerPool.pool.spawnServer(template, occassion, processToken)
+
+  def findBy(ss:GameAndRulesId) : Option[GameProcessTemplate] = {
+    GameServerRepository.findBy(ss)
+  }
 }

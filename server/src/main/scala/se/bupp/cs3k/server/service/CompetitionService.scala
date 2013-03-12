@@ -5,12 +5,19 @@ import org.springframework.stereotype.Service
 import se.bupp.cs3k.server.model._
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import se.bupp.cs3k.server.model.Ladder
-import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import org.slf4j.LoggerFactory
 import se.bupp.cs3k.example.ExampleScoreScheme.{ExContestScore, ExScoreScheme, ExCompetitorScore}
 import se.bupp.cs3k.server.service.TournamentHelper.{QualifierState, TwoGameQualifierPositionAndSize}
+import se.bupp.cs3k.server.model.Qualifier
+import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
+import scala.Some
+import se.bupp.cs3k.server.model.CompetitionParticipantPk
+import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.model.IndexedQualifier
+import se.bupp.cs3k.server.model.GameParticipationPk
+import se.bupp.cs3k.server.model.QualifierWithParentReference
+import java.lang
 
 
 /**
@@ -498,11 +505,31 @@ class CompetitionService {
           val go = new GameOccassion()
           go.participants = List(i,j).map(p => new GameParticipation(new GameParticipationPk(p,go)))
           go.game == l.gameSetup
-          go.competitionGame = new LadderGame(l)
+          go.competitionGameOpt = Some(new LadderGame(l))
           gameDao.insert(go)
       }
     }
   }
+
+  def onGameEnded(cg:CompetitionGame,ranking:Map[Int,Long]) {
+    cg match {
+      case t:TournamentStageQualifier =>
+        import scala.collection.JavaConversions.asScalaBuffer
+        t.tournament.structure.find(_.childNodeIds.contains(t.nodeId)) match {
+          case Some(qualifier) =>
+            val (_,winnerComp) = ranking.head
+            val go = t.tournament.createGameFromTournament(qualifier)
+            var comp = competitorDao.find(new lang.Long(winnerComp)).get
+            val go2 = gameReservationService.addCompitorsAndStore(go,orderedCompetitors)
+            //ladderDao.em.persist(go2)
+            t.gameOccassion = go2
+
+          case None => // Winner!?
+        }
+      case l:LadderGame =>
+    }
+  }
+
   @Transactional
   def startCompetition(competition:Competition) {
     competition match {

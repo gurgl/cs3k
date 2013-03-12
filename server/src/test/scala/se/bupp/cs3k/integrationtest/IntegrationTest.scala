@@ -300,7 +300,7 @@ class IntegrationTest extends Specification with Mockito {
 
       GameReservationService.openGameSessions = Map.empty
 
-
+      // TODO - WRONG - Should be either "gameReservationService" or "service" (prolly gameReservationService)
       val service = new GameReservationService()
 
       val sessionId = service.allocateGameSession()

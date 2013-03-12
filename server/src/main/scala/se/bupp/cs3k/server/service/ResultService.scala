@@ -54,6 +54,9 @@ class ResultService {
   var competitorDao:CompetitorDao = _
 
   @Autowired
+  var competitionService :CompetitionService = _
+
+  @Autowired
   var teamDao:TeamDao = _
 
 
@@ -136,6 +139,9 @@ class ResultService {
                   g.result.game = g
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
+                  g.competitionGameOpt.foreach { cg =>
+                    competitionService.onGameEnded(cg)
+                  }
                 } else {
                   throw new IllegalStateException("Game session doesnt point to " + teamRefs.map( _.id).mkString(","))
                 }
@@ -176,6 +182,10 @@ class ResultService {
                   g.result.game = g
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
+
+                  g.competitionGameOpt.foreach { cg =>
+                    competitionService.onGameEnded(cg)
+                  }
                 } else {
                   throw new IllegalStateException("Game session doesnt point to " + playersRefs.map{ case (pid, p) => p.id }.mkString(","))
                 }
@@ -222,5 +232,7 @@ class ResultService {
     var total = ExScoreScheme.calculateTotal(competitorScores)
     total
   }
+
+
 
 }

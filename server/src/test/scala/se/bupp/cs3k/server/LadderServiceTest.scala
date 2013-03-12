@@ -1,13 +1,18 @@
 package se.bupp.cs3k.server
 
 import model._
+import model.IndexedQualifier
+import model.Qualifier
 import org.specs2.mutable.Specification
 import io.Source
 import java.net.URL
+import service.TournamentHelper.TwoGameQualifierPositionAndSize
+import service.TournamentHelper.XY
 import service.TournamentHelper.{QualifierState, TwoGameQualifierPositionAndSize, XY}
 import service.dao.{CompetitionDao, GameSetupTypeDao, TeamDao}
-import service.{CompetitorService, TournamentHelper, CompetitionService}
+import service._
 
+import gameserver.{GameProcessTemplate, GameServerRepository}
 import org.apache.wicket.util.tester.WicketTester
 
 import java.io.PrintWriter
@@ -19,11 +24,14 @@ import org.springframework.transaction.{TransactionStatus, PlatformTransactionMa
 import javax.persistence.EntityManagerFactory
 import org.springframework.orm.jpa.JpaTransactionManager
 import org.specs2.specification.{After, Scope}
-import org.springframework.transaction.support.{TransactionCallbackWithoutResult, TransactionTemplate}
+import org.springframework.transaction.support.{TransactionCallback, TransactionCallbackWithoutResult, TransactionTemplate}
 import scala.Some
 import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
+import scala.Some
+import org.specs2.mock.Mockito
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,7 +42,7 @@ import org.specs2.runner.JUnitRunner
  */
 
 @RunWith(classOf[JUnitRunner])
-class LadderServiceTest extends Specification {
+class LadderServiceTest extends Specification with Mockito {
   sequential
 
 
@@ -76,6 +84,12 @@ class LadderServiceTest extends Specification {
         def doInTransactionWithoutResult(p1: TransactionStatus) {
           body
         }
+      })
+    }
+
+    def doInTxWithRes[G]( body : => G) : G = {
+      new TransactionTemplate(txMgr).execute(new TransactionCallback[G] {
+        def doInTransaction(p1: TransactionStatus) = body
       })
     }
 
@@ -277,6 +291,82 @@ class LadderServiceTest extends Specification {
            TwoGameQualifierPositionAndSize(None,None,1234,200.0f,335.0f,100.0f,70.0f,QualifierState.Undetermined),
            TwoGameQualifierPositionAndSize(None,None,1234,300.0f,160.0f,100.0f,210.0f,QualifierState.Undetermined))
         )
+
+
+    }
+
+
+    "with game" in new InApplicationContext with TestDataGameSetup {
+      var competitionDao = factory.getBean(classOf[CompetitionDao])
+      var competitionService = factory.getBean(classOf[CompetitionService])
+      var gameReservationService = factory.getBean(classOf[GameReservationService])
+      var resultService = factory.getBean(classOf[ResultService])
+
+      var competitorService = factory.getBean(classOf[CompetitorService])
+
+      (0 until 5).foreach ( i => competitorService.createTeam(new Team(i.toString)))
+
+      var teamDao = factory.getBean(classOf[TeamDao])
+      teamDao.findAll.size == 5
+
+
+      var tournament = new Tournament("lal", CompetitorType.INDIVIDUAL, gst, CompetitionState.SIGNUP)
+
+      competitionService.storeCompetition(tournament)
+
+
+      teamDao.findAll.foreach { case t:Team =>
+        competitionService.addCompetitorToCompetition(t,tournament)
+      }
+
+      var numOfPlayers:Int = -1
+      var tournamentPrim:Tournament = null
+      doInTx {
+        tournamentPrim = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
+
+        numOfPlayers = tournamentPrim.participants.size
+      }
+      numOfPlayers === 5
+
+      competitionService.startTournament(tournamentPrim)
+
+      var layout = competitionService.createLayout2(tournamentPrim)
+      layout must haveTheSameElementsAs(
+        List(TwoGameQualifierPositionAndSize(Some("2"),Some("0"),1234,0.0f,37.5f,100.0f,35.0f,QualifierState.Determined), TwoGameQualifierPositionAndSize(None,Some("4"),1234,100.0f,55.0f,100.0f,52.5f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize(Some("3"),Some("1"),1234,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined), TwoGameQualifierPositionAndSize(None,None,1234,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined))
+      )
+
+      import scala.collection.JavaConversions.asScalaBuffer
+      val (comps, qualifier ) = doInTxWithRes {
+        val tournamentBis = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
+        val t1 = teamDao.findAll.find(_.name == "0").get
+        val qualifier = tournamentBis.structure.find(
+          g => {
+            var participants = g.gameOccassion.participants
+            println(participants.map(_.id.competitor.id).mkString(","))
+            g.gameOccassion.participants.find(_.id.competitor.id == t1.id).isDefined
+          }
+        ).get
+        (qualifier.gameOccassion.participants.map(_.id.competitor),qualifier)
+      }
+        //gameReservationService.playScheduledClosed(qualifier.gameOccassion.id,)
+
+      comps.size === 2
+
+      gameReservationService.gameServerRepository = mock[GameServerRepository]
+      gameReservationService.gameServerRepository.findBy(any) returns Some(new GameProcessTemplate("","",Map(),null))
+      gameReservationService.startPersistedGameServer(qualifier.gameOccassion)
+
+      resultService.endGame(qualifier.gameOccassion.gameSessionId,"")
+
+
+
+      /*val sessionId = service.allocateGameSession()
+      val t1 = service.createVirtualTeam(Some("Ena"))
+      service.addTeamToSession(sessionId,t1)
+      var t2 = service.createVirtualTeam(Some("Tjing"))
+      service.addTeamToSession(sessionId,t2)*/
+
+
 
     }
 

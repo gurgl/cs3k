@@ -108,6 +108,10 @@ class GameReservationService {
   var gameDao:GameOccassionDao = _
 
   @Autowired
+  var gameServerRepository:GameServerRepository = _
+
+
+  @Autowired
   var gameParicipationDao:GameParticipationDao = _
 
 
@@ -120,8 +124,8 @@ class GameReservationService {
   }
 
 
-  def findGame(id:Long) : Option[GameOccassion] = {
-    gameDao.find(new lang.Long(id))
+  def findGame(occassionId:Long) : Option[GameOccassion] = {
+    gameDao.find(new lang.Long(occassionId))
   }
 
 
@@ -294,7 +298,7 @@ class GameReservationService {
 
   def findUnplayedGamesForCompetitor(c:User) = {
     var games = competitorDao.findUserGames(c)
-    games.foreach( g => {val cg = g.competitionGame.competition ; g.game ;})
+    games.foreach( g => {val cg = g.competitionGameOpt ; g.game ;})
     games
   }
 
@@ -316,7 +320,7 @@ class GameReservationService {
       }
 
       g.gameSessionIdOpt = Some(gameSessionId)
-      var processSettings = GameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
+      var processSettings = gameServerRepository.findBy(g.gameAndRulesId).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
       log.info("GAMES IN startPersistedGameServer " + gameDao.findAll.mkString(","))
 
 
@@ -332,7 +336,7 @@ class GameReservationService {
 
       //TODO Fixeme
       val processToken = 11
-      var server: RunningGame = GameServerPool.pool.spawnServer(processSettings, g, processToken)
+      var server: RunningGame = gameServerRepository.spawnServer(processSettings, g, processToken)
 
 
       g.gameServerStartedAt = new Date()

@@ -25,6 +25,9 @@ public interface ContestScore {
 
     ContestScore transformCompetitor(Map<Long,Long> fromTo);
 
+    public Map<Integer,Long> ranking();
+
+
 
     /**
      * Optional, only needed for virtual teams in team games

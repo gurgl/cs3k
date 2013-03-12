@@ -313,13 +313,15 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
   var result:GameResult = _
 
   @OneToOne(mappedBy = "gameOccassion", optional = true)
-  var competitionGame:CompetitionGame = _
+  private var competitionGame:CompetitionGame = _
 
   //TODO: REname me
   @ManyToOne(targetEntity = classOf[GameSetupType], optional=false)
   var game:GameSetupType = _
 
 
+  def competitionGameOpt:Option[CompetitionGame] = Option(competitionGame)
+  def competitionGameOpt_=(v:Option[CompetitionGame]) : Unit =  {competitionGame = v.orNull }
 
   def gameSessionIdOpt = Option(gameSessionId)
   def gameSessionIdOpt_=(v:Option[GameSessionId]):Unit = { gameSessionId = v.map(new lang.Long(_)).getOrElse(null.asInstanceOf[lang.Long])}
@@ -434,7 +436,7 @@ class Tournament(_name:String,_competitorType:CompetitorType, _gameSetup:GameSet
     var occassion = new GameOccassion()
     occassion.game = gameSetup
     occassion.competitorType = competitorType
-    occassion.competitionGame = comp
+    occassion.competitionGameOpt = Some(comp)
     occassion
   }
 

@@ -85,22 +85,33 @@ class Init {
     Cs3kConfig.TankGame.SERVER_JAR_PATH +
     " ", new ResourceNeeds(1,1))
 
-  val tankGameSettings2  = {
-
-    tankGameServer.create(
+  val tankGameSettings2  = tankGameServer.create(
       " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} --game-setup ffa2", Cs3kConstants.LAUNCHER_PATH + gameIdentifier + "/"+ "start_game.jnlp",
       Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
     )
-  }
+
 
   val tankGameSettings4  = tankGameServer.create(
     " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} --game-setup 2vs2", Cs3kConstants.LAUNCHER_PATH + gameIdentifier + "/"+ "start_game.jnlp",
     Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
   )
 
+  val tankGameSettings1vs1Team  = tankGameServer.create(
+    " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} --game-setup 1vs1", Cs3kConstants.LAUNCHER_PATH + gameIdentifier + "/"+ "start_game.jnlp",
+    Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
+  )
+
+  val tankGameSettings1vs1ContinousFFA  = tankGameServer.create(
+    " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} --game-setup ffa2cont", Cs3kConstants.LAUNCHER_PATH + gameIdentifier + "/"+ "start_game.jnlp",
+    Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
+  )
+
+
 
   GameServerRepository.add('TankGame, tankGameServer)
   GameServerRepository.addProcessTemplate(('TankGame, 'TG2Player), tankGameSettings2)
+  GameServerRepository.addProcessTemplate(('TankGame, 'TG1vs1Team), tankGameSettings1vs1Team)
+  GameServerRepository.addProcessTemplate(('TankGame, 'TG1vs1FFAContinous), tankGameSettings1vs1ContinousFFA)
   GameServerRepository.addProcessTemplate(('TankGame, 'TG4Player), tankGameSettings4)
 
 
