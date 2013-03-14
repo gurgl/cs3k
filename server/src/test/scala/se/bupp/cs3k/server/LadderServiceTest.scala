@@ -356,7 +356,8 @@ class LadderServiceTest extends Specification with Mockito {
       gameReservationService.gameServerRepository.findBy(any) returns Some(new GameProcessTemplate("","",Map(),null))
       gameReservationService.startPersistedGameServer(qualifier.gameOccassion)
 
-      resultService.endGame(qualifier.gameOccassion.gameSessionId,"")
+      var serializedResult: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps(1).id}":{"a":10,"b":1},"${comps(0).id}":{"a":3,"b":4}}}"""
+      resultService.endGame(qualifier.gameOccassion.gameSessionId,serializedResult)
 
 
 

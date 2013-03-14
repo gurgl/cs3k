@@ -10,18 +10,18 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 import org.apache.log4j.Logger
-import java.lang.Long
 
 
 import se.bupp.cs3k.server.model.TeamRef
-import scala.Some
+import scala.{Some}
 import com.fasterxml.jackson.databind.ObjectMapper
 import se.bupp.cs3k.server.model.VirtualTeamRef
-import scala.Some
 import se.bupp.cs3k.server.model.RegedUser
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.TeamRef
 import se.bupp.cs3k.server.model.AnonUser
+import se.bupp.cs3k.api.score.ContestScore
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -120,6 +120,7 @@ class ResultService {
 
   }
 
+  @Transactional
   def endGame(gameSessionId: GameSessionId, serializedResult: String) {
     log.info("EndGame invoked  : " + serializedResult)
     log.info("GAMES IN ENDGAME " + gameDao.findAll.mkString(","))
@@ -139,9 +140,10 @@ class ResultService {
                   g.result.game = g
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
-                  g.competitionGameOpt.foreach { cg =>
-                    competitionService.onGameEnded(cg)
-                  }
+
+                  var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
+
+                  bappa(value, g)
                 } else {
                   throw new IllegalStateException("Game session doesnt point to " + teamRefs.map( _.id).mkString(","))
                 }
@@ -182,10 +184,7 @@ class ResultService {
                   g.result.game = g
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
-
-                  g.competitionGameOpt.foreach { cg =>
-                    competitionService.onGameEnded(cg)
-                  }
+                  bappa(value,g)
                 } else {
                   throw new IllegalStateException("Game session doesnt point to " + playersRefs.map{ case (pid, p) => p.id }.mkString(","))
                 }
@@ -208,6 +207,17 @@ class ResultService {
           //val teamRefs = teamsDetails.collect { case t: TeamRef => t }
         }
       }
+    }
+  }
+
+
+  def bappa(value: ContestScore, g: GameOccassion) {
+    import scala.collection.JavaConversions.mapAsScalaMap
+    var ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
+
+    g.competitionGameOpt.foreach {
+      cg =>
+        competitionService.onGameEnded(cg, ranking)
     }
   }
 

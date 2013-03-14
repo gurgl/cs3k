@@ -519,8 +519,9 @@ class CompetitionService {
           case Some(qualifier) =>
             val (_,winnerComp) = ranking.head
             val go = t.tournament.createGameFromTournament(qualifier)
-            var comp = competitorDao.find(new lang.Long(winnerComp)).get
-            val go2 = gameReservationService.addCompitorsAndStore(go,orderedCompetitors)
+            val comp = competitorDao.find(new lang.Long(winnerComp)).get
+            val (_,idx) = qualifier.childNodeIds.zipWithIndex.find(_._1 == t.nodeId).get
+            val go2 = gameReservationService.addCompitorsAndStore(go,List((idx,comp)))
             //ladderDao.em.persist(go2)
             t.gameOccassion = go2
 
