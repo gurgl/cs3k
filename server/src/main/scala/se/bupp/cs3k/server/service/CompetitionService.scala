@@ -578,7 +578,7 @@ class CompetitionService {
 
     val nodeIdsByGame = tournament.structure.map(s => (s.nodeId, s.gameOccassionOpt)).toMap
     val nodeIdsByCompetitorsSortedBySequenceId = nodeIdsByGame.map {
-      case (k, v) => (k, v.toList.flatMap(_.participants.sortBy(_.seqId.ensuring(_ != null)).map(_.id.competitor.id)))
+      case (k, v) => (k, Map.empty ++ v.toList.flatMap(_.participants.map( p => (p.seqId.toInt,p.id.competitor.id)).toMap))
     }
 
 
@@ -612,7 +612,7 @@ class CompetitionService {
         val namesOpts = (0 until 2).map {
           i =>
             val name = competitorsInSequenceOrder.lift(i).flatMap(ii => compIdToName.get(ii))
-            (2 - i, name)
+            (i, name)
         }.toMap
 
         val state = game match {
@@ -625,7 +625,7 @@ class CompetitionService {
             }
         }
 
-        new TwoGameQualifierPositionAndSize(namesOpts(1), namesOpts(2), nodeId, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot), state) {
+        new TwoGameQualifierPositionAndSize(namesOpts(0), namesOpts(1), nodeId, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot), state) {
 
         }
       }
