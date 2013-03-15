@@ -143,7 +143,7 @@ class ResultService {
 
                   var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
 
-                  bappa(value, g)
+                  handleCompetition(value, g)
                 } else {
                   throw new IllegalStateException("Game session doesnt point to " + teamRefs.map( _.id).mkString(","))
                 }
@@ -184,7 +184,7 @@ class ResultService {
                   g.result.game = g
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
-                  bappa(value,g)
+                  handleCompetition(value,g)
                 } else {
                   throw new IllegalStateException("Game session doesnt point to " + playersRefs.map{ case (pid, p) => p.id }.mkString(","))
                 }
@@ -211,7 +211,7 @@ class ResultService {
   }
 
 
-  def bappa(value: ContestScore, g: GameOccassion) {
+  def handleCompetition(value: ContestScore, g: GameOccassion) {
     import scala.collection.JavaConversions.mapAsScalaMap
     var ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
 

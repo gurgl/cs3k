@@ -451,7 +451,11 @@ abstract class CompetitionGame {
 
   @OneToOne(optional = true)
   @JoinColumn(name = "GAME_OCCASSION_ID", referencedColumnName = "ID", nullable = true)
-  var gameOccassion:GameOccassion = _
+  private var gameOccassion:GameOccassion = _
+
+  def gameOccassionOpt:Option[GameOccassion] = Option(gameOccassion)
+  def gameOccassionOpt_=(v:Option[GameOccassion]) : Unit =  {gameOccassion = v.orNull }
+
 
   def competition:Competition
 }

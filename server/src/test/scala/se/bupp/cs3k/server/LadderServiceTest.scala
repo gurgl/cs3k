@@ -31,6 +31,7 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import scala.Some
 import org.specs2.mock.Mockito
+import java.util
 
 
 /**
@@ -281,15 +282,15 @@ class LadderServiceTest extends Specification with Mockito {
       var layout = competitionService.createLayout2(tournamentPrim)
       layout must haveTheSameElementsAs(
         List(
-          TwoGameQualifierPositionAndSize(Some("7"),Some("0"),1234,0.0f,37.5f,100.0f,35.0f,QualifierState.Determined),
-           TwoGameQualifierPositionAndSize(Some("1"),Some("4"),1234,0.0f,107.5f,100.0f,35.0f,QualifierState.Determined),
-           TwoGameQualifierPositionAndSize(None,None,1234,100.0f,55.0f,100.0f,70.0f,QualifierState.Undetermined),
-           TwoGameQualifierPositionAndSize(Some("5"),Some("8"),1234,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined),
-           TwoGameQualifierPositionAndSize(None,None,1234,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined),
-           TwoGameQualifierPositionAndSize(Some("9"),Some("2"),1234,100.0f,317.5f,100.0f,35.0f,QualifierState.Determined),
-           TwoGameQualifierPositionAndSize(Some("3"),Some("6"),1234,100.0f,387.5f,100.0f,35.0f,QualifierState.Determined),
-           TwoGameQualifierPositionAndSize(None,None,1234,200.0f,335.0f,100.0f,70.0f,QualifierState.Undetermined),
-           TwoGameQualifierPositionAndSize(None,None,1234,300.0f,160.0f,100.0f,210.0f,QualifierState.Undetermined))
+          TwoGameQualifierPositionAndSize(Some("7"),Some("0"),1,0.0f,37.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(Some("1"),Some("4"),2,0.0f,107.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(None,None,3,100.0f,55.0f,100.0f,70.0f,QualifierState.Undetermined),
+           TwoGameQualifierPositionAndSize(Some("5"),Some("8"),4,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(None,None,5,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined),
+           TwoGameQualifierPositionAndSize(Some("9"),Some("2"),6,100.0f,317.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(Some("3"),Some("6"),7,100.0f,387.5f,100.0f,35.0f,QualifierState.Determined),
+           TwoGameQualifierPositionAndSize(None,None,8,200.0f,335.0f,100.0f,70.0f,QualifierState.Undetermined),
+           TwoGameQualifierPositionAndSize(None,None,9,300.0f,160.0f,100.0f,210.0f,QualifierState.Undetermined))
         )
 
 
@@ -303,6 +304,22 @@ class LadderServiceTest extends Specification with Mockito {
       var resultService = factory.getBean(classOf[ResultService])
 
       var competitorService = factory.getBean(classOf[CompetitorService])
+
+      import scala.collection.JavaConversions.asScalaBuffer
+
+      def findQualifier(tournament: Tournament, teamNames: List[String])  = {
+        val tournamentBis = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
+        val teams = teamDao.findAll.filter(s => teamNames.contains(s.nameAccessor))
+        val qualifier = tournamentBis.structure.find(
+          g => {
+            var participants = g.gameOccassionOpt.get.participants
+            println(participants.map(_.id.competitor.id).mkString(","))
+            g.gameOccassionOpt.get.participants.forall(s => teams.contains(s.id.competitor))
+          }
+        ).get
+        qualifier
+      }
+
 
       (0 until 5).foreach ( i => competitorService.createTeam(new Team(i.toString)))
 
@@ -329,36 +346,89 @@ class LadderServiceTest extends Specification with Mockito {
       numOfPlayers === 5
 
       competitionService.startTournament(tournamentPrim)
-
+      val l= competitionService.getTournamentQualifierStructure(tournamentPrim)
+      l === Qualifier(4,List(
+        Qualifier(2,List(
+          Qualifier(1,List(),Some(2))
+        ),Some(4)),
+        Qualifier(3,List(),Some(4))
+      ),None)
       var layout = competitionService.createLayout2(tournamentPrim)
       layout must haveTheSameElementsAs(
-        List(TwoGameQualifierPositionAndSize(Some("2"),Some("0"),1234,0.0f,37.5f,100.0f,35.0f,QualifierState.Determined), TwoGameQualifierPositionAndSize(None,Some("4"),1234,100.0f,55.0f,100.0f,52.5f,QualifierState.Undetermined), TwoGameQualifierPositionAndSize(Some("3"),Some("1"),1234,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined), TwoGameQualifierPositionAndSize(None,None,1234,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined))
+        List(TwoGameQualifierPositionAndSize(Some("2"),Some("0"),1,0.0f,37.5f,100.0f,35.0f,QualifierState.Determined),
+          TwoGameQualifierPositionAndSize(None,Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Undetermined),
+          TwoGameQualifierPositionAndSize(Some("3"),Some("1"),3,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined),
+          TwoGameQualifierPositionAndSize(None,None,4,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined))
       )
 
-      import scala.collection.JavaConversions.asScalaBuffer
-      val (comps, qualifier ) = doInTxWithRes {
+
+      gameReservationService.gameServerRepository = mock[GameServerRepository]
+      gameReservationService.gameServerRepository.findBy(any) returns Some(new GameProcessTemplate("","",Map(),null))
+
+
+      doInTx {
         val tournamentBis = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
-        val t1 = teamDao.findAll.find(_.name == "0").get
-        val qualifier = tournamentBis.structure.find(
-          g => {
-            var participants = g.gameOccassion.participants
-            println(participants.map(_.id.competitor.id).mkString(","))
-            g.gameOccassion.participants.find(_.id.competitor.id == t1.id).isDefined
-          }
-        ).get
-        (qualifier.gameOccassion.participants.map(_.id.competitor),qualifier)
+        val qualifier = findQualifier(tournament, List("4"))
+        qualifier.gameOccassionOpt.get.participants.size === 1
+        qualifier.gameOccassionOpt.get.participants(0).seqId === 1
+      }
+
+
+
+      val (comps, qualifier ) = doInTxWithRes {
+        val qualifier = findQualifier(tournament, List("2", "0"))
+        //qualifier.gameOccassionOpt.get.participants.map( p => p.id.competitor.id)
+        (qualifier.gameOccassionOpt.get.participants.map(_.id.competitor),qualifier)
       }
         //gameReservationService.playScheduledClosed(qualifier.gameOccassion.id,)
 
       comps.size === 2
 
-      gameReservationService.gameServerRepository = mock[GameServerRepository]
-      gameReservationService.gameServerRepository.findBy(any) returns Some(new GameProcessTemplate("","",Map(),null))
-      gameReservationService.startPersistedGameServer(qualifier.gameOccassion)
+      gameReservationService.startPersistedGameServer(qualifier.gameOccassionOpt.get)
 
       var serializedResult: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps(1).id}":{"a":10,"b":1},"${comps(0).id}":{"a":3,"b":4}}}"""
-      resultService.endGame(qualifier.gameOccassion.gameSessionId,serializedResult)
+      resultService.endGame(qualifier.gameOccassionOpt.get.gameSessionId,serializedResult)
 
+
+
+
+      val (comps2, qualifier2 ) = doInTxWithRes {
+        val qualifier = findQualifier(tournament, List("4", "2"))
+        qualifier.gameOccassionOpt.get.participants.size === 2
+        qualifier.gameOccassionOpt.get.participants(0).seqId === 1
+        qualifier.gameOccassionOpt.get.participants(0).id.competitor.nameAccessor === "4"
+        qualifier.gameOccassionOpt.get.participants(1).seqId === 0
+        qualifier.gameOccassionOpt.get.participants(1).id.competitor.nameAccessor === "2"
+
+        (qualifier.gameOccassionOpt.get.participants.map(_.id.competitor),qualifier)
+      }
+      //gameReservationService.playScheduledClosed(qualifier.gameOccassion.id,)
+
+      comps2.size === 2
+
+      gameReservationService.startPersistedGameServer(qualifier2.gameOccassionOpt.get)
+
+      var serializedResult2: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps2(1).id}":{"a":10,"b":1},"${comps2(0).id}":{"a":3,"b":4}}}"""
+      resultService.endGame(qualifier2.gameOccassionOpt.get.gameSessionId,serializedResult2)
+
+      doInTx {
+
+        val qualifier = findQualifier(tournament, List("4", "2"))
+        var participants = qualifier.gameOccassionOpt.get.participants.toList
+        participants.size === 2
+        participants(0).seqId === 1
+        participants(0).id.competitor.nameAccessor === "4"
+        participants(1).seqId === 0
+        participants(1).id.competitor.nameAccessor === "2"
+      }
+
+      var layout2 = competitionService.createLayout2(tournamentPrim)
+      layout2 must haveTheSameElementsAs(
+        List(TwoGameQualifierPositionAndSize(Some("2"),Some("0"),1,0.0f,37.5f,100.0f,35.0f,QualifierState.Played),
+          TwoGameQualifierPositionAndSize(Some("2"),Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Played),
+          TwoGameQualifierPositionAndSize(Some("3"),Some("1"),3,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined),
+          TwoGameQualifierPositionAndSize(None,Some("2"),4,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined))
+      )
 
 
       /*val sessionId = service.allocateGameSession()

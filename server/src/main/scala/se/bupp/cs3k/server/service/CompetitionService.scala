@@ -468,7 +468,7 @@ class CompetitionService {
       val orderedCompetitors = gameCompetitors.toList.sortBy(_._1)
       val go2 = gameReservationService.addCompitorsAndStore(go,orderedCompetitors)
       //ladderDao.em.persist(go2)
-      t.gameOccassion = go2
+      t.gameOccassionOpt = Some(go2)
       ladderDao.em.persist(t)
     }
   }
@@ -518,12 +518,23 @@ class CompetitionService {
         t.tournament.structure.find(_.childNodeIds.contains(t.nodeId)) match {
           case Some(qualifier) =>
             val (_,winnerComp) = ranking.head
-            val go = t.tournament.createGameFromTournament(qualifier)
             val comp = competitorDao.find(new lang.Long(winnerComp)).get
             val (_,idx) = qualifier.childNodeIds.zipWithIndex.find(_._1 == t.nodeId).get
+
+            val (go,postCreate) = qualifier.gameOccassionOpt match {
+              case Some(go) => (go, (g:GameOccassion) => ())
+              case None =>
+                (t.tournament.createGameFromTournament(qualifier), (g:GameOccassion) => {
+                   qualifier.gameOccassionOpt = Some(g)
+                   ladderDao.em.persist(qualifier)
+                   ()
+                })
+            }
+
             val go2 = gameReservationService.addCompitorsAndStore(go,List((idx,comp)))
+            postCreate(go2)
+
             //ladderDao.em.persist(go2)
-            t.gameOccassion = go2
 
           case None => // Winner!?
         }
@@ -565,7 +576,7 @@ class CompetitionService {
     val participants = tournament.participants.map(_.id.competitor)
     val compIdToName = participants.map(p => (p.id, p.nameAccessor)).toMap
 
-    val nodeIdsByGame = tournament.structure.map(s => (s.nodeId, Option(s.gameOccassion))).toMap
+    val nodeIdsByGame = tournament.structure.map(s => (s.nodeId, s.gameOccassionOpt)).toMap
     val nodeIdsByCompetitorsSortedBySequenceId = nodeIdsByGame.map {
       case (k, v) => (k, v.toList.flatMap(_.participants.sortBy(_.seqId.ensuring(_ != null)).map(_.id.competitor.id)))
     }
@@ -596,8 +607,9 @@ class CompetitionService {
         var game = nodeIdsByGame(nodeId)
         val competitorsInSequenceOrder = nodeIdsByCompetitorsSortedBySequenceId(nodeId)
 
+
         // Competitors are assigned slot in competitorsInSequenceOrder.last = bottom position
-        val list = (0 until 2).map {
+        val namesOpts = (0 until 2).map {
           i =>
             val name = competitorsInSequenceOrder.lift(i).flatMap(ii => compIdToName.get(ii))
             (2 - i, name)
@@ -612,7 +624,8 @@ class CompetitionService {
               QualifierState.Played
             }
         }
-        new TwoGameQualifierPositionAndSize(list(1), list(2), 1234, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot), state) {
+
+        new TwoGameQualifierPositionAndSize(namesOpts(1), namesOpts(2), nodeId, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot), state) {
 
         }
       }
