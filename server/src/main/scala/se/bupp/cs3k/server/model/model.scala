@@ -501,7 +501,7 @@ class Tournament(_name:String,_competitorType:CompetitorType, _gameSetup:GameSet
 
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-abstract class CompetitionGame {
+abstract class CompetitionGame extends Serializable {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   @OneToOne(optional = true)
