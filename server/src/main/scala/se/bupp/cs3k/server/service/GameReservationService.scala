@@ -93,6 +93,7 @@ object GameReservationService {
       (Players, TeamsDetailsOpt)
       ]()
 
+  def init(v:Long) { occassionSeqId = v}
   //var openGameSessionsTeams = Map[GameSessionId,List[AbstractTeamRef]]()
 
 }
@@ -256,7 +257,7 @@ class GameReservationService {
   def reserveSeat(gameSessionId:GameSessionId, pi:AbstractUser, pTeamOpt:Option[AbstractTeamRef]) : GameServerReservationId = {
     findGameSession(gameSessionId) match {
       case Some((players, teamsOpt)) =>
-        var res:GameServerReservationId = seatSeqId
+        val res: GameServerReservationId = seatSeqId
         seatSeqId = seatSeqId + 1
         val modifiedSessionEntry = gameSessionId -> (players + (res ->(pi, pTeamOpt)), teamsOpt)
         openGameSessions = openGameSessions + modifiedSessionEntry

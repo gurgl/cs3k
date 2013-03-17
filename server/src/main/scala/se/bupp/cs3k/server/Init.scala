@@ -2,14 +2,18 @@ package se.bupp.cs3k.server
 
 import facade.lobby.{LobbyServer}
 import facade.WebStartResourceFactory
+import model.{GameType, GameSetupType}
+import model.Model._
+import service.dao.GameOccassionDao
 import service.lobby.AbstractLobbyQueueHandler
 import service.{GameService, RankingService, GameReservationService}
-import service.gameserver.{GameServerRepository, GameServerSpecification}
+import service.gameserver.{GameProcessTemplate, GameServerRepository, GameServerSpecification}
 import service.resourceallocation.{ServerAllocator, ResourceNeeds}
 import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.ApplicationContext
+import java.lang.Long
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,6 +41,8 @@ object Init {
     var gameReservationService = beanFactory.getBean(classOf[GameReservationService])
     var rankingService= beanFactory.getBean(classOf[RankingService])
 
+    persistAnyNewRules(beanFactory)
+
 
     //eventSystem = new EventSystem(this)
     try {
@@ -53,23 +59,38 @@ object Init {
       case e:Exception => e.printStackTrace()
     }
 
-    persistAnyNewRules(beanFactory)
 
+    var godao = beanFactory.getBean(classOf[GameOccassionDao])
+    var seqId: Long = godao.findMaxSessionId() match  {
+      case null => 100
+      case x => x+1
+    }
+    GameReservationService.init(seqId)
   }
 
   def persistAnyNewRules(beanFactory :BeanFactory) {
     var gameService = beanFactory.getBean(classOf[GameService])
-    GameServerRepository.gameServerTypes.foreach { case (gsType,spec) =>
-      val entity = gameService.getOrCreateGameTypeEntity(gsType)
+    gameMeta.foreach { case (gsType,(spec,temp)) =>
+
+      GameServerRepository.add('TankGame, spec)
+
+      val entity = gameService.getOrCreateGameTypeEntity(gsType,temp)
     }
 
-    GameServerRepository.gameServerSetups.foreach { case ((gameTypeId,gameSetupTypeId),spec) =>
+    gameSetupMeta.foreach { case ((gameTypeId,gameSetupTypeId),(spec,temp)) =>
       println("gameTypeId,gameSetupTypeId" + (gameTypeId,gameSetupTypeId))
-      val entity = gameService.getOrCreateGameSetupTypeEntity(gameTypeId,gameSetupTypeId)
+      GameServerRepository.addProcessTemplate((gameTypeId,gameSetupTypeId),spec)
+      val entity = gameService.getOrCreateGameSetupTypeEntity(gameTypeId,gameSetupTypeId,temp)
     }
+
+    GameServerRepository.gameServerSetups.keys.foreach(println)
   }
+  //
 
 
+
+  var gameSetupMeta = Map[(GameServerTypeId, GameProcessTemplateId),(GameProcessTemplate,GameProcessTemplateId => GameSetupType)]()
+  var gameMeta = Map[GameServerTypeId,(GameServerSpecification,GameServerTypeId=> GameType)]()
 }
 class Init {
 
@@ -90,7 +111,6 @@ class Init {
       Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
     )
 
-
   val tankGameSettings4  = tankGameServer.create(
     " --tcp-port ${tcp[0]} --udp-port ${udp[0]} --master-host ${cs3k_host} --master-port ${cs3k_port} --game-setup 2vs2", Cs3kConstants.LAUNCHER_PATH + gameIdentifier + "/"+ "start_game.jnlp",
     Map("gamePortUDP" -> "${udp[0]}", "gamePortTCP" -> "${tcp[0]}", "gameHost" -> Cs3kConfig.REMOTE_IP)
@@ -108,11 +128,13 @@ class Init {
 
 
 
-  GameServerRepository.add('TankGame, tankGameServer)
-  GameServerRepository.addProcessTemplate(('TankGame, 'TG2Player), tankGameSettings2)
-  GameServerRepository.addProcessTemplate(('TankGame, 'TG1vs1Team), tankGameSettings1vs1Team)
-  GameServerRepository.addProcessTemplate(('TankGame, 'TG1vs1FFAContinous), tankGameSettings1vs1ContinousFFA)
-  GameServerRepository.addProcessTemplate(('TankGame, 'TG4Player), tankGameSettings4)
 
+
+  Init.gameMeta = Map() + ('TankGame -> (tankGameServer,(x:GameServerTypeId) => new GameType(x,"Tank Game")))
+
+  Init.gameSetupMeta = Map() + (('TankGame, 'TG2Player) -> (tankGameSettings2,(x:GameProcessTemplateId) => new GameSetupType(x, "1vs1", null, null))) +
+                          (('TankGame, 'TG1vs1Team) ->  (tankGameSettings1vs1Team, (x:GameProcessTemplateId) => new GameSetupType(x, "1vs1 team", null, null))) +
+                          (('TankGame, 'TG1vs1FFAContinous) -> (tankGameSettings1vs1ContinousFFA,(x:GameProcessTemplateId) => new GameSetupType(x, "1vs1FFACont", null, null))) +
+                          (('TankGame, 'TG4Player) -> (tankGameSettings4,(x:GameProcessTemplateId) => new GameSetupType(x, "2vs2", null, null)))
 
 }

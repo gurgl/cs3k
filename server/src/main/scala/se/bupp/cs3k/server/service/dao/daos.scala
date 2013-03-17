@@ -184,11 +184,16 @@ class TournamentDao extends GenericDaoImpl[Tournament](classOf[Tournament]) {
 class GameOccassionDao extends GenericDaoImpl[GameOccassion](classOf[GameOccassion]) {
 
   def findGame(gameSessionId:Long) = {
-    var q = em.createQuery("from GameOccassion g where g.gameSessionId = :o", classOf[GameOccassion])
+    val q = em.createQuery("from GameOccassion g where g.gameSessionId = :o", classOf[GameOccassion])
     q.setParameter("o", gameSessionId)
     import scala.collection.JavaConversions.asScalaBuffer
     log.info("gameSessionId" + gameSessionId +  " " + q.getResultList.toList)
     getSingle(q)
+  }
+  def findMaxSessionId() =  {
+
+    val q = em.createNamedQuery("GameOccassion.findMaxSessionId", classOf[java.lang.Long])
+    q.getSingleResult
   }
 }
 

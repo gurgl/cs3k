@@ -35,7 +35,7 @@ object TournamentHelper {
   }*/
 
   case class TwoGameQualifierPositionAndSize(var p1:Option[String], var p2:Option[String], var id:Int, var left:Float,var top:Float,var width:Float,var height:Float,state:QualifierState.QualifierState = QualifierState.Undetermined) extends Serializable {
-
+      var winnerPosOpt:Option[(Float,Float)] = None
   }
 
 
@@ -106,8 +106,7 @@ object TournamentHelper {
     slots.map { case (k,v) => k -> v.get }
   }
 
-  class ArmHeightVisualizer[T]( create:(Float,List[Int], Int, Int, Int) => T) {
-
+  class ArmHeightVisualizer[T]( create:(Float,List[Int], Int, Int, Qualifier) => T) {
 
     def build(q:Qualifier,offsetY:Float, stepsToBottom:Int) : (List[T],/*Height*/Int) = {
       val (nodes,cnts,cntTot) = q.children match {
@@ -125,7 +124,7 @@ object TournamentHelper {
 
       // center about subtree - leaf nodes center about a tree their own size
       val subTreeMaxHeight = if (cntTot == 0) 1 else cntTot
-      val n = create(offsetY,cnts,subTreeMaxHeight, stepsToBottom,q.nodeId)
+      val n = create(offsetY,cnts,subTreeMaxHeight, stepsToBottom, q)
 
       println(s"offsetY $offsetY , $n , $stepsToBottom : $subTreeMaxHeight + $cntTot")
       (nodes :+ n, subTreeMaxHeight )
@@ -589,8 +588,8 @@ class CompetitionService {
     val yMod = 70
 
 
-    val yo = new TournamentHelper.ArmHeightVisualizer[TwoGameQualifierPositionAndSize](
-      (offsetY, subTreesHeights, subTreeHeight, stepsToBottom, nodeId) => {
+    val tournamentRenderModelBuilder = new TournamentHelper.ArmHeightVisualizer[TwoGameQualifierPositionAndSize](
+      (offsetY, subTreesHeights, subTreeHeight, stepsToBottom, qualifier) => {
         def bupp(height: Float) = {
           yMod * (offsetY.toFloat + (subTreeHeight.toFloat / 2f + height / 2f))
         }
@@ -604,8 +603,8 @@ class CompetitionService {
         }
         //i = i +1
         //println(s"$top $bot ${subTreesHeights.size} $subTreesHeights")
-        var game = nodeIdsByGame(nodeId)
-        val competitorsInSequenceOrder = nodeIdsByCompetitorsSortedBySequenceId(nodeId)
+        val game = nodeIdsByGame(qualifier.nodeId)
+        val competitorsInSequenceOrder = nodeIdsByCompetitorsSortedBySequenceId(qualifier.nodeId)
 
 
         // Competitors are assigned slot in competitorsInSequenceOrder.last = bottom position
@@ -625,9 +624,16 @@ class CompetitionService {
             }
         }
 
-        new TwoGameQualifierPositionAndSize(namesOpts(0), namesOpts(1), nodeId, stepsToBottom * 100, screenOffsetY + top, 100, math.abs(top - bot), state) {
+        val effectiveTop: Float = screenOffsetY + top
+        val width: Float = 100
+        val left: Float = stepsToBottom * 100
+        val qualifierRenderModel: TwoGameQualifierPositionAndSize = new TwoGameQualifierPositionAndSize(namesOpts(0), namesOpts(1), qualifier.nodeId, left, effectiveTop, width, math.abs(top - bot), state) {
 
         }
+        if(qualifier.parentOpt.isEmpty) {
+          qualifierRenderModel.winnerPosOpt = Some(left+width, screenOffsetY + bupp(0f))
+        }
+        qualifierRenderModel
       }
     )
 
@@ -640,7 +646,7 @@ class CompetitionService {
     val numOfLevels = numOfCompleteLevels + (if (numOfPlayersMoreThanCompleteLevels > 0) 1 else 0) - 1
 
     //val qa = TournamentHelper.indexedToSimple(TournamentHelper.index(TournamentHelper.createTournamentStructure(numOfPlayers)))
-    var listn = yo.build(structure, 0.0f, numOfLevels)._1
+    val listn = tournamentRenderModelBuilder.build(structure, 0.0f, numOfLevels)._1
     listn
   }
 }

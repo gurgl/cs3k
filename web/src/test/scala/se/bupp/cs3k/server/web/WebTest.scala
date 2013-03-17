@@ -8,7 +8,7 @@ package se.bupp.cs3k.server.web
  * To change this template use File | Settings | File Templates.
  */
 
-import component.{LadderFormPanel, TournamentViewNotStarted}
+import component.{TournamentNodeView, LadderFormPanel, TournamentViewNotStarted}
 import se.bupp.cs3k.server.model
 import org.specs2.mutable.Specification
 import se.bupp.cs3k.server.model.GameType
@@ -28,6 +28,9 @@ import javax.persistence.EntityManagerFactory
 import org.springframework.context.support.FileSystemXmlApplicationContext
 import org.specs2.specification.{After, Scope}
 import org.specs2.mock.Mockito
+import org.apache.wicket.model.Model
+import se.bupp.cs3k.server.service.TournamentHelper.{QualifierState, TwoGameQualifierPositionAndSize}
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -129,6 +132,19 @@ class WebTest extends Specification with Mockito {
       panel.gameSetupDao = gameSetupDao
       wt.startComponentInPage(panel)
       wt.getLastResponseAsString
+      1.shouldEqual(1)
+      wt.destroy()
+    }
+
+    "tournament maps view" in {
+
+      val wt = new WicketTester()
+      wt.getApplication.getMarkupSettings.setStripWicketTags(true)
+
+
+      var lal: TwoGameQualifierPositionAndSize = new TwoGameQualifierPositionAndSize(Some("asdf"),None,3,30f,10f,100f,85f,QualifierState.Determined)
+      wt.startComponentInPage(new TournamentNodeView("id",new Model(lal)))
+      wt.getLastResponseAsString === ""
       1.shouldEqual(1)
       wt.destroy()
     }

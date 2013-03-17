@@ -201,7 +201,7 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
     query = "select r from GameOccassion go inner join go.participants p inner join go.result r where p.id.competitor = :team"),
 
   new NamedQuery(name = "Competitor.findGamesByUser",
-    query = "select go from Competitor c left join c.members t, GameOccassion go inner join go.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id"),
+    query = "select go from Competitor c left join c.members t, GameOccassion go inner join go.participants p left join go.result r where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id and r is null"),
   new NamedQuery(name = "Competitor.findByUser", query = "select c from Competitor c left join c.members t where c = :user1 or t.id.user = :user2"),
   new NamedQuery(name = "Competitor.findCompetitionParticipants",
     query = "select c from Competition l inner join l.participants p inner join p.id.competitor c where l = :competition"),
@@ -291,6 +291,11 @@ class GameResult extends Serializable {
   def this(_resultSerializedVersion: Int, _resultSerialized:String ) = { this() ; resultSerialized = _resultSerialized ; resultSerializedVersion = _resultSerializedVersion }
 }
 
+
+
+@NamedQueries(Array(
+  new NamedQuery(name = "GameOccassion.findMaxSessionId", query = "select max(go.gameSessionId) from GameOccassion go")
+))
 @Entity
 //@Inheritance(strategy=InheritanceType.JOINED)
 class GameOccassion extends AbstractGameOccassion with Serializable with Same[JLLong] {
@@ -348,6 +353,20 @@ class GameOccassion extends AbstractGameOccassion with Serializable with Same[JL
 
 class LineUp {
 
+  /*
+  INSERT INTO COMPETITOR VALUES(1)
+INSERT INTO COMPETITOR VALUES(2)
+INSERT INTO COMPETITOR VALUES(3)
+INSERT INTO COMPETITOR VALUES(4)
+INSERT INTO COMPETITOR VALUES(5)
+INSERT INTO COMPETITOR VALUES(6)
+INSERT INTO USER VALUES('asdf','asdf','asdf',1)
+INSERT INTO USER VALUES(NULL,'admin','admin',2)
+INSERT INTO USER VALUES('qwer','qwer','qwer',3)
+INSERT INTO USER VALUES('wert','wert','wert',4)
+INSERT INTO USER VALUES('sdfg','sdfg','sdfg',5)
+INSERT INTO USER VALUES('zxcv','zxcv','zxcv',6)
+   */
 }
 
 @Entity
@@ -370,6 +389,36 @@ class GameSetupType(var setupId:GameProcessTemplateId, val name:String, val cont
   def this() = this(null,null,null,null)
 
 }
+
+/*
+@Entity
+class GameType(_id:GameServerTypeId, var name:String) extends Serializable {
+  @Id private var id:String = if(_id != null) _id.name else null
+  def identifier = Symbol(id)
+  def identifier_=(s:GameServerTypeId) {id = s.name }
+
+  def this() = this(null,null)
+}
+
+@Entity
+@Table(uniqueConstraints=Array(new UniqueConstraint(columnNames=Array("GAMETYPE_ID","setupIdName"))))
+class GameSetupType(_setupId:GameProcessTemplateId, val name:String, val contestScoreClass:String, val scoreSchemeClass:String) extends Serializable with Same[JLLong] {
+
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @ManyToOne
+  var gameType:GameType = _
+
+  private var setupIdName:String = if(_setupId != null) _setupId.name else null
+
+  def setupId = Symbol(setupIdName)
+  def setupId_=(s:GameProcessTemplateId) {setupIdName = s.name }
+
+  def this() = this(null,null,null,null)
+
+}
+
+ */
 
 case class NonPersisentGameOccassion(val gameSessionId:JLLong) extends AbstractGameOccassion {
 
@@ -531,6 +580,36 @@ class LadderGame(_ladder:Ladder) extends CompetitionGame {
 
   def this() = this(null)
 }
+
+@Entity
+class TeamJoinRequest(_player:User, _team:Team,_teamMemberOpt:Option[User] = None) extends Serializable with Same[JLLong] {
+
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @ManyToOne
+  var player:User = _player
+
+  @ManyToOne
+  var team:Team = _team
+
+  @ManyToOne
+  private var teamMember:User = _teamMemberOpt.orNull
+
+  def teamMemberOpt = Option(teamMember)
+  def teamMemberOpt_=(v:User) : Unit = { teamMember = v }
+
+  def this() = this(null,null)
+
+}
+
+@Entity
+class EventLogEntry(_type:String, _msg:String) extends Serializable with Same[JLLong] {
+
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+}
+
+
+
 
 
 

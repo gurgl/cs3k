@@ -1,10 +1,10 @@
 package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.markup.html.panel.Panel
-import org.apache.wicket.model.IModel
+import org.apache.wicket.model.{Model, IModel}
 
 import org.apache.wicket.spring.injection.annot.SpringBean
-import se.bupp.cs3k.server.service.CompetitionService
+import se.bupp.cs3k.server.service.{TournamentHelper, CompetitionService}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.model.util.ListModel
 import se.bupp.cs3k.server.model.{ Tournament}
@@ -25,9 +25,15 @@ class TournamentView(id:String, mod:IModel[Tournament]) extends Panel(id) {
   var buffa:ListModel[TwoGameQualifierPositionAndSize] = new ListModel[TwoGameQualifierPositionAndSize]()
 
   override def onBeforeRender() {
-    var listn: List[TwoGameQualifierPositionAndSize] =
-      ladderService.createLayout2(mod.getObject,30)
+    val listn: List[TwoGameQualifierPositionAndSize] = ladderService.createLayout2(mod.getObject, 20)
     import scala.collection.JavaConversions.seqAsJavaList
+
+    listn.find(_.winnerPosOpt.isDefined).flatMap(_.winnerPosOpt) match {
+      case Some((left,top)) =>
+        add(new SvgPath("winnerPath",new Model(s"m ${left},${top} 100.0,0"),new Model("svg-tour-path-css undetermined")))
+        add(new SvgLabel("winnerLbl",new Model(left),new Model(top-TournamentHelper.lineToTextMargin),new Model(""),new Model(Some("Winner!"))))
+      case None =>
+    }
 
 
     buffa.setObject(listn)
