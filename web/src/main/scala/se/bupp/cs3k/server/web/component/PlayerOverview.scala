@@ -14,6 +14,7 @@ import org.apache.wicket.request.resource.ResourceReference
 import org.apache.wicket.markup.html.link.ResourceLink
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
+import org.apache.wicket.model.Model
 
 /**
  * Created with IntelliJ IDEA.
@@ -54,5 +55,8 @@ class PlayerOverview(id:String) extends Panel(id) {
 
   add(new PlayerOpenLobbiesPanel("openLobbies"))
 
+  add(new TeamMembershipList("teams", new Model(WiaSession.get().getUser)))
+
+  add(new CompetitionParticipationList("compParticipation",new Model(WiaSession.get().getUser)))
 
 }

@@ -119,7 +119,7 @@ class GenericDaoImpl[T](clz:Class[T]) {
   }
 
 }
-
+import scala.collection.JavaConversions.asScalaBuffer
 
 @Repository
 class CompetitionDao extends GenericDaoImpl[Competition](classOf[Competition]) {
@@ -135,8 +135,27 @@ class CompetitionDao extends GenericDaoImpl[Competition](classOf[Competition]) {
     selectRange2(selectRange2Base(stateCrit(m)),off,max)
   }
 
+  private def findUserCompetitionsQ(u:User) : Query  =  {
+
+    val q = em.createNamedQuery("Competition.findUserCompetitions")
+    q.setParameter("user1",u)
+    q.setParameter("user2",u)
+    q
+  }
+  def findUserCompetitionsCount(u:User) = {
+    findUserCompetitionsQ(u).getResultList.size()
+  }
+
+  def findUserCompetitions(u:User,p1: Long, p2: Long) : List[Competition]=  {
+    findUserCompetitionsQ(u).setMaxResults(p2.toInt).setFirstResult(p1.toInt).getResultList.toList.map(_.asInstanceOf[Competition])
+  }
+
+
+
 
 }
+
+
 
 @Repository
 class GameResultDao extends GenericDaoImpl[GameResult](classOf[GameResult]) {
@@ -145,7 +164,7 @@ class GameResultDao extends GenericDaoImpl[GameResult](classOf[GameResult]) {
      var q: TypedQuery[GameResult] = em.createNamedQuery[GameResult]("Competitor.findResultsByCompetition", classOf[GameResult])
      q.setParameter("comp1",u.id)
      q.setParameter("comp2",u.id)
-     import scala.collection.JavaConversions.asScalaBuffer
+
      q.getResultList.toList.map(_.asInstanceOf[GameResult])
    }
 }
@@ -294,9 +313,30 @@ class LadderDao extends GenericDaoImpl[Ladder](classOf[Ladder]) {
   }
 }
 
+
+@Repository
+@Transactional
+class TeamMemberDao extends GenericDaoImpl[TeamMember](classOf[TeamMember]) {
+
+}
 @Repository
 @Transactional
 class TeamDao extends GenericDaoImpl[Team](classOf[Team]) {
+
+  private def findUserTeamMemberships(u:User) : Query  =  {
+
+    val q = em.createNamedQuery("Team.findUserTeamMemberships")
+    q.setParameter("user",u)
+    q
+  }
+
+  def findUserTeamMembershipsCount(u:User) = {
+    findUserTeamMemberships(u).getResultList.size()
+  }
+
+  def findUserTeamMemberships(u:User,p1: Long, p2: Long) : List[TeamMember]=  {
+    findUserTeamMemberships(u).setMaxResults(p2.toInt).setFirstResult(p1.toInt).getResultList.toList.map(_.asInstanceOf[TeamMember])
+  }
 
 }
 

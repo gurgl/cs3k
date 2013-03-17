@@ -20,7 +20,8 @@ import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndS
 
 
 @NamedQueries(Array(
-  new NamedQuery(name = "User.findUserTeams", query = "select t from TeamMember tm left join tm.id.team t where tm.id.user.id = :userId")
+  new NamedQuery(name = "User.findUserTeams", query = "select t from TeamMember tm left join tm.id.team t where tm.id.user.id = :userId"),
+  new NamedQuery(name = "Team.findUserTeamMemberships", query = "select tm from TeamMember tm inner join fetch tm.id.team t where tm.id.user = :user")
 ))
 @Entity
 @PrimaryKeyJoinColumn(name="competitor_id")
@@ -451,6 +452,11 @@ case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameP
   def requiresTicket = game != null && game.isInstanceOf[GameOccassion]
 }
 
+
+@NamedQueries(Array(
+  new NamedQuery(name = "Competition.findUserCompetitions",
+  query = "select c2 from Competitor c left join c.members t, Competition c2 inner join c2.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id")
+))
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
 class Competition(_name:String,_competitorType:CompetitorType, _gameSetup:GameSetupType, _state:CompetitionState) extends Serializable {
