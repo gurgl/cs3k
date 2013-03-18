@@ -35,6 +35,7 @@ case class User(var username:String) extends Competitor {
 
   def this() = this("")
   override def toString = id + " " + username
+
 }
 
 
@@ -173,7 +174,7 @@ case class TeamMemberPk() extends Serializable{
 }
 
 @Entity
-class TeamMember {
+class TeamMember extends Serializable {
   @Id
   var id:TeamMemberPk = _
 
@@ -189,6 +190,7 @@ class Team(var name:String) extends Competitor with Same[JLLong] {
   @OneToMany(mappedBy = "id.team")
   var members:JUList[TeamMember] =  new JUArrayList[TeamMember]()
 
+  override def toString = id + " " + name
 }
 
 
@@ -229,6 +231,8 @@ class Competitor extends Serializable {
     case t:Team => t.name
     case u:User => u.username
   }
+
+
 }
 
 @Embeddable

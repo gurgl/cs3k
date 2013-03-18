@@ -385,7 +385,7 @@ class CompetitionService {
     val allCompetitorsByUser = competitorDao.findByUser(t)
 
     import scala.collection.JavaConversions.asScalaBuffer
-    log.info("allCompetitorsByUser " + allCompetitorsByUser.size)
+    //log.info("allCompetitorsByUser " + allCompetitorsByUser.size)
     allCompetitorsByUser.filter {
       case cc:Team => l.competitorType == CompetitorType.TEAM
       case cc:User => l.competitorType == CompetitorType.INDIVIDUAL
@@ -516,7 +516,7 @@ class CompetitionService {
         import scala.collection.JavaConversions.asScalaBuffer
         t.tournament.structure.find(_.childNodeIds.contains(t.nodeId)) match {
           case Some(qualifier) =>
-            val (_,winnerComp) = ranking.head
+            val (_,winnerComp) = ranking.toList.sortBy(_._1).head
             val comp = competitorDao.find(new lang.Long(winnerComp)).get
             val (_,idx) = qualifier.childNodeIds.zipWithIndex.find(_._1 == t.nodeId).get
 
@@ -530,7 +530,9 @@ class CompetitionService {
                 })
             }
 
-            val go2 = gameReservationService.addCompitorsAndStore(go,List((idx,comp)))
+            val positionByPlayer: List[(Int, Competitor)] = List((idx, comp))
+            log.info("positionByPlayer" + positionByPlayer)
+            val go2 = gameReservationService.addCompitorsAndStore(go,positionByPlayer)
             postCreate(go2)
 
             //ladderDao.em.persist(go2)

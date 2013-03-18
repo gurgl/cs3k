@@ -75,7 +75,7 @@ class ResultService {
 
 
     val competitorsByName = gs.game.participants.map( p => (p.id.competitor.id -> p.id.competitor.nameAccessor)).toMap //.toSet[java.lang.Long]
-    log.info("competitorsByName " + competitorsByName)
+    //log.info("competitorsByName " + competitorsByName)
     competitorsByName
   }
 
@@ -141,7 +141,7 @@ class ResultService {
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
 
-                  var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
+                  val value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
 
                   handleCompetition(value, g)
                 } else {
@@ -184,13 +184,14 @@ class ResultService {
                   g.result.game = g
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
-                  handleCompetition(value,g)
+                  handleCompetition(transformedValue,g)
                 } else {
                   throw new IllegalStateException("Game session doesnt point to " + playersRefs.map{ case (pid, p) => p.id }.mkString(","))
                 }
 
               case None =>
 
+                log.info("transorming game result - because of no game")
                 // MIXED
                 //val competitorsByName = getCompetitorsByName(gs)
                 var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
@@ -198,6 +199,7 @@ class ResultService {
                 val res = transformToRenderablePlayerGame(gameSessionId, serializedResult, players. map { case (pid, (u,None)) => (pid,u) } )
             }
           } else {
+            log.info("transorming game result ")
             // MIXED
             //val competitorsByName = getCompetitorsByName(gs)
             //var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
@@ -215,6 +217,7 @@ class ResultService {
     import scala.collection.JavaConversions.mapAsScalaMap
     var ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
 
+    log.info("RANKIKNG" + ranking)
     g.competitionGameOpt.foreach {
       cg =>
         competitionService.onGameEnded(cg, ranking)

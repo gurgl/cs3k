@@ -1,5 +1,15 @@
 ﻿TODO
 
+* Hantera events och crumbs
+
+* Fixa "öppna" competitions på första sidan
+
+* Fixa eventlog
+    - join/leave competition
+    - join/leave team
+    - Bla bla beat bla bla
+    - Winners
+
 * Testa turneringa
 
     * Lägg till rendering av spelarnamn
