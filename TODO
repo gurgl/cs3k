@@ -23,6 +23,8 @@
 
 * Lägg till audit på join team
 
+* Spelar-distribueraren klarar inte antal spelare == 3 då det är det primtal som används i modulon
+
 * Skapa component av Resultatlista
 
 * Ladder rooster klar?

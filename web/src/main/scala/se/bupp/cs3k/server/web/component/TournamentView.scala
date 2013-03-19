@@ -29,9 +29,9 @@ class TournamentView(id:String, mod:IModel[Tournament]) extends Panel(id) {
     import scala.collection.JavaConversions.seqAsJavaList
 
     listn.find(_.winnerPosOpt.isDefined).flatMap(_.winnerPosOpt) match {
-      case Some((left,top)) =>
+      case Some((left,top,nameOpt)) =>
         add(new SvgPath("winnerPath",new Model(s"m ${left},${top} 100.0,0"),new Model("svg-tour-path-css undetermined")))
-        add(new SvgLabel("winnerLbl",new Model(left),new Model(top-TournamentHelper.lineToTextMargin),new Model(""),new Model(Some("Winner!"))))
+        add(new SvgLabel("winnerLbl",new Model(left),new Model(top-TournamentHelper.lineToTextMargin),new Model(""),new Model(Some(nameOpt.getOrElse("Winner!")))))
       case None =>
     }
 

@@ -35,7 +35,7 @@ object TournamentHelper {
   }*/
 
   case class TwoGameQualifierPositionAndSize(var p1:Option[String], var p2:Option[String], var id:Int, var left:Float,var top:Float,var width:Float,var height:Float,state:QualifierState.QualifierState = QualifierState.Undetermined) extends Serializable {
-      var winnerPosOpt:Option[(Float,Float)] = None
+      var winnerPosOpt:Option[(Float,Float, Option[String])] = None
   }
 
 
@@ -554,8 +554,9 @@ class CompetitionService {
   @Transactional
   def startTournament(tournamentDet:Tournament) = {
     val tournament = ladderDao.em.find(classOf[Tournament], tournamentDet.id)
-
+    log.info("Query start tournament")
     if (List(CompetitionState.SIGNUP,CompetitionState.SIGNUP_CLOSED).contains(tournament.state)) {
+      log.info("Tournament state allows start - proceding")
       val numOfPlayers = tournament.participants.size
 
       val structure = TournamentHelper.createTournamentStructure(numOfPlayers)
@@ -565,8 +566,8 @@ class CompetitionService {
       val tourPrep1 = storeTournamentStructure(tournament, indexed)
 
       distributePlayersInTournament(tourPrep1,2,TournamentHelper.deterministic)
-
-
+      ladderDao.em.persist(tournament)
+      log.info("Tournament start - done")
     }
   }
 
@@ -633,7 +634,7 @@ class CompetitionService {
 
         }
         if(qualifier.parentOpt.isEmpty) {
-          qualifierRenderModel.winnerPosOpt = Some(left+width, screenOffsetY + bupp(0f))
+          qualifierRenderModel.winnerPosOpt = Some(left+width, screenOffsetY + bupp(0f),game.flatMap( g => if(g.result != null) Some(g.participants.head.id.competitor.nameAccessor) else None))
         }
         qualifierRenderModel
       }
