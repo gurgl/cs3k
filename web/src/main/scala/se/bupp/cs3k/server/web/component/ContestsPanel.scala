@@ -15,8 +15,8 @@ import se.bupp.cs3k.server.model.{Competition, Team, Ladder}
 import org.apache.wicket.Component
 import org.apache.wicket.behavior.AttributeAppender
 import org.apache.wicket.markup.ComponentTag
-import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, CompetitionSelectedEvent}
-import se.bupp.cs3k.server.web.component.LadderFormPanel
+import se.bupp.cs3k.server.web.component.Events.{AbstractContestEvent, CreateLadderEvent, CompetitionSelectedEvent}
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,20 +27,22 @@ import se.bupp.cs3k.server.web.component.LadderFormPanel
  */
 
 object Events {
-  abstract class AbstractEvent(var target:AjaxRequestTarget )
+  sealed abstract class AbstractEvent(var target:AjaxRequestTarget ) extends Serializable
+  sealed abstract class AbstractContestEvent(target:AjaxRequestTarget) extends AbstractEvent(target)
+  sealed abstract class AbstractCompetitorEvent(target:AjaxRequestTarget) extends AbstractEvent(target)
 
-  class CompetitionSelectedEvent(var ladder:Competition, target:AjaxRequestTarget ) extends AbstractEvent(target)
-  class TeamSelectedEvent(var team:Team, target:AjaxRequestTarget ) extends AbstractEvent(target)
-  class CreateTeamEvent(target:AjaxRequestTarget ) extends AbstractEvent(target)
-  class CreateLadderEvent(target:AjaxRequestTarget ) extends AbstractEvent(target)
+  class CompetitionSelectedEvent(var ladder:Competition, target:AjaxRequestTarget ) extends AbstractContestEvent(target)
+  class TeamSelectedEvent(var team:Team, target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
+  class CreateTeamEvent(target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
+  class CreateLadderEvent(target:AjaxRequestTarget ) extends AbstractContestEvent(target)
 
 
 
 }
-class ContestsPanel(id:String) extends Panel(id) {
+class ContestsPanel(id:String, eventOpt:Model[Option[AbstractContestEvent]]) extends Panel(id) {
 
 
-  add(new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
+  val panel = new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
     val name = "Contests"
     val model = new Model[Ladder](null)
     val createComponent = (id:String, m:Model[_]) => {
@@ -70,7 +72,20 @@ class ContestsPanel(id:String) extends Panel(id) {
          (newItem,cle.target,1)
 
      }
-  })
+  }
+
+  eventOpt.getObject.foreach(i => panel.onEvent(new IEvent[AbstractContestEvent] {
+    def getType = ???
+
+    def dontBroadcastDeeper() {}
+
+    def stop() {}
+
+    def getPayload = i
+
+    def getSource = ???
+  }))
+  add(panel)
 
 
 

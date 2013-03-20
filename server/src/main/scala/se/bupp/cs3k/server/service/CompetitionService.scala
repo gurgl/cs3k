@@ -562,10 +562,11 @@ class CompetitionService {
       val structure = TournamentHelper.createTournamentStructure(numOfPlayers)
       val indexed = TournamentHelper.index(structure)
 
-      tournament.state = CompetitionState.RUNNING
+
       val tourPrep1 = storeTournamentStructure(tournament, indexed)
 
       distributePlayersInTournament(tourPrep1,2,TournamentHelper.deterministic)
+      tournament.state = CompetitionState.RUNNING
       ladderDao.em.persist(tournament)
       log.info("Tournament start - done")
     }

@@ -7,9 +7,9 @@ import org.apache.wicket.model.Model
 import se.bupp.cs3k.server.model.{Team, Ladder}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
-import se.bupp.cs3k.server.web.component.Events.{CreateTeamEvent, TeamSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{AbstractCompetitorEvent, AbstractContestEvent, CreateTeamEvent, TeamSelectedEvent}
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import org.apache.wicket.event.Broadcast
+import org.apache.wicket.event.{IEvent, Broadcast}
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,9 +20,9 @@ import org.apache.wicket.event.Broadcast
  */
 
 
-class CompetitorPanel(id:String) extends Panel(id) {
+class CompetitorPanel(id:String,eventOpt:Model[Option[AbstractCompetitorEvent]]) extends Panel(id) {
 
-  add(new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
+  val panel = new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
     val name = "Competitors"
     val model = new Model[Team](null)
     val createComponent = (id:String, m:Model[_]) => {
@@ -54,8 +54,19 @@ class CompetitorPanel(id:String) extends Panel(id) {
         }
         (newItem,lse.target,1)
     }
-  })
+  }
 
+  eventOpt.getObject.foreach(i => panel.onEvent(new IEvent[AbstractCompetitorEvent] {
+    def getType = ???
 
+    def dontBroadcastDeeper() {}
+
+    def stop() {}
+
+    def getPayload = i
+
+    def getSource = ???
+  }))
+  add(panel)
 
 }

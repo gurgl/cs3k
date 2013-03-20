@@ -18,6 +18,8 @@ import auth.{LoggedInOnly, AnonymousOnly}
 import component._
 import scala.Some
 import scala.Some
+import org.apache.wicket.event.IEvent
+import org.apache.wicket.Component
 
 
 /**
@@ -31,19 +33,42 @@ import scala.Some
 class ApplicationPage extends SessionPage {
 
 
+  var CONTEST_MENU_ITEM_TEXT: String = "Contests"
+  val COMPETITORS_MENU_ITEM: String = "Competitors"
+  val CONTENT_ID: String = "content"
   import scala.collection.JavaConversions.seqAsJavaList
   import scala.collection.JavaConversions.asScalaIterator
   import scala.collection.JavaConversions.asJavaIterator
 
-  val list = List(
-    ("Play", (s:String) => new PlayPanel(s)),
-    ("Contests", (s:String) => new ContestsPanel(s)),
-    ("Competitors", (s:String) => new CompetitorPanel(s))
-  ) ++ (
-    if (WiaSession.get().getUser != null) {
-      List(("Me", (s:String) => new PlayerPanel(s)))
-    } else Nil
-  )
+  override def onEvent(event: IEvent[_]) {
+    super.onEvent(event)
+    event.getPayload match {
+      case e:Events.AbstractContestEvent =>
+        var p = new ContestsPanel(CONTENT_ID, new Model(Some(e)))
+        val newP = menuPanel.getItems.find(i => i.getModelObject._1 == CONTEST_MENU_ITEM_TEXT).get
+        asdf(e.target,CONTEST_MENU_ITEM_TEXT,p,Some(newP))
+
+      case e:Events.AbstractCompetitorEvent =>
+        var p = new CompetitorPanel(CONTENT_ID, new Model(Some(e)))
+        val newP = menuPanel.getItems.find(i => i.getModelObject._1 == COMPETITORS_MENU_ITEM).get
+        asdf(e.target,COMPETITORS_MENU_ITEM,p,Some(newP))
+      case _ =>
+    }
+  }
+
+  val list = {
+
+
+    List(
+      ("Play", (s: String) => new PlayPanel(s)),
+      (CONTEST_MENU_ITEM_TEXT, (s: String) => new ContestsPanel(s, new Model(None))),
+      (COMPETITORS_MENU_ITEM, (s: String) => new CompetitorPanel(s, new Model(None)))
+    ) ++ (
+      if (WiaSession.get().getUser != null) {
+        List(("Me", (s: String) => new PlayerPanel(s)))
+      } else Nil
+      )
+  }
 
   var selected = Some(list.head._1)
   var menuPanel = new RefreshingView[(String,Function1[String,Panel])]("menu") {
@@ -60,13 +85,10 @@ class ApplicationPage extends SessionPage {
       var label = new Label("linkLabel", labelText).setOutputMarkupId(true)
       val link = new AjaxLink[String]("link") {
         def onClick(target: AjaxRequestTarget) {
-          selected.foreach ( s => getItems.find(i => i.getModelObject._1 == s).foreach(i => target.add(i)) )
-          selected = Some(labelText)
 
-          val comp = panelGen.apply("content")
-          contentContainer.addOrReplace(comp)
-          target.add(contentContainer)
-          target.add(p1)
+          val comp = panelGen.apply(CONTENT_ID)
+
+          asdf(target, labelText, comp, Some(p1))
         }
       }
 
@@ -80,6 +102,15 @@ class ApplicationPage extends SessionPage {
 
     }
   }
+
+  def asdf(target: AjaxRequestTarget, labelText: String, comp: Panel, p1: Option[Component]) {
+    selected.foreach(s => menuPanel.getItems.find(i => i.getModelObject._1 == s).foreach(i => target.add(i)))
+    selected = Some(labelText)
+    contentContainer.addOrReplace(comp)
+    target.add(contentContainer)
+    p1.foreach(target.add(_))
+  }
+
   add(menuPanel)
 
 
