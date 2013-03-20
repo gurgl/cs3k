@@ -71,8 +71,8 @@ public class LobbyClient extends JFrame {
             lobbyServerHandler = new NonTeamLobbyHandler(this);
         }
         JComponent handlerUi = lobbyServerHandler.getUIPanel();
-        final Communication com = new Communication(lobbyPort, lobbyHost,lobbyServerHandler);
-        com.init();
+        final Communication comcommunication = new Communication(lobbyPort, lobbyHost,lobbyServerHandler);
+        comcommunication.init();
 
         String message = "Not connected";
 
@@ -122,9 +122,7 @@ public class LobbyClient extends JFrame {
         ActionListener listener = new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
 
-                final Window window = JFrame.getWindows()[0];
-
-                getToolkit().getSystemEventQueue().postEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+                exitApp();
             }
         };
 
@@ -144,16 +142,24 @@ public class LobbyClient extends JFrame {
          Long userId =  -1L;
         try { userId = Long.valueOf(userIdStr); } catch(Exception e) { }
 
-        com.join(userId, playerName);
+        comcommunication.join(userId, playerName);
 
         System.err.println("slut");
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) {
-                com.client.close();
-                System.exit(0);
+                super.windowClosing(we);
+                comcommunication.client.close();
+
+                setVisible(false);
+                dispose();
             }
         });
+    }
+
+    private void exitApp() {
+        final Window window = JFrame.getWindows()[0];
+        getToolkit().getSystemEventQueue().postEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
     }
 
     public void startGame(URL gameJnlpUrl) {
@@ -169,7 +175,7 @@ public class LobbyClient extends JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
-        System.exit(0);
+        exitApp();
     }
 
     public static void main(String args[]) {
