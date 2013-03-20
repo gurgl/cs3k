@@ -10,6 +10,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget
 import se.bupp.cs3k.model.CompetitionState
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{CompetitionService, CompetitorService}
+import scala._
+import org.apache.wicket.Component
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,34 +24,29 @@ class LadderPanel(id:String, model:IModel[Competition]) extends Panel(id) {
 
   @SpringBean
   var competitionService:CompetitionService = _
-
-  add(new VertTabbedPanel("tab-panel",
-    List(
-      ("Overview", (cId:String) => new CompetitionOverview(cId,model)),
-      ("Challangers", (cId:String) => new TeamListPanel(cId))
-    ) ++
-      {
-        model.getObject match {
-          case l:Ladder =>
-            val ladMod = model.asInstanceOf[IModel[Ladder]]
-            List(
-              ("Results", (cId:String) => new LadderStandingsPanel(cId, ladMod))
-            )
-          case t:Tournament =>
-            if (List(CompetitionState.RUNNING, CompetitionState.FINISHED).contains(t.state)) {
-              List(("Results", (cId:String) => new TournamentView(cId, model.asInstanceOf[IModel[Tournament]])))
-            } else {
-
-              List(("Results", (cId:String) => {
-                val numOfPlayers = competitionService.getNumberOfParticipants(model.getObject)
-                new TournamentViewNotStarted(cId, new Model(new Integer(numOfPlayers)))
-
-                  }
-                )
-              )
-            }
-        }
-      }
-    )
+  val items: List[(String,String => Component)] = (
+    model.getObject match {
+      case l:Ladder =>
+        val ladMod = model.asInstanceOf[IModel[Ladder]]
+        List(
+          ("Standings", (cId:String) => new LadderStandingsPanel(cId, ladMod))
+        )
+      case t:Tournament =>
+        if (List(CompetitionState.RUNNING, CompetitionState.FINISHED).contains(t.state)) {
+          List(("Standings", (cId:String) => new TournamentView(cId, model.asInstanceOf[IModel[Tournament]])))
+        } else {
+           List(("Layout", (cId:String) => {
+            val numOfPlayers = competitionService.getNumberOfParticipants(model.getObject)
+            new TournamentViewNotStarted(cId, new Model(new Integer(numOfPlayers)))
+          }
+        )
+      )
+    }
+    }
+    ) ::: List(
+    ("Overview", (cId:String) => new CompetitionOverview(cId,model)),
+    ("Challangers", (cId:String) => new TeamListPanel(cId))
   )
+  add(new VertTabbedPanel("tab-panel",items))
+
 }
