@@ -338,6 +338,23 @@ class TeamDao extends GenericDaoImpl[Team](classOf[Team]) {
     findUserTeamMemberships(u).setMaxResults(p2.toInt).setFirstResult(p1.toInt).getResultList.toList.map(_.asInstanceOf[TeamMember])
   }
 
+  private def findTeamMemberships(u:Team) : Query  =  {
+
+    val q = em.createNamedQuery("Team.findTeamMembers")
+    q.setParameter("team",u)
+    q
+  }
+
+  def findTeamMembershipsCount(u:Team) = {
+    findTeamMemberships(u).getResultList.size()
+  }
+
+  def findTeamMemberships(u:Team,p1: Long, p2: Long) : List[TeamMember]=  {
+    findTeamMemberships(u).setMaxResults(p2.toInt).setFirstResult(p1.toInt).getResultList.toList.map(_.asInstanceOf[TeamMember])
+  }
+
+
+
 }
 
 @Repository

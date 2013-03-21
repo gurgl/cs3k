@@ -21,6 +21,7 @@ import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, L
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
+import component.CompetitionListPanel
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service.{ResultLogService, ResultService, GameReservationService, CompetitionService}
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
@@ -287,7 +288,11 @@ class PlayPanel(id:String) extends Panel(id) {
 
 
   @LoggedInOnly
-  class ChallangePanel(id:String) extends WebMarkupContainer(id) {
+  class FFChPanel(id:String) extends PlayerOpenLobbiesPanel(id) {
+    override def isVisible = super.isVisible && table.getItemCount > 0
+  }
+
+  /*class ChallangePanel(id:String) extends WebMarkupContainer(id) {
     var user: User = WiaSession.get().getUser
     var challanges:List[GameOccassion] =
       gameReservationService.findUnplayedGamesForCompetitor(user)
@@ -303,30 +308,22 @@ class PlayPanel(id:String) extends Panel(id) {
         parameters.add("user_id", user.id)
         parameters.add("game_occassion_id", go.id)
 
-
         val ref = new ResourceReference("bupp") {
           def getResource = WicketApplication.get.gameResource
         }
         listItem.add(new ResourceLink[String]("play", ref, parameters) {
-/*
-          def onClick() {
-            var parameters: PageParameters = new PageParameters()
-            //parameters.add("competitor_id", selectionModel.getObject.id)
-            parameters.add("user_id", user.id)
-            parameters.add("game_occassion_id", go.gameSessionId)
-
-            new RestartResponseException()
-            RequestCycle.get().replaceAllRequestHandlers(new ResourceRequestHandler(WicketApplication.get.gameResource, parameters))
-          }
-  */
         })
 
       }
     })
+  }*/
+
+  class PPCompetitionListPanel(id:String,  m:IModel[Option[CompetitionState]]) extends CompetitionListPanel(id,m) {
+    override def isVisible = super.isVisible && table.getItemCount > 0
   }
 
-  add(new CompetitionListPanel("openCompetitions", new Model(Some(CompetitionState.SIGNUP))))
-  add(new ChallangePanel("challangePanel"))
+  add(new PPCompetitionListPanel("openCompetitions", new Model(Some(CompetitionState.SIGNUP))))
+  add(new FFChPanel("challangePanel"))
 
 
   import scala.collection.JavaConversions.seqAsJavaList

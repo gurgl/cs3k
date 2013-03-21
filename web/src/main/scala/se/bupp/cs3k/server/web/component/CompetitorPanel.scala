@@ -38,9 +38,6 @@ class CompetitorPanel(id:String,eventOpt:Model[Option[AbstractCompetitorEvent]])
       def load() = teamDao.find(p1.id).get
 
     }
-    //def detach() {}
-
-
   }
 
 

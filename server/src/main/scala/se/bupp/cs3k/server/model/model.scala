@@ -181,6 +181,10 @@ class TeamMember extends Serializable {
 }
 
 
+@NamedQueries(Array(
+  new NamedQuery(name = "Team.findTeamMembers",
+    query = "select m from Team t inner join t.members m inner join fetch m.id.user u where t = :team")
+))
 @Entity
 @PrimaryKeyJoinColumn(name="COMPETITOR_ID")
 class Team(var name:String) extends Competitor with Same[JLLong] {

@@ -38,23 +38,26 @@
             <h5>Tournaments</h5>
         </div-->
 
+      <wicket:enclosure child="openCompetitions">
         <div class="alert alert-success" >
-            <div wicket:id="openCompetitions"></div>
+          Contests open for registration
+          <div wicket:id="openCompetitions"></div>
         </div>
+      </wicket:enclosure>
 
-        <div class="alert alert-warning"  wicket:id="challangePanel">
-            <table>
-                <tr wicket:id="challanges">
+        <wicket:enclosure child="challangePanel">
+          <div class="alert alert-warning" >
+            Your open competition games
+            <wicket:container wicket:id="challangePanel"></wicket:container>
 
-                    <td><a wicket:id="play">play</a></td>
-                </tr>
-            </table>
-        </div>
-
-
+          </div>
+        </wicket:enclosure>
 
 
-        <div>
+
+
+
+          <div>
 
         </div>
         <div>

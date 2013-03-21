@@ -1,13 +1,28 @@
 <wicket:panel>
 
-    <div wicket:id="joinPanel"></div>
-
-    <h5>Latest Results</h5>
-    <hr>
-    <div wicket:id="lastGames">
-        <div wicket:id="item"></div>
+  <wicket:enclosure child="joinPanel">
+    <div class="alert alert-warning">
+      <div wicket:id="joinPanel"></div>
     </div>
+  </wicket:enclosure>
 
-    <a wicket:id="startGameDebug">Start Competition (Debug)</a>
+
+  <wicket:enclosure child="loginToJoin">
+    <div class="alert alert-warning">
+
+      <div wicket:id="loginToJoin">
+        <h5>Login to join this competition</h5>
+        <a wicket:id="login">Login</a>
+      </div>
+    </div>
+  </wicket:enclosure>
+
+  <h5>Latest Results</h5>
+  <hr>
+  <div wicket:id="lastGames">
+    <div wicket:id="item"></div>
+  </div>
+
+  <a wicket:id="startGameDebug">Start Competition (Debug)</a>
 
 </wicket:panel>

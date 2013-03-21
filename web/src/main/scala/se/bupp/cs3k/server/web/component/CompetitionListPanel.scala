@@ -71,7 +71,8 @@ class CompetitionListPanel(id:String, m:IModel[Option[CompetitionState]] = new M
     new PropertyColumn(new Model("Left"),"name")
   )
 
-  add(new NiceDataTable("table", columns, provider, 8))
+  var table: NiceDataTable[Competition, String] = new NiceDataTable("table", columns, provider, 8)
+  add(table)
 
 
 
