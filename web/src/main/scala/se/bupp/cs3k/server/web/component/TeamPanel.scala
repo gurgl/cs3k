@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import competitor.PlayerListPanel
 import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{Model, IModel}
@@ -19,7 +20,7 @@ class TeamPanel(id:String, model:IModel[Team]) extends Panel(id) {
   add(new VertTabbedPanel("tab-panel",
     List(
       ("Overview", (cId:String) => new CompetitorOverview(cId,model)),
-      ("Members", (cId:String) => new TeamListPanel(cId)),
+      ("Members", (cId:String) => new PlayerListPanel(cId,null)),
       ("Admin", (cId:String) => new Label(cId, "results"))
       )
     )

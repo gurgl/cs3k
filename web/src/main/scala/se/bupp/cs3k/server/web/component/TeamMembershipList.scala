@@ -1,12 +1,13 @@
 package se.bupp.cs3k.server.web.component
 
+import generic.AjaxLinkLabel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.model.{TeamMember, Team, GameOccassion, User}
 import se.bupp.cs3k.server.web.{WicketApplication, WiaSession}
 import org.apache.wicket.extensions.markup.html.repeater.data.table._
-import org.apache.wicket.model.{LoadableDetachableModel, IModel, Model}
+import org.apache.wicket.model.{PropertyModel, LoadableDetachableModel, IModel, Model}
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.request.mapper.parameter.PageParameters
@@ -15,6 +16,9 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider
 import org.apache.wicket.extensions.markup.html.repeater.util.{SortParam, SingleSortState}
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.{SortOrder, ISortState}
 import se.bupp.cs3k.server.service.dao.{TeamMemberDao, CompetitorDao, TeamDao}
+import org.apache.wicket.ajax.AjaxRequestTarget
+import org.apache.wicket.event.Broadcast
+import se.bupp.cs3k.server.web.component.Events.TeamSelectedEvent
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,14 +38,18 @@ class TeamMembershipList(id:String, mod:IModel[User]) extends Panel(id) {
   import scala.collection.JavaConversions.seqAsJavaList
 
   val columns = List[IColumn[TeamMember,String]] (
-    /*new AbstractColumn[GameOccassion,String](new Model(""))
+    new AbstractColumn[TeamMember,String](new Model(""))
     {
-      def populateItem(cellItem:Item[ICellPopulator[GameOccassion]], componentId:String, model:IModel[GameOccassion])
+      def populateItem(cellItem:Item[ICellPopulator[TeamMember]], componentId:String, model:IModel[TeamMember])
       {
 
-        cellItem.add(new ResourceLinkComp(componentId,ref,parameters))
+        cellItem.add(new AjaxLinkLabel(componentId,new PropertyModel[String](model,"id.team.nameAccessor")){
+          def onClick(target: AjaxRequestTarget) {
+            send(getPage(), Broadcast.BREADTH, new TeamSelectedEvent(model.getObject.id.team, target));
+          }
+        })
       }
-    },*/
+    },
     new PropertyColumn(new Model("Team"),"id.team.nameAccessor")
 
   )

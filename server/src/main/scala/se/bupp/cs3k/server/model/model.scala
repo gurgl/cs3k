@@ -459,7 +459,10 @@ case class RunningGame(var game:AbstractGameOccassion, var processSettings:GameP
 
 @NamedQueries(Array(
   new NamedQuery(name = "Competition.findUserCompetitions",
-  query = "select c2 from Competitor c left join c.members t, Competition c2 inner join c2.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id")
+    query = "select c2 from Competitor c left join c.members t, Competition c2 inner join c2.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id")
+  ,
+  new NamedQuery(name = "Competition.findCompetitionPariticpants",
+    query = "select c2 from Competitor c left join c.members t, Competition c2 inner join c2.participants p where (c = :user1 or t.id.user = :user2) and c.id = p.id.competitor.id")
 ))
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
@@ -619,7 +622,12 @@ class EventLogEntry(_type:String, _msg:String) extends Serializable with Same[JL
 }
 
 
-
+object UserMessages {
+  class PlayerJoinedTeam(u:User, t:Team)
+  class PlayerLeftTeam(u:User, t:Team)
+  class CompetitorEnteredContest(u:User, t:Competition)
+  class CompetitionStateChange(s:CompetitionState, c:Competition)
+}
 
 
 

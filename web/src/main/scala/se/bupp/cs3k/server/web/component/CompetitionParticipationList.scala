@@ -1,12 +1,18 @@
 package se.bupp.cs3k.server.web.component
 
-import generic.FodelPropertyColumn
+import generic.{AjaxLinkLabel, FodelPropertyColumn}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.{CompetitionDao, TeamMemberDao, TeamDao}
-import org.apache.wicket.extensions.markup.html.repeater.data.table.{DataTable, ISortableDataProvider, PropertyColumn, IColumn}
-import se.bupp.cs3k.server.model.{Competition, User, TeamMember}
-import org.apache.wicket.model.{IModel, LoadableDetachableModel, Model}
+import org.apache.wicket.extensions.markup.html.repeater.data.table._
+import se.bupp.cs3k.server.model.{Team, Competition, User, TeamMember}
+import org.apache.wicket.model.{PropertyModel, IModel, LoadableDetachableModel, Model}
+import org.apache.wicket.markup.repeater.Item
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
+import org.apache.wicket.ajax.AjaxRequestTarget
+import org.apache.wicket.event.Broadcast
+import se.bupp.cs3k.server.web.component.Events.{CompetitionSelectedEvent, TeamSelectedEvent}
+import se.bupp.cs3k.server.model.User
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,14 +32,18 @@ class CompetitionParticipationList(id:String, mod:IModel[User]) extends Panel(id
   import scala.collection.JavaConversions.seqAsJavaList
 
   val columns = List[IColumn[Competition,String]] (
-    /*new AbstractColumn[GameOccassion,String](new Model(""))
+    new AbstractColumn[Competition,String](new Model(""))
     {
-      def populateItem(cellItem:Item[ICellPopulator[GameOccassion]], componentId:String, model:IModel[GameOccassion])
+      def populateItem(cellItem:Item[ICellPopulator[Competition]], componentId:String, model:IModel[Competition])
       {
 
-        cellItem.add(new ResourceLinkComp(componentId,ref,parameters))
+        cellItem.add(new AjaxLinkLabel(componentId,new PropertyModel[String](model,"name")){
+          def onClick(target: AjaxRequestTarget) {
+            send(getPage(), Broadcast.BREADTH, new CompetitionSelectedEvent(model.getObject, target));
+          }
+        })
       }
-    },*/
+    },
     new PropertyColumn(new Model("Setup"),"gameSetup.name")
     ,
     new FodelPropertyColumn(new Model("Form"),

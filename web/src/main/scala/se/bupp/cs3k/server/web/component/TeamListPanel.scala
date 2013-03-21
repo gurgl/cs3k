@@ -35,7 +35,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
  * Time: 21:18
  * To change this template use File | Settings | File Templates.
  */
-class TeamListPanel(id:String) extends Panel(id) {
+class TeamListPanel(id:String,provider:SortableDataProvider[Team,String]) extends Panel(id) {
 
   @SpringBean
   var teamDao:TeamDao = _
@@ -43,22 +43,6 @@ class TeamListPanel(id:String) extends Panel(id) {
   @SpringBean
   var ts:TeamService = _
   //var tm:PlatformTransactionManager = _
-
-  val provider = new SortableDataProvider[Team,String]() {
-    import scala.collection.JavaConversions.asJavaIterator
-    def iterator(p1: Long, p2: Long) = teamDao.selectRange(p1.toInt,p2.toInt).toIterator
-
-    def size() = teamDao.selectRangeCount
-
-    def model(p1: Team) = new LoadableDetachableModel[Team](p1) {
-      def load() = teamDao.find(p1.id).get
-
-    }
-    //def detach() {}
-
-
-  }
-
 
   val columns = List[IColumn[Team,String]] (
     new AbstractColumn[Team,String](new Model("Name"))

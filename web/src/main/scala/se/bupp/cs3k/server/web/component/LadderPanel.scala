@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.CompetitionPariticipantListPanel
 import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.{EmptyPanel, Panel}
 import org.apache.wicket.model.{Model, IModel}
@@ -24,7 +25,9 @@ class LadderPanel(id:String, model:IModel[Competition]) extends Panel(id) {
 
   @SpringBean
   var competitionService:CompetitionService = _
-  val items: List[(String,String => Component)] = (
+  val items: List[(String,String => Component)] = List(
+    ("Overview", (cId:String) => new CompetitionOverview(cId,model)),
+    ("Participants", (cId:String) => new CompetitionPariticipantListPanel(cId,model))) ++ (
     model.getObject match {
       case l:Ladder =>
         val ladMod = model.asInstanceOf[IModel[Ladder]]
@@ -35,18 +38,16 @@ class LadderPanel(id:String, model:IModel[Competition]) extends Panel(id) {
         if (List(CompetitionState.RUNNING, CompetitionState.FINISHED).contains(t.state)) {
           List(("Standings", (cId:String) => new TournamentView(cId, model.asInstanceOf[IModel[Tournament]])))
         } else {
-           List(("Layout", (cId:String) => {
-            val numOfPlayers = competitionService.getNumberOfParticipants(model.getObject)
-            new TournamentViewNotStarted(cId, new Model(new Integer(numOfPlayers)))
-          }
-        )
-      )
-    }
-    }
-    ) ::: List(
-    ("Overview", (cId:String) => new CompetitionOverview(cId,model)),
-    ("Challangers", (cId:String) => new TeamListPanel(cId))
-  )
+          List(("Layout",
+            (cId:String) => {
+              val numOfPlayers = competitionService.getNumberOfParticipants(model.getObject)
+                new TournamentViewNotStarted(cId, new Model(new Integer(numOfPlayers)))
+              }
+            )
+          )
+        }
+      }
+    )
   add(new VertTabbedPanel("tab-panel",items))
 
 }

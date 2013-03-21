@@ -3,13 +3,16 @@ package se.bupp.cs3k.server.web.component
 import generic.breadcrumb.BreadCrumbPanel
 import generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
 import org.apache.wicket.markup.html.panel.Panel
-import org.apache.wicket.model.Model
+import org.apache.wicket.model.{LoadableDetachableModel, Model}
 import se.bupp.cs3k.server.model.{Team, Ladder}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web.component.Events.{AbstractCompetitorEvent, AbstractContestEvent, CreateTeamEvent, TeamSelectedEvent}
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.event.{IEvent, Broadcast}
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
+import org.apache.wicket.spring.injection.annot.SpringBean
+import se.bupp.cs3k.server.service.dao.TeamDao
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,11 +25,30 @@ import org.apache.wicket.event.{IEvent, Broadcast}
 
 class CompetitorPanel(id:String,eventOpt:Model[Option[AbstractCompetitorEvent]]) extends Panel(id) {
 
+  @SpringBean
+  var teamDao:TeamDao = _
+
+  val allTeamsProvider = new SortableDataProvider[Team,String]() {
+    import scala.collection.JavaConversions.asJavaIterator
+    def iterator(p1: Long, p2: Long) = teamDao.selectRange(p1.toInt,p2.toInt).toIterator
+
+    def size() = teamDao.selectRangeCount
+
+    def model(p1: Team) = new LoadableDetachableModel[Team](p1) {
+      def load() = teamDao.find(p1.id).get
+
+    }
+    //def detach() {}
+
+
+  }
+
+
   val panel = new BreadCrumbPanel("breadCrumbPanel",new BreadCrumbModel {
     val name = "Competitors"
     val model = new Model[Team](null)
     val createComponent = (id:String, m:Model[_]) => {
-      new TeamListPanel(id)
+      new TeamListPanel(id,allTeamsProvider)
     }
   }) {
     override def pa:PartialFunction[Any,(BreadCrumbModel,AjaxRequestTarget,Int)] = {
