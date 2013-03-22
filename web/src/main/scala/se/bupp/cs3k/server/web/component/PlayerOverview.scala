@@ -14,7 +14,7 @@ import org.apache.wicket.request.resource.ResourceReference
 import org.apache.wicket.markup.html.link.ResourceLink
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
-import org.apache.wicket.model.Model
+import org.apache.wicket.model.{IModel, Model}
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,7 +23,7 @@ import org.apache.wicket.model.Model
  * Time: 23:36
  * To change this template use File | Settings | File Templates.
  */
-class PlayerOverview(id:String) extends Panel(id) {
+class PlayerOverview(id:String, model:IModel[User]) extends Panel(id) {
 
   @SpringBean
   var gameReservationService:GameReservationService = _
@@ -32,7 +32,7 @@ class PlayerOverview(id:String) extends Panel(id) {
   var resultService:ResultService = _
 
   import scala.collection.JavaConversions.seqAsJavaList
-  var all  = new ListModel(resultService.findResultsByCompetitor(WiaSession.get().getUser))
+  var all  = new ListModel(resultService.findResultsByCompetitor(model.getObject))
 
   /*add(new ListView("lastGames", all) {
     def populateItem(item: ListItem[GameResult]) {
@@ -55,8 +55,8 @@ class PlayerOverview(id:String) extends Panel(id) {
 
   add(new PlayerOpenLobbiesPanel("openLobbies"))
 
-  add(new TeamMembershipList("teams", new Model(WiaSession.get().getUser)))
+  add(new TeamMembershipList("teams", model))
 
-  add(new CompetitionParticipationList("compParticipation",new Model(WiaSession.get().getUser)))
+  add(new CompetitionParticipationList("compParticipation",model))
 
 }

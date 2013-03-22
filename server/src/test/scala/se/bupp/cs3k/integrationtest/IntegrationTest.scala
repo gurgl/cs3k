@@ -80,8 +80,10 @@ class IntegrationTest extends Specification with Mockito {
 
     var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
     GameServerRepository.reset
-    GameServerRepository.add(gameAndSettingsId._1,null)
-    GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
+    //GameServerRepository.add(gameAndSettingsId._1,null)
+    //GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
+    Init.gameMeta = Map() + (gameAndSettingsId._1 -> (null,(x:GameServerTypeId) => new GameType(x,"Tank Game")))
+    Init.gameSetupMeta = Map() + (gameAndSettingsId -> (gpTemplate,(x:GameProcessTemplateId) => new GameSetupType(x, "1vs1", null, null)))
 
     val appContext = new FileSystemXmlApplicationContext("server/src/test/resources/applicationContext.xml");
     val factory =  appContext.asInstanceOf[BeanFactory];

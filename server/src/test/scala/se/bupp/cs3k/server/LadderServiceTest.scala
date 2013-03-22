@@ -398,12 +398,12 @@ class LadderServiceTest extends Specification with Mockito {
 
 
       val (comps2, qualifier2 ) = doInTxWithRes {
-        val qualifier = findQualifier(tournament, List("4", "2"))
+        val qualifier = findQualifier(tournament, List("4", "0"))
         qualifier.gameOccassionOpt.get.participants.size === 2
         qualifier.gameOccassionOpt.get.participants(0).seqId === 1
         qualifier.gameOccassionOpt.get.participants(0).id.competitor.nameAccessor === "4"
         qualifier.gameOccassionOpt.get.participants(1).seqId === 0
-        qualifier.gameOccassionOpt.get.participants(1).id.competitor.nameAccessor === "2"
+        qualifier.gameOccassionOpt.get.participants(1).id.competitor.nameAccessor === "0"
 
         (qualifier.gameOccassionOpt.get.participants.map(_.id.competitor),qualifier)
       }
@@ -417,21 +417,21 @@ class LadderServiceTest extends Specification with Mockito {
 
       doInTx {
 
-        val qualifier = findQualifier(tournament, List("4", "2"))
+        val qualifier = findQualifier(tournament, List("4"))
         var participants = qualifier.gameOccassionOpt.get.participants.toList
-        participants.size === 2
-        participants(0).seqId === 1
+        participants.size === 1
+        participants(0).seqId === 0
         participants(0).id.competitor.nameAccessor === "4"
-        participants(1).seqId === 0
-        participants(1).id.competitor.nameAccessor === "2"
+        //participants(1).seqId === 0
+        //participants(1).id.competitor.nameAccessor === "2"
       }
 
       var layout2 = competitionService.createLayout2(tournamentPrim)
       layout2 must haveTheSameElementsAs(
         List(TwoGameQualifierPositionAndSize(Some("0"),Some("2"),1,0.0f,37.5f,100.0f,35.0f,QualifierState.Played),
-          TwoGameQualifierPositionAndSize(Some("2"),Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Played),
+          TwoGameQualifierPositionAndSize(Some("0"),Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Played),
           TwoGameQualifierPositionAndSize(Some("1"),Some("3"),3,100.0f,177.5f,100.0f,35.0f,QualifierState.Determined),
-          TwoGameQualifierPositionAndSize(Some("2"),None,4,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined))
+          TwoGameQualifierPositionAndSize(Some("4"),None,4,200.0f,90.0f,100.0f,105.0f,QualifierState.Undetermined))
       )
 
       val (comps3, qualifier3 ) = doInTxWithRes {
@@ -449,23 +449,23 @@ class LadderServiceTest extends Specification with Mockito {
 
       gameReservationService.startPersistedGameServer(qualifier3.gameOccassionOpt.get)
 
-      var serializedResult3: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps3(0).id}":{"a":10,"b":1},"${comps3(1).id}":{"a":3,"b":4}}}"""
+      var serializedResult3: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps3(1).id}":{"a":10,"b":1},"${comps3(0).id}":{"a":3,"b":4}}}"""
       resultService.endGame(qualifier3.gameOccassionOpt.get.gameSessionId,serializedResult3)
 
       var layout3 = competitionService.createLayout2(tournamentPrim)
       layout3 must haveTheSameElementsAs(
         List(TwoGameQualifierPositionAndSize(Some("0"),Some("2"),1,0.0f,37.5f,100.0f,35.0f,QualifierState.Played),
-          TwoGameQualifierPositionAndSize(Some("2"),Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Played),
+          TwoGameQualifierPositionAndSize(Some("0"),Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Played),
           TwoGameQualifierPositionAndSize(Some("1"),Some("3"),3,100.0f,177.5f,100.0f,35.0f,QualifierState.Played),
-          TwoGameQualifierPositionAndSize(Some("2"),Some("1"),4,200.0f,90.0f,100.0f,105.0f,QualifierState.Determined))
+          TwoGameQualifierPositionAndSize(Some("4"),Some("1"),4,200.0f,90.0f,100.0f,105.0f,QualifierState.Determined))
       )
 
 
       val (comps4, qualifier4 ) = doInTxWithRes {
-        val qualifier = findQualifier(tournament, List("2", "1"))
+        val qualifier = findQualifier(tournament, List("4", "1"))
         qualifier.gameOccassionOpt.get.participants.size === 2
         qualifier.gameOccassionOpt.get.participants(0).seqId === 0
-        qualifier.gameOccassionOpt.get.participants(0).id.competitor.nameAccessor === "2"
+        qualifier.gameOccassionOpt.get.participants(0).id.competitor.nameAccessor === "4"
         qualifier.gameOccassionOpt.get.participants(1).seqId === 1
         qualifier.gameOccassionOpt.get.participants(1).id.competitor.nameAccessor === "1"
 
@@ -482,9 +482,9 @@ class LadderServiceTest extends Specification with Mockito {
       var layout4 = competitionService.createLayout2(tournamentPrim)
       layout4 must haveTheSameElementsAs(
         List(TwoGameQualifierPositionAndSize(Some("0"),Some("2"),1,0.0f,37.5f,100.0f,35.0f,QualifierState.Played),
-          TwoGameQualifierPositionAndSize(Some("2"),Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Played),
+          TwoGameQualifierPositionAndSize(Some("0"),Some("4"),2,100.0f,55.0f,100.0f,52.5f,QualifierState.Played),
           TwoGameQualifierPositionAndSize(Some("1"),Some("3"),3,100.0f,177.5f,100.0f,35.0f,QualifierState.Played),
-          TwoGameQualifierPositionAndSize(Some("2"),Some("1"),4,200.0f,90.0f,100.0f,105.0f,QualifierState.Played))
+          TwoGameQualifierPositionAndSize(Some("4"),Some("1"),4,200.0f,90.0f,100.0f,105.0f,QualifierState.Played))
       )
 
       /*val sessionId = service.allocateGameSession()

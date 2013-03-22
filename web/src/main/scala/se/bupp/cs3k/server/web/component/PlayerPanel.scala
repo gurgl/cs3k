@@ -4,6 +4,8 @@ import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
+import org.apache.wicket.model.Model
+import se.bupp.cs3k.server.web.WiaSession
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +18,7 @@ class PlayerPanel(id:String) extends Panel(id) {
 
   add(new VertTabbedPanel("tab-panel",
     List(
-      ("Overview", (cId:String) => new PlayerOverview(cId)),
+      ("Overview", (cId:String) => new PlayerOverview(cId,new Model(WiaSession.get().getUser))),
       ("Shedule", (cId:String) => new Label(cId, "Scheudle")),
       ("Results", (cId:String) => new Label(cId, "Results")),
       ("Settings", (cId:String) => new Label(cId, "Settings"))

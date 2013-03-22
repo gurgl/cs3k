@@ -4,10 +4,10 @@ import generic.breadcrumb.BreadCrumbPanel
 import generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{LoadableDetachableModel, Model}
-import se.bupp.cs3k.server.model.{Team, Ladder}
+import se.bupp.cs3k.server.model.{User, Team, Ladder}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
-import se.bupp.cs3k.server.web.component.Events.{AbstractCompetitorEvent, AbstractContestEvent, CreateTeamEvent, TeamSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events._
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.event.{IEvent, Broadcast}
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
@@ -57,6 +57,18 @@ class CompetitorPanel(id:String,eventOpt:Model[Option[AbstractCompetitorEvent]])
           val createComponent = (id:String, m:Model[_]) => {
             var ladMod = m.asInstanceOf[Model[Team]]
             new TeamPanel(id, ladMod)
+          }
+        }
+        (newItem,lse.target,1)
+
+      case lse:PlayerSelectedEvent =>
+        println("Receiving event spec")
+        val newItem = new BreadCrumbModel() {
+          val name = lse.user.username
+          val model = new Model[User](lse.user)
+          val createComponent = (id:String, m:Model[_]) => {
+            var ladMod = m.asInstanceOf[Model[User]]
+            new PlayerOverview(id, ladMod)
           }
         }
         (newItem,lse.target,1)
