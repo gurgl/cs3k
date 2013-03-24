@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.service
 
 import dao.{CompetitorDao, GameParticipationDao, UserDao, GameOccassionDao}
-import gameserver.{GameServerPool, GameServerRepository}
+import gameserver.{GameServerRepositoryService, GameServerPool, GameServerRepository}
 import org.springframework.stereotype.{Service, Component}
 import resourceallocation.ServerAllocator
 import se.bupp.cs3k.server.model._
@@ -26,6 +26,7 @@ import se.bupp.cs3k.server.model.RunningGame
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.AnonUser
 import se.bupp.cs3k.model.CompetitorType
+import se.bupp.cs3k.server.Init
 
 /**
  * Created with IntelliJ IDEA.
@@ -82,20 +83,18 @@ import se.bupp.cs3k.model.CompetitorType
  *
  */
 
-object GameReservationService {
+class GameReservationServiceStore {
 
-  private var occassionSeqId:Long = 100L
-  private var virtualTeamSeqId:Long = 1000L
+   var occassionSeqId:Long = 100L
+  var virtualTeamSeqId:Long = 1000L
 
   var seatSeqId:Long= 1L
-  var openGameSessions =
-    Map[GameSessionId,
-      (Players, TeamsDetailsOpt)
-      ]()
+  var openGameSessions:Map[GameSessionId,
+    (Players, TeamsDetailsOpt)
+    ] = Map.empty
 
   def init(v:Long) { occassionSeqId = v}
   //var openGameSessionsTeams = Map[GameSessionId,List[AbstractTeamRef]]()
-
 }
 @Service
 class GameReservationService {
@@ -103,13 +102,13 @@ class GameReservationService {
   val log = Logger.getLogger(this.getClass)
 
 
-  import GameReservationService._
+  import Init._
 
   @Autowired
   var gameDao:GameOccassionDao = _
 
   @Autowired
-  var gameServerRepository:GameServerRepository = _
+  var gameServerRepository:GameServerRepositoryService = _
 
 
   @Autowired
@@ -230,7 +229,7 @@ class GameReservationService {
 
         val newEntry = (gameSessionId -> (players, Some(teams)))
         log.info("Modifying gs : add team " + newEntry)
-        openGameSessions = openGameSessions +  newEntry
+        gameReservationServiceStore.openGameSessions = gameReservationServiceStore.openGameSessions +  newEntry
       case None =>
         throw new RuntimeException("Session Not found")
     }
@@ -238,29 +237,29 @@ class GameReservationService {
 
   def createVirtualTeam(name:Option[String]) : VirtualTeamRef = {
 
-    val res  = new VirtualTeamRef(virtualTeamSeqId, name)
+    val res  = new VirtualTeamRef(gameReservationServiceStore.virtualTeamSeqId, name)
     log.info("Allocating new virtual team id " + res)
-    virtualTeamSeqId = virtualTeamSeqId + 1
+    gameReservationServiceStore.virtualTeamSeqId = gameReservationServiceStore.virtualTeamSeqId + 1
 
     res
   }
 
 
   def allocateGameSession() : GameSessionId = {
-    val res:GameSessionId = occassionSeqId
+    val res:GameSessionId = gameReservationServiceStore.occassionSeqId
     log.info("Allocating new game sessiond id " + res)
-    occassionSeqId = occassionSeqId + 1
-    openGameSessions = openGameSessions + (res -> (Map.empty, None))
+    gameReservationServiceStore.occassionSeqId = gameReservationServiceStore.occassionSeqId + 1
+    gameReservationServiceStore.openGameSessions = gameReservationServiceStore.openGameSessions + (res -> (Map.empty, None))
     res
   }
 
   def reserveSeat(gameSessionId:GameSessionId, pi:AbstractUser, pTeamOpt:Option[AbstractTeamRef]) : GameServerReservationId = {
     findGameSession(gameSessionId) match {
       case Some((players, teamsOpt)) =>
-        val res: GameServerReservationId = seatSeqId
-        seatSeqId = seatSeqId + 1
+        val res: GameServerReservationId = gameReservationServiceStore.seatSeqId
+        gameReservationServiceStore.seatSeqId = gameReservationServiceStore.seatSeqId + 1
         val modifiedSessionEntry = gameSessionId -> (players + (res ->(pi, pTeamOpt)), teamsOpt)
-        openGameSessions = openGameSessions + modifiedSessionEntry
+        gameReservationServiceStore.openGameSessions = gameReservationServiceStore.openGameSessions + modifiedSessionEntry
         //openGameSessions(gameSessionId) +  (res -> (pi,teamOpt))
         res
       case None =>
@@ -274,17 +273,17 @@ class GameReservationService {
     findGameSessionByReservationId(id:GameServerReservationId).map { case (gsId, (plyrs,teams)) => (gsId,plyrs(id)) }
   }
   def findGameSessionByReservationId(id:GameServerReservationId) : Option[(GameSessionId,Session)] = {
-    openGameSessions.find {
+    gameReservationServiceStore.openGameSessions.find {
       case (gameSessionId, (seatMap, teamsOpt)) => seatMap.exists( s => s._1 == id)
     }
   }
 
   def findReservation(reservationId:GameServerReservationId, reservationGameSessionId: GameSessionId) : Option[ReservationDetails] = {
-    openGameSessions.get(reservationGameSessionId).flatMap { case (plyrs,teamsOpt)=> plyrs.get(reservationId) }
+    gameReservationServiceStore.openGameSessions.get(reservationGameSessionId).flatMap { case (plyrs,teamsOpt)=> plyrs.get(reservationId) }
   }
 
   def findGameSession(gameSessionId: GameSessionId) : Option[Session] = {
-    openGameSessions.get(gameSessionId)
+    gameReservationServiceStore.openGameSessions.get(gameSessionId)
   }
 
   def findReservationPlayerIdentifer(id:GameServerReservationId, verifyOccId:GameSessionId) : Option[ReservationDetails] = {

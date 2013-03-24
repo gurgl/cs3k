@@ -2,7 +2,7 @@ package se.bupp.cs3k
 
 import org.specs2.mutable.Specification
 import com.fasterxml.jackson.databind.ObjectMapper
-import se.bupp.cs3k.server.service.GameReservationService._
+
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 

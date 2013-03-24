@@ -3,7 +3,6 @@ package se.bupp.cs3k.server.service.dao
 import javax.persistence._
 import se.bupp.cs3k.server.model._
 import org.springframework.stereotype.Repository
-import se.bupp.cs3k.server.service.GameReservationService._
 import se.bupp.cs3k.server.model.User
 import org.springframework.transaction.annotation.Transactional
 import criteria._

@@ -13,6 +13,7 @@ import java.net.{URL, URI}
  */
 class TestSNMP extends Specification {
 
+  args(skipAll=true)
   "should return my address" should {
 
     "handle conversions" in {

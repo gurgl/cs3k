@@ -12,7 +12,7 @@ import service.TournamentHelper.{QualifierState, TwoGameQualifierPositionAndSize
 import service.dao.{CompetitionDao, GameSetupTypeDao, TeamDao}
 import service._
 
-import gameserver.{GameProcessTemplate, GameServerRepository}
+import gameserver.{GameServerRepositoryService, GameProcessTemplate, GameServerRepository}
 import org.apache.wicket.util.tester.WicketTester
 
 import java.io.PrintWriter
@@ -78,6 +78,7 @@ class LadderServiceTest extends Specification with Mockito {
     //val tdef = new DefaultTransactionDefinition();
     var tx = null//txMgr.getTransaction(tdef)
 
+    Init.gameReservationServiceStore = new GameReservationServiceStore
 
 
     def doInTx[G]( body : => G) {
@@ -362,7 +363,7 @@ class LadderServiceTest extends Specification with Mockito {
       )
 
 
-      gameReservationService.gameServerRepository = mock[GameServerRepository]
+      gameReservationService.gameServerRepository = mock[GameServerRepositoryService]
       gameReservationService.gameServerRepository.findBy(any) returns Some(new GameProcessTemplate("","",Map(),null))
 
 

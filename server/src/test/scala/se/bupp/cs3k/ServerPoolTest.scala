@@ -2,10 +2,14 @@ package se.bupp.cs3k
 
 import org.specs2.mutable.Specification
 import server.model.{RunningGame, NonPersisentGameOccassion}
+import server.service.{GameService, GameReservationServiceStore}
 import server.service.gameserver.{GameServerPool, GameServerRepository, GameProcessTemplate}
 import server.{Init}
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
+import org.specs2.specification.Scope
+import org.specs2.mock.Mockito
+import org.springframework.beans.factory.BeanFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,22 +19,30 @@ import org.specs2.runner.JUnitRunner
  * To change this template use File | Settings | File Templates.
  */
 @RunWith(classOf[JUnitRunner])
-class ServerPoolTest  extends Specification {
+class ServerPoolTest  extends Specification with Mockito {
+
+  trait Bupp extends Scope {
+    Init.init
+    new Init()
+
+    var factory: BeanFactory = mock[BeanFactory]
+    factory.getBean(classOf[GameService]) returns mock[GameService]
+    Init.persistAnyNewRules(factory)
+  }
 
   "server pool" should {
-    "sasdf" in {
+    "sasdf asdf" in new Bupp {
 
-      new Init()
-
-      var setup = GameServerRepository.findBy(('TankGame, 'TG2Player))
+      var setup = Init.gameServerRepository.findBy(('TankGame, 'TG2Player))
       setup.isDefined === true
 
+
+
     }
-    "should handle instances beeing killed" in {
 
-      new Init()
+    "should handle instances beeing killed" in new Bupp {
 
-      var setup: GameProcessTemplate = GameServerRepository.gameServerSetups(('TankGame, 'TG2Player))
+      var setup: GameProcessTemplate = Init.gameServerRepository.gameServerSetups(('TankGame, 'TG2Player))
 
       var pool: GameServerPool = new GameServerPool()
       var server1: RunningGame = pool.spawnServer(setup, new NonPersisentGameOccassion(123L),1)
@@ -65,6 +77,7 @@ class ServerPoolTest  extends Specification {
       }
       pool.servers.size === 0
       executor2.getWatchdog.killedProcess() === true
+      1 === 1
      }
   }
 }

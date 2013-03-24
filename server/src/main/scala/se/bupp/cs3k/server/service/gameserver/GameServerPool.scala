@@ -3,7 +3,7 @@ package se.bupp.cs3k.server.service.gameserver
 import org.apache.commons.exec._
 
 import java.net.URL
-import se.bupp.cs3k.server.service.GameReservationService._
+
 import org.apache.log4j.Logger
 
 import scala.collection.immutable.HashMap

@@ -6,7 +6,7 @@ import model.{GameType, GameSetupType}
 import model.Model._
 import service.dao.GameOccassionDao
 import service.lobby.AbstractLobbyQueueHandler
-import service.{GameService, RankingService, GameReservationService}
+import service.{GameReservationServiceStore, GameService, RankingService, GameReservationService}
 import service.gameserver.{GameProcessTemplate, GameServerRepository, GameServerSpecification}
 import service.resourceallocation.{ServerAllocator, ResourceNeeds}
 import org.springframework.web.context.WebApplicationContext
@@ -26,11 +26,20 @@ import java.lang.Long
 object Init {
   var lobby2Player:LobbyServer = _
   var lobby4Player:LobbyServer = _
+  var gameReservationServiceStore:GameReservationServiceStore = _
 
   def cleanup() {
     println("Init cleanup")
     lobby2Player.stop();
     lobby4Player.stop();
+  }
+
+  def init {
+    gameSetupMeta = Map.empty
+    gameMeta = Map.empty
+
+    gameServerRepository = new GameServerRepository
+    gameReservationServiceStore = new GameReservationServiceStore
 
   }
 
@@ -65,25 +74,26 @@ object Init {
       case null => 100
       case x => x+1
     }
-    GameReservationService.init(seqId)
+    gameReservationServiceStore = new GameReservationServiceStore
+    gameReservationServiceStore.init(seqId)
   }
 
   def persistAnyNewRules(beanFactory :BeanFactory) {
     var gameService = beanFactory.getBean(classOf[GameService])
     gameMeta.foreach { case (gsType,(spec,temp)) =>
 
-      GameServerRepository.add('TankGame, spec)
+      gameServerRepository.add('TankGame, spec)
 
       val entity = gameService.getOrCreateGameTypeEntity(gsType,temp)
     }
 
     gameSetupMeta.foreach { case ((gameTypeId,gameSetupTypeId),(spec,temp)) =>
       println("gameTypeId,gameSetupTypeId" + (gameTypeId,gameSetupTypeId))
-      GameServerRepository.addProcessTemplate((gameTypeId,gameSetupTypeId),spec)
+      gameServerRepository.addProcessTemplate((gameTypeId,gameSetupTypeId),spec)
       val entity = gameService.getOrCreateGameSetupTypeEntity(gameTypeId,gameSetupTypeId,temp)
     }
 
-    GameServerRepository.gameServerSetups.keys.foreach(println)
+    gameServerRepository.gameServerSetups.keys.foreach(println)
   }
   //
 
@@ -91,6 +101,8 @@ object Init {
 
   var gameSetupMeta = Map[(GameServerTypeId, GameProcessTemplateId),(GameProcessTemplate,GameProcessTemplateId => GameSetupType)]()
   var gameMeta = Map[GameServerTypeId,(GameServerSpecification,GameServerTypeId=> GameType)]()
+
+  var gameServerRepository:GameServerRepository = null
 }
 class Init {
 

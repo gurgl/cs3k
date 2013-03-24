@@ -3,7 +3,7 @@ package se.bupp.cs3k.server.service.gameserver
 
 import se.bupp.cs3k.server.Cs3kConfig
 import org.apache.commons.exec.CommandLine
-import se.bupp.cs3k.server.service.GameReservationService._
+
 import java.net.URL
 import se.bupp.cs3k.server.model.Model._
 import se.bupp.cs3k.server.service.resourceallocation.{ResourceNeeds, AllocatedResourceSet}

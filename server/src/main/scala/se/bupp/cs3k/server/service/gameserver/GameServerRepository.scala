@@ -4,6 +4,7 @@ import collection.immutable.HashMap
 import se.bupp.cs3k.server.model.Model._
 import org.springframework.stereotype.Service
 import se.bupp.cs3k.server.model.{RunningGame, GameOccassion}
+import se.bupp.cs3k.server.Init
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +14,7 @@ import se.bupp.cs3k.server.model.{RunningGame, GameOccassion}
  * To change this template use File | Settings | File Templates.
  */
 
-object GameServerRepository  {
+class GameServerRepository  {
 
 
   var gameServerTypes = new HashMap[GameServerTypeId,GameServerSpecification]()
@@ -47,10 +48,10 @@ object GameServerRepository  {
 }
 
 @Service
-class GameServerRepository {
+class GameServerRepositoryService {
   def spawnServer(template: GameProcessTemplate, occassion: GameOccassion, processToken: Int): RunningGame  = GameServerPool.pool.spawnServer(template, occassion, processToken)
 
   def findBy(ss:GameAndRulesId) : Option[GameProcessTemplate] = {
-    GameServerRepository.findBy(ss)
+    Init.gameServerRepository.findBy(ss)
   }
 }

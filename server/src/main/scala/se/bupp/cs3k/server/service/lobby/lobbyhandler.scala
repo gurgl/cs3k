@@ -6,7 +6,7 @@ import se.bupp.cs3k.server.model._
 import java.util.concurrent.{TimeUnit, Executors}
 import java.net.URL
 import se.bupp.cs3k._
-import se.bupp.cs3k.server.Cs3kConfig
+import server.{Init, Cs3kConfig}
 import se.bupp.cs3k.server.model.Model._
 import collection.parallel.mutable
 import se.bupp.cs3k.server.service.gameserver.{GameServerRepository, GameServerPool, GameProcessTemplate}
@@ -193,7 +193,7 @@ abstract class AbstractLobbyQueueHandler[T](gameAndRulesId: GameAndRulesId) exte
   type Info = T
   type UserInfo = (AbstractUser,Info)
 
-  val gameServerSettings =  GameServerRepository.findBy(gameAndRulesId).getOrElse(throw new RuntimeException("Not found " + gameAndRulesId))
+  val gameServerSettings =  Init.gameServerRepository.findBy(gameAndRulesId).getOrElse(throw new RuntimeException("Not found " + gameAndRulesId))
   var queue = scala.collection.mutable.Queue.empty[(Connection,(AbstractUser, Info))]
   var queueMembersWithLobbyAssignments = List.empty[(AbstractUser,Int)]
 

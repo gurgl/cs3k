@@ -16,6 +16,7 @@ import service.lobby.AnonTeamLobbyQueueHandler
 import service.resourceallocation.ServerAllocator
 import scala.util.{Random, Failure, Success}
 import concurrent.{Future, promise, Promise}
+import org.specs2.specification.Scope
 
 
 /**
@@ -25,6 +26,15 @@ import concurrent.{Future, promise, Promise}
  * Time: 23:47
  * To change this template use File | Settings | File Templates.
  */
+
+class FiniteQueue[A](q: Queue[A]) {
+  def enqueueFinite[B >: A](elem: B, maxSize: Int): Queue[B] = {
+    var ret = q.enqueue(elem)
+    while (ret.size > maxSize) { ret = ret.dequeue._2 }
+    ret
+  }
+}
+
 @RunWith(classOf[JUnitRunner])
 class LobbyServerTest extends Specification with Mockito {
 
@@ -48,28 +58,44 @@ class LobbyServerTest extends Specification with Mockito {
       NILS -> 10
     )
 
-  GameServerRepository.reset
-  GameServerRepository.add('A, null)
-  GameServerRepository.addProcessTemplate(('A,'B),null)
 
-  val serverAllocator = mock[ServerAllocator]
-  class TestRankedTeamLobbyQueueHandler(t:Int,p:Int) extends AnonTeamLobbyQueueHandler(t,p,('A,'B)) {
-    var launchRequests = List[Promise[ProcessToken]]()
-    override def launchServerInstance(settings: GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken: ProcessToken) = {
-      var serverDone = promise[ProcessToken]
-      launchRequests = launchRequests :+ serverDone
-      serverDone.future
-    }
 
-    override def customize(u: AbstractUser) = u match {
-      case AnonUser(name) => ranking.apply(name)
-      case _ => throw new IllegalArgumentException("na")
-    }
+  trait HasServerAllocator {
+    def serverAllocator:ServerAllocator
+  }
 
-    override def allocateServer(p: (Model.ProcessToken) => Future[Model.ProcessToken]) = {
-      serverAllocator.allocate(p)
+  trait MockedServerAllocator extends HasServerAllocator {
+    var serverAllocator = mock[ServerAllocator]
+  }
+  //GameServerRepository.reset
+  trait Lol extends Scope {
+    self:HasServerAllocator =>
+
+    Init.gameServerRepository = new GameServerRepository
+    Init.gameServerRepository.add('A, null)
+    Init.gameServerRepository.addProcessTemplate(('A,'B),null)
+
+
+    class TestRankedTeamLobbyQueueHandler(t:Int,p:Int) extends AnonTeamLobbyQueueHandler(t,p,('A,'B)) {
+      var launchRequests = List[Promise[ProcessToken]]()
+      override def launchServerInstance(settings: GameProcessTemplate, party: List[(Connection, AbstractUser)], processToken: ProcessToken) = {
+        var serverDone = promise[ProcessToken]
+        launchRequests = launchRequests :+ serverDone
+        serverDone.future
+      }
+
+      override def customize(u: AbstractUser) = u match {
+        case AnonUser(name) => ranking.apply(name)
+        case _ => throw new IllegalArgumentException("na")
+      }
+
+      override def allocateServer(p: (Model.ProcessToken) => Future[Model.ProcessToken]) = {
+        serverAllocator.allocate(p)
+      }
     }
   }
+
+
 
   def getCon(id:Int) = {
     val connection1 = mock[Connection]
@@ -78,7 +104,7 @@ class LobbyServerTest extends Specification with Mockito {
   }
 
   "lobby server" should {
-    "bupps" in {
+    "bupps" in new Lol with MockedServerAllocator {
       val handler = new TestRankedTeamLobbyQueueHandler(2,1) {}
       val queue = ranking.map {
         case (k, v) => (AnonUser(k), v)
@@ -96,7 +122,7 @@ class LobbyServerTest extends Specification with Mockito {
     }
 
 
-    "custom evaluate" in {
+    "custom evaluate" in new Lol with MockedServerAllocator   {
       val list = List((new LobbyJoinRequest(-1, LEIF), getCon(1)),
         (new LobbyJoinRequest(-1, PETER), getCon(2)),
         (new LobbyJoinRequest(-1, SVEN), getCon(3)),
@@ -145,7 +171,7 @@ class LobbyServerTest extends Specification with Mockito {
       assigned3 must haveTheSameElementsAs(List((AnonUser(NILS),0), (AnonUser(ROLF),0)))
     }
 
-    "test 2" in {
+    "test 2" in new Lol with MockedServerAllocator   {
       val list = List((new LobbyJoinRequest(-1, LEIF), getCon(1)),
         (new LobbyJoinRequest(-1, PETER), getCon(2)),
         (new LobbyJoinRequest(-1, SVEN), getCon(3)),
@@ -176,6 +202,7 @@ class LobbyServerTest extends Specification with Mockito {
             val fu = p.future
             fu onComplete {
               case Success(i) => onDone(i)
+              case _ => throw new RuntimeException("CrAsH")
             }
             fu
         }
@@ -209,16 +236,10 @@ class LobbyServerTest extends Specification with Mockito {
       //assigned2 must haveTheSameElementsAs(List((AnonUser(LEIF),0), (AnonUser(INGE),0), (AnonUser(NILS),1), (AnonUser(ROLF),1)))
     }
 
-    "test alot" in {
+    "test alot" in new Lol with HasServerAllocator   {
 
       import scala.collection.immutable.Queue
-      class FiniteQueue[A](q: Queue[A]) {
-        def enqueueFinite[B >: A](elem: B, maxSize: Int): Queue[B] = {
-          var ret = q.enqueue(elem)
-          while (ret.size > maxSize) { ret = ret.dequeue._2 }
-          ret
-        }
-      }
+
       implicit def queue2finitequeue[A](q: Queue[A]) = new FiniteQueue[A](q)
 
       var players = List.empty[(LobbyJoinRequest,Connection)]
@@ -240,70 +261,73 @@ class LobbyServerTest extends Specification with Mockito {
       }
 
 
-      var joinLoop = new Runnable() {
+      val joinLoop = new Runnable() {
         def run() {
           (0 to 200).foreach {
             case i =>
-              val (p,c) = (new LobbyJoinRequest(-1,"Player " + i),getCon(i))
-              players = players :+ (p,c)
+              val (p, c) = (new LobbyJoinRequest(-1, "Player " + i), getCon(i))
+              players = players :+(p, c)
 
               Thread.sleep(Random.nextInt(100).toLong)
-              handler.playerJoined(p,c)
+              handler.playerJoined(p, c)
           }
         }
       }
 
       var allocationsReleased = 0
-      var allocationReleaser = new Runnable() {
+      val allocationReleaser = new Runnable() {
         def run() {
 
           try {
             var req = Queue.empty[Int]
             var WINDOW_SIZE = 10
 
-            var queueIsChanging= true
-            while(true && queueIsChanging) {
+            var queueIsChanging = true
+            while (true && queueIsChanging) {
               Thread.sleep(Random.nextInt(1000).toLong)
-              queueIsChanging = if(req.size >= WINDOW_SIZE) !req.forall(_ == req.head) else true
+              queueIsChanging = if (req.size >= WINDOW_SIZE) !req.forall(_ == req.head) else true
               println("*** Alloc RELEASE" + handler.queue.size + " " + queueIsChanging)
-              req = req.enqueueFinite(handler.queue.size,WINDOW_SIZE)
-              while(allocationsReleased < handler.launchRequests.size ) {
+              req = req.enqueueFinite(handler.queue.size, WINDOW_SIZE)
+              while (allocationsReleased < handler.launchRequests.size) {
                 handler.launchRequests(allocationsReleased) success allocationsReleased
                 allocationsReleased = allocationsReleased + 1
               }
             }
           } catch {
-            case e:Throwable => e.printStackTrace
+            case e: Throwable => e.printStackTrace
           }
         }
       }
 
       var leaveLoopKeepalive = true
-      var leaveLoop = new Runnable() {
+      val leaveLoop = new Runnable() {
         def run() {
-          while(leaveLoopKeepalive) {
+          while (leaveLoopKeepalive) {
             Thread.sleep(Random.nextInt(1000).toLong)
             var toChooseFrom = 0
             try {
               toChooseFrom = handler.queue.size
-              if(toChooseFrom > 1) {
+              if (toChooseFrom > 1) {
                 var pick = Random.nextInt(toChooseFrom - 1)
 
                 val rmOpt = try {
-                  val c = handler.queue.synchronized { handler.queue.apply(pick)._1 }
+                  val c = handler.queue.synchronized {
+                    handler.queue.apply(pick)._1
+                  }
                   Some(c)
                 } catch {
                   case _ => None
                 }
-                rmOpt.foreach { case c =>
-                  println("P Leaving " + pick)
-                  handler.removeConnection(c)
+                rmOpt.foreach {
+                  case c =>
+                    println("P Leaving " + pick)
+                    handler.removeConnection(c)
                 }
               } else {
                 println("no players to disconnect")
               }
             } catch {
-              case e:Throwable =>
+              case e: Throwable =>
                 println(toChooseFrom)
                 e.printStackTrace
             }
@@ -311,11 +335,11 @@ class LobbyServerTest extends Specification with Mockito {
         }
       }
 
-      var joinThread = new Thread(joinLoop)
+      val joinThread = new Thread(joinLoop)
       joinThread.start()
-      var leaveThread = new Thread(leaveLoop)
+      val leaveThread = new Thread(leaveLoop)
       leaveThread.start
-      var allocRelThread = new Thread(allocationReleaser)
+      val allocRelThread = new Thread(allocationReleaser)
       allocRelThread.start()
       joinThread.isAlive must be_==(false).eventually(200,new org.specs2.time.Duration(200))
       allocRelThread.isAlive must be_==(false).eventually(2000,new org.specs2.time.Duration(2000))

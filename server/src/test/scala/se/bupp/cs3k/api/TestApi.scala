@@ -8,7 +8,7 @@ import org.springframework.util.StringUtils
 import score.ContestScore
 import user.{TeamIdentifier, AnonymousPlayerIdentifierWithInfo, AnonymousPlayerIdentifier, RegisteredPlayerIdentifierWithInfo}
 import xml.Utility
-import se.bupp.cs3k.server.service.GameReservationService._
+
 import se.bupp.cs3k.example.ExampleScoreScheme._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner

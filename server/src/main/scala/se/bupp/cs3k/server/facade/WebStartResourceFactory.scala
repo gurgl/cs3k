@@ -11,7 +11,7 @@ import java.io.{File, IOException}
 import org.springframework.stereotype.Component
 import se.bupp.cs3k.api._
 import com.fasterxml.jackson.databind.ObjectMapper
-import se.bupp.cs3k.server.service.GameReservationService._
+
 import se.bupp.cs3k.server.service.GameReservationService
 import org.springframework.beans.factory.annotation.Autowired
 import se.bupp.cs3k.server.model.{AbstractUser, AnonUser, RegedUser, RunningGame}

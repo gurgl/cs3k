@@ -37,7 +37,7 @@ import se.bupp.cs3k.server.facade.{WebStartResourceFactory}
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.support.{FileSystemXmlApplicationContext, ClassPathXmlApplicationContext}
 import service.{RankingService, GameReservationService}
-import se.bupp.cs3k.server.service.GameReservationService._
+
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.context.WebApplicationContext
 import se.bupp.cs3k.server.model.Model._

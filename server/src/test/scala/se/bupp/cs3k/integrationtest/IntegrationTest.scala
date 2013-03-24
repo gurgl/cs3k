@@ -79,9 +79,11 @@ class IntegrationTest extends Specification with Mockito {
     var gameAndSettingsId: GameAndRulesId = ('Asdf, 'QWer)
 
     var gpTemplate: GameProcessTemplate = new GameProcessTemplate("asdf", "asdf", null, new GameServerSpecification("asdf", null))
-    GameServerRepository.reset
+    //GameServerRepository.reset
     //GameServerRepository.add(gameAndSettingsId._1,null)
     //GameServerRepository.addProcessTemplate(gameAndSettingsId, gpTemplate)
+    Init.gameServerRepository = new GameServerRepository
+    Init.gameReservationServiceStore = new GameReservationServiceStore
     Init.gameMeta = Map() + (gameAndSettingsId._1 -> (null,(x:GameServerTypeId) => new GameType(x,"Tank Game")))
     Init.gameSetupMeta = Map() + (gameAndSettingsId -> (gpTemplate,(x:GameProcessTemplateId) => new GameSetupType(x, "1vs1", null, null)))
 
@@ -300,7 +302,7 @@ class IntegrationTest extends Specification with Mockito {
       var gameServerFacade = factory.getBean(classOf[GameServerFacade])
       var gameResultService = factory.getBean(classOf[ResultService])
 
-      GameReservationService.openGameSessions = Map.empty
+      Init.gameReservationServiceStore = new GameReservationServiceStore
 
       // TODO - WRONG - Should be either "gameReservationService" or "service" (prolly gameReservationService)
       val service = new GameReservationService()

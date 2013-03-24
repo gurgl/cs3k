@@ -11,7 +11,7 @@ import java.rmi.RemoteException
 import org.springframework.beans.factory.annotation.Autowired
 import user._
 import se.bupp.cs3k.server.service.{ResultService, GameReservationService}
-import se.bupp.cs3k.server.service.GameReservationService._
+
 import java.lang
 import se.bupp.cs3k.server.service.dao._
 import org.springframework.transaction.annotation.Transactional

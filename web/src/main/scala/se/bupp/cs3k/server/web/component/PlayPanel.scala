@@ -21,7 +21,6 @@ import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, L
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
-import component.CompetitionListPanel
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service.{ResultLogService, ResultService, GameReservationService, CompetitionService}
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
