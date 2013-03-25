@@ -314,7 +314,7 @@ class LadderServiceTest extends Specification with Mockito {
         val qualifier = tournamentBis.structure.find(
           g => {
             var participants = g.gameOccassionOpt.get.participants
-            println(participants.map(_.id.competitor.id).mkString(","))
+            //println(participants.map(_.id.competitor.id).mkString(","))
             g.gameOccassionOpt.get.participants.forall(s => teams.contains(s.id.competitor))
           }
         ).get
@@ -328,7 +328,7 @@ class LadderServiceTest extends Specification with Mockito {
       teamDao.findAll.size == 5
 
 
-      var tournament = new Tournament("lal", CompetitorType.INDIVIDUAL, gst, CompetitionState.SIGNUP)
+      var tournament = new Tournament("lal", CompetitorType.TEAM, gst, CompetitionState.SIGNUP)
 
       competitionService.storeCompetition(tournament)
 
@@ -392,7 +392,7 @@ class LadderServiceTest extends Specification with Mockito {
 
       gameReservationService.startPersistedGameServer(qualifier.gameOccassionOpt.get)
 
-      var serializedResult: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps(1).id}":{"a":10,"b":1},"${comps(0).id}":{"a":3,"b":4}}}"""
+      var serializedResult: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps(0).id}":{"a":10,"b":1},"${comps(1).id}":{"a":3,"b":4}}}"""
       resultService.endGame(qualifier.gameOccassionOpt.get.gameSessionId,serializedResult)
 
 
@@ -413,7 +413,7 @@ class LadderServiceTest extends Specification with Mockito {
 
       gameReservationService.startPersistedGameServer(qualifier2.gameOccassionOpt.get)
 
-      var serializedResult2: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps2(1).id}":{"a":10,"b":1},"${comps2(0).id}":{"a":3,"b":4}}}"""
+      var serializedResult2: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps2(0).id}":{"a":10,"b":1},"${comps2(1).id}":{"a":3,"b":4}}}"""
       resultService.endGame(qualifier2.gameOccassionOpt.get.gameSessionId,serializedResult2)
 
       doInTx {
@@ -450,7 +450,7 @@ class LadderServiceTest extends Specification with Mockito {
 
       gameReservationService.startPersistedGameServer(qualifier3.gameOccassionOpt.get)
 
-      var serializedResult3: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps3(1).id}":{"a":10,"b":1},"${comps3(0).id}":{"a":3,"b":4}}}"""
+      var serializedResult3: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps3(0).id}":{"a":10,"b":1},"${comps3(1).id}":{"a":3,"b":4}}}"""
       resultService.endGame(qualifier3.gameOccassionOpt.get.gameSessionId,serializedResult3)
 
       var layout3 = competitionService.createLayout2(tournamentPrim)
@@ -477,7 +477,7 @@ class LadderServiceTest extends Specification with Mockito {
 
       gameReservationService.startPersistedGameServer(qualifier4.gameOccassionOpt.get)
 
-      var serializedResult4: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps4(0).id}":{"a":10,"b":1},"${comps4(1).id}":{"a":3,"b":4}}}"""
+      var serializedResult4: String = s"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$$ExContestScore","s":{"${comps4(1).id}":{"a":10,"b":1},"${comps4(0).id}":{"a":3,"b":4}}}"""
       resultService.endGame(qualifier4.gameOccassionOpt.get.gameSessionId,serializedResult4)
 
       var layout4 = competitionService.createLayout2(tournamentPrim)

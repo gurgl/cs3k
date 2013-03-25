@@ -141,7 +141,7 @@ class ResultService {
                   gameResultDao.insert(g.result)
                   gameDao.update(g)
 
-                  val value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
+                  val value: ContestScore = om.readValue(serializedResult, classOf[ExContestScore])
 
                   handleCompetition(value, g)
                 } else {
@@ -176,7 +176,7 @@ class ResultService {
                     case (reservationId, RegedUser(pid)) => (new java.lang.Long(reservationId), new java.lang.Long(pid))
                   }
 
-                  var value: ExContestScore = om.readValue(serializedResult, classOf[ExContestScore])
+                  val value: ContestScore = om.readValue(serializedResult, classOf[ExContestScore])
 
                   import scala.collection.JavaConversions.mapAsJavaMap
                   val transformedValue = value.transformCompetitor(res2pidMap)
@@ -215,7 +215,7 @@ class ResultService {
 
   def handleCompetition(value: ContestScore, g: GameOccassion) {
     import scala.collection.JavaConversions.mapAsScalaMap
-    var ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
+    val ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
 
     log.info("RANKIKNG" + ranking)
     g.competitionGameOpt.foreach {
@@ -229,7 +229,7 @@ class ResultService {
     import scala.collection.JavaConversions.asScalaBuffer
     import scala.collection.JavaConversions.mapAsJavaMap
     val competitorsByName = getCompetitorsByName(gs)
-    var value: ExContestScore = om.readValue(gs.resultSerialized, classOf[ExContestScore])
+    val value: ExContestScore = om.readValue(gs.resultSerialized, classOf[ExContestScore])
     val markup = "<table class=\"table table-striped\"><tbody>" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</tbody></table>"
     markup
   }
@@ -242,7 +242,7 @@ class ResultService {
       val contestScore: ExContestScore = om.readValue(gr.resultSerialized, classOf[ExContestScore])
       contestScore.competitorScore(p.id)
     }
-    var total = ExScoreScheme.calculateTotal(competitorScores)
+    val total = ExScoreScheme.calculateTotal(competitorScores)
     total
   }
 

@@ -34,13 +34,14 @@ object ExampleScoreScheme {
 
     import scala.collection.JavaConversions.mapAsScalaMap
 
+    implicit
     def ranking() = {
-      var sorted = s.toList.sortBy {
-        case (k, v) => v.a
+      val sorted = s.toList.sortBy {
+        case (k, v) => -v.a
       }
-      var lst:List[(java.lang.Integer,java.lang.Long)] = sorted.zipWithIndex.map(s => (new java.lang.Integer(s._2), new java.lang.Long(s._1._1)))
+      val lst: List[(java.lang.Integer, java.lang.Long)] = sorted.zipWithIndex.map(s => (new java.lang.Integer(s._2), new java.lang.Long(s._1._1)))
       import scala.collection.JavaConversions.mapAsJavaMap
-      var map = lst.toMap
+      val map = lst.toMap
       map
     }
 

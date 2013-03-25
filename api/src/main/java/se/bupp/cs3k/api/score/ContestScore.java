@@ -25,6 +25,10 @@ public interface ContestScore {
 
     ContestScore transformCompetitor(Map<Long,Long> fromTo);
 
+    /**
+     * Least = highest
+     * @return
+     */
     public Map<Integer,Long> ranking();
 
 

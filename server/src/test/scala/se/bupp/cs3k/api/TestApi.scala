@@ -138,10 +138,21 @@ class TestApi extends Specification {
     }
 
 
-    "ex impl" in {
+    "should handle ranking" in {
       //val scoreByCompetitors = Map(0 -> (1,3), 1 -> (3,3))
 
       var result = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(10,1), 2L-> new JavaTuple2(3,4)))
+
+
+      import scala.collection.JavaConversions.mapAsScalaMap
+      result.ranking().map { case (k,v) => (k.toInt,v.toLong) } must haveTheSameElementsAs(Map(0->1L,1->2L))
+
+
+      result = new ExContestScore(collection.mutable.Map(1L->new JavaTuple2(1,1), 2L-> new JavaTuple2(3,4)))
+
+
+      import scala.collection.JavaConversions.mapAsScalaMap
+      result.ranking().map { case (k,v) => (k.toInt,v.toLong) } must haveTheSameElementsAs(Map(0->2L,1->1L))
 
       //ExScoreScheme.renderToHtml()
 
