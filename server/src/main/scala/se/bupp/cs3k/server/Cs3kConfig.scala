@@ -19,9 +19,14 @@ object Cs3kConstants {
 }
 object Cs3kConfig {
 
+  object Lobby {
+    var jnlpCodeBasePlaceholder = "http://localhost:8080/"
+  }
   object TankGame {
     val CLIENT_PATH="file:///c:/Users/karlw/Documents/src/opengl-tanks/client/target/scala-2.10/webstart/"
     val SERVER_JAR_PATH = "C:/Users/karlw/Documents/src/opengl-tanks/server/target/scala-2.10/server_2.10-0.1-one-jar.jar"
+
+    var jnlpCodeBasePlaceholder = "http://localhost:8080/game_deploy_dir_tmp/tanks"
   }
 
 
@@ -45,6 +50,7 @@ object Cs3kConfig {
   val MAX_NUM_OF_GAME_SERVER_PROCESSES = 10
 
   //lazy val REMOTE_IP = "localhost"
+  val REMOTE_PORT:Int = 8080
   lazy val REMOTE_IP = {
     val stackOverflowURL = "http://www.biranchi.com/ip.php"
     val requestProperties = Map(
@@ -61,4 +67,6 @@ object Cs3kConfig {
 
     response
   }
+
+  def remoteURL = "http://" + Cs3kConfig.REMOTE_IP +":" + Cs3kConfig.REMOTE_PORT + "/"
 }

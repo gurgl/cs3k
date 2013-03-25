@@ -19,7 +19,7 @@ import se.bupp.cs3k.server.service.resourceallocation.{ResourceNeeds, AllocatedR
 class GameServerSpecification(val cmdStr:String,val resourceNeeds:ResourceNeeds) {
 
   def create(args:String, jnlpPath:String, props:Map[String,String]) = {
-    new GameProcessTemplate(cmdStr + args, "http://" + Cs3kConfig.REMOTE_IP + ":8080/" + jnlpPath, props, this)
+    new GameProcessTemplate(cmdStr + args, "http://" + Cs3kConfig.REMOTE_IP + ":" + Cs3kConfig.REMOTE_PORT + "/" + jnlpPath, props, this)
   }
 }
 

@@ -39,12 +39,7 @@ class GameServerRepository  {
   def addProcessTemplate(id:(GameServerTypeId, GameProcessTemplateId),spec: GameProcessTemplate) = {
     gameServerSetups = gameServerSetups + (id -> spec)
   }
-  //Map('TANK_GAME -> Map[GameServerSettingsId, GameProcessTemplate]( 'TankGame2P-> tankGameSettings2, 'TankGame4P -> tankGameSettings4))
 
-
-  /*" --tcp-port 54555 --udp-port 54777 --master-host localhost --master-port 1199 ", "http://" + LobbyServer.remoteIp + ":8080/start_game.jnlp",
-  Map("gamePortUDP" -> "54777", "gamePortTCP" -> "54555", "gameHost" -> LobbyServer.remoteIp)
-  */
 }
 
 @Service

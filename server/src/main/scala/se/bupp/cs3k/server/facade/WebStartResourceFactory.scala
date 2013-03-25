@@ -97,9 +97,10 @@ object  WebStartResourceFactory {
             log.debug("playerNameOpt " + playerNameOpt)
             log.debug("lobbyId " + lobbyId + " : " + lobbyIdOpt)
 
+
             val jnlpXMLModified = jnlpXML
-              .replace("http://localhost:8080/", "http://" + Cs3kConfig.REMOTE_IP +":8080/")
-              .replace("lobbyX.jnlp", "http://" + Cs3kConfig.REMOTE_IP +":8080/lobby2.jnlp?" +
+              .replace(Cs3kConfig.Lobby.jnlpCodeBasePlaceholder, Cs3kConfig.remoteURL)
+              .replace("lobbyX.jnlp",  Cs3kConfig.remoteURL + "lobby2.jnlp?" +
               userIdOpt.map(a => "user_id=" + a ).getOrElse(
                 playerNameOpt.map(a => "player_name=" + a).getOrElse("")
               ) + "&lobby_id="+URLEncoder.encode(lobbyId,"ASCII")
@@ -191,8 +192,8 @@ class WebStartResourceFactory {
       def writeData(p2: Attributes) {
         try {
 
-          var codeBaseRoot = "/deploy/tanks/"
-          var jnlpCodeBaseMarker = "http://localhost:8080/game_deploy_dir_tmp/tanks"
+          var codeBaseRoot = "deploy/tanks/"
+
 
           val launchGameJnlp = new File(new File(codeBaseFSRoot),"Game.jnlp");
           val jnlpXML: String = new Scanner(launchGameJnlp).useDelimiter("\\A").next
@@ -211,8 +212,8 @@ class WebStartResourceFactory {
             "<property name=\"gamePortUDP\" value=\"" + props("gamePortUDP") + "\"/>" +
             "<property name=\"gamePortTCP\" value=\"" + props("gamePortTCP") + "\"/>" +
             "<property name=\"gameHost\" value=\"" + props("gameHost") + "\"/>")
-            .replace(jnlpCodeBaseMarker, "http://" + Cs3kConfig.REMOTE_IP + ":8080" + codeBaseRoot)
-            .replace("Game.jnlp", "http://" + Cs3kConfig.REMOTE_IP + ":8080/" + Utility.escape(attributes.getRequest.getUrl.toString))
+            .replace(Cs3kConfig.TankGame.jnlpCodeBasePlaceholder, Cs3kConfig.remoteURL + codeBaseRoot)
+            .replace("Game.jnlp", Cs3kConfig.remoteURL + Utility.escape(attributes.getRequest.getUrl.toString))
 
 
           //var writer: PrintWriter = new PrintWriter(p2.getResponse.getOutputStream)
@@ -270,100 +271,8 @@ class WebStartResourceFactory {
           } catch {
             case e:IllegalArgumentException => Left(e.getMessage)
           }
-        //}
-      /*case (None, Some(name)) =>
-        try {
-          val p = new AnonUser(name)
-          val rgAndPass = (serverIdOpt, reservationIdOpt) match {
-            case (Some(serverId), None) =>
-              // Continuous
-              gameReservationService.playOpenServer(serverId,p)
-            case (None, Some(reservationId)) =>
-              gameReservationService.playNonScheduledClosed(reservationId)
-            case _ => throw new IllegalArgumentException("No game identification given" + (serverIdOpt, gameOccasionIdOpt))
-          }
-          Right(rgAndPass)
-        } catch {
-          case e:IllegalArgumentException => Left(e.getMessage)
-        }*/
     }
 
     serverAndPassValidation
   }
-
-
-  /*
-  def getServerAndCredentials(userIdOpt:Option[UserId], reservationIdOpt: Option[NonPersistentOccassionTicketId], serverIdOpt: Option[Long], gameOccasionIdOpt:Option[OccassionId], playerNameOpt:Option[String]) = {
-    val userOpt:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap(
-      id => userDao.findUser(id).map(
-        p => new RegisteredPlayerIdentifier(p.id)
-      )
-    ).orElse(
-      playerNameOpt.map(
-        n => new AnonymousPlayerIdentifier(n)
-      )
-    )
-
-    /*val user2:Option[AbstractPlayerIdentifier] = userIdOpt.flatMap( id => dao.findUser(id)) match {
-      case Some(p) => Some(new RegisteredPlayerIdentifierWithInfo(p.username,p.id))
-      case None => playerNameOpt.map(n => new AnonymousPlayerIdentifier(n))
-    }*/
-
-    val userValidation = userOpt.toRight("Couldnt Construct user")
-
-    val serverValidation = userValidation.onSuccess {
-      userId => serverIdOpt match {
-        case Some(serverId) =>
-          // Rullande / Public
-          Left("Not implemented")
-
-        case None => {
-
-          val canSpawnServerAndOccassionIdValidation = (reservationIdOpt, gameOccasionIdOpt) match {
-            case (None, Some(gameOccassionId)) => // Rullande/Public
-              Right((true,gameOccassionId))
-            case (Some(reservationId), _) => // Lobby
-              gameReservationService.findGameSessionByReservationId(reservationId) match {
-                case Some((gameSessionId,_)) => Right((true, gameSessionId))
-                case None => Left("Reservation not found")
-              }
-            case _ => Left("No game id sent")
-          }
-
-          var processSettings = GameServerRepository.findByProcessTemplate('TG2Player).getOrElse(throw new IllegalArgumentException("Unknown gs setting"))
-
-          val runningGameValidation = canSpawnServerAndOccassionIdValidation.onSuccess {
-            case (canSpawn, gameSessionId) =>
-
-              val alreadyRunningGame = GameServerPool.pool.findRunningGame(gameSessionId)
-              val r = alreadyRunningGame.orElse {
-                gameReservationService.findByGameSessionId(gameSessionId).flatMap( g =>
-                // TODO: Fix me - hardcoded below
-                {
-                  log.info("g.timeTriggerStart canSpawn " + g.timeTriggerStart + " " + canSpawn)
-                  if (!g.timeTriggerStart && canSpawn) {
-                    Some(GameServerPool.pool.spawnServer(processSettings, g))
-                  } else {
-                    None
-                  }
-                }
-                )
-              }
-              val s = r.map(Right(_)).getOrElse(Left("Couldnt find game"))
-              s
-          }
-          runningGameValidation
-        }
-      }
-    }
-
-    val serverAndPassValidation = serverValidation.onSuccess { rg =>
-      val r = gameReservationService.createGameServerPass(rg,userOpt.get,reservationIdOpt) match {
-        case Some(gamePass) => Right((rg,gamePass))
-        case None => Left("Unable to acquire valid pass")
-      }
-      r
-    }
-    serverAndPassValidation
-  }*/
 }
