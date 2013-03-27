@@ -17,7 +17,6 @@ import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.IndexedQualifier
 import se.bupp.cs3k.server.model.GameParticipationPk
 import se.bupp.cs3k.server.model.QualifierWithParentReference
-import java.lang
 
 
 /**
@@ -326,6 +325,9 @@ class CompetitionService {
   @Autowired
   var resultService:ResultService = _
 
+  @Autowired
+  var gameNewsService:GameNewsService = _
+
 
   @Transactional
   def storeCompetition(c:Competition) {
@@ -335,6 +337,7 @@ class CompetitionService {
    /* if (c.id != null)
       ladderDao.em.merge(c)*/
     ladderDao.em.persist(c)
+    gameNewsService.competitionChangedState(c,c.state)
 
   }
 
@@ -422,6 +425,7 @@ class CompetitionService {
     tm.id = pk
 
     ladderDao.em.persist(tm)
+    gameNewsService.competitorJoinedCompetition(pk.competitor,pk.competition)
   }
 
   @Transactional
@@ -434,6 +438,7 @@ class CompetitionService {
     val tm = ladderDao.em.find(classOf[CompetitionParticipant],pk)
 
     ladderDao.em.remove(tm)
+    gameNewsService.competitorLeftCompetition(u,t)
   }
 
   /**
@@ -511,13 +516,13 @@ class CompetitionService {
   }
 
   def onGameEnded(cg:CompetitionGame,ranking:Map[Int,Long]) {
-    cg match {
+    val comp:Competitor = cg match {
       case t:TournamentStageQualifier =>
         import scala.collection.JavaConversions.asScalaBuffer
         t.tournament.structure.find(_.childNodeIds.contains(t.nodeId)) match {
           case Some(qualifier) =>
             val (_,winnerComp) = ranking.toList.sortBy(_._1).head
-            val comp = competitorDao.find(new lang.Long(winnerComp)).get
+            val comp = competitorDao.find(new java.lang.Long(winnerComp)).get
             val (_,idx) = qualifier.childNodeIds.zipWithIndex.find(_._1 == t.nodeId).get
 
             val (go,postCreate) = qualifier.gameOccassionOpt match {
@@ -534,13 +539,16 @@ class CompetitionService {
             log.info("positionByPlayer" + positionByPlayer)
             val go2 = gameReservationService.addCompitorsAndStore(go,positionByPlayer)
             postCreate(go2)
+            comp
 
             //ladderDao.em.persist(go2)
 
-          case None => // Winner!?
+          case None => null// Winner!?
         }
       case l:LadderGame =>
+        null
     }
+
   }
 
   @Transactional
@@ -549,6 +557,7 @@ class CompetitionService {
       case t:Tournament => startTournament(t)
       case t:Ladder => startLadder(t)
     }
+
   }
 
   @Transactional
@@ -568,7 +577,9 @@ class CompetitionService {
       distributePlayersInTournament(tourPrep1,2,TournamentHelper.deterministic)
       tournament.state = CompetitionState.RUNNING
       ladderDao.em.persist(tournament)
+      gameNewsService.competitionChangedState(tournament,tournament.state)
       log.info("Tournament start - done")
+
     }
   }
 

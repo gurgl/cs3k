@@ -22,6 +22,12 @@ class TeamService {
   @Autowired
   var teamDao:TeamDao = _
 
+
+  @Autowired
+  var gameNewsService:GameNewsService = _
+
+
+
   @Transactional
   def isUserMemberOfTeam(u:User, t:Team) = {
     import scala.collection.JavaConversions.asScalaBuffer
@@ -37,8 +43,6 @@ class TeamService {
 
     val pk = new TeamMemberPk
 
-
-
     pk.user = teamDao.em.merge(u)
     pk.team = teamDao.em.merge(t)
 
@@ -47,6 +51,8 @@ class TeamService {
     tm.id = pk
 
     teamDao.em.persist(tm)
+
+    gameNewsService.userJoinedTeam(pk.user,pk.team)
   }
 
   @Transactional
@@ -59,5 +65,6 @@ class TeamService {
     val tm = teamDao.em.find(classOf[TeamMember],pk)
 
     teamDao.em.remove(tm)
+    gameNewsService.userLeftTeam(pk.user,pk.team)
   }
 }

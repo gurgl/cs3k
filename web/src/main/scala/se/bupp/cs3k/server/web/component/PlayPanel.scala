@@ -22,7 +22,7 @@ import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
 import se.bupp.cs3k.server.model._
-import se.bupp.cs3k.server.service.{ResultLogService, ResultService, GameReservationService, CompetitionService}
+import se.bupp.cs3k.server.service._
 import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.{MarkupContainer, RestartResponseException}
@@ -38,6 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import se.bupp.cs3k.server.facade.lobby.LobbyServer
 import org.apache.wicket.model.util.ListModel
 import se.bupp.cs3k.model.CompetitionState
+import scala.Some
+import se.bupp.cs3k.server.model.User
+import org.joda.time.Instant
 
 /**
  * Created with IntelliJ IDEA.
@@ -60,6 +63,10 @@ class PlayPanel(id:String) extends Panel(id) {
 
   @SpringBean
   var gameLogService:ResultLogService = _
+
+  @SpringBean
+  var gameNewsService:GameNewsService = _
+
 
   @AnonymousOnly
   class AnonLaunchForm(id: String) extends Form[String](id) {
@@ -251,6 +258,10 @@ class PlayPanel(id:String) extends Panel(id) {
 
     }
   }
+
+  import scala.collection.JavaConversions.seqAsJavaList
+  val listModel = new ListModel[NewsItem](gameNewsService.getGlobalLatestMessages(new Instant))
+  add(new NewsItemList("news",listModel))
 
 
   /*

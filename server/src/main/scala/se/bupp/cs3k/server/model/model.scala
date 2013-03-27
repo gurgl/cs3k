@@ -7,7 +7,7 @@ import se.bupp.cs3k.api.{Ticket => ApiTicket}
 import scala.Predef._
 
 import java.util.{List => JUList, ArrayList => JUArrayList, Date}
-import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
+import se.bupp.cs3k.model.{NewsItemType, CompetitionState, CompetitorType}
 import org.hibernate.metamodel.source.binder.Orderable
 import java.lang.{Long => JLLong }
 import se.bupp.cs3k.server.service.gameserver.{GameServerRepository, GameProcessSettings}
@@ -17,6 +17,8 @@ import se.bupp.cs3k.server.service.GameReservationService
 import java.{util, lang}
 import concurrent.Future
 import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
+import org.joda.time.Instant
+import org.hibernate.`type`.Type
 
 
 @NamedQueries(Array(
@@ -618,7 +620,7 @@ class TeamJoinRequest(_player:User, _team:Team,_teamMemberOpt:Option[User] = Non
   def this() = this(null,null)
 
 }
-
+/*
 @Entity
 class EventLogEntry(_type:String, _msg:String) extends Serializable with Same[JLLong] {
 
@@ -626,12 +628,148 @@ class EventLogEntry(_type:String, _msg:String) extends Serializable with Same[JL
 }
 
 
-object UserMessages {
-  class PlayerJoinedTeam(u:User, t:Team)
-  class PlayerLeftTeam(u:User, t:Team)
-  class CompetitorEnteredContest(u:User, t:Competition)
-  class CompetitionStateChange(s:CompetitionState, c:Competition)
+
+@Entity
+sealed abstract class AbstractNewsItemEvent(_u:User,_competition:Competition,_t:Team, _instant:Instant) {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @ManyToOne
+  var competition = _competition
+
+  @ManyToOne
+  var user = _u
+
+  @ManyToOne
+  var team = _t
+
 }
+*/
+
+@NamedQueries(Array(
+  new NamedQuery(name = "NewsItem.findByCompetition", query = "select n from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate"),
+  new NamedQuery(name = "NewsItem.findByTeam", query = "select n from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate"),
+  new NamedQuery(name = "NewsItem.findAll", query = "select n from NewsItem n where n.dateTime between :startDate and :endDate"),
+  new NamedQuery(name = "NewsItem.findByUser", query = "select n from UserNewsItem un inner join un.newsItem n where un = :user and n.dateTime between :startDate and :endDate")
+))
+@Entity
+class NewsItem(_competition:Competition,_t1:Competitor,_t2:Competitor,_m:NewsItemType,_s:CompetitionState, _date:Instant) {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @ManyToOne(optional = true)
+  var competition = _competition
+
+  @ManyToOne(optional = true)
+  var competitor1 = _t1
+
+  @ManyToOne(optional = true)
+  var competitor2 = _t2
+
+  @Enumerated(EnumType.ORDINAL)
+  var messageType:NewsItemType = _m
+
+  @Enumerated(EnumType.ORDINAL)
+  var competitionState:CompetitionState = _s
+
+  /*@OneToMany(mappedBy = "newsItem",fetch = FetchType.LAZY)
+  var subscribers:JUList[UserNewsItem] =  new JUArrayList[UserNewsItem]()*/
+
+  @Column
+  @org.hibernate.annotations.Type( `type`="org.jadira.usertype.dateandtime.joda.PersistentInstantAsTimestamp")
+  var dateTime:Instant = _date
+
+  def this() = this(null,null,null,null,null,null)
+}
+
+@Entity
+class UserNewsItem(ni:NewsItem, _user:User, _s:Boolean = false) {
+  @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+  @ManyToOne
+  var newsItem:NewsItem = ni
+
+  @ManyToOne
+  var user:User = _user
+
+  var seen:Boolean = _s
+
+  def this() = this(null,null,false)
+}
+
+
+
+/*
+@Embeddable
+class NewsItemChannelPk(_c:Channel,_n:NewsItem) extends Serializable {
+  var channel:Channel = _c
+  var news:NewsItem = _n
+
+}
+@Entity
+class NewsItemChannel(_pk:NewsItemChannelPk) {
+  @Id var pk:NewsItemChannelPk = _pk
+}
+*/
+
+      /*
+  @Entity
+  class NewsItem(_d:Date) {
+    @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+    @OneToMany(mappedBy = "id.channel")
+    var publishedTo:JUList[NewsItemChannel] =  new JUArrayList[NewsItemChannel]()
+
+    var date:Date = _d
+  }
+
+  @Entity
+  class Subscription(_c:Channel) {
+    @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
+
+    @ManyToOne(optional = true)
+    var channel = _c
+  }
+  */
+
+
+  // subscriptions =
+
+    /*
+    view team
+    view player
+    view contest
+    */
+    /*
+            scala: error while loading Instant, class file 'C:\Users\karlw\.ivy2\cache\joda-time\joda-time\jars\joda-time-2.0.jar(org/joda/time/Instant.class)' is broken
+(class java.lang.RuntimeException/bad constant pool tag 9 at byte 48)
+    case class PlayerJoinedTeam(u:User, t:Team, instant:Instant) extends AbstractNewsItemEvent(u,null,t,instant)
+    case class PlayerLeftTeam(u:User, t:Team, instant:Instant) extends AbstractNewsItemEvent(u,null,t,instant)
+    case class CompetitorEnteredContest(u:User, c:Competition, instant:Instant) extends AbstractNewsItemEvent(u, c ,null, instant)
+    case class CompetitorLeftContest(u:User, c:Competition, instant:Instant) extends AbstractNewsItemEvent(u, c, null,instant)
+    case class CompetitorContestVictory(u:User, c:Competition, instant:Instant) extends AbstractNewsItemEvent(u, c, null,instant)
+    case class CompetitionStateChange(s:CompetitionState, c:Competition, instant:Instant) extends AbstractNewsItemEvent(null, null, instant)
+
+     */
+
+
+    // Seen by team + player
+/*    case class PlayerJoinedTeam(u:User, t:Team, instant:Instant) extends AbstractNewsItemEvent(u,null,t,instant)
+    case class PlayerLeftTeam(u:User, t:Team, instant:Instant) extends AbstractNewsItemEvent(u,null,t,instant)
+    // Seen by player/team members : select m from Mess m inner join m.competitor c inner join c.members
+    // Seen by competition members : select m from Mess m inner join m.competition co inner join co.participants p inner join p.id.competitor
+
+    case class CompetitorEnteredContest(u:User, c:Competition, instant:Instant) extends AbstractNewsItemEvent(u, c ,null, instant)
+    case class CompetitorEnteredContest(t:Team, c:Competition, instant:Instant) extends AbstractNewsItemEvent(null, c ,t, instant)
+    case class CompetitorLeftContest(u:User, c:Competition, instant:Instant) extends AbstractNewsItemEvent(u, c, null,instant)
+    case class CompetitorLeftContest(u:Team, c:Competition, instant:Instant) extends AbstractNewsItemEvent(null, c, u, instant)
+    case class CompetitorContestVictory(u:User, c:Competition, instant:Instant) extends AbstractNewsItemEvent(u, c, null,instant)
+    case class CompetitorContestVictory(u:Team, c:Competition, instant:Instant) extends AbstractNewsItemEvent(null, c, u, instant)
+    case class CompetitionStateChange(s:CompetitionState, c:Competition, instant:Instant) extends AbstractNewsItemEvent(null, null, instant)
+
+    object NewsItemEvent {
+
+    }
+  }
+  */
 
 
 

@@ -59,7 +59,10 @@ object MyBuild extends Build {
       "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
-      "org.hsqldb" % "hsqldb" % "2.2.9"
+      "org.hsqldb" % "hsqldb" % "2.2.9",
+      "org.joda" % "joda-convert" % "1.2",
+      "org.jadira.usertype" % "usertype.jodatime" % "2.0.1",
+      "joda-time" % "joda-time" % "2.2"
     ) ++ Seq(
       "junit" % "junit" % "4.10" % "test",
       "org.mockito" % "mockito-all" % "1.9.0" % "test",

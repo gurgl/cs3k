@@ -109,6 +109,7 @@ class WicketApplication extends WebApplication {
   override def init() {
     super.init()
 
+    Init.init
     new Init
 
     val authStrat = new WiaAuthorizationStrategy();
@@ -120,6 +121,7 @@ class WicketApplication extends WebApplication {
 
     var requiredWebApplicationContext: WebApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletContext)
     val beanFactory = requiredWebApplicationContext.asInstanceOf[BeanFactory]
+
 
     Init.setupSpringDeps(beanFactory)
 

@@ -28,6 +28,13 @@ object Init {
   var lobby4Player:LobbyServer = _
   var gameReservationServiceStore:GameReservationServiceStore = _
 
+
+  var gameSetupMeta = Map[(GameServerTypeId, GameProcessTemplateId),(GameProcessTemplate,GameProcessTemplateId => GameSetupType)]()
+  var gameMeta = Map[GameServerTypeId,(GameServerSpecification,GameServerTypeId=> GameType)]()
+
+  var gameServerRepository:GameServerRepository = null
+
+
   def cleanup() {
     println("Init cleanup")
     lobby2Player.stop();
@@ -98,11 +105,6 @@ object Init {
   //
 
 
-
-  var gameSetupMeta = Map[(GameServerTypeId, GameProcessTemplateId),(GameProcessTemplate,GameProcessTemplateId => GameSetupType)]()
-  var gameMeta = Map[GameServerTypeId,(GameServerSpecification,GameServerTypeId=> GameType)]()
-
-  var gameServerRepository:GameServerRepository = null
 }
 class Init {
 

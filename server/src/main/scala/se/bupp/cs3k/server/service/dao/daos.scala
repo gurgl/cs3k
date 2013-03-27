@@ -22,6 +22,7 @@ import scala.Option
 import se.bupp.cs3k.server.model.User
 import org.hibernate.ejb.criteria.predicate.CompoundPredicate
 import se.bupp.cs3k.server.model.User
+import org.joda.time.Interval
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,93 +32,7 @@ import se.bupp.cs3k.server.model.User
  * To change this template use File | Settings | File Templates.
  */
 
-@Transactional
-class GenericDaoImpl[T](clz:Class[T]) {
 
-  var log = LoggerFactory.getLogger(clz)
-
-  @PersistenceContext(unitName="MyPersistenceUnit")
-  var em:EntityManager = _
-
-  def insert(o:T) = {
-    em.persist(o)
-    o
-  }
-
-  def find[I](i:AnyRef) = Option(em.find(clz,i))
-  def delete(o:T) = em.remove(o)
-  def update(o:T) = em.merge(o)
-
-
-  def getSingle(q:TypedQuery[T]) : Option[T] = {
-    import scala.collection.JavaConversions.asScalaBuffer
-    q.getResultList.headOption
-  }
-
-  import scala.collection.JavaConversions.asScalaBuffer
-
-  def findAll : List[T] = em.createQuery("select p from " + clz.getSimpleName+ " p").getResultList.toList.map(_.asInstanceOf[T])
-  def count = em.createQuery("select count(p) from " + clz.getSimpleName+ " p").getSingleResult.asInstanceOf[Long]
-
-  def selectRangeCount = {
-    selectRange().getResultList.size
-  }
-  def selectRange() = {
-    val (select , from , builder )= selectCriteria
-    val typedQuery:TypedQuery[T] = em.createQuery(select);
-    typedQuery
-  }
-
-  def selectCriteria: (CriteriaQuery[T], Root[T], CriteriaBuilder) = {
-    val criteriaBuilder: CriteriaBuilder = em.getCriteriaBuilder();
-    val criteriaQuery: CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
-    val from: Root[T] = criteriaQuery.from(clz);
-    val select: CriteriaQuery[T] = criteriaQuery.select(from);
-    (select, from, criteriaBuilder)
-  }
-
-
-  def selectRange(off:Int,max:Int) : List[T] = {
-
-    val resultList = selectRange().setMaxResults(max).setFirstResult(off).getResultList();
-    resultList.toList
-  }
-  import scala.collection.JavaConversions.asScalaBuffer
-
-
-  def selectRangeCount2(t:TypedQuery[T]) = {
-    t.getResultList.size
-  }
-
-
-  def selectRange2Base(bodyOpt:Option[(CriteriaBuilder,Root[T])=> Expression[java.lang.Boolean]])  = {
-    val (select , from , builder , critQry) = selectCriteria2
-    bodyOpt.foreach { body =>
-      val condition:Expression[java.lang.Boolean] = body(builder,from)
-      critQry.where(condition)
-    }
-    val typedQuery:TypedQuery[T] = em.createQuery(select);
-    typedQuery
-  }
-
-  def selectCriteria2: (CriteriaQuery[T], Root[T], CriteriaBuilder, CriteriaQuery[T]) = {
-    val criteriaBuilder: CriteriaBuilder = em.getCriteriaBuilder();
-    val criteriaQuery: CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
-    val from: Root[T] = criteriaQuery.from(clz);
-    val select: CriteriaQuery[T] = criteriaQuery.select(from);
-
-
-    (select, from, criteriaBuilder, criteriaQuery)
-  }
-
-
-  def selectRange2(tq:TypedQuery[T],off:Int,max:Int) : List[T] = {
-
-    val resultList = tq.setMaxResults(max).setFirstResult(off).getResultList();
-    resultList.toList
-  }
-
-}
 import scala.collection.JavaConversions.asScalaBuffer
 
 @Repository
@@ -318,6 +233,48 @@ class LadderDao extends GenericDaoImpl[Ladder](classOf[Ladder]) {
 class TeamMemberDao extends GenericDaoImpl[TeamMember](classOf[TeamMember]) {
 
 }
+/*
+new NamedQuery(name = "NewsItem.findByCompetition", query = "select n from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate"),
+new NamedQuery(name = "NewsItem.findByTeam", query = "select n from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate"),
+new NamedQuery(name = "NewsItem.findAll", query = "select n from NewsItem n where n.dateTime between :startDate and :endDate"),
+new NamedQuery(name = "NewsItem.findByUser", query = "select un from UserNewsItem un inner join un.newsItem n where un = :user and n.dateTime between :startDate and :endDate")
+*/
+
+@Repository
+@Transactional
+class NewsItemDao extends GenericDaoImpl[NewsItem](classOf[NewsItem]) {
+  def findByCompetition(c:Competition, i:Interval) = {
+    val q = em.createNamedQuery("NewsItem.findByCompetition")
+    q.setParameter("competition",c)
+    q.setParameter("startDate",i.getStart.toDate)
+    q.setParameter("endDate",i.getEnd.toDate)
+    q.getResultList.toList.map(_.asInstanceOf[NewsItem])
+  }
+  def findByTeam(c:Team, i:Interval) = {
+    val q = em.createNamedQuery("NewsItem.findByTeam")
+    q.setParameter("team",c)
+    q.setParameter("startDate",i.getStart.toDate)
+    q.setParameter("endDate",i.getEnd.toDate)
+    q.getResultList.toList.map(_.asInstanceOf[NewsItem])
+  }
+
+  def findAll(i:Interval) = {
+    val q = em.createNamedQuery("NewsItem.findAll")
+    q.setParameter("startDate",i.getStart.toInstant)
+    q.setParameter("endDate",i.getEnd.toInstant)
+    q.getResultList.toList.map(_.asInstanceOf[NewsItem])
+  }
+
+  def findByUser(u:User, i:Interval) = {
+    val q = em.createNamedQuery("NewsItem.findByUser")
+    q.setParameter("user",u)
+    q.setParameter("startDate",i.getStart.toDate)
+    q.setParameter("endDate",i.getEnd.toDate)
+    q.getResultList.toList.map(_.asInstanceOf[UserNewsItem])
+  }
+}
+
+
 @Repository
 @Transactional
 class TeamDao extends GenericDaoImpl[Team](classOf[Team]) {
@@ -377,4 +334,93 @@ class UserDao extends GenericDaoImpl[User](classOf[User]) {
   override def delete(o: User) {
     throw new RuntimeException("Disallowed method for UserDao")
   }
+}
+
+
+@Transactional
+class GenericDaoImpl[T](clz:Class[T]) {
+
+  var log = LoggerFactory.getLogger(clz)
+
+  @PersistenceContext(unitName="MyPersistenceUnit")
+  var em:EntityManager = _
+
+  def insert(o:T) = {
+    em.persist(o)
+    o
+  }
+
+  def find[I](i:AnyRef) = Option(em.find(clz,i))
+  def delete(o:T) = em.remove(o)
+  def update(o:T) = em.merge(o)
+
+
+  def getSingle(q:TypedQuery[T]) : Option[T] = {
+    import scala.collection.JavaConversions.asScalaBuffer
+    q.getResultList.headOption
+  }
+
+  import scala.collection.JavaConversions.asScalaBuffer
+
+  def findAll : List[T] = em.createQuery("select p from " + clz.getSimpleName+ " p").getResultList.toList.map(_.asInstanceOf[T])
+  def count = em.createQuery("select count(p) from " + clz.getSimpleName+ " p").getSingleResult.asInstanceOf[Long]
+
+  def selectRangeCount = {
+    selectRange().getResultList.size
+  }
+  def selectRange() = {
+    val (select , from , builder )= selectCriteria
+    val typedQuery:TypedQuery[T] = em.createQuery(select);
+    typedQuery
+  }
+
+  def selectCriteria: (CriteriaQuery[T], Root[T], CriteriaBuilder) = {
+    val criteriaBuilder: CriteriaBuilder = em.getCriteriaBuilder();
+    val criteriaQuery: CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
+    val from: Root[T] = criteriaQuery.from(clz);
+    val select: CriteriaQuery[T] = criteriaQuery.select(from);
+    (select, from, criteriaBuilder)
+  }
+
+
+  def selectRange(off:Int,max:Int) : List[T] = {
+
+    val resultList = selectRange().setMaxResults(max).setFirstResult(off).getResultList();
+    resultList.toList
+  }
+  import scala.collection.JavaConversions.asScalaBuffer
+
+
+  def selectRangeCount2(t:TypedQuery[T]) = {
+    t.getResultList.size
+  }
+
+
+  def selectRange2Base(bodyOpt:Option[(CriteriaBuilder,Root[T])=> Expression[java.lang.Boolean]])  = {
+    val (select , from , builder , critQry) = selectCriteria2
+    bodyOpt.foreach { body =>
+      val condition:Expression[java.lang.Boolean] = body(builder,from)
+      critQry.where(condition)
+    }
+    val typedQuery:TypedQuery[T] = em.createQuery(select);
+    typedQuery
+  }
+
+  def selectCriteria2: (CriteriaQuery[T], Root[T], CriteriaBuilder, CriteriaQuery[T]) = {
+    val criteriaBuilder: CriteriaBuilder = em.getCriteriaBuilder();
+    val criteriaQuery: CriteriaQuery[T] = criteriaBuilder.createQuery[T](clz);
+    val from: Root[T] = criteriaQuery.from(clz);
+    val select: CriteriaQuery[T] = criteriaQuery.select(from);
+
+
+    (select, from, criteriaBuilder, criteriaQuery)
+  }
+
+
+  def selectRange2(tq:TypedQuery[T],off:Int,max:Int) : List[T] = {
+
+    val resultList = tq.setMaxResults(max).setFirstResult(off).getResultList();
+    resultList.toList
+  }
+
 }

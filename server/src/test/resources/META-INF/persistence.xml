@@ -28,6 +28,13 @@
         <class>se.bupp.cs3k.server.model.GameParticipationPk</class>
 
 
+        <class>se.bupp.cs3k.server.model.UserNewsItem</class>
+        <class>se.bupp.cs3k.server.model.NewsItem</class>
+
+
+
+
+
         <properties>
             <property name="hibernate.hbm2ddl.auto" value="create"/>   <!-- no drop needed as inmemory db is dropped by default -->
             <property name="hibernate.show_sql" value="true"/>

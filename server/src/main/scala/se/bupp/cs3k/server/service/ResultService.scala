@@ -21,6 +21,7 @@ import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.model.TeamRef
 import se.bupp.cs3k.server.model.AnonUser
 import se.bupp.cs3k.api.score.ContestScore
+import java.lang
 
 
 /**
@@ -58,6 +59,9 @@ class ResultService {
 
   @Autowired
   var teamDao:TeamDao = _
+
+  @Autowired
+  var gameNewsService:GameNewsService = _
 
 
 
@@ -216,6 +220,12 @@ class ResultService {
   def handleCompetition(value: ContestScore, g: GameOccassion) {
     import scala.collection.JavaConversions.mapAsScalaMap
     val ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
+
+    val (_,winnerComp) = ranking.toList.sortBy(_._1).head
+    val comp = competitorDao.find(new lang.Long(winnerComp)).get
+
+
+    gameNewsService.winner(comp,g.competitionGameOpt.get.competition)
 
     log.info("RANKIKNG" + ranking)
     g.competitionGameOpt.foreach {

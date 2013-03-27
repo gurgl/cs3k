@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<wicket:panel>
+    <div wicket:id="lastGames">
+        <div class="alert alert-warning" wicket:id="item"></div>
+    </div>
+</wicket:panel>
+<wicket:fragment wicket:id="competitorJoinedCompetition"><wicket:container wicket:id="compLink"></wicket:container> will participate in <wicket:container wicket:id="contLink"></wicket:container></wicket:fragment>
+<wicket:fragment wicket:id="competitorLeftCompetition"><wicket:container wicket:id="compLink"></wicket:container> wont participate in <wicket:container wicket:id="contLink"></wicket:container></wicket:fragment>
+<wicket:fragment wicket:id="playerJoinedTeam"><wicket:container wicket:id="playerLink"></wicket:container> joined <wicket:container wicket:id="teamLink"></wicket:container></wicket:fragment>
+<wicket:fragment wicket:id="playerLeftTeam"><wicket:container wicket:id="playerLink"></wicket:container> left <wicket:container wicket:id="teamLink"></wicket:container></wicket:fragment>
+<wicket:fragment wicket:id="tournamentVictory"><wicket:container wicket:id="compLink"></wicket:container> advanced in <wicket:container wicket:id="contLink"></wicket:container></wicket:fragment>
+<wicket:fragment wicket:id="ladderVictory"><wicket:container wicket:id="compLink"></wicket:container> scored in <wicket:container wicket:id="contLink"></wicket:container></wicket:fragment>
+<wicket:fragment wicket:id="tournamentState">Tournament <wicket:container wicket:id="compLink"></wicket:container> entered <span wicket:id="contState"></span></wicket:fragment>
+<wicket:fragment wicket:id="ladderState">Ladder <wicket:container wicket:id="compLink"></wicket:container> entered <span wicket:id="contState"></span></wicket:fragment>
+</body>
+</html>
