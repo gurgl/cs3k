@@ -7,7 +7,10 @@
 <body>
 <wicket:panel>
     <div wicket:id="lastGames">
-        <div class="alert alert-warning" wicket:id="item"></div>
+        <div class="alert alert-warning" wicket:id="item">
+          <small  wicket:id="time"></small>
+          <span wicket:id="newsItem"></span>
+        </div>
     </div>
 </wicket:panel>
 <wicket:fragment wicket:id="competitorJoinedCompetition"><wicket:container wicket:id="compLink"></wicket:container> will participate in <wicket:container wicket:id="contLink"></wicket:container></wicket:fragment>

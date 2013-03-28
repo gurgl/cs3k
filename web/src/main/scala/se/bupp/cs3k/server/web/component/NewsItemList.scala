@@ -14,6 +14,9 @@ import se.bupp.cs3k.model.NewsItemType
 import org.apache.wicket.model.Model
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
+import org.apache.wicket.markup.html.WebMarkupContainer
+import org.apache.wicket.datetime.markup.html.basic.DateLabel
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,47 +52,57 @@ class NewsItemList(id:String, m:ListModel[NewsItem]) extends Panel(id) {
     def populateItem(item: ListItem[NewsItem]) {
 
       val news: NewsItem = item.getModelObject
-      val component:Component = news.messageType match {
-        case NewsItemType.USER_JOINED_TEAM | NewsItemType.USER_LEFT_TEAM =>
+      var container: WebMarkupContainer = new WebMarkupContainer("item")
+      val component: Component = createMessage(news, "newsItem")
+      var label: Label = new Label("time", news.dateTime)
 
-          val f = new Fragment("item", typeToFragment(news.messageType), NewsItemList.this)
-          f.add(new AjaxLinkLabel("playerLink", new Model(news.competitor2.nameAccessor)) {
-            def onClick(p1: AjaxRequestTarget) { }
-          })
-          f.add(new AjaxLinkLabel("teamLink", new Model(news.competitor1.nameAccessor)) {
-            def onClick(p1: AjaxRequestTarget) { }
-          })
-          f
-
-        case NewsItemType.COMPETITOR_JOINED_COMPETITION | NewsItemType.COMPETITOR_LEFT_COMPETITION =>
-          val f = new Fragment("item", typeToFragment(news.messageType), NewsItemList.this)
-          f.add(new AjaxLinkLabel("compLink", new Model(news.competitor1.nameAccessor)) {
-            def onClick(p1: AjaxRequestTarget) { }
-          })
-          f.add(new AjaxLinkLabel("contLink", new Model(news.competition.name)) {
-            def onClick(p1: AjaxRequestTarget) { }
-          })
-          f
-
-        case NewsItemType.COMPETITOR_COMPETITION_GAME_VICTORY =>
-          val f = new Fragment("item", typeToFragmentAndInstance(news.messageType,news.competition), NewsItemList.this)
-          f.add(new AjaxLinkLabel("compLink", new Model(news.competitor1.nameAccessor)) {
-            def onClick(p1: AjaxRequestTarget) { }
-          })
-          f.add(new AjaxLinkLabel("contLink", new Model(news.competition.name)) {
-            def onClick(p1: AjaxRequestTarget) { }
-          })
-          f
-
-        case NewsItemType.COMPETITION_STATE_CHANGE =>
-          val f = new Fragment("item", typeToFragmentAndInstance(news.messageType,news.competition), NewsItemList.this)
-          f.add(new AjaxLinkLabel("compLink", new Model(news.competition.name)) {
-            def onClick(p1: AjaxRequestTarget) { }
-          })
-          f.add(new Label("contState", new Model(news.competitionState.toString)))
-          f
-      }
-      item.add(component)
+      container.add(label   )
+        container.add(component)
+      item.add(container)
     }
   })
+
+  def createMessage(news: NewsItem, componentId: String): Component = {
+    val component: Component = news.messageType match {
+      case NewsItemType.USER_JOINED_TEAM | NewsItemType.USER_LEFT_TEAM =>
+
+        val f = new Fragment(componentId, typeToFragment(news.messageType), NewsItemList.this)
+        f.add(new AjaxLinkLabel("playerLink", new Model(news.competitor2.nameAccessor)) {
+          def onClick(p1: AjaxRequestTarget) {}
+        })
+        f.add(new AjaxLinkLabel("teamLink", new Model(news.competitor1.nameAccessor)) {
+          def onClick(p1: AjaxRequestTarget) {}
+        })
+        f
+
+      case NewsItemType.COMPETITOR_JOINED_COMPETITION | NewsItemType.COMPETITOR_LEFT_COMPETITION =>
+        val f = new Fragment(componentId, typeToFragment(news.messageType), NewsItemList.this)
+        f.add(new AjaxLinkLabel("compLink", new Model(news.competitor1.nameAccessor)) {
+          def onClick(p1: AjaxRequestTarget) {}
+        })
+        f.add(new AjaxLinkLabel("contLink", new Model(news.competition.name)) {
+          def onClick(p1: AjaxRequestTarget) {}
+        })
+        f
+
+      case NewsItemType.COMPETITOR_COMPETITION_GAME_VICTORY =>
+        val f = new Fragment(componentId, typeToFragmentAndInstance(news.messageType, news.competition), NewsItemList.this)
+        f.add(new AjaxLinkLabel("compLink", new Model(news.competitor1.nameAccessor)) {
+          def onClick(p1: AjaxRequestTarget) {}
+        })
+        f.add(new AjaxLinkLabel("contLink", new Model(news.competition.name)) {
+          def onClick(p1: AjaxRequestTarget) {}
+        })
+        f
+
+      case NewsItemType.COMPETITION_STATE_CHANGE =>
+        val f = new Fragment(componentId, typeToFragmentAndInstance(news.messageType, news.competition), NewsItemList.this)
+        f.add(new AjaxLinkLabel("compLink", new Model(news.competition.name)) {
+          def onClick(p1: AjaxRequestTarget) {}
+        })
+        f.add(new Label("contState", new Model(news.competitionState.toString)))
+        f
+    }
+    component
+  }
 }

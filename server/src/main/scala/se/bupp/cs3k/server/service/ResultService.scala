@@ -219,17 +219,14 @@ class ResultService {
 
   def handleCompetition(value: ContestScore, g: GameOccassion) {
     import scala.collection.JavaConversions.mapAsScalaMap
-    val ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
-
-    val (_,winnerComp) = ranking.toList.sortBy(_._1).head
-    val comp = competitorDao.find(new lang.Long(winnerComp)).get
-
-
-    gameNewsService.winner(comp,g.competitionGameOpt.get.competition)
-
-    log.info("RANKIKNG" + ranking)
     g.competitionGameOpt.foreach {
       cg =>
+        val ranking: Map[Int, Long] = Map.empty ++ value.ranking().map(x => (x._1.toInt, x._2.toLong))
+        log.info("RANKIKNG" + ranking)
+        val (_,winnerComp) = ranking.toList.sortBy(_._1).head
+        val comp = competitorDao.find(new lang.Long(winnerComp)).get
+        gameNewsService.winner(comp,cg.competition)
+
         competitionService.onGameEnded(cg, ranking)
     }
   }

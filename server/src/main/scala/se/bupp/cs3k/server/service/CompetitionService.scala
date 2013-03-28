@@ -361,18 +361,12 @@ class CompetitionService {
     var persistableStructure = TournamentHelper.buildPersistableTournament(indexed, tournamentPrim )
     import scala.collection.JavaConversions.seqAsJavaList
     tournamentPrim.structure = persistableStructure
-    storeCompetition(tournamentPrim)
+    ladderDao.em.persist(tournamentPrim)
+    //storeCompetition(tournamentPrim)
     tournamentPrim
   }
 
-  def storeCompetitiondd(c:Competition) {
-    gameSetupDao.find(c.gameSetup.id).ensuring(_ != null)
-    ladderDao.em.merge(c.gameSetup)
-    if (c.id != null)
-      ladderDao.em.merge(c)
-    ladderDao.em.persist(c)
 
-  }
 
   @Transactional
   def isUserMemberOfLadder(t:Competitor, l:Ladder) = {
@@ -575,9 +569,9 @@ class CompetitionService {
       val tourPrep1 = storeTournamentStructure(tournament, indexed)
 
       distributePlayersInTournament(tourPrep1,2,TournamentHelper.deterministic)
-      tournament.state = CompetitionState.RUNNING
-      ladderDao.em.persist(tournament)
-      gameNewsService.competitionChangedState(tournament,tournament.state)
+      tourPrep1.state = CompetitionState.RUNNING
+      ladderDao.em.persist(tourPrep1)
+      gameNewsService.competitionChangedState(tourPrep1,tourPrep1.state)
       log.info("Tournament start - done")
 
     }
