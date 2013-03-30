@@ -645,14 +645,24 @@ sealed abstract class AbstractNewsItemEvent(_u:User,_competition:Competition,_t:
 }
 */
 
+trait HasNewsItemFields {
+  def competition:Competition
+  def competitor1:Competitor
+  def competitor2:Competitor
+  def messageType:NewsItemType
+  def competitionState:CompetitionState
+  def dateTime:Instant
+  def seen:Boolean
+}
+
 @NamedQueries(Array(
   new NamedQuery(name = "NewsItem.findByCompetition", query = "select n from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate"),
   new NamedQuery(name = "NewsItem.findByTeam", query = "select n from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate"),
   new NamedQuery(name = "NewsItem.findAll", query = "select n from NewsItem n where n.dateTime between :startDate and :endDate"),
-  new NamedQuery(name = "NewsItem.findByUser", query = "select n from UserNewsItem un inner join un.newsItem n where un = :user and n.dateTime between :startDate and :endDate")
+  new NamedQuery(name = "NewsItem.findByUser", query = "select un from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate")
 ))
 @Entity
-class NewsItem(_competition:Competition,_t1:Competitor,_t2:Competitor,_m:NewsItemType,_s:CompetitionState, _date:Instant) {
+class NewsItem(_competition:Competition,_t1:Competitor,_t2:Competitor,_m:NewsItemType,_s:CompetitionState, _date:Instant) extends HasNewsItemFields {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   @ManyToOne(optional = true)
@@ -676,12 +686,13 @@ class NewsItem(_competition:Competition,_t1:Competitor,_t2:Competitor,_m:NewsIte
   @Column
   @org.hibernate.annotations.Type( `type`="org.jadira.usertype.dateandtime.joda.PersistentInstantAsTimestamp")
   var dateTime:Instant = _date
+  def seen = true
 
   def this() = this(null,null,null,null,null,null)
 }
 
 @Entity
-class UserNewsItem(ni:NewsItem, _user:User, _s:Boolean = false) {
+class UserNewsItem(ni:NewsItem, _user:User, _s:Boolean = false) extends HasNewsItemFields {
   @Id @GeneratedValue(strategy=GenerationType.AUTO) var id:JLLong = _
 
   @ManyToOne
@@ -693,6 +704,19 @@ class UserNewsItem(ni:NewsItem, _user:User, _s:Boolean = false) {
   var seen:Boolean = _s
 
   def this() = this(null,null,false)
+
+  def competition = newsItem.competition
+
+  def competitor1 = newsItem.competitor1
+
+  def competitor2 = newsItem.competitor2
+
+  def messageType = newsItem.messageType
+
+  def competitionState = newsItem.competitionState
+
+  def dateTime = newsItem.dateTime
+
 }
 
 

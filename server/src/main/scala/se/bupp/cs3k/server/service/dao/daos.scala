@@ -246,30 +246,30 @@ class NewsItemDao extends GenericDaoImpl[NewsItem](classOf[NewsItem]) {
   def findByCompetition(c:Competition, i:Interval) = {
     val q = em.createNamedQuery("NewsItem.findByCompetition")
     q.setParameter("competition",c)
-    q.setParameter("startDate",i.getStart.toDate)
-    q.setParameter("endDate",i.getEnd.toDate)
-    q.getResultList.toList.map(_.asInstanceOf[NewsItem])
+    q.setParameter("startDate",i.getStart.toInstant)
+    q.setParameter("endDate",i.getEnd.toInstant)
+    q.getResultList.toList.map(_.asInstanceOf[HasNewsItemFields])
   }
   def findByTeam(c:Team, i:Interval) = {
     val q = em.createNamedQuery("NewsItem.findByTeam")
     q.setParameter("team",c)
-    q.setParameter("startDate",i.getStart.toDate)
-    q.setParameter("endDate",i.getEnd.toDate)
-    q.getResultList.toList.map(_.asInstanceOf[NewsItem])
+    q.setParameter("startDate",i.getStart.toInstant)
+    q.setParameter("endDate",i.getEnd.toInstant)
+    q.getResultList.toList.map(_.asInstanceOf[HasNewsItemFields])
   }
 
   def findAll(i:Interval) = {
     val q = em.createNamedQuery("NewsItem.findAll")
     q.setParameter("startDate",i.getStart.toInstant)
     q.setParameter("endDate",i.getEnd.toInstant)
-    q.getResultList.toList.map(_.asInstanceOf[NewsItem])
+    q.getResultList.toList.map(_.asInstanceOf[HasNewsItemFields])
   }
 
   def findByUser(u:User, i:Interval) = {
-    val q = em.createNamedQuery("NewsItem.findByUser")
+    val q = em.createNamedQuery("NewsItem.findByUser",classOf[UserNewsItem])
     q.setParameter("user",u)
-    q.setParameter("startDate",i.getStart.toDate)
-    q.setParameter("endDate",i.getEnd.toDate)
+    q.setParameter("startDate",i.getStart.toInstant)
+    q.setParameter("endDate",i.getEnd.toInstant)
     q.getResultList.toList.map(_.asInstanceOf[UserNewsItem])
   }
 }

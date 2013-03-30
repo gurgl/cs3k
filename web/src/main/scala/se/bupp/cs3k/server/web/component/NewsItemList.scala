@@ -2,7 +2,7 @@ package se.bupp.cs3k.server.web.component
 
 import generic.AjaxLinkLabel
 import org.apache.wicket.model.util.ListModel
-import se.bupp.cs3k.server.model.{Ladder, Tournament, NewsItem, GameResult}
+import se.bupp.cs3k.server.model._
 import org.apache.wicket.markup.html.panel.{Fragment, Panel}
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
@@ -41,7 +41,7 @@ object NewsItemList {
     case (c:Ladder, NewsItemType.COMPETITION_STATE_CHANGE) => "ladderState"
   }
 }
-class NewsItemList(id:String, m:ListModel[NewsItem]) extends Panel(id) {
+class NewsItemList(id:String, m:ListModel[HasNewsItemFields]) extends Panel(id) {
     import NewsItemList._
 
   @SpringBean
@@ -49,9 +49,9 @@ class NewsItemList(id:String, m:ListModel[NewsItem]) extends Panel(id) {
 
   @transient var om = new ObjectMapper()
   add(new ListView("lastGames", m) {
-    def populateItem(item: ListItem[NewsItem]) {
+    def populateItem(item: ListItem[HasNewsItemFields]) {
 
-      val news: NewsItem = item.getModelObject
+      val news: HasNewsItemFields = item.getModelObject
       var container: WebMarkupContainer = new WebMarkupContainer("item")
       val component: Component = createMessage(news, "newsItem")
       var label: Label = new Label("time", news.dateTime)
@@ -62,7 +62,7 @@ class NewsItemList(id:String, m:ListModel[NewsItem]) extends Panel(id) {
     }
   })
 
-  def createMessage(news: NewsItem, componentId: String): Component = {
+  def createMessage(news: HasNewsItemFields, componentId: String): Component = {
     val component: Component = news.messageType match {
       case NewsItemType.USER_JOINED_TEAM | NewsItemType.USER_LEFT_TEAM =>
 

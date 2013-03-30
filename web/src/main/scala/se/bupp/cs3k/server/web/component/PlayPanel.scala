@@ -68,6 +68,9 @@ class PlayPanel(id:String) extends Panel(id) {
   var gameNewsService:GameNewsService = _
 
 
+  @SpringBean
+  var competitorDao:CompetitorDao = _
+
   @AnonymousOnly
   class AnonLaunchForm(id: String) extends Form[String](id) {
 
@@ -208,9 +211,6 @@ class PlayPanel(id:String) extends Panel(id) {
 
   add(new AnonLaunchForm("launch_with_name_form"))
 
-  @SpringBean
-  var competitorDao:CompetitorDao = _
-
 
 
   @LoggedInOnly
@@ -260,7 +260,7 @@ class PlayPanel(id:String) extends Panel(id) {
   }
 
   import scala.collection.JavaConversions.seqAsJavaList
-  val listModel = new ListModel[NewsItem](gameNewsService.getGlobalLatestMessages(new Instant))
+  val listModel = new ListModel[HasNewsItemFields](gameNewsService.getGlobalLatestMessages(new Instant))
   add(new NewsItemList("news",listModel))
 
 

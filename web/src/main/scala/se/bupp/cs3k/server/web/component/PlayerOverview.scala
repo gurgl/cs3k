@@ -1,10 +1,10 @@
 package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.markup.html.panel.Panel
-import se.bupp.cs3k.server.service.{ResultService, GameReservationService}
+import se.bupp.cs3k.server.service.{GameNewsService, ResultService, GameReservationService}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.model.util.ListModel
-import se.bupp.cs3k.server.model.{GameResult, User, GameOccassion}
+import se.bupp.cs3k.server.model.{HasNewsItemFields, GameResult, User, GameOccassion}
 import se.bupp.cs3k.server.web.auth.LoggedInOnly
 import org.apache.wicket.markup.html.WebMarkupContainer
 import se.bupp.cs3k.server.web.{WicketApplication, WiaSession}
@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.link.ResourceLink
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
 import org.apache.wicket.model.{IModel, Model}
+import org.joda.time.Instant
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,6 +31,10 @@ class PlayerOverview(id:String, model:IModel[User]) extends Panel(id) {
 
   @SpringBean
   var resultService:ResultService = _
+
+  @SpringBean
+  var gameNewsService:GameNewsService = _
+
 
   import scala.collection.JavaConversions.seqAsJavaList
   var all  = new ListModel(resultService.findResultsByCompetitor(model.getObject))
@@ -59,4 +64,6 @@ class PlayerOverview(id:String, model:IModel[User]) extends Panel(id) {
 
   add(new CompetitionParticipationList("compParticipation",model))
 
+  val listModel = new ListModel[HasNewsItemFields](gameNewsService.getPlayerLatestMessages(model.getObject,new Instant))
+  add(new NewsItemList("userNews",listModel));
 }
