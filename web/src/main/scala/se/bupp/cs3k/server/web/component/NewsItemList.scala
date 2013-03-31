@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
-import generic.AjaxLinkLabel
+import generic.{DateLabel, AjaxLinkLabel}
 import org.apache.wicket.model.util.ListModel
 import se.bupp.cs3k.server.model._
 import org.apache.wicket.markup.html.panel.{Fragment, Panel}
@@ -15,7 +15,10 @@ import org.apache.wicket.model.Model
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.markup.html.WebMarkupContainer
-import org.apache.wicket.datetime.markup.html.basic.DateLabel
+
+import se.bupp.cs3k.server.web.generic.datetime.{StyleDateConverter, DateConverter}
+import java.util.Locale
+import org.joda.time.format.DateTimeFormatter
 
 
 /**
@@ -44,6 +47,7 @@ object NewsItemList {
 class NewsItemList(id:String, m:ListModel[HasNewsItemFields]) extends Panel(id) {
     import NewsItemList._
 
+  val dataConv = new StyleDateConverter("S-",true)
   @SpringBean
   var gameResultService:ResultService = _
 
@@ -54,7 +58,7 @@ class NewsItemList(id:String, m:ListModel[HasNewsItemFields]) extends Panel(id) 
       val news: HasNewsItemFields = item.getModelObject
       var container: WebMarkupContainer = new WebMarkupContainer("item")
       val component: Component = createMessage(news, "newsItem")
-      var label: Label = new Label("time", news.dateTime)
+      val label = new DateLabel("time", new Model(news.dateTime), dataConv)
 
       container.add(label   )
         container.add(component)
