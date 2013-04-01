@@ -10,8 +10,11 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.markup.head.IHeaderResponse
-import org.apache.wicket.bootstrap.Bootstrap
+
 import se.bupp.cs3k.server.web.application.WicketApplication
+import de.agilecoders.wicket.Bootstrap
+import de.agilecoders.wicket.markup.html.themes.bootswatch.BootswatchTheme
+import de.agilecoders.wicket.settings.DefaultThemeProvider
 
 class AbstractBasePage( pars:PageParameters) extends WebPage(pars) {
   def this() = this(null)
@@ -19,12 +22,22 @@ class AbstractBasePage( pars:PageParameters) extends WebPage(pars) {
 
   override def onBeforeRender() {
     WicketApplication.get.getMarkupSettings.setStripWicketTags(true)
+
+    var settings = Bootstrap.getSettings(WicketApplication.get);
+    var themes = settings.getThemeProvider().available();
+
+    import scala.collection.JavaConversions.asScalaBuffer
+    themes.foreach(println)
+    //var settings: IBootstrapSettings = Bootstrap.getSettings(this)
+    settings.getActiveThemeProvider().setActiveTheme(themes(0));
+
     super.onBeforeRender()
   }
 
   override def renderHead(response:IHeaderResponse )
   {
-    Bootstrap.renderHeadResponsive(response)
+
+    Bootstrap.renderHead(response)
     WicketApplication.get.getMarkupSettings.setStripWicketTags(WicketApplication.get.mode)
   }
 

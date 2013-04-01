@@ -42,6 +42,8 @@ import org.springframework.web.context.WebApplicationContext
 import se.bupp.cs3k.server.model.Model._
 import java.net.URI
 import web.page.ApplicationPage
+import de.agilecoders.wicket.Bootstrap
+import de.agilecoders.wicket.settings.{BootswatchThemeProvider, BootstrapSettings, IBootstrapSettings}
 
 
 //import akka.actor.{Props, Actor, ActorSystem}
@@ -108,6 +110,10 @@ class WicketApplication extends WebApplication {
 
   override def init() {
     super.init()
+
+    var bsSettings: BootstrapSettings = new BootstrapSettings()
+    //bsSettings.setThemeProvider(new BootswatchThemeProvider)
+    Bootstrap.install(Application.get(), bsSettings);
 
     Init.init
     new Init

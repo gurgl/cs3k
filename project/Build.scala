@@ -9,7 +9,7 @@ import WebStartPlugin._
 
 object MyBuild extends Build {
 
-  val WICKET_VERSION = "6.2.0"
+  val WICKET_VERSION = "6.6.0"
 
 
   override def settings = super.settings ++ Seq(scalaVersion := "2.10.0")
@@ -54,9 +54,7 @@ object MyBuild extends Build {
       "org.hibernate" % "hibernate-core" % "4.1.7.Final",
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
-      "org.apache.wicket" % "wicket-bootstrap" % "0.7",
       "org.apache.wicket" % "wicket-spring" % WICKET_VERSION, //exclude("org.apache.wicket","wicket-ioc"),
-      "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
       "org.hsqldb" % "hsqldb" % "2.2.9",
@@ -121,9 +119,10 @@ object MyBuild extends Build {
       "org.hibernate" % "hibernate-core" % "4.1.7.Final",
       "org.hibernate" % "hibernate-entitymanager" % "4.1.7.Final",
       "org.hibernate.javax.persistence" % "hibernate-jpa-2.0-api" % "1.0.1.Final",
-      "org.apache.wicket" % "wicket-bootstrap" % "0.7",
+      "de.agilecoders.wicket" % "wicket-bootstrap-themes" % "0.8.1" exclude("org.apache.wicket","wicket-core"),
+      //"org.apache.wicket" % "wicket-bootstrap" % "0.7",
       "org.apache.wicket" % "wicket-spring" % WICKET_VERSION, //exclude("org.apache.wicket","wicket-ioc"),
-      "org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
+      //"org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
       "org.hsqldb" % "hsqldb" % "2.2.9"

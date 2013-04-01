@@ -1,7 +1,8 @@
 package se.bupp.cs3k.server.web.component
 
 import contest.Events
-import generic.table.AjaxNavigationToolbar
+import generic.table.navigation.simple.AjaxNavigationToolbarSimple
+import generic.table.{AjaxNavigationToolbar}
 import generic.{DateLabel, AjaxLinkLabel}
 import org.apache.wicket.model.util.ListModel
 import se.bupp.cs3k.server.model._
@@ -27,6 +28,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.{DataTable, 
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
+import org.apache.wicket.behavior.AttributeAppender
 
 
 /**
@@ -70,8 +72,9 @@ class NewsItemList[T <: HasNewsItemFields](id:String, m:SortableDataProvider[T,S
         val news: HasNewsItemFields = p3.getObject
         //val container: WebMarkupContainer = new WebMarkupContainer("item")
         val label = new DateLabel(p2, new Model(news.dateTime), dataConv)
+        label.add(new AttributeAppender("class",new Model("small"),";"))
+        label.add(new AttributeAppender("style",new Model("color:#aaa"),";"))
         item.add(label)
-
       }
     },
     new AbstractColumn[T, String](new Model("blubb")) {
@@ -90,7 +93,8 @@ class NewsItemList[T <: HasNewsItemFields](id:String, m:SortableDataProvider[T,S
   var table: DataTable[T, String] = new DataTable("lastGames", cols, m, 10)
   table.setOutputMarkupId(true);
   table.setVersioned(false);
-  table.addTopToolbar(new AjaxNavigationToolbar(table));
+
+  table.addBottomToolbar(new AjaxNavigationToolbarSimple(table));
   add(table)
 
   def createMessage(news: HasNewsItemFields, componentId: String): Component = {
