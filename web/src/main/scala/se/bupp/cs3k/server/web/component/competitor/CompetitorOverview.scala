@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor
 
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.util.ListModel
@@ -11,6 +11,7 @@ import se.bupp.cs3k.server.model.{NewsItem, UserNewsItem, HasNewsItemFields, Tea
 import org.joda.time.Instant
 import se.bupp.cs3k.server.service.dao.NewsItemDao
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
+import se.bupp.cs3k.server.web.component.{JoinTeamPanel, NewsItemList, GameResultList}
 
 /**
  * Created with IntelliJ IDEA.

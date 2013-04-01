@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
 import org.apache.wicket.model.util.ListModel
 import se.bupp.cs3k.server.model.GameResult
@@ -13,7 +13,7 @@ import org.apache.wicket.model.IModel
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.CreateLadderEvent
+import Events.CreateLadderEvent
 
 /**
   * Created with IntelliJ IDEA.

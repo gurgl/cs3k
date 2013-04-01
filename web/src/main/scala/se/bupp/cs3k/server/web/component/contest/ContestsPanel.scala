@@ -1,7 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
-import generic.breadcrumb.{BreadCrumbPanel, BreadCrumbItem}
-import generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.markup.html.{list, WebMarkupContainer}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
@@ -15,8 +13,11 @@ import se.bupp.cs3k.server.model._
 import org.apache.wicket.Component
 import org.apache.wicket.behavior.AttributeAppender
 import org.apache.wicket.markup.ComponentTag
-import se.bupp.cs3k.server.web.component.Events.{AbstractContestEvent, CreateLadderEvent, CompetitionSelectedEvent}
 import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel
+import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
+import se.bupp.cs3k.server.web.component.{LadderFormPanel, LadderPanel}
+import se.bupp.cs3k.server.web.component.contest.Events.{CreateLadderEvent, AbstractContestEvent, CompetitionSelectedEvent}
 
 
 /**

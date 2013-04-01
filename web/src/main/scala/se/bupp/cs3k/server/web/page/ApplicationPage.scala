@@ -16,6 +16,8 @@ import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter
 import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
 import component._
+import competitor.CompetitorPanel
+import contest.{Events, ContestsPanel}
 import scala.Some
 import scala.Some
 import org.apache.wicket.event.IEvent

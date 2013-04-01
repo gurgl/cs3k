@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.model.{LoadableDetachableModel, IModel}
@@ -20,6 +20,7 @@ import se.bupp.cs3k.server.web.page.SigninPage
 import org.joda.time.Instant
 import se.bupp.cs3k.server.service.dao.NewsItemDao
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
+import se.bupp.cs3k.server.web.component.{NewsItemList}
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,7 +44,7 @@ class CompetitionOverview(cId:String ,modl:IModel[Competition]) extends Panel(cI
   var newsItemDao:NewsItemDao = _
 
   @LoggedInOnly
-  class COJoinLadderPanel(id:String, m:IModel[Competition]) extends JoinLadderPanel(id,m) {
+  class COJoinLadderPanel(id:String, m:IModel[Competition]) extends JoinCompetitionPanel(id,m) {
     override def isVisible = super.isVisible && List(CompetitionState.SIGNUP).contains(modl.getObject.state)
     def onUpdate(t: AjaxRequestTarget) {
 

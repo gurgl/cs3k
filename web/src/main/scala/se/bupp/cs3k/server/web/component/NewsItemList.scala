@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.Events
 import generic.table.AjaxNavigationToolbar
 import generic.{DateLabel, AjaxLinkLabel}
 import org.apache.wicket.model.util.ListModel
@@ -21,7 +22,7 @@ import se.bupp.cs3k.server.web.generic.datetime.{RelativeDateConverter, StyleDat
 import java.util.Locale
 import org.joda.time.format.DateTimeFormatter
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CompetitionSelectedEvent, CompetitorSelectedEvent, CreateTeamEvent}
+import Events.{CompetitionSelectedEvent, CompetitorSelectedEvent, CreateTeamEvent}
 import org.apache.wicket.extensions.markup.html.repeater.data.table.{DataTable, AbstractColumn, IColumn, DefaultDataTable}
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import org.apache.wicket.markup.repeater.Item

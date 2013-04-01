@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.Events
 import generic.{FodelPropertyColumn, AjaxLinkLabel}
 import org.apache.wicket.markup.html.WebMarkupContainer
 import se.bupp.cs3k.server.model.{Competition, GameOccassion, User}
@@ -20,7 +21,7 @@ import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.CompetitionSelectedEvent
+import Events.CompetitionSelectedEvent
 import se.bupp.cs3k.server.model.User
 import org.apache.wicket.extensions.markup.html.repeater.util.{SortParam, SingleSortState}
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.{SortOrder, ISortState}

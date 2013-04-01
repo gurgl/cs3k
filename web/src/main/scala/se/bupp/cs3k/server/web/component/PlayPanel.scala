@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.CompetitionListPanel
 import org.apache.wicket.markup.html.panel.{FeedbackPanel, Panel}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.form._

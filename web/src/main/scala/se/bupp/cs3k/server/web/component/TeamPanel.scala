@@ -1,6 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
-import competitor.{TeamMemberListPanel, PlayerListPanel}
+import competitor.{CompetitorOverview, TeamMemberListPanel, PlayerListPanel}
 import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{LoadableDetachableModel, Model, IModel}

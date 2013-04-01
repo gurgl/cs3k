@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.Events
 import generic.table.NiceDataTable
 import generic.{AjaxLinkLabel, ListSelector}
 import org.apache.wicket.markup.html.panel.Panel
@@ -15,7 +16,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import se.bupp.cs3k.server.Util
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CompetitorSelectedEvent, CreateTeamEvent, CompetitionSelectedEvent}
+import Events.{CompetitorSelectedEvent, CreateTeamEvent, CompetitionSelectedEvent}
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.behavior.AttributeAppender

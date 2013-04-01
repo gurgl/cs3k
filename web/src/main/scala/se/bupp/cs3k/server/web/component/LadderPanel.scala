@@ -1,6 +1,7 @@
 package se.bupp.cs3k.server.web.component
 
-import contest.CompetitionPariticipantListPanel
+import contest.tournament.{TournamentView, TournamentViewNotStarted}
+import contest.{CompetitionOverview, CompetitionPariticipantListPanel}
 import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.{EmptyPanel, Panel}
 import org.apache.wicket.model.{Model, IModel}

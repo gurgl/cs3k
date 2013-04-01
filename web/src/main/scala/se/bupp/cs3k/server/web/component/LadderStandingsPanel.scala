@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.Events
 import generic.table.NiceDataTable
 import generic.{FodelPropertyColumn, AjaxLinkLabel, VertTabbedPanel}
 import org.apache.wicket.markup.html.panel.Panel
@@ -14,7 +15,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.{PropertyCol
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, CompetitionSelectedEvent}
+import Events.{CreateLadderEvent, CompetitionSelectedEvent}
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import se.bupp.cs3k.server.service.{ResultService, CompetitionService}
 import se.bupp.cs3k.example.ExampleScoreScheme.ExCompetitorTotal

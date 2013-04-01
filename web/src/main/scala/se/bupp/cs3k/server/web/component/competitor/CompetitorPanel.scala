@@ -1,18 +1,20 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor
 
-import generic.breadcrumb.BreadCrumbPanel
-import generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{LoadableDetachableModel, Model}
 import se.bupp.cs3k.server.model.{User, Team, Ladder}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
-import se.bupp.cs3k.server.web.component.Events._
+import se.bupp.cs3k.server.web.component.contest.Events
+import Events._
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.event.{IEvent, Broadcast}
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.TeamDao
+import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel
+import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
+import se.bupp.cs3k.server.web.component.{PlayerOverview, TeamPanel, TeamListPanel}
 
 /**
  * Created with IntelliJ IDEA.

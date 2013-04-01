@@ -8,7 +8,8 @@ import org.apache.wicket.model._
 import org.apache.wicket.ajax.AjaxRequestTarget
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CompetitorSelectedEvent, CreateTeamEvent}
+import se.bupp.cs3k.server.web.component.contest.Events
+import Events.{CompetitorSelectedEvent, CreateTeamEvent}
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.extensions.markup.html.repeater.data.table._

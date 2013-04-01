@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.Events
 import generic.AjaxLinkLabel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.spring.injection.annot.SpringBean
@@ -18,7 +19,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.{SortOrder, I
 import se.bupp.cs3k.server.service.dao.{TeamMemberDao, CompetitorDao, TeamDao}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.CompetitorSelectedEvent
+import Events.CompetitorSelectedEvent
 
 
 /**

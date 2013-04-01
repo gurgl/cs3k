@@ -79,9 +79,9 @@ class ChallangePanel(id:String,m:IModel[Competition]) extends Panel(id) {
               info("Left ladder")
             }
 
-          JoinLadderPanel.this.onUpdate(target)
+          JoinCompetitionPanel.this.onUpdate(target)
 
-          target.add(JoinLadderPanel.this)
+          target.add(JoinCompetitionPanel.this)
         }
       }*/
       //link.add(label)

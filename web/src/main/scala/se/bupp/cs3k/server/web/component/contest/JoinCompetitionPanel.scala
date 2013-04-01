@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
 import org.apache.wicket.model.{AbstractReadOnlyModel, LoadableDetachableModel, IModel}
 import se.bupp.cs3k.server.model.{User, Team, Competitor, Competition}
@@ -22,7 +22,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
  * To change this template use File | Settings | File Templates.
  */
 //@LoggedInOnly
-abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(id) {
+abstract class JoinCompetitionPanel(id:String, m:IModel[Competition]) extends Panel(id) {
 
   @SpringBean
   var gameReservationService:GameReservationService = _
@@ -41,7 +41,7 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
 
 
   val log = LoggerFactory.getLogger(this.getClass)
-  log.info("create JoinLadderPanel")
+  log.info("create JoinCompetitionPanel")
 
   def onUpdate(t:AjaxRequestTarget)
   setOutputMarkupId(true)
@@ -98,9 +98,9 @@ abstract class JoinLadderPanel(id:String, m:IModel[Competition]) extends Panel(i
               info("Left ladder")
             }
 
-          JoinLadderPanel.this.onUpdate(target)
+          JoinCompetitionPanel.this.onUpdate(target)
 
-          target.add(JoinLadderPanel.this)
+          target.add(JoinCompetitionPanel.this)
         }
       }
       link.add(label)

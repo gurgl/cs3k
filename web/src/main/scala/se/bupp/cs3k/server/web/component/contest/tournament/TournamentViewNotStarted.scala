@@ -1,14 +1,14 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest.tournament
 
 import org.apache.wicket.markup.html.panel.Panel
-import org.apache.wicket.model.{Model, IModel}
+import org.apache.wicket.model.IModel
 
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{TournamentHelper, CompetitionService}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.model.util.ListModel
-import se.bupp.cs3k.server.model.{ Tournament}
 import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
+import se.bupp.cs3k.server.web.component.contest.tournament.TournamentNodeView
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +17,7 @@ import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndS
  * Time: 21:41
  * To change this template use File | Settings | File Templates.
  */
-class TournamentView(id:String, mod:IModel[Tournament]) extends Panel(id) {
+class TournamentViewNotStarted(id:String, mod:IModel[Integer]) extends Panel(id) {
 
   @SpringBean
   var ladderService:CompetitionService = _
@@ -25,15 +25,8 @@ class TournamentView(id:String, mod:IModel[Tournament]) extends Panel(id) {
   var buffa:ListModel[TwoGameQualifierPositionAndSize] = new ListModel[TwoGameQualifierPositionAndSize]()
 
   override def onBeforeRender() {
-    val listn: List[TwoGameQualifierPositionAndSize] = ladderService.createLayout2(mod.getObject, 20)
+    val listn: List[TwoGameQualifierPositionAndSize] = TournamentHelper.createLayout(mod.getObject)
     import scala.collection.JavaConversions.seqAsJavaList
-
-    listn.find(_.winnerPosOpt.isDefined).flatMap(_.winnerPosOpt) match {
-      case Some((left,top,nameOpt)) =>
-        add(new SvgPath("winnerPath",new Model(s"m ${left},${top} 100.0,0"),new Model("svg-tour-path-css undetermined")))
-        add(new SvgLabel("winnerLbl",new Model(left),new Model(top-TournamentHelper.lineToTextMargin),new Model(""),new Model(Some(nameOpt.getOrElse("Winner!")))))
-      case None =>
-    }
 
 
     buffa.setObject(listn)
@@ -44,7 +37,7 @@ class TournamentView(id:String, mod:IModel[Tournament]) extends Panel(id) {
 
 
   var view = new ListView[TwoGameQualifierPositionAndSize]("it", buffa) {
-    def populateItem(p1: ListItem[TwoGameQualifierPositionAndSize ]) {
+    def populateItem(p1: ListItem[TwoGameQualifierPositionAndSize]) {
       println("Rend " + p1.getIndex)
       p1.add(new TournamentNodeView("item", p1.getModel))
 

@@ -1,5 +1,6 @@
 package se.bupp.cs3k.server.web.component
 
+import contest.CompetitionParticipationList
 import org.apache.wicket.markup.html.panel.Panel
 import se.bupp.cs3k.server.service.{GameNewsService, ResultService, GameReservationService}
 import org.apache.wicket.spring.injection.annot.SpringBean

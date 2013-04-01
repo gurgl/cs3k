@@ -14,7 +14,8 @@ import scala.Predef.String
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.server.web.component.generic.AjaxLinkLabel
 import se.bupp.cs3k.server.web.component.generic.table.NiceDataTable
-import se.bupp.cs3k.server.web.component.Events.CompetitorSelectedEvent
+import se.bupp.cs3k.server.web.component.contest.Events
+import Events.CompetitorSelectedEvent
 
 
 /**

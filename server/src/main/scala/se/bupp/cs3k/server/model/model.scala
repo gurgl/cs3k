@@ -657,7 +657,7 @@ sealed abstract class AbstractNewsItemEvent(_u:User,_competition:Competition,_t:
 }
 */
 
-trait HasNewsItemFields {
+trait HasNewsItemFields extends Serializable {
   def id:lang.Long
   def competition:Competition
   def competitor1:Competitor

@@ -1,11 +1,11 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor
 
-import generic.GenericFormPanel
 import org.apache.wicket.markup.html.form.{TextField, Form}
 import se.bupp.cs3k.server.model.Team
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.TeamDao
 import se.bupp.cs3k.server.service.CompetitorService
+import se.bupp.cs3k.server.web.component.generic.GenericFormPanel
 
 /**
  * Created with IntelliJ IDEA.

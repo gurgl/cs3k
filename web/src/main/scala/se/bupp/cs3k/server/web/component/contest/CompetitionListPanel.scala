@@ -1,7 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
-import generic.table.NiceDataTable
-import generic.{FodelPropertyColumn, AjaxLinkLabel, ListSelector}
 import org.apache.wicket.markup.html.panel.{EmptyPanel, Panel}
 import se.bupp.cs3k.server.model.{Competition, Team, Ladder}
 import org.apache.wicket.markup.repeater.data.IDataProvider
@@ -12,7 +10,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.WebMarkupContainer
 import org.apache.wicket.extensions.breadcrumb.BreadCrumbBar
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CreateLadderEvent, CreateTeamEvent, CompetitionSelectedEvent}
+import Events.{CreateLadderEvent, CreateTeamEvent, CompetitionSelectedEvent}
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.extensions.markup.html.repeater.data.table.{PropertyColumn, AbstractColumn, IColumn}
 import org.apache.wicket.markup.repeater.Item
@@ -20,6 +18,8 @@ import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulato
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.model.CompetitionState
 import javax.persistence.criteria.{Root, CriteriaBuilder}
+import se.bupp.cs3k.server.web.component.generic.{FodelPropertyColumn, AjaxLinkLabel}
+import se.bupp.cs3k.server.web.component.generic.table.NiceDataTable
 
 
 /**

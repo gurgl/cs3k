@@ -1,6 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
-import generic.{AjaxLinkLabel, FodelPropertyColumn}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.{CompetitionDao, TeamMemberDao, TeamDao}
@@ -11,8 +10,9 @@ import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CompetitionSelectedEvent}
+import Events.CompetitionSelectedEvent
 import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.web.component.generic.{FodelPropertyColumn, AjaxLinkLabel}
 
 /**
  * Created with IntelliJ IDEA.
