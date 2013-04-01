@@ -8,7 +8,7 @@ package se.bupp.cs3k.server.web
  * To change this template use File | Settings | File Templates.
  */
 
-import component.contest.LadderFormPanel
+import component.contest.ContestFormPanel
 import component.contest.tournament.{TournamentNodeView, TournamentViewNotStarted}
 import se.bupp.cs3k.server.model
 import org.specs2.mutable.Specification
@@ -128,7 +128,7 @@ class WebTest extends Specification with Mockito {
       { val a = new GameSetupType('bla,"tjo","","") ; a.gameType = gt ; a.id = 1; a},
       { val a = new GameSetupType('bla2,"tjo2","",""); a.gameType = gt; a.id = 2 ; a})
 
-      var panel = new LadderFormPanel("asdf", "Blha", null)
+      var panel = new ContestFormPanel("asdf", "Blha", null)
 
       panel.gameSetupDao = gameSetupDao
       wt.startComponentInPage(panel)

@@ -19,8 +19,9 @@ import se.bupp.cs3k.server.service.dao.{UserNewsItemDao, NewsItemDao}
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.web.component.game.GameResultList
-import se.bupp.cs3k.server.web.component.{NewsItemList, TeamMembershipList, PlayerOpenLobbiesPanel}
+import se.bupp.cs3k.server.web.component.{NewsItemList, PlayerOpenLobbiesPanel}
 import se.bupp.cs3k.server.web.component.contest.CompetitionParticipationList
+import se.bupp.cs3k.server.web.component.competitor.TeamMembershipList
 
 /**
  * Created with IntelliJ IDEA.

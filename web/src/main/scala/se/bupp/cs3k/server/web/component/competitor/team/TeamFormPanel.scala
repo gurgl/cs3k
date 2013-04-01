@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component.competitor
+package se.bupp.cs3k.server.web.component.competitor.team
 
 import org.apache.wicket.markup.html.form.{TextField, Form}
 import se.bupp.cs3k.server.model.Team

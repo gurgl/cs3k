@@ -69,7 +69,7 @@ class ContestsPanel(id:String, eventOpt:Model[Option[AbstractContestEvent]]) ext
            val name = "Propose a competition"
            val model = new Model[Ladder](null)
            val createComponent = (id:String, m:Model[_]) => {
-              new LadderFormPanel(id, "Propose competition")
+              new ContestFormPanel(id, "Propose competition")
            }
          }
          (newItem,cle.target,1)

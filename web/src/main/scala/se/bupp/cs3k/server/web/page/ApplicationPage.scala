@@ -64,7 +64,7 @@ class ApplicationPage extends SessionPage {
 
 
     List(
-      ("Play", (s: String) => new PlayPanel(s)),
+      ("Play", (s: String) => new HomePanel(s)),
       (CONTEST_MENU_ITEM_TEXT, (s: String) => new ContestsPanel(s, new Model(None))),
       (COMPETITORS_MENU_ITEM, (s: String) => new CompetitorPanel(s, new Model(None)))
     ) ++ (
@@ -121,6 +121,6 @@ class ApplicationPage extends SessionPage {
   var contentContainer= new WebMarkupContainer("contentContainer")
   contentContainer.setOutputMarkupId(true)
   add(contentContainer)
-  contentContainer.add(new PlayPanel("content"))
+  contentContainer.add(new HomePanel("content"))
 
 }

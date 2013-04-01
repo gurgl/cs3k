@@ -9,7 +9,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.behavior.AttributeAppender
 import org.apache.wicket.markup.html.WebMarkupContainer
-import se.bupp.cs3k.server.web.component.PlayPanel
 import org.apache.wicket.Component
 
 

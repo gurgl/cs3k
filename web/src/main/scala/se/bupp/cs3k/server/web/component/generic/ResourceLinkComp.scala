@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.generic
 
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.markup.html.link.ResourceLink

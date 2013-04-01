@@ -53,7 +53,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
  * Time: 20:59
  * To change this template use File | Settings | File Templates.
  */
-class PlayPanel(id:String) extends Panel(id) {
+class HomePanel(id:String) extends Panel(id) {
 
   val log = LoggerFactory.getLogger(this.getClass)
 
@@ -315,7 +315,7 @@ class PlayPanel(id:String) extends Panel(id) {
 
 
 
-  //add(new LadderFormPanel("ladderform"))
+  //add(new ContestFormPanel("ladderform"))
 
 
   @LoggedInOnly

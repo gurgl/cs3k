@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.web.component
 
 import contest.Events
-import generic.{FodelPropertyColumn, AjaxLinkLabel}
+import generic.{ResourceLinkComp, FodelPropertyColumn, AjaxLinkLabel}
 import org.apache.wicket.markup.html.WebMarkupContainer
 import se.bupp.cs3k.server.model.{Competition, GameOccassion, User}
 import org.apache.wicket.model.util.ListModel

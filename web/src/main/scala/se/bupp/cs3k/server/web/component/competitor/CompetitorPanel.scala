@@ -15,7 +15,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.TeamDao
 import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel
 import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
-import team.{TeamPanel, TeamListPanel}
+import team.{TeamFormPanel, TeamPanel, TeamListPanel}
 
 /**
  * Created with IntelliJ IDEA.

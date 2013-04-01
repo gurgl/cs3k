@@ -21,7 +21,7 @@ import se.bupp.cs3k.server.web.component.generic.GenericFormPanel
  * To change this template use File | Settings | File Templates.
  */
 
-class LadderFormPanel(id:String, label:String, ladder:java.util.Map[String,AnyRef]) extends GenericFormPanel[java.util.Map[String,AnyRef]](id, label, ladder) {
+class ContestFormPanel(id:String, label:String, ladder:java.util.Map[String,AnyRef]) extends GenericFormPanel[java.util.Map[String,AnyRef]](id, label, ladder) {
 
   def this(id:String, label:String) = this(id, label, null)
 
