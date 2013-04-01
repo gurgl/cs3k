@@ -18,7 +18,8 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.{SortOrder, I
 import se.bupp.cs3k.server.service.dao.{TeamMemberDao, CompetitorDao, TeamDao}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.TeamSelectedEvent
+import se.bupp.cs3k.server.web.component.Events.CompetitorSelectedEvent
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -45,7 +46,7 @@ class TeamMembershipList(id:String, mod:IModel[User]) extends Panel(id) {
 
         cellItem.add(new AjaxLinkLabel(componentId,new PropertyModel[String](model,"id.team.nameAccessor")){
           def onClick(target: AjaxRequestTarget) {
-            send(getPage(), Broadcast.BREADTH, new TeamSelectedEvent(model.getObject.id.team, target));
+            send(getPage(), Broadcast.BREADTH, new CompetitorSelectedEvent(model.getObject.id.team, target));
           }
         })
       }

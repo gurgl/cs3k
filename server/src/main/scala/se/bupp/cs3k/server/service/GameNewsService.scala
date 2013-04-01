@@ -98,10 +98,10 @@ class GameNewsService {
 
 
   //private def readEvent()
-
+  /*
   def getPlayerLatestMessages(user:User,time:Instant) = {
     val items: List[UserNewsItem] = newsItemDao.findByUser(user, getDefaultInterval(time))
-    items.map(_.newsItem)
+    //items.map(_.newsItem)
   }
 
 
@@ -120,6 +120,7 @@ class GameNewsService {
     newsItemDao.findAll(getDefaultInterval(time))
   }
 
+  */
   def getDefaultInterval(time: Instant): Interval = {
     new Interval(time.minus(Weeks.weeks(4).toStandardDuration),time)
   }

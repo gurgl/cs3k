@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.web.component
 
 import org.apache.wicket.ajax.AjaxRequestTarget
-import org.apache.wicket.model.IModel
+import org.apache.wicket.model.{LoadableDetachableModel, IModel}
 import se.bupp.cs3k.server.model.{HasNewsItemFields, GameResult, Competition}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.util.ListModel
@@ -18,6 +18,8 @@ import se.bupp.cs3k.model.CompetitionState
 import org.apache.wicket.markup.html.link.BookmarkablePageLink
 import se.bupp.cs3k.server.web.page.SigninPage
 import org.joda.time.Instant
+import se.bupp.cs3k.server.service.dao.NewsItemDao
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,7 +28,7 @@ import org.joda.time.Instant
  * Time: 01:22
  * To change this template use File | Settings | File Templates.
  */
-class CompetitionOverview(cId:String ,model:IModel[Competition]) extends Panel(cId){
+class CompetitionOverview(cId:String ,modl:IModel[Competition]) extends Panel(cId){
 
   @SpringBean
   var resultService:ResultService = _
@@ -37,25 +39,28 @@ class CompetitionOverview(cId:String ,model:IModel[Competition]) extends Panel(c
   @SpringBean
   var gameNewsService:GameNewsService = _
 
+  @SpringBean
+  var newsItemDao:NewsItemDao = _
+
   @LoggedInOnly
   class COJoinLadderPanel(id:String, m:IModel[Competition]) extends JoinLadderPanel(id,m) {
-    override def isVisible = super.isVisible && List(CompetitionState.SIGNUP).contains(model.getObject.state)
+    override def isVisible = super.isVisible && List(CompetitionState.SIGNUP).contains(modl.getObject.state)
     def onUpdate(t: AjaxRequestTarget) {
 
     }
   }
   @AnonymousOnly
   class LoginToJoin(id:String) extends WebMarkupContainer(id) {
-    override def isVisible = super.isVisible && List(CompetitionState.SIGNUP).contains(model.getObject.state)
+    override def isVisible = super.isVisible && List(CompetitionState.SIGNUP).contains(modl.getObject.state)
 
     add(new BookmarkablePageLink[String]("login",classOf[SigninPage]))
   }
 
-  add(new COJoinLadderPanel("joinPanel",model))
+  add(new COJoinLadderPanel("joinPanel",modl))
   add(new LoginToJoin("loginToJoin"))
 
   import scala.collection.JavaConversions.seqAsJavaList
-  var all  = new ListModel(resultService.findByCompetition(model.getObject))
+  var all  = new ListModel(resultService.findByCompetition(modl.getObject))
 
   add(new ListView("lastGames", all) {
     def populateItem(item: ListItem[GameResult]) {
@@ -75,14 +80,26 @@ class CompetitionOverview(cId:String ,model:IModel[Competition]) extends Panel(c
 
   import scala.collection.JavaConversions.seqAsJavaList
 
-  val listModel = new ListModel[HasNewsItemFields](gameNewsService.getCompetitionLatestMessages(model.getObject,new Instant))
-  add(new NewsItemList("news",listModel))
+  val provider = new SortableDataProvider[HasNewsItemFields,String]() {
+    import scala.collection.JavaConversions.asJavaIterator
+
+    def iterator(p1: Long, p2: Long) =
+      newsItemDao.findByCompetition(modl.getObject,gameNewsService.getDefaultInterval(new Instant()),Range(p1.toInt,p2.toInt)).toIterator
+
+    def size() = newsItemDao.findByCompetitionCount(modl.getObject,gameNewsService.getDefaultInterval(new Instant()))
+
+    def model(p1: HasNewsItemFields) = new LoadableDetachableModel[HasNewsItemFields](p1) {
+      def load() = newsItemDao.find(p1.id).get
+    }
+  }
+  //val listModel = new ListModel[HasNewsItemFields](newsItemDao.find(modl.getObject,new Instant))
+  add(new NewsItemList("news",provider))
 
 
   add(new AjaxLink("startGameDebug") {
 
     def onClick(p1: AjaxRequestTarget) {
-      var ladder = model.getObject
+      var ladder = modl.getObject
 
       competitionService.startCompetition(ladder)
     }

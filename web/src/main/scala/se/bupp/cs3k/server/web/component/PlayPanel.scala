@@ -5,7 +5,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.form._
 import org.apache.wicket.markup.{MarkupStream, MarkupType, MarkupFragment, ComponentTag}
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter
-import org.apache.wicket.model.{IModel, Model}
+import org.apache.wicket.model.{LoadableDetachableModel, IModel, Model}
 import org.apache.wicket.ajax.form.{OnChangeAjaxBehavior, AjaxFormValidatingBehavior}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.validation.validator.StringValidator
@@ -23,7 +23,7 @@ import se.bupp.cs3k.server.web._
 import auth.{LoggedInOnly, AnonymousOnly}
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service._
-import se.bupp.cs3k.server.service.dao.{GameResultDao, CompetitorDao}
+import dao.{NewsItemDao, GameResultDao, CompetitorDao}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.{MarkupContainer, RestartResponseException}
 import org.slf4j.LoggerFactory
@@ -41,6 +41,7 @@ import se.bupp.cs3k.model.CompetitionState
 import scala.Some
 import se.bupp.cs3k.server.model.User
 import org.joda.time.Instant
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 
 /**
  * Created with IntelliJ IDEA.
@@ -66,6 +67,10 @@ class PlayPanel(id:String) extends Panel(id) {
 
   @SpringBean
   var gameNewsService:GameNewsService = _
+
+  @SpringBean
+  var newsItemDao:NewsItemDao = _
+
 
 
   @SpringBean
@@ -260,8 +265,21 @@ class PlayPanel(id:String) extends Panel(id) {
   }
 
   import scala.collection.JavaConversions.seqAsJavaList
-  val listModel = new ListModel[HasNewsItemFields](gameNewsService.getGlobalLatestMessages(new Instant))
-  add(new NewsItemList("news",listModel))
+  val provider = new SortableDataProvider[NewsItem,String]() {
+    import scala.collection.JavaConversions.asJavaIterator
+
+    def iterator(p1: Long, p2: Long) =
+      newsItemDao.findAll(gameNewsService.getDefaultInterval(new Instant()),Range(p1.toInt,p2.toInt)).toIterator
+
+    def size() = newsItemDao.findAllCount(gameNewsService.getDefaultInterval(new Instant()))
+
+    def model(p1: NewsItem) = new LoadableDetachableModel[NewsItem](p1) {
+      def load() = newsItemDao.find(p1.id).get
+    }
+  }
+
+  //val listModel = new ListModel[HasNewsItemFields](gameNewsService.getGlobalLatestMessages(new Instant))
+  add(new NewsItemList("news",provider))
 
 
   /*

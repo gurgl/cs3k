@@ -49,7 +49,31 @@ class CompetitorPanel(id:String,eventOpt:Model[Option[AbstractCompetitorEvent]])
     }
   }) {
     override def pa:PartialFunction[Any,(BreadCrumbModel,AjaxRequestTarget,Int)] = {
-      case lse:TeamSelectedEvent =>
+      case lse: CompetitorSelectedEvent =>
+        lse.competitor match {
+          case t:Team =>
+            val newItem = new BreadCrumbModel() {
+              val name = t.name
+              val model = new Model[Team](t)
+              val createComponent = (id:String, m:Model[_]) => {
+                var ladMod = m.asInstanceOf[Model[Team]]
+                new TeamPanel(id, ladMod)
+              }
+            }
+            (newItem,lse.target,1)
+          case u:User =>
+            val newItem = new BreadCrumbModel() {
+              val name = u.username
+              val model = new Model[User](u)
+              val createComponent = (id:String, m:Model[_]) => {
+                var ladMod = m.asInstanceOf[Model[User]]
+                new PlayerOverview(id, ladMod)
+              }
+            }
+            (newItem,lse.target,1)
+
+        }
+      /*case lse:TeamSelectedEvent =>
         println("Receiving event spec")
         val newItem = new BreadCrumbModel() {
           val name = lse.team.name
@@ -72,7 +96,7 @@ class CompetitorPanel(id:String,eventOpt:Model[Option[AbstractCompetitorEvent]])
           }
         }
         (newItem,lse.target,1)
-
+       */
       case lse:CreateTeamEvent =>
         println("Receiving event spec")
         val newItem = new BreadCrumbModel() {

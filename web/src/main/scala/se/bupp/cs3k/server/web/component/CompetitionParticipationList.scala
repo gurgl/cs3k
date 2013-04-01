@@ -11,7 +11,7 @@ import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CompetitionSelectedEvent, TeamSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{CompetitionSelectedEvent}
 import se.bupp.cs3k.server.model.User
 
 /**

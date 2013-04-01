@@ -11,11 +11,12 @@ import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.ajax.markup.html.AjaxLink
 
 import org.apache.wicket.event.IEvent
-import se.bupp.cs3k.server.model.{User, Competition, Team, Ladder}
+import se.bupp.cs3k.server.model._
 import org.apache.wicket.Component
 import org.apache.wicket.behavior.AttributeAppender
 import org.apache.wicket.markup.ComponentTag
 import se.bupp.cs3k.server.web.component.Events.{AbstractContestEvent, CreateLadderEvent, CompetitionSelectedEvent}
+import se.bupp.cs3k.server.model.User
 
 
 /**
@@ -32,8 +33,9 @@ object Events {
   sealed abstract class AbstractCompetitorEvent(target:AjaxRequestTarget) extends AbstractEvent(target)
 
   class CompetitionSelectedEvent(var ladder:Competition, target:AjaxRequestTarget ) extends AbstractContestEvent(target)
-  class TeamSelectedEvent(var team:Team, target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
-  class PlayerSelectedEvent(var user:User, target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
+  //class TeamSelectedEvent(var team:Team, target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
+  //class PlayerSelectedEvent(var user:User, target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
+  class CompetitorSelectedEvent(var competitor:Competitor, target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
   class CreateTeamEvent(target:AjaxRequestTarget ) extends AbstractCompetitorEvent(target)
   class CreateLadderEvent(target:AjaxRequestTarget ) extends AbstractContestEvent(target)
 

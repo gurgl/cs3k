@@ -15,7 +15,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import se.bupp.cs3k.server.Util
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{CreateTeamEvent, TeamSelectedEvent, CompetitionSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{CompetitorSelectedEvent, CreateTeamEvent, CompetitionSelectedEvent}
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.behavior.AttributeAppender
@@ -51,7 +51,7 @@ class TeamListPanel(id:String,provider:SortableDataProvider[Team,String]) extend
       {
         cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"name")) {
           def onClick(target: AjaxRequestTarget) {
-            send(getPage(), Broadcast.BREADTH, new TeamSelectedEvent(model.getObject, target));
+            send(getPage(), Broadcast.BREADTH, new CompetitorSelectedEvent(model.getObject, target));
           }
         });
       }

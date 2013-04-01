@@ -8,7 +8,7 @@ import org.apache.wicket.model._
 import org.apache.wicket.ajax.AjaxRequestTarget
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.{PlayerSelectedEvent, CreateTeamEvent, TeamSelectedEvent}
+import se.bupp.cs3k.server.web.component.Events.{CompetitorSelectedEvent, CreateTeamEvent}
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.extensions.markup.html.repeater.data.table._
@@ -38,7 +38,7 @@ class PlayerListPanel(id:String, provider:SortableDataProvider[User,String]) ext
       {
         cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"username")) {
           def onClick(target: AjaxRequestTarget) {
-            send(getPage(), Broadcast.BREADTH, new PlayerSelectedEvent(model.getObject, target));
+            send(getPage(), Broadcast.BREADTH, new CompetitorSelectedEvent(model.getObject, target));
           }
         });
       }

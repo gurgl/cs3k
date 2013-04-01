@@ -7,7 +7,6 @@ import se.bupp.cs3k.server.service.dao.UserDao
 import org.apache.wicket.model._
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
-import se.bupp.cs3k.server.web.component.Events.PlayerSelectedEvent
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.extensions.markup.html.repeater.data.table._
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator
@@ -15,6 +14,7 @@ import scala.Predef.String
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.server.web.component.generic.AjaxLinkLabel
 import se.bupp.cs3k.server.web.component.generic.table.NiceDataTable
+import se.bupp.cs3k.server.web.component.Events.CompetitorSelectedEvent
 
 
 /**
@@ -36,7 +36,7 @@ class TeamMemberListPanel(id:String, provider:SortableDataProvider[TeamMember,St
        {
          cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"id.user.username")) {
            def onClick(target: AjaxRequestTarget) {
-             send(getPage(), Broadcast.BREADTH, new PlayerSelectedEvent(model.getObject.id.user, target));
+             send(getPage(), Broadcast.BREADTH, new CompetitorSelectedEvent(model.getObject.id.user, target));
            }
          });
        }
