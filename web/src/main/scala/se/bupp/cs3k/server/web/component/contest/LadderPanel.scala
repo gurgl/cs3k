@@ -1,8 +1,6 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
-import contest.tournament.{TournamentView, TournamentViewNotStarted}
-import contest.{CompetitionOverview, CompetitionPariticipantListPanel}
-import generic.VertTabbedPanel
+import ladder.LadderStandingsPanel
 import org.apache.wicket.markup.html.panel.{EmptyPanel, Panel}
 import org.apache.wicket.model.{Model, IModel}
 import se.bupp.cs3k.server.model.{Tournament, Competition, Ladder}
@@ -14,6 +12,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{CompetitionService, CompetitorService}
 import scala._
 import org.apache.wicket.Component
+import tournament.{TournamentViewNotStarted, TournamentView}
+import se.bupp.cs3k.server.web.component.generic.VertTabbedPanel
 
 /**
  * Created with IntelliJ IDEA.

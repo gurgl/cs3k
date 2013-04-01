@@ -8,8 +8,8 @@ package se.bupp.cs3k.server.web
  * To change this template use File | Settings | File Templates.
  */
 
+import component.contest.LadderFormPanel
 import component.contest.tournament.{TournamentNodeView, TournamentViewNotStarted}
-import component.{LadderFormPanel}
 import se.bupp.cs3k.server.model
 import org.specs2.mutable.Specification
 import se.bupp.cs3k.server.model.GameType

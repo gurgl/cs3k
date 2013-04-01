@@ -6,7 +6,6 @@ import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.GameReservationService
 import se.bupp.cs3k.server.model.{TeamMember, Team, GameOccassion, User}
-import se.bupp.cs3k.server.web.{WicketApplication, WiaSession}
 import org.apache.wicket.extensions.markup.html.repeater.data.table._
 import org.apache.wicket.model.{PropertyModel, LoadableDetachableModel, IModel, Model}
 import org.apache.wicket.markup.repeater.Item

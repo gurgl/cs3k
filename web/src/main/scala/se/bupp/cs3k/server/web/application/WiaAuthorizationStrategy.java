@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web;
+package se.bupp.cs3k.server.web.application;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
@@ -8,7 +8,6 @@ import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListen
 import se.bupp.cs3k.server.model.User;
 import se.bupp.cs3k.server.web.auth.AnonymousOnly;
 import se.bupp.cs3k.server.web.auth.LoggedInOnly;
-import se.bupp.cs3k.server.web.page.SessionPage;
 import se.bupp.cs3k.server.web.page.SigninPage;
 
 public final class WiaAuthorizationStrategy implements

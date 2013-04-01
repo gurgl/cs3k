@@ -1,6 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest
 
-import generic.GenericFormPanel
 import org.apache.wicket.markup.html.form._
 import se.bupp.cs3k.model.{CompetitionState, CompetitorType}
 import se.bupp.cs3k.server.model.{Tournament, Competition, GameSetupType, Ladder}
@@ -12,6 +11,7 @@ import org.apache.wicket.validation.{IValidatable, IValidator}
 import org.apache.wicket.validation.validator.StringValidator
 import org.apache.wicket.model.Model
 import se.bupp.cs3k.server.service.CompetitionService
+import se.bupp.cs3k.server.web.component.generic.GenericFormPanel
 
 /**
  * Created with IntelliJ IDEA.

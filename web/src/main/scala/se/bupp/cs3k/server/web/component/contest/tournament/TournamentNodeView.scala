@@ -7,7 +7,7 @@ import org.apache.wicket.markup.html.WebComponent
 import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
 import se.bupp.cs3k.server.service.TournamentHelper
 import org.apache.wicket.markup.html.panel.Panel
-import se.bupp.cs3k.server.web.component.SvgLabel
+import se.bupp.cs3k.server.web.component.contest.tournament.SvgLabel
 
 /**
  * Created with IntelliJ IDEA.

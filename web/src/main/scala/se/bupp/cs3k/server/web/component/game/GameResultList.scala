@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.game
 
 import org.apache.wicket.model.IModel
 import org.apache.wicket.model.util.ListModel

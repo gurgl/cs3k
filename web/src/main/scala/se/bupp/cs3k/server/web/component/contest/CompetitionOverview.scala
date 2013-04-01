@@ -5,7 +5,6 @@ import org.apache.wicket.model.{LoadableDetachableModel, IModel}
 import se.bupp.cs3k.server.model.{HasNewsItemFields, GameResult, Competition}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.util.ListModel
-import se.bupp.cs3k.server.web.WiaSession
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
@@ -21,6 +20,7 @@ import org.joda.time.Instant
 import se.bupp.cs3k.server.service.dao.NewsItemDao
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.server.web.component.{NewsItemList}
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.

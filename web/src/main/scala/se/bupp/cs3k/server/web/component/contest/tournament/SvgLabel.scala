@@ -1,6 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.contest.tournament
 
-import generic.AjaxLinkLabel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
 import org.apache.wicket.behavior.AttributeAppender
@@ -8,6 +7,7 @@ import org.apache.wicket.model.IModel
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.model.Model
+import se.bupp.cs3k.server.web.component.generic.AjaxLinkLabel
 
 /**
  * Created with IntelliJ IDEA.

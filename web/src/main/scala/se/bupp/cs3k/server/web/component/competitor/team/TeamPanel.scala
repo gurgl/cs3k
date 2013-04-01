@@ -1,7 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor.team
 
-import competitor.{CompetitorOverview, TeamMemberListPanel, PlayerListPanel}
-import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{LoadableDetachableModel, Model, IModel}
 import se.bupp.cs3k.server.model.{TeamMember, Team}
@@ -10,6 +8,8 @@ import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.{TeamMemberDao, TeamDao}
+import se.bupp.cs3k.server.web.component.generic.VertTabbedPanel
+import se.bupp.cs3k.server.web.component.competitor.{TeamMemberListPanel, CompetitorOverview}
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor
 
 import se.bupp.cs3k.server.web.auth.LoggedInOnly
 import org.apache.wicket.model.{AbstractReadOnlyModel, IModel}
@@ -7,9 +7,9 @@ import org.apache.wicket.markup.html.panel.{FeedbackPanel, Panel}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.markup.html.basic.Label
-import se.bupp.cs3k.server.web.WiaSession
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.ajax.markup.html.AjaxLink
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.

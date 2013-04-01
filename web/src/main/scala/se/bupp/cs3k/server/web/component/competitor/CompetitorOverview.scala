@@ -2,7 +2,6 @@ package se.bupp.cs3k.server.web.component.competitor
 
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.util.ListModel
-import se.bupp.cs3k.server.web.WiaSession
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{GameNewsService, ResultService}
 import org.apache.wicket.ajax.AjaxRequestTarget
@@ -11,7 +10,9 @@ import se.bupp.cs3k.server.model.{NewsItem, UserNewsItem, HasNewsItemFields, Tea
 import org.joda.time.Instant
 import se.bupp.cs3k.server.service.dao.NewsItemDao
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
-import se.bupp.cs3k.server.web.component.{JoinTeamPanel, NewsItemList, GameResultList}
+import se.bupp.cs3k.server.web.component.{NewsItemList}
+import se.bupp.cs3k.server.web.component.game.GameResultList
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.

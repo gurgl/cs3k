@@ -8,8 +8,6 @@ import se.bupp.cs3k.server.service.dao.TeamDao
 import se.bupp.cs3k.server.service.dao.UserDao
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{GameReservationService, TeamService, CompetitionService}
-import se.bupp.cs3k.server.web.WiaSession
-import se.bupp.cs3k.server.web.{WiaSession, WicketApplication}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.ajax.markup.html
 import org.apache.wicket.markup.html.basic.Label
@@ -20,6 +18,7 @@ import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider, ListData
 import org.apache.wicket.markup.repeater.Item
 import org.slf4j.LoggerFactory
 import se.bupp.cs3k.server.web.auth.LoggedInOnly
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.

@@ -4,7 +4,6 @@ import contest.Events
 import generic.{FodelPropertyColumn, AjaxLinkLabel}
 import org.apache.wicket.markup.html.WebMarkupContainer
 import se.bupp.cs3k.server.model.{Competition, GameOccassion, User}
-import se.bupp.cs3k.server.web.{WicketApplication, WiaSession}
 import org.apache.wicket.model.util.ListModel
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.request.mapper.parameter.PageParameters
@@ -27,6 +26,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.{SortParam, Single
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.{SortOrder, ISortState}
 import se.bupp.cs3k.server.model.User
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar
+import se.bupp.cs3k.server.web.application.{WicketApplication, WiaSession}
 
 /**
  * Created with IntelliJ IDEA.

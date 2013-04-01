@@ -16,7 +16,6 @@ import org.apache.wicket.markup.ComponentTag
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel
 import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
-import se.bupp.cs3k.server.web.component.{LadderFormPanel, LadderPanel}
 import se.bupp.cs3k.server.web.component.contest.Events.{CreateLadderEvent, AbstractContestEvent, CompetitionSelectedEvent}
 
 

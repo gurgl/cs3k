@@ -14,9 +14,11 @@ import org.apache.wicket.model.{Model, AbstractReadOnlyModel}
 import org.apache.wicket.model.util.ListModel
 import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter
 import se.bupp.cs3k.server.web._
+import application.WiaSession
 import auth.{LoggedInOnly, AnonymousOnly}
 import component._
 import competitor.CompetitorPanel
+import competitor.player.PlayerPanel
 import contest.{Events, ContestsPanel}
 import scala.Some
 import scala.Some

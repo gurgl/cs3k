@@ -1,8 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor.team
 
-import contest.Events
-import generic.table.NiceDataTable
-import generic.{AjaxLinkLabel, ListSelector}
 import org.apache.wicket.markup.html.panel.Panel
 import se.bupp.cs3k.server.model.Team
 import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider}
@@ -11,12 +8,10 @@ import se.bupp.cs3k.server.service.dao.TeamDao
 import org.apache.wicket.model._
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.WebMarkupContainer
-import se.bupp.cs3k.server.web.WiaSession
 import org.springframework.transaction.PlatformTransactionManager
 import se.bupp.cs3k.server.Util
 import se.bupp.cs3k.server.service.TeamService
 import org.apache.wicket.event.Broadcast
-import Events.{CompetitorSelectedEvent, CreateTeamEvent, CompetitionSelectedEvent}
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.behavior.AttributeAppender
@@ -27,6 +22,10 @@ import java.lang.String
 import scala.Predef.String
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
+import se.bupp.cs3k.server.web.component.generic.AjaxLinkLabel
+import se.bupp.cs3k.server.web.component.contest.Events.{CreateTeamEvent, CompetitorSelectedEvent}
+import se.bupp.cs3k.server.web.component.generic.table.NiceDataTable
+import se.bupp.cs3k.server.web.application.WiaSession
 
 
 /**

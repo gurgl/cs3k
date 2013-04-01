@@ -1,6 +1,7 @@
 package se.bupp.cs3k.server.web.component
 
 import contest.CompetitionListPanel
+import game.GameResultList
 import org.apache.wicket.markup.html.panel.{FeedbackPanel, Panel}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import org.apache.wicket.markup.html.form._
@@ -21,6 +22,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.markup.html.link.{ResourceLink, BookmarkablePageLink, Link}
 import org.apache.wicket.markup.html.basic.Label
 import se.bupp.cs3k.server.web._
+import application.{WicketApplication, WiaSession}
 import auth.{LoggedInOnly, AnonymousOnly}
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.service._

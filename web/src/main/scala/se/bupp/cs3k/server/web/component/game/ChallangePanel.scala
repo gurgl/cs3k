@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.game
 
 import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider}
 import se.bupp.cs3k.server.model.{Competition, User, Team, Competitor}
@@ -7,12 +7,12 @@ import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.ajax.markup.html.AjaxLink
 import org.apache.wicket.ajax.AjaxRequestTarget
-import se.bupp.cs3k.server.web.WiaSession
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.{CompetitorDao, UserDao}
 import se.bupp.cs3k.server.service.GameReservationService
 import org.apache.wicket.markup.html.panel.Panel
 import org.slf4j.LoggerFactory
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.

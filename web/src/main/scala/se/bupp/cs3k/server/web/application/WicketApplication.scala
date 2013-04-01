@@ -1,4 +1,4 @@
-package se.bupp.cs3k.server.web
+package se.bupp.cs3k.server.web.application
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +17,6 @@ import org.apache.wicket.util.resource.{FileResourceStream, IResourceStream, Abs
 import java.io.{File, PrintWriter, IOException, OutputStream}
 import org.apache.wicket.request.resource._
 import java.util.Scanner
-import page.ApplicationPage
 import se.bupp.cs3k.{server, Greeting}
 import org.apache.wicket.request.resource.IResource.Attributes
 import org.apache.wicket.request.resource.AbstractResource.{WriteCallback, ResourceResponse}
@@ -29,11 +28,11 @@ import org.springframework.stereotype.{Component, Service}
 import javax.persistence._
 import org.springframework.transaction.annotation.{Propagation, Transactional}
 import se.bupp.cs3k.server._
-import facade.lobby.{LobbyServer}
+import facade.lobby.LobbyServer
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.Greeting
 import org.apache.wicket.request.{Response, Request}
-import se.bupp.cs3k.server.facade.{WebStartResourceFactory}
+import se.bupp.cs3k.server.facade.WebStartResourceFactory
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.support.{FileSystemXmlApplicationContext, ClassPathXmlApplicationContext}
 import service.{RankingService, GameReservationService}
@@ -42,6 +41,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.context.WebApplicationContext
 import se.bupp.cs3k.server.model.Model._
 import java.net.URI
+import web.page.ApplicationPage
 
 
 //import akka.actor.{Props, Actor, ActorSystem}

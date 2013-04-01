@@ -1,6 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor.player
 
-import contest.CompetitionParticipationList
 import org.apache.wicket.markup.html.panel.Panel
 import se.bupp.cs3k.server.service.{GameNewsService, ResultService, GameReservationService}
 import org.apache.wicket.spring.injection.annot.SpringBean
@@ -8,7 +7,6 @@ import org.apache.wicket.model.util.ListModel
 import se.bupp.cs3k.server.model._
 import se.bupp.cs3k.server.web.auth.LoggedInOnly
 import org.apache.wicket.markup.html.WebMarkupContainer
-import se.bupp.cs3k.server.web.{WicketApplication, WiaSession}
 import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.request.resource.ResourceReference
@@ -20,6 +18,9 @@ import org.joda.time.Instant
 import se.bupp.cs3k.server.service.dao.{UserNewsItemDao, NewsItemDao}
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.server.model.User
+import se.bupp.cs3k.server.web.component.game.GameResultList
+import se.bupp.cs3k.server.web.component.{NewsItemList, TeamMembershipList, PlayerOpenLobbiesPanel}
+import se.bupp.cs3k.server.web.component.contest.CompetitionParticipationList
 
 /**
  * Created with IntelliJ IDEA.

@@ -9,7 +9,6 @@ import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.model.util.ListModel
 import se.bupp.cs3k.server.model.Tournament
 import se.bupp.cs3k.server.service.TournamentHelper.TwoGameQualifierPositionAndSize
-import se.bupp.cs3k.server.web.component.{SvgLabel}
 
 /**
  * Created with IntelliJ IDEA.

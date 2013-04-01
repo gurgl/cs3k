@@ -2,6 +2,7 @@ package se.bupp.cs3k.server.web.component.competitor
 
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{LoadableDetachableModel, Model}
+import player.PlayerOverview
 import se.bupp.cs3k.server.model.{User, Team, Ladder}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
@@ -14,7 +15,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.TeamDao
 import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel
 import se.bupp.cs3k.server.web.component.generic.breadcrumb.BreadCrumbPanel.BreadCrumbModel
-import se.bupp.cs3k.server.web.component.{PlayerOverview, TeamPanel, TeamListPanel}
+import team.{TeamPanel, TeamListPanel}
 
 /**
  * Created with IntelliJ IDEA.

@@ -9,10 +9,10 @@ import se.bupp.cs3k.server.service.dao.{CompetitorDao, UserDao}
 import org.slf4j.LoggerFactory
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider}
-import se.bupp.cs3k.server.web.WiaSession
 import org.apache.wicket.markup.repeater.Item
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.ajax.markup.html.AjaxLink
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.

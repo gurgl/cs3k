@@ -9,8 +9,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.UserDao
 import se.bupp.cs3k.server.model.User
 import org.apache.wicket.ajax.markup.html.AjaxLink
-import se.bupp.cs3k.server.web.WicketApplication
 import org.apache.wicket.ajax.AjaxRequestTarget
+import se.bupp.cs3k.server.web.application.WicketApplication
 
 /**
  * Created with IntelliJ IDEA.

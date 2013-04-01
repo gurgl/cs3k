@@ -5,11 +5,11 @@ import se.bupp.cs3k.server.model.{User, Team, Competition}
 import org.apache.wicket.markup.html.panel.Panel
 import se.bupp.cs3k.model.CompetitorType
 import se.bupp.cs3k.server.web.component.competitor.PlayerListPanel
-import se.bupp.cs3k.server.web.component.TeamListPanel
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.dao.{CompetitorDao, TeamDao}
 import org.apache.wicket.Component
+import se.bupp.cs3k.server.web.component.competitor.team.TeamListPanel
 
 /**
  * Created with IntelliJ IDEA.

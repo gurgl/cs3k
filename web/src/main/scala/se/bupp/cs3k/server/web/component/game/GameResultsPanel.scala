@@ -1,6 +1,5 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.game
 
-import generic.ListSelector
 import org.apache.wicket.markup.html.panel.Panel
 import se.bupp.cs3k.server.model.{GameResult, GameOccassion, Ladder}
 import org.apache.wicket.markup.repeater.data.{DataView, IDataProvider}

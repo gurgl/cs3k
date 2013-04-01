@@ -1,11 +1,11 @@
-package se.bupp.cs3k.server.web.component
+package se.bupp.cs3k.server.web.component.competitor.player
 
-import generic.VertTabbedPanel
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
 import org.apache.wicket.model.Model
-import se.bupp.cs3k.server.web.WiaSession
+import se.bupp.cs3k.server.web.component.generic.VertTabbedPanel
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.

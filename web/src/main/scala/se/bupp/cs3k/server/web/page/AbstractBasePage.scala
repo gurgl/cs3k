@@ -11,7 +11,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.markup.head.IHeaderResponse
 import org.apache.wicket.bootstrap.Bootstrap
-import se.bupp.cs3k.server.web.WicketApplication
+import se.bupp.cs3k.server.web.application.WicketApplication
 
 class AbstractBasePage( pars:PageParameters) extends WebPage(pars) {
   def this() = this(null)
