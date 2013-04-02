@@ -319,7 +319,7 @@ class HomePanel(id:String) extends Panel(id) {
 
 
   @LoggedInOnly
-  class FFChPanel(id:String) extends PlayerOpenLobbiesPanel(id) {
+  class FFChPanel(id:String) extends PlayerOpenLobbiesPanel(id,new Model[User](WiaSession.get().getUser)) {
     override def isVisible = super.isVisible && table.getItemCount > 0
   }
 

@@ -9,7 +9,7 @@ import org.apache.wicket.markup.html.list.{ListItem, ListView}
 import org.apache.wicket.request.mapper.parameter.PageParameters
 import org.apache.wicket.request.resource.ResourceReference
 import org.apache.wicket.markup.html.link.ResourceLink
-import org.apache.wicket.markup.html.panel.Panel
+import org.apache.wicket.markup.html.panel.{EmptyPanel, Panel}
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.GameReservationService
 import org.apache.wicket.markup.repeater.data.{ListDataProvider, IDataProvider, DataView}
@@ -27,6 +27,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.{SortOrder, I
 import se.bupp.cs3k.server.model.User
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar
 import se.bupp.cs3k.server.web.application.{WicketApplication, WiaSession}
+import org.apache.wicket.markup.html.basic.Label
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,16 +36,18 @@ import se.bupp.cs3k.server.web.application.{WicketApplication, WiaSession}
  * Time: 18:28
  * To change this template use File | Settings | File Templates.
  */
-class PlayerOpenLobbiesPanel(id:String) extends Panel(id) {
+class PlayerOpenLobbiesPanel(id:String,modl:IModel[User]) extends Panel(id) {
 
 
   @SpringBean
   var gameReservationService:GameReservationService = _
 
-  var user: User = WiaSession.get().getUser
+  var usr: User = WiaSession.get().getUser
 
   import scala.collection.JavaConversions.seqAsJavaList
 
+
+  val isOwningUser = usr == modl.getObject
 
 
   val columns = List[IColumn[GameOccassion,String]] (
@@ -53,18 +56,23 @@ class PlayerOpenLobbiesPanel(id:String) extends Panel(id) {
       def populateItem(cellItem:Item[ICellPopulator[GameOccassion]], componentId:String, model:IModel[GameOccassion])
       {
         val go = model.getObject
-        val parameters: PageParameters = new PageParameters()
-        //parameters.add("competitor_id", selectionModel.getObject.id)
-        parameters.add("user_id", user.id)
-        parameters.add("game_occassion_id", go.id)
 
 
-        val ref = new ResourceReference("bupp") {
-          def getResource = WicketApplication.get.gameResource
+
+        if (isOwningUser) {
+          val parameters: PageParameters = new PageParameters()
+          //parameters.add("competitor_id", selectionModel.getObject.id)
+          parameters.add("user_id",  modl.getObject.id)
+          parameters.add("game_occassion_id", go.id)
+          val ref = new ResourceReference("bupp") {
+            def getResource = WicketApplication.get.gameResource
+          }
+
+
+          cellItem.add(new ResourceLinkComp(componentId,ref,parameters))
+        } else {
+          cellItem.add(new EmptyPanel(componentId))
         }
-
-
-        cellItem.add(new ResourceLinkComp(componentId,ref,parameters))
       }
     },
     new PropertyColumn(new Model("Setup"),"game.name"),
@@ -98,7 +106,7 @@ class PlayerOpenLobbiesPanel(id:String) extends Panel(id) {
 
   var challanges: ISortableDataProvider[GameOccassion,String] = new ListDataProvider(
     {
-      gameReservationService.findUnplayedGamesForCompetitor(user)
+      gameReservationService.findUnplayedGamesForCompetitor( modl.getObject)
     }
     ) with ISortableDataProvider[GameOccassion,String] {
     var state:SingleSortState[String] = new SingleSortState[String]

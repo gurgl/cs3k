@@ -68,10 +68,11 @@ class PlayerOverview(id:String, modl:IModel[User]) extends Panel(id) {
     }
   })*/
 
+  val isRenderedByUserHimself = Option(WiaSession.get().getUser).exists( u => modl.getObject.id == u.id)
+
   add(new GameResultList("lastGames", all))
 
-
-  add(new PlayerOpenLobbiesPanel("openLobbies"))
+  add(new PlayerOpenLobbiesPanel("openLobbies",modl))
 
   add(new TeamMembershipList("teams", modl))
 
@@ -90,12 +91,10 @@ class PlayerOverview(id:String, modl:IModel[User]) extends Panel(id) {
     }
   }
   //val listModel = new ListModel[HasNewsItemFields](gameNewsService.getPlayerLatestMessages(model.getObject,new Instant))
-  add(new NewsItemList("userNews",provider));
+  add(new NewsItemList("userNews",provider,isRenderedByUserHimself));
 
   override def onAfterRender() {
     super.onAfterRender()
-    Option(WiaSession.get().getUser).foreach( u =>
-      if (modl.getObject.id == u.id) userNewsItemDao.markAllAsRead(u)
-    )
+      if (isRenderedByUserHimself) userNewsItemDao.markAllAsRead(modl.getObject)
   }
 }

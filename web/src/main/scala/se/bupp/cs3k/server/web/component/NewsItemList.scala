@@ -56,7 +56,7 @@ object NewsItemList {
 
 }
 
-class NewsItemList[T <: HasNewsItemFields](id:String, m:SortableDataProvider[T,String]) extends Panel(id) {
+class NewsItemList[T <: HasNewsItemFields](id:String, m:SortableDataProvider[T,String],doHighliteUserMessages:Boolean = false) extends Panel(id) {
     import NewsItemList._
 
   val dataConv = new RelativeDateConverter(true)
@@ -73,9 +73,9 @@ class NewsItemList[T <: HasNewsItemFields](id:String, m:SortableDataProvider[T,S
         val component: Component = createMessage(news, p2)
         //container.add(component)
         item.add(component)
-        component.add(new AttributeAppender("style",new Model("" + (if(!news.seen) "font-weight:bold;" else "")),";"))
-
-
+        if (doHighliteUserMessages) {
+          component.add(new AttributeAppender("style",new Model("" + (if(!news.seen) "font-weight:bold;" else "")),";"))
+        }
       }
     },
     new AbstractColumn[T, String](new Model("blubb")) {
