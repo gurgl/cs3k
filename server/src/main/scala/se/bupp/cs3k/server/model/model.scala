@@ -682,7 +682,8 @@ trait HasNewsItemFields extends Serializable {
   new NamedQuery(name = "NewsItem.findAll.count", query = "select count(*)" + " from NewsItem n where n.dateTime between :startDate and :endDate "),
 
   new NamedQuery(name = "NewsItem.findByUser", query = "select un" + " from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate order by n.dateTime desc"),
-  new NamedQuery(name = "NewsItem.findByUser.count", query = "select count(*)" +" from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate ")
+  new NamedQuery(name = "NewsItem.findByUser.count", query = "select count(*)" +" from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate "),
+  new NamedQuery(name = "NewsItem.findUnreadByUser.count", query = "select count(*)" +" from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate and un.seen = false")
 ))
 @Entity
 class NewsItem(_competition:Competition,_t1:Competitor,_t2:Competitor,_m:NewsItemType,_s:CompetitionState, _date:Instant) extends HasNewsItemFields {

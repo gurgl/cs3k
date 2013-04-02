@@ -22,6 +22,7 @@ import se.bupp.cs3k.server.web.component.game.GameResultList
 import se.bupp.cs3k.server.web.component.{NewsItemList, PlayerOpenLobbiesPanel}
 import se.bupp.cs3k.server.web.component.contest.CompetitionParticipationList
 import se.bupp.cs3k.server.web.component.competitor.TeamMembershipList
+import se.bupp.cs3k.server.web.application.WiaSession
 
 /**
  * Created with IntelliJ IDEA.
@@ -48,6 +49,8 @@ class PlayerOverview(id:String, modl:IModel[User]) extends Panel(id) {
 
   import scala.collection.JavaConversions.seqAsJavaList
   var all  = new ListModel(resultService.findResultsByCompetitor(modl.getObject))
+
+
 
   /*add(new ListView("lastGames", all) {
     def populateItem(item: ListItem[GameResult]) {
@@ -88,4 +91,11 @@ class PlayerOverview(id:String, modl:IModel[User]) extends Panel(id) {
   }
   //val listModel = new ListModel[HasNewsItemFields](gameNewsService.getPlayerLatestMessages(model.getObject,new Instant))
   add(new NewsItemList("userNews",provider));
+
+  override def onAfterRender() {
+    super.onAfterRender()
+    Option(WiaSession.get().getUser).foreach( u =>
+      if (modl.getObject.id == u.id) userNewsItemDao.markAllAsRead(u)
+    )
+  }
 }

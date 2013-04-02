@@ -253,6 +253,11 @@ class UserNewsItemDao extends GenericDaoImpl[UserNewsItem](classOf[UserNewsItem]
     criteriaQuery.select(criteriaBuilder.count(from));
     em.createQuery(select)
   }*/
+  def markAllAsRead(u:User) {
+    val q = em.createQuery("update UserNewsItem un set un.seen = true where un.user = :user")
+    q.setParameter("user",u)
+    q.executeUpdate()
+  }
 }
 
 @Repository
@@ -314,6 +319,13 @@ class NewsItemDao extends GenericDaoImpl[NewsItem](classOf[NewsItem]) {
 
   def findByUserCount(u:User, i:Interval) = {
     val q = em.createNamedQuery("NewsItem.findByUser.count",classOf[java.lang.Long])
+    q.setParameter("user",u)
+    q.setParameter("startDate",i.getStart.toInstant)
+    q.setParameter("endDate",i.getEnd.toInstant)
+    q.getSingleResult
+  }
+  def findUnreadByUserCount(u:User, i:Interval) = {
+    val q = em.createNamedQuery("NewsItem.findUnreadByUser.count",classOf[java.lang.Long])
     q.setParameter("user",u)
     q.setParameter("startDate",i.getStart.toInstant)
     q.setParameter("endDate",i.getEnd.toInstant)

@@ -73,6 +73,7 @@ class NewsItemList[T <: HasNewsItemFields](id:String, m:SortableDataProvider[T,S
         val component: Component = createMessage(news, p2)
         //container.add(component)
         item.add(component)
+        component.add(new AttributeAppender("style",new Model("" + (if(!news.seen) "font-weight:bold;" else "")),";"))
 
 
       }

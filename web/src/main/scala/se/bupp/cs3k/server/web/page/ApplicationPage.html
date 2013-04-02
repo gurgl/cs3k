@@ -7,7 +7,9 @@
     <body>
     <wicket:extend>
 
-
+        <div wicket:id="notificationNotifier" style="z-index:10;position:absolute;">
+          <div style="background-color:#f00;color:#fff;font-weight: bold;margin:0px 2px;padding:1px 4px;opacity:0.5;" wicket:id="notifier"></div>
+        </div>
         <div class="section_menu">
             <ul  class="nav nav-tabs">
                 <li wicket:id="menu"><a wicket:id="link" ><span wicket:id="linkLabel"></span></a></li>
