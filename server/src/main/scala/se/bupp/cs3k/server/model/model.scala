@@ -670,25 +670,19 @@ trait HasNewsItemFields extends Serializable {
 
 
 
-object NewsItemQ {
-  final val findByUser: String = " from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate"
-  final val findByCompetition: String = " from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate"
-  final val findByTeam: String = " from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate"
-  final val findAll: String = " from NewsItem n where n.dateTime between :startDate and :endDate"
-}
 
 @NamedQueries(Array(
-  new NamedQuery(name = "NewsItem.findByCompetition", query = "select n" + " from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate"),
-  new NamedQuery(name = "NewsItem.findByCompetition.count", query = "select count(*)" + " from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate"),
+  new NamedQuery(name = "NewsItem.findByCompetition", query = "select n" + " from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate order by n.dateTime desc"),
+  new NamedQuery(name = "NewsItem.findByCompetition.count", query = "select count(*)" + " from NewsItem n where n.competition = :competition and n.dateTime between :startDate and :endDate "),
 
-  new NamedQuery(name = "NewsItem.findByTeam", query = "select n" + " from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate"),
-  new NamedQuery(name = "NewsItem.findByTeam.count", query = "select count(*)" + " from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate"),
+  new NamedQuery(name = "NewsItem.findByTeam", query = "select n" + " from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate order by n.dateTime desc"),
+  new NamedQuery(name = "NewsItem.findByTeam.count", query = "select count(*)" + " from NewsItem n where n.competitor1 = :team and n.dateTime between :startDate and :endDate "),
 
-  new NamedQuery(name = "NewsItem.findAll", query = "select n" + " from NewsItem n where n.dateTime between :startDate and :endDate"),
-  new NamedQuery(name = "NewsItem.findAll.count", query = "select count(*)" + " from NewsItem n where n.dateTime between :startDate and :endDate"),
+  new NamedQuery(name = "NewsItem.findAll", query = "select n" + " from NewsItem n where n.dateTime between :startDate and :endDate order by n.dateTime desc"),
+  new NamedQuery(name = "NewsItem.findAll.count", query = "select count(*)" + " from NewsItem n where n.dateTime between :startDate and :endDate "),
 
-  new NamedQuery(name = "NewsItem.findByUser", query = "select un" + " from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate"),
-  new NamedQuery(name = "NewsItem.findByUser.count", query = "select count(*)" +" from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate")
+  new NamedQuery(name = "NewsItem.findByUser", query = "select un" + " from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate order by n.dateTime desc"),
+  new NamedQuery(name = "NewsItem.findByUser.count", query = "select count(*)" +" from UserNewsItem un inner join un.newsItem n where un.user = :user and n.dateTime between :startDate and :endDate ")
 ))
 @Entity
 class NewsItem(_competition:Competition,_t1:Competitor,_t2:Competitor,_m:NewsItemType,_s:CompetitionState, _date:Instant) extends HasNewsItemFields {

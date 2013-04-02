@@ -6,9 +6,12 @@ import org.specs2.mutable.Specification
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.support.FileSystemXmlApplicationContext
 import server.model._
+import server.model.CompetitionParticipantPk
+import server.model.GameParticipationPk
 import server.model.GameParticipationPk
 import server.model.Ladder
 import server.model.CompetitionParticipantPk
+import server.model.User
 import server.model.User
 import server.service.dao._
 import org.springframework.orm.jpa.JpaTransactionManager
@@ -19,6 +22,8 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import scala.Some
 import server.service.CompetitionService
+import scala.Some
+import org.joda.time.{Interval, Instant}
 
 /**
  * Created with IntelliJ IDEA.
@@ -283,6 +288,18 @@ class DbTest extends Specification {
 
     "handle ladders" in {
 
+    }
+
+    "handle news" in {
+      withTx {
+        case (txMgr, factory) => {
+          var newsItemDao = factory.getBean(classOf[NewsItemDao])
+          newsItemDao.findAll(new Interval(new Instant(),new Instant()),1 until 20)
+
+          newsItemDao.findAllCount(new Interval(new Instant(),new Instant()))
+          1 === 1
+        }
+      }
     }
   }
 }

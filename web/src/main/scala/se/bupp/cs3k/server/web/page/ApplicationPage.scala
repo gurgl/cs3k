@@ -69,7 +69,7 @@ class ApplicationPage extends SessionPage {
       (COMPETITORS_MENU_ITEM, (s: String) => new CompetitorPanel(s, new Model(None)))
     ) ++ (
       if (WiaSession.get().getUser != null) {
-        List(("Me", (s: String) => new PlayerPanel(s)))
+        List(("Me", (s: String) => new PlayerPanel(s,new Model(WiaSession.get().getUser))))
       } else Nil
       )
   }

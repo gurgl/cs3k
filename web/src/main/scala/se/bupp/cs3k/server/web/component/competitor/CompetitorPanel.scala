@@ -2,7 +2,7 @@ package se.bupp.cs3k.server.web.component.competitor
 
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.{LoadableDetachableModel, Model}
-import player.PlayerOverview
+import player.{PlayerPanel, PlayerOverview}
 import se.bupp.cs3k.server.model.{User, Team, Ladder}
 import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.markup.html.basic.Label
@@ -70,7 +70,7 @@ class CompetitorPanel(id:String,eventOpt:Model[Option[AbstractCompetitorEvent]])
               val model = new Model[User](u)
               val createComponent = (id:String, m:Model[_]) => {
                 var ladMod = m.asInstanceOf[Model[User]]
-                new PlayerOverview(id, ladMod)
+                new PlayerPanel(id, ladMod)
               }
             }
             (newItem,lse.target,1)

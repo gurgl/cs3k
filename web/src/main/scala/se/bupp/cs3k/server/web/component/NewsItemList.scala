@@ -70,20 +70,23 @@ class NewsItemList[T <: HasNewsItemFields](id:String, m:SortableDataProvider[T,S
     new AbstractColumn[T, String](new Model("blubb")) {
       def populateItem(item: Item[ICellPopulator[T]], p2: String, p3: IModel[T]) {
         val news: HasNewsItemFields = p3.getObject
-        //val container: WebMarkupContainer = new WebMarkupContainer("item")
-        val label = new DateLabel(p2, new Model(news.dateTime), dataConv)
-        label.add(new AttributeAppender("class",new Model("small"),";"))
-        label.add(new AttributeAppender("style",new Model("color:#aaa"),";"))
-        item.add(label)
+        val component: Component = createMessage(news, p2)
+        //container.add(component)
+        item.add(component)
+
+
       }
     },
     new AbstractColumn[T, String](new Model("blubb")) {
-      def populateItem(item: Item[ICellPopulator[T]], p2: String, p3: IModel[T]) {
-          val news: HasNewsItemFields = p3.getObject
-          val component: Component = createMessage(news, p2)
-          //container.add(component)
-          item.add(component)
 
+      def populateItem(item: Item[ICellPopulator[T]], p2: String, p3: IModel[T]) {
+        val news: HasNewsItemFields = p3.getObject
+        //val container: WebMarkupContainer = new WebMarkupContainer("item")
+        val label = new DateLabel(p2, new Model(news.dateTime), dataConv)
+        //label.add(new AttributeAppender("class",new Model("small"),";"))
+        label.add(new AttributeAppender("style",new Model("color:#aaa;font-size:11px;"),";"))
+        item.add(label)
+        item.add(new AttributeAppender("style",new Model("text-align:right;"),";"))
       }
     }
   )
