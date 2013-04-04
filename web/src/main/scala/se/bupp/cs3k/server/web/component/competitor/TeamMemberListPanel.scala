@@ -16,6 +16,7 @@ import se.bupp.cs3k.server.web.component.generic.AjaxLinkLabel
 import se.bupp.cs3k.server.web.component.generic.table.NiceDataTable
 import se.bupp.cs3k.server.web.component.contest.Events
 import Events.CompetitorSelectedEvent
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar
 
 
 /**
@@ -27,23 +28,25 @@ import Events.CompetitorSelectedEvent
   */
 class TeamMemberListPanel(id:String, provider:SortableDataProvider[TeamMember,String]) extends Panel(id) {
 
-   @SpringBean
-   var teamDao:UserDao = _
+  @SpringBean
+  var teamDao:UserDao = _
 
-   val columns = List[IColumn[TeamMember,String]] (
-     new AbstractColumn[TeamMember,String](new Model("Name"))
-     {
-       def populateItem(cellItem:Item[ICellPopulator[TeamMember]], componentId:String, model:IModel[TeamMember])
-       {
-         cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"id.user.username")) {
-           def onClick(target: AjaxRequestTarget) {
-             send(getPage(), Broadcast.BREADTH, new CompetitorSelectedEvent(model.getObject.id.user, target));
-           }
-         });
-       }
-     },
+  val columns = List[IColumn[TeamMember,String]] (
+    new AbstractColumn[TeamMember,String](new Model("Name"))
+    {
+      def populateItem(cellItem:Item[ICellPopulator[TeamMember]], componentId:String, model:IModel[TeamMember])
+      {
+        cellItem.add(new AjaxLinkLabel(componentId, new PropertyModel(model,"id.user.username")) {
+         def onClick(target: AjaxRequestTarget) {
+           send(getPage(), Broadcast.BREADTH, new CompetitorSelectedEvent(model.getObject.id.user, target));
+         }
+        });
+      }
+    },
      new PropertyColumn(new Model("Members"),"id.user.username")
+  )
 
-   )
-   add(new NiceDataTable("table", columns, provider, 8))
+  var table: NiceDataTable[TeamMember, String] = new NiceDataTable("table", columns, provider, 8)
+  add(table)
+
  }

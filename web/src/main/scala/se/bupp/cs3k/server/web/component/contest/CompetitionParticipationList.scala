@@ -13,6 +13,7 @@ import org.apache.wicket.event.Broadcast
 import Events.CompetitionSelectedEvent
 import se.bupp.cs3k.server.model.User
 import se.bupp.cs3k.server.web.component.generic.{FodelPropertyColumn, AjaxLinkLabel}
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar
 
 /**
  * Created with IntelliJ IDEA.
@@ -70,6 +71,7 @@ class CompetitionParticipationList(id:String, mod:IModel[User]) extends Panel(id
   }
 
   var table = new DataTable("table", columns, challanges, 8)
+  table.addTopToolbar(new AjaxFallbackHeadersToolbar(table,challanges))
   add(table)
 
 

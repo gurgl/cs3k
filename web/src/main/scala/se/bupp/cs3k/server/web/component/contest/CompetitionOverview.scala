@@ -1,7 +1,7 @@
 package se.bupp.cs3k.server.web.component.contest
 
 import org.apache.wicket.ajax.AjaxRequestTarget
-import org.apache.wicket.model.{LoadableDetachableModel, IModel}
+import org.apache.wicket.model.{PropertyModel, LoadableDetachableModel, IModel}
 import se.bupp.cs3k.server.model.{HasNewsItemFields, GameResult, Competition}
 import org.apache.wicket.markup.html.panel.Panel
 import org.apache.wicket.model.util.ListModel
@@ -21,6 +21,7 @@ import se.bupp.cs3k.server.service.dao.NewsItemDao
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
 import se.bupp.cs3k.server.web.component.{NewsItemList}
 import se.bupp.cs3k.server.web.application.WiaSession
+import org.apache.wicket.markup.html.basic.Label
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,7 +44,7 @@ class CompetitionOverview(cId:String ,modl:IModel[Competition]) extends Panel(cI
   @SpringBean
   var newsItemDao:NewsItemDao = _
 
-  @LoggedInOnly
+  @LoggedInOnly(isAdmin = true)
   class COJoinLadderPanel(id:String, m:IModel[Competition]) extends JoinCompetitionPanel(id,m) {
     override def isVisible = super.isVisible && List(CompetitionState.SIGNUP).contains(modl.getObject.state)
     def onUpdate(t: AjaxRequestTarget) {
@@ -57,6 +58,7 @@ class CompetitionOverview(cId:String ,modl:IModel[Competition]) extends Panel(cI
     add(new BookmarkablePageLink[String]("login",classOf[SigninPage]))
   }
 
+  add(new Label("name", new PropertyModel(modl,"name")))
   add(new COJoinLadderPanel("joinPanel",modl))
   add(new LoginToJoin("loginToJoin"))
 

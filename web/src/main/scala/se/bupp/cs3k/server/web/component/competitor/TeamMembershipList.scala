@@ -18,6 +18,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget
 import org.apache.wicket.event.Broadcast
 import se.bupp.cs3k.server.web.component.generic.AjaxLinkLabel
 import se.bupp.cs3k.server.web.component.contest.Events.CompetitorSelectedEvent
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar
 
 
 /**
@@ -54,7 +55,7 @@ class TeamMembershipList(id:String, mod:IModel[User]) extends Panel(id) {
 
   )
 
-  var challanges = new ISortableDataProvider[TeamMember,String] {
+  var provider = new ISortableDataProvider[TeamMember,String] {
     def detach() {}
     import scala.collection.JavaConversions.asJavaIterator
     def iterator(p1: Long, p2: Long) = teamDao.findUserTeamMemberships(mod.getObject,p1,p2).toIterator
@@ -68,6 +69,7 @@ class TeamMembershipList(id:String, mod:IModel[User]) extends Panel(id) {
     def getSortState = null
   }
 
-  var table = new DataTable("table", columns, challanges, 8)
+  var table = new DataTable("table", columns, provider, 8)
+  table.addTopToolbar(new AjaxFallbackHeadersToolbar(table,provider))
   add(table)
 }

@@ -5,7 +5,7 @@ import org.apache.wicket.model.util.ListModel
 import org.apache.wicket.spring.injection.annot.SpringBean
 import se.bupp.cs3k.server.service.{GameNewsService, ResultService}
 import org.apache.wicket.ajax.AjaxRequestTarget
-import org.apache.wicket.model.{LoadableDetachableModel, IModel}
+import org.apache.wicket.model.{PropertyModel, LoadableDetachableModel, IModel}
 import se.bupp.cs3k.server.model.{NewsItem, UserNewsItem, HasNewsItemFields, Team}
 import org.joda.time.Instant
 import se.bupp.cs3k.server.service.dao.NewsItemDao
@@ -13,6 +13,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import se.bupp.cs3k.server.web.component.{NewsItemList}
 import se.bupp.cs3k.server.web.component.game.GameResultList
 import se.bupp.cs3k.server.web.application.WiaSession
+import org.apache.wicket.markup.html.basic.Label
 
 /**
  * Created with IntelliJ IDEA.
@@ -50,6 +51,7 @@ class CompetitorOverview(id:String, m:IModel[Team]) extends Panel(id) {
       def load() = newsItemDao.find(p1.id).get
     }
   }
+  add(new Label("name", new PropertyModel(m,"name")))
   //val listModel = new ListModel[HasNewsItemFields](gameNewsService.getTeamLatestMessages(m.getObject,new Instant))
   add(new NewsItemList("news",provider))
 

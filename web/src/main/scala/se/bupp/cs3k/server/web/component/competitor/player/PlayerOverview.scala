@@ -13,7 +13,7 @@ import org.apache.wicket.request.resource.ResourceReference
 import org.apache.wicket.markup.html.link.ResourceLink
 import org.apache.wicket.MarkupContainer
 import org.apache.wicket.markup.{ComponentTag, MarkupStream}
-import org.apache.wicket.model.{LoadableDetachableModel, IModel, Model}
+import org.apache.wicket.model.{PropertyModel, LoadableDetachableModel, IModel, Model}
 import org.joda.time.Instant
 import se.bupp.cs3k.server.service.dao.{UserNewsItemDao, NewsItemDao}
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider
@@ -23,6 +23,7 @@ import se.bupp.cs3k.server.web.component.{NewsItemList, PlayerOpenLobbiesPanel}
 import se.bupp.cs3k.server.web.component.contest.CompetitionParticipationList
 import se.bupp.cs3k.server.web.component.competitor.TeamMembershipList
 import se.bupp.cs3k.server.web.application.WiaSession
+import org.apache.wicket.markup.html.basic.Label
 
 /**
  * Created with IntelliJ IDEA.
@@ -68,7 +69,9 @@ class PlayerOverview(id:String, modl:IModel[User]) extends Panel(id) {
     }
   })*/
 
+
   val isRenderedByUserHimself = Option(WiaSession.get().getUser).exists( u => modl.getObject.id == u.id)
+  add(new Label("name", new PropertyModel(modl,"username")))
 
   add(new GameResultList("lastGames", all))
 

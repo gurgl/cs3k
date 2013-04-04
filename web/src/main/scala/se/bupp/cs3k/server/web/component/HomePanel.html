@@ -7,14 +7,14 @@
 <body>
     <wicket:panel>
 
-        <h4>Play</h4>
+        <h3>Play</h3>
         <br>
         <div class="alert alert-info">
             <!--button wicket:id="logged_in_launch_btn">Launch</button-->
 
 
             <ul class="inline" style="margin:0px 0px">
-            <li><h5 class="inline">Play now</h5></li>
+            <li><h4 class="inline">Play now</h4></li>
                 <li>
             <form  wicket:id="loggedInForm" class="form-inline" style="margin:0px 0px">
                 Play As: <select wicket:id="competitorSelect"/>
@@ -31,23 +31,23 @@
         </div>
 
         <!--div class="alert alert-success">
-            <h5>Ladders</h5>
+            <h4>Ladders</h4>
         </div-->
 
         <!--div class="alert alert-error">
-            <h5>Tournaments</h5>
+            <h4>Tournaments</h4>
         </div-->
 
       <wicket:enclosure child="openCompetitions">
         <div class="alert alert-success" >
-          Contests open for registration
+          <h4>Contests open for registration</h4>
           <div wicket:id="openCompetitions"></div>
         </div>
       </wicket:enclosure>
 
         <wicket:enclosure child="challangePanel">
           <div class="alert alert-warning" >
-            Your open competition games
+            <h4>Your open competition games</h4>
             <wicket:container wicket:id="challangePanel"></wicket:container>
 
           </div>
@@ -64,9 +64,9 @@
             <div class="row">
                 <div class="span12">
                     <div class="row">
-                        <div class="span4"><h5>Latest Anon</h5></div>
-                        <div class="span4"><h5>Latest Competition</h5></div>
-                        <div class="span4"><h5>News</h5></div>
+                        <div class="span4"><h4>Latest Anon</h4></div>
+                        <div class="span4"><h4>Latest Competition</h4></div>
+                        <div class="span4"><h4>News</h4></div>
                     </div>
                     <div class="row">
                         <div class="span4 score-col"><div wicket:id="latestAnonScores"></div></div>

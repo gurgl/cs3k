@@ -20,6 +20,7 @@ public final class WiaAuthorizationStrategy implements
       Class<? extends Component> c = component.getClass();
 
       LoggedInOnly loggedInOnly = c.getAnnotation(LoggedInOnly.class);
+
       AnonymousOnly anonymousOnly = c.getAnnotation(AnonymousOnly.class);
       if (loggedInOnly != null || anonymousOnly != null) {
         User user = WiaSession.get().getUser();

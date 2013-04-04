@@ -113,7 +113,7 @@ object ExampleScoreScheme {
         }
         case _ => "BLA"
       }
-      s"<tr><th></th><th>${competitorTotalColHeaders()(0)}</th><th>${competitorTotalColHeaders()(1)}</th><th>${competitorTotalColHeaders()(2)}</th></tr>" + res.mkString("")
+      s"<thead><tr><th></th><th>${competitorTotalColHeaders()(0)}</th><th>${competitorTotalColHeaders()(1)}</th><th>${competitorTotalColHeaders()(2)}</th></tr></thead><tbody>" + res.mkString("") + "</tbody>"
     }
   }
 

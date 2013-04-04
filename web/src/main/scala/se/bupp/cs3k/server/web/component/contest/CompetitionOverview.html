@@ -1,8 +1,8 @@
 <wicket:panel>
 
+  <h3>Contest <span wicket:id="name"/></h3>
   <wicket:enclosure child="joinPanel">
     <div class="alert alert-warning">
-      <h5>Join now!</h5>
       <div wicket:id="joinPanel"></div>
     </div>
   </wicket:enclosure>
@@ -18,17 +18,17 @@
     </div>
   </wicket:enclosure>
 
-  <hr>
+  <hr/>
 
   <div class="row">
-    <div class="span4">
-      <h5>Latest Results</h5>
+    <div class="span5">
+      <h4>Latest Results</h4>
       <div wicket:id="lastGames">
         <div wicket:id="item"></div>
       </div>
     </div>
-    <div class="span4">
-      <h5>News</h5>
+    <div class="span5">
+      <h4>News</h4>
       <div wicket:id="news"></div>
     </div>
   </div>

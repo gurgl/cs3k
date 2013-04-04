@@ -237,7 +237,7 @@ class ResultService {
     import scala.collection.JavaConversions.mapAsJavaMap
     val competitorsByName = getCompetitorsByName(gs)
     val value: ExContestScore = om.readValue(gs.resultSerialized, classOf[ExContestScore])
-    val markup = "<table class=\"table table-striped\"><tbody>" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</tbody></table>"
+    val markup = "<table class=\"bzzt table table-striped\">" + ExampleScoreScheme.ExScoreScheme.renderToHtml(value,competitorsByName) + "</table>"
     markup
   }
 
