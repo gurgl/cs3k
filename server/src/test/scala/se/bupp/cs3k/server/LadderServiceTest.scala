@@ -248,6 +248,48 @@ class LadderServiceTest extends Specification with Mockito {
       1 === 1
     }
 
+
+    "verify state change" in new InApplicationContext with TestDataGameSetup {
+      var competitionDao = factory.getBean(classOf[CompetitionDao])
+      var competitionService = factory.getBean(classOf[CompetitionService])
+
+      var competitorService = factory.getBean(classOf[CompetitorService])
+
+      (0 until 10).foreach ( i => competitorService.createTeam(new Team(i.toString)))
+
+      var teamDao = factory.getBean(classOf[TeamDao])
+      teamDao.findAll.size == 10
+
+
+      var tournament = new Tournament("lal", CompetitorType.INDIVIDUAL, gst, CompetitionState.SIGNUP)
+
+      competitionService.storeCompetition(tournament)
+
+
+      teamDao.findAll.foreach { case t:Team =>
+        competitionService.addCompetitorToCompetition(t,tournament)
+      }
+
+      var numOfPlayers:Int = -1
+      var tournamentPrim:Tournament = null
+      doInTx {
+        tournamentPrim = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
+
+        numOfPlayers = tournamentPrim.participants.size
+      }
+      numOfPlayers === 10
+
+      competitionService.startTournament(tournamentPrim)
+
+      var tournamentBis:Tournament = null
+      doInTx {
+        tournamentBis = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
+      }
+
+      tournamentBis.state === CompetitionState.RUNNING
+    }
+
+
     "asdf" in new InApplicationContext with TestDataGameSetup {
       var competitionDao = factory.getBean(classOf[CompetitionDao])
       var competitionService = factory.getBean(classOf[CompetitionService])
@@ -279,6 +321,13 @@ class LadderServiceTest extends Specification with Mockito {
       numOfPlayers === 10
 
       competitionService.startTournament(tournamentPrim)
+
+      var tournamentBis:Tournament = null
+      doInTx {
+        tournamentBis = competitionDao.find(tournament.id).get.asInstanceOf[Tournament]
+      }
+
+      tournamentBis.state === CompetitionState.RUNNING
 
       var layout = competitionService.createLayout2(tournamentPrim)
       layout must haveTheSameElementsAs(

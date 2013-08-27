@@ -346,7 +346,7 @@ class IntegrationTest extends Specification with Mockito {
 
 
       gameServerFacade.endGame(sessionId,"""{"@class":"se.bupp.cs3k.example.ExampleScoreScheme$ExContestScore","s":{"1000":{"a":10,"b":30},"1001":{"a":2,"b":40}}}""")
-      there was one(gameResultService.gameLog).write("<tr><th></th><th>Kills</th><th>Diff Kills</th><th>Trophys</th></tr><tr><td>Tjing</td><td>2</td><td>0</td><td>40</td></tr><tr><td>Ena</td><td>10</td><td>0</td><td>30</td></tr>")
+      there was one(gameResultService.gameLog).write("<thead><tr><th></th><th>Kills</th><th>Diff Kills</th><th>Trophys</th></tr></thead><tbody><tr><td>Tjing</td><td>2</td><td>0</td><td>40</td></tr><tr><td>Ena</td><td>10</td><td>0</td><td>30</td></tr></tbody>")
 
 
 
