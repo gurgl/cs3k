@@ -1,0 +1,53 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <persistence-unit name="MyPersistenceUnit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+        <class>se.bupp.cs3k.server.model.Competitor</class>
+        <class>se.bupp.cs3k.server.model.CompetitionParticipant</class>
+        <class>se.bupp.cs3k.server.model.CompetitionParticipantPk</class>
+
+        <class>se.bupp.cs3k.server.model.Competition</class>
+        <class>se.bupp.cs3k.server.model.Ladder</class>
+        <class>se.bupp.cs3k.server.model.Tournament</class>
+
+
+        <class>se.bupp.cs3k.server.model.TournamentStageQualifier</class>
+        <class>se.bupp.cs3k.server.model.LadderGame</class>
+        <class>se.bupp.cs3k.server.model.CompetitionGame</class>
+        <class>se.bupp.cs3k.server.model.User</class>
+        <class>se.bupp.cs3k.server.model.Team</class>
+        <class>se.bupp.cs3k.server.model.TeamMember</class>
+        <class>se.bupp.cs3k.server.model.GameType</class>
+        <class>se.bupp.cs3k.server.model.GameSetupType</class>
+        <class>se.bupp.cs3k.server.model.GameOccassion</class>
+        <class>se.bupp.cs3k.server.model.GameResult</class>
+        <class>se.bupp.cs3k.server.model.GameParticipation</class>
+        <class>se.bupp.cs3k.server.model.GameParticipationPk</class>
+
+
+        <class>se.bupp.cs3k.server.model.UserNewsItem</class>
+        <class>se.bupp.cs3k.server.model.NewsItem</class>
+
+        <properties>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+            <property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
+            <property name="hibernate.connection.url" value="jdbc:hsqldb:file:web/src/test/resources/testtourdb/mydb;shutdown=true;files_readonly=true"/>
+            <property name="hibernate.connection.username" value="sa"/>
+            <property name="hibernate.connection.password" value=""/>
+            <!--
+            <property name="hibernate.c3p0.min_size" value="5"/>
+            <property name="hibernate.c3p0.max_size" value="20"/>
+            <property name="hibernate.c3p0.timeout" value="300"/>
+            <property name="hibernate.c3p0.max_statements" value="50"/>
+            <property name="hibernate.c3p0.idle_test_period" value="3000"/>
+            -->
+        </properties>
+
+    </persistence-unit>
+
+</persistence>

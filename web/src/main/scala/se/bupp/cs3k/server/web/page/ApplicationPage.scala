@@ -40,7 +40,7 @@ import java.lang.Long
  * To change this template use File | Settings | File Templates.
  */
 
-class ApplicationPage extends SessionPage {
+class ApplicationPage() extends SessionPage {
 
   @SpringBean
   var gameNewsDao:NewsItemDao = _

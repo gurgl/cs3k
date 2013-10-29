@@ -104,8 +104,8 @@ object MyBuild extends Build {
       "org.slf4j" % "slf4j-log4j12" % "1.6.4",
       "log4j" % "log4j" % "1.2.16",
       "javax.servlet" % "servlet-api" % "2.5" % "provided",
-      "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container",
-      "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container",
+      "org.eclipse.jetty.aggregate" % "jetty-server" % "8.1.0.v20120127" % "container,test",
+      "org.eclipse.jetty.aggregate" % "jetty-webapp" % "8.1.0.v20120127" % "container,test",
       "org.apache.commons" % "commons-exec" % "1.1"
     ) ++ Seq(
       "org.springframework" % "spring-core" % "3.1.2.RELEASE",
@@ -125,6 +125,7 @@ object MyBuild extends Build {
       //"org.wicketstuff" % "wicketstuff-inmethod-grid" % WICKET_VERSION exclude("org.apache.wicket","wicket-core"),
       "com.fasterxml.jackson.core" % "jackson-core" % "2.1.0",
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.1.0",
+      "org.apache.httpcomponents" % "httpclient" % "4.3.1",
       "org.hsqldb" % "hsqldb" % "2.2.9"
     ) ++ Seq(
       "junit" % "junit" % "4.10" % "test",

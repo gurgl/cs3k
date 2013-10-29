@@ -211,8 +211,15 @@ class HomePanel(id:String) extends Panel(id) {
 
 
   //val lobbyJnlpFile = new ContextRelativeResource("./Test.jnlp?port=12345")
-  val lobbyJnlpFile = new ContextRelativeResource("./lobbyX.jnlp")
-  val jnlpXML: String = new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
+
+
+  val jnlpXML: String = try {
+    val lobbyJnlpFile = new ContextRelativeResource("./lobbyX.jnlp")
+    new Scanner(lobbyJnlpFile.getCacheableResourceStream.getInputStream).useDelimiter("\\A").next
+  } catch {
+    case e => e.printStackTrace() ; ""
+
+  }
 
 
   var button: Button = _
